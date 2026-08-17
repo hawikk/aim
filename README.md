@@ -285,7 +285,9 @@ These are non-negotiable design constraints, enforced in code and tests:
   the managed `enforcement.json` bundle (`mode: enforce` for
   `secret-pattern-in-prompt` only; other rules stay shadow). Cursor, Kilo Code,
   Kimi Code, Grok Build and GitHub Copilot are observe-only; see
-  `collectors/parity-matrix.json` for the per-collector capability matrix. Real blocks and
+  [`docs/security/enforcement-capability-matrix.md`](docs/security/enforcement-capability-matrix.md)
+  for the per-collector table, backed structurally by
+  `collectors/parity-matrix.json`. Real blocks and
   shadow decisions are audited on usage events as
   `enforcement: {action, rule_id, policy_hash}` (`blocked` | `would_block` |
   `confirmed`). A missing bundle fail-opens to observe. **Fleet enforce

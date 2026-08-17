@@ -30,6 +30,7 @@ reading before anything else.
 | [`privacy/auditor-privacy-overview.md`](privacy/auditor-privacy-overview.md) | The same ground, framed for an auditor |
 | [`security/adr-no-semantic-content-classifiers.md`](security/adr-no-semantic-content-classifiers.md) | Why detection is pattern-based rather than model-based |
 | [`security/adr-independence-from-agent-loop.md`](security/adr-independence-from-agent-loop.md) | Why monitoring does not sit inside the agent loop |
+| [`security/enforcement-capability-matrix.md`](security/enforcement-capability-matrix.md) | Which collectors can actually block, and which only observe |
 
 ## Deployment
 
