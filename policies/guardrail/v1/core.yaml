@@ -218,8 +218,7 @@ settings:
       # Phase 2a. PreToolUse: deny file-touching tool calls
       # (file_path/path/notebook_path) under a restricted root. Bash free
       # text is out of scope at the endpoint. flipped the *pilot
-      # overlay* to enforce; this fleet default stays false. Break-glass:
-      #.
+      # overlay* to enforce; this fleet default stays false.
       restricted-repo-access:
         enforce: false
       # Phase 2a (gated). UserPromptSubmit: confirm-prompt when any
