@@ -40,7 +40,7 @@ REQUIRED_EVENT_FIELDS = ("schema_version", "event_id", "ts", "host_ref", "tool",
 LLM_JUDGE_DEMO_SNIPPETS = [
     "aws_access_key_id = AKIAIOSFODNN7EXAMPLE",
     "API_KEY = \"placeholder-do-not-commit\"",
-    "password = hunter2  # TODO rotate before launch",
+    "password = \"example-placeholder-password\"",
     "-----BEGIN OPENSSH PRIVATE KEY----- (redacted sample in docs)",
     "TRIGGER_ERROR simulated provider outage",
 ]

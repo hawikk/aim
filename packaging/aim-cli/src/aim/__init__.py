@@ -5,8 +5,8 @@ Kilo Code, Kimi Code) and the local dashboard behind a single `aim` CLI, so
 an engineer can `pipx install aimonitoring-security` and run `aim personal`
 with no repo clone and no infrastructure.
 
-The distribution name on PyPI / GitHub Releases is ``aimonitoring-security``
-(D-489-3); the ``aim`` name on PyPI is an unrelated AimStack project. The
+The distribution name on PyPI / GitHub Releases is ``aimonitoring-security``;
+the ``aim`` name on PyPI is an unrelated AimStack project. The
 import package and console script remain ``aim``. Runtime is stdlib-only; the
 collector source is vendored verbatim (no binaries) under `aim/_vendor/`.
 

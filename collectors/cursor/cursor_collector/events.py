@@ -298,7 +298,7 @@ def _base_event(
         "event_id": str(uuid.uuid4()),
         "ts": _now_iso(),
         "host_ref": host_ref(),
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": model,

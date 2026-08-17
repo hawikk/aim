@@ -23,7 +23,7 @@ This is the path-to-10 residual for *Continuous tool-version matrix CI* (coding-
 | `cursor` | `state_file` | `tool_version` text file |
 | `kilo_code` | `vscode_extension_dir` | `extensions/kilocode.kilo-code-<ver>/package.json` via `AIM_KILO_EXTENSION_DIR` |
 | `kimi_code` | `kimi_install_json` | `updates/install.json` → `lastSuccess.version` via `AIM_KIMI_HOME` |
-| `grok_build` | `adapter_compose` | `paperclip-<adapter_type>/<collector __version__>` |
+| `grok_build` | `adapter_compose` | `<adapter_type>/<collector __version__>` |
 
 ## CI
 

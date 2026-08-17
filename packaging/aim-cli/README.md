@@ -6,12 +6,12 @@ behind a single `aim` command, so an engineer can install it with `pipx` and
 run `aim personal` — no repo clone, no `cd` into subdirectories, no
 infrastructure.
 
-This is the foundation of the magic-install epic; the rest of that
-epic's children hang off this artifact.
+This is the foundation of the one-command install path: fleet enrolment, the
+background watcher and `aim doctor` all build on this artifact.
 
 ## Install
 
-Distribution name is **`aimonitoring-security`** (D-489-3);
+Distribution name is **`aimonitoring-security`**;
 console script and import package remain **`aim`**. Do **not**
 `pipx install aim` — that PyPI name is AimStack's unrelated tracker.
 
@@ -57,8 +57,9 @@ refuses install on older interpreters; an import/CLI guard fails fast with a
 human message and a link to the install docs if an old interpreter somehow
 still loads the package.
 
-Runtime dependencies: **none**. The collectors are stdlib-only by contract,
-and this package adds nothing — installing the wheel pulls no transitive deps.
+Runtime dependencies: **none**. The wheel declares an empty dependency list,
+so install pulls no transitive packages. Collectors are written against the
+Python standard library.
 
 ## Use
 
@@ -169,7 +170,7 @@ and must never be hand-edited.
 
 ## Security posture
 
-Aligned with the epic's binding security bar:
+Binding security bar for this artifact:
 
 - **Versioned, file-auditable wheel/sdist** as the install artifact (reproducible
   build). The optional dashboard `enroll.sh` one-shot wraps pipx +

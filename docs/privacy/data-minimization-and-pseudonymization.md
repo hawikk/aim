@@ -32,9 +32,13 @@ enforcement of that decision.
   (`additionalProperties: false`): an event containing e.g. `prompt_text`
   fails validation and is rejected at ingestion. Regression-tested by
   `packages/schema/examples/invalid-content-field.json`.
-- Working directory paths (`cwd_hash` from the early draft was **dropped**:
-  `repo_ref` covers the restricted-repo use case; paths leak usernames and
-  project names).
+- Working directory paths in the clear (`cwd_hash` from the early draft was
+  **dropped**: `repo_ref` covers the restricted-repo use case; paths leak
+  usernames and project names). Note the current limitation: until
+  git-remote resolution lands, `repo_ref` is itself an HMAC of the
+  normalized working-directory path, so the path is still the input to a
+  keyed hash — it is one pseudonymized field instead of two, not the absence
+  of path-derived data.
 - Hostnames, IP addresses, usernames, email addresses anywhere in the event.
 - Keystrokes, screen content, idle time, or any non-AI-tool activity.
 
@@ -108,7 +112,12 @@ the security role, only for incident response, and is audited.
   - `user_ref` = HMAC of the Google Workspace user ID (immutable numeric ID,
     not email, so address changes don't break correlation)
   - `endpoint_id` = HMAC of the machine GUID (Intune device ID)
-  - `repo_ref` = HMAC of the normalized git remote URL
+  - `repo_ref` = HMAC of the normalized repo identity. The endpoint
+    collectors currently hash the normalized working-directory path, not the
+    git remote URL; remote resolution has not landed yet. Both forms are
+    pseudonymized identically and the raw path is never stored or
+    transmitted, but a `repo_ref` today identifies a checkout location rather
+    than a repository, so two clones of the same repo do not correlate.
 - **Salt management:** single company salt per environment, generated at
   deploy time, stored in the secrets manager (not in the repo, not in
   collector configs beyond what the endpoint needs to compute hashes).

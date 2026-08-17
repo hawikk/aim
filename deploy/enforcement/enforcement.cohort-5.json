@@ -26,13 +26,13 @@
     "ide"
   ],
   "restricted_repo_paths": [
-    "/home/vaque/dogfood/security-stack/secrets",
-    "/home/vaque/security-stack/secrets",
-    "/home/vaque/dogfood/security-stack/secrets/idp",
-    "/home/vaque/security-stack/secrets/idp",
-    "/home/vaque/dogfood/security-stack/secrets/gcp",
-    "/home/vaque/security-stack/secrets/gcp",
-    "/home/vaque/.aws"
+    "/opt/security-stack/secrets",
+    "/srv/security-stack/secrets",
+    "/opt/security-stack/secrets/idp",
+    "/srv/security-stack/secrets/idp",
+    "/opt/security-stack/secrets/gcp",
+    "/srv/security-stack/secrets/gcp",
+    "~/.aws"
   ],
   "pii_confirm_ttl_seconds": 120,
   "secret_override_ttl_seconds": 120

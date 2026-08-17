@@ -66,9 +66,9 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
   secret manager, separate from the database.
 - Rotation = deliberate re-key: old/new pseudonyms stop joining. Cost is accepted
   (historical dashboards remain valid at team level; user-level history is
-  re-derivable only via a privileged re-key job). Documented so Security can weigh
-  rotation cadence as a policy question — **I propose annual or on-incident
-  rotation; decision sits with Security/Legal.**
+  re-derivable only via a privileged re-key job). Rotation cadence is a policy
+  question for the deploying org; annual or on-incident is a reasonable
+  default.
 
 ## 5. Access control & audit
 

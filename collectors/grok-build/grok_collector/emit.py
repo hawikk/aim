@@ -1,21 +1,21 @@
-"""Emit metadata-only usage events for Grok Build / Paperclip runs.
+"""Emit metadata-only usage events for Grok Build runs.
 
 Sources of truth:
 
 1. Explicit CLI flags (--run-id, --model, --tokens-in/--tokens-out, ...)
-2. Paperclip heartbeat env: PAPERCLIP_RUN_ID, PAPERCLIP_AGENT_ID,
+2. Agent-runner heartbeat env: PAPERCLIP_RUN_ID, PAPERCLIP_AGENT_ID,
    PAPERCLIP_WORKSPACE_CWD, GROK_AGENT, adapter model from agent config if
    provided via --model or AIM_GROK_MODEL
 3. **Continuous token path (primary):** ``scan_usage_log`` tails
    ``~/.grok/logs/unified.jsonl`` ``shell.turn.inference_done`` lines and
    emits per-session token *deltas*. This covers all local Grok usage, not
-   only Paperclip heartbeats.
+   only agent-runner heartbeats.
 4. Optional per-run token resolve: only when
    ``AIM_GROK_RUN_TOKEN_RESOLVE=1`` or explicit ``AIM_GROK_TOKENS_IN/OUT`` /
    CLI tokens are set. Disabled by default so continuous tail + run resolve
    do not double-count the same turns. When enabled, re-emits use deltas
    against the prior cumulative total stored in the checkpoint.
-5. Continuous discovery (scan_once / aim watch): Paperclip run scratch dirs
+5. Continuous discovery (scan_once / aim watch): agent-runner scratch dirs
    under /tmp/paperclip-run-* plus /proc environ for live adapter mapping,
    then the continuous log tail.
 
@@ -32,7 +32,7 @@ from typing import Any
 
 from . import events, pricing, state, usage
 
-# Paperclip adapter_type → (schema tool, default provider, default model)
+# Agent-runner adapter_type → (schema tool, default provider, default model)
 # Only grok_local is emitted by this collector. claude_local / kimi_local are
 # tracked in the adapter map so aim watch / coverage can name them; their
 # native collectors (claude-code / kimi-code) own the event path.
@@ -42,7 +42,7 @@ _ADAPTER_DEFAULTS = {
     "kimi_local": ("kimi_code", "kimi", "kimi"),
 }
 
-# Scratch metadata files Paperclip writes per run (metadata only — no prompts).
+# Scratch metadata files The agent runner writes per run (metadata only — no prompts).
 _SCRATCH_MARKER = ".paperclip-run-scratch.json"
 _SCRATCH_GLOB = "paperclip-run-*"
 # How far back scan_once looks for unfinished/recent runs (seconds).
@@ -94,7 +94,7 @@ def remember_adapter(agent_id: str | None, adapter_type: str | None) -> None:
 
 
 def _decode_jwt_adapter(token: str | None) -> str | None:
-    """Best-effort read of adapter_type from a Paperclip run JWT payload.
+    """Best-effort read of adapter_type from an agent-runner JWT payload.
 
     Does not verify the signature — we only need the claim for tool
     attribution of a process we already observe on this host. Never logs
@@ -115,7 +115,7 @@ def _decode_jwt_adapter(token: str | None) -> str | None:
 
 
 def paperclip_context() -> dict[str, Any]:
-    """Collect Paperclip/Grok runtime metadata available on this process."""
+    """Collect Grok agent-runner metadata available on this process."""
     adapter = None
     if _env("GROK_AGENT"):
         adapter = "grok_local"
@@ -147,7 +147,7 @@ def _parse_proc_environ(raw: bytes) -> dict[str, str]:
 
 
 def discover_live_adapters() -> dict[str, dict[str, str]]:
-    """Scan /proc for Paperclip agent processes; return run_id → metadata.
+    """Scan /proc for agent-runner processes; return run_id → metadata.
 
     Metadata only: run id, agent id, adapter type. Never reads argv content
     beyond env keys we own, never opens workspace files for content.
@@ -191,9 +191,9 @@ def discover_live_adapters() -> dict[str, dict[str, str]]:
 
 
 def discover_scratch_runs(*, lookback_s: int = _RUN_LOOKBACK_S) -> list[dict[str, Any]]:
-    """List recent Paperclip run scratch markers under TMPDIR /tmp.
+    """List recent agent-runner scratch markers under TMPDIR /tmp.
 
-    Paperclip writes ``.paperclip-run-scratch.json`` per heartbeat with
+    The agent runner writes ``.paperclip-run-scratch.json`` per heartbeat with
     runId/agentId/issueId only — no prompt content. We join agentId against
     the learned adapter map so aim watch (which has no PAPERCLIP_RUN_ID of
     its own) can still emit for grok_local agents.
@@ -365,7 +365,7 @@ def emit_run(
     force: bool = False,
     ts_epoch_s: int | float | None = None,
 ) -> list[dict]:
-    """Emit one usage event for a Grok Build / Paperclip run.
+    """Emit one usage event for a Grok Build run.
 
     Dedupes by run_id inside the local checkpoint so re-invoking emit-run
     for the same heartbeat does not flood ingest (unless force=True).
@@ -380,7 +380,7 @@ def emit_run(
     if not rid:
         raise ValueError(
             "no run id: set PAPERCLIP_RUN_ID or pass --run-id "
-            "(this collector is meant to run inside a Paperclip/Grok heartbeat "
+            "(this collector is meant to run inside a Grok agent-runner heartbeat "
             "or with an explicit run id for dogfood)"
         )
     model_name = model or ctx["model"] or "grok-4.5"
@@ -489,7 +489,7 @@ def scan_usage_log(*, dry_run: bool = False) -> list[dict]:
 
     Primary token path for ``aim watch`` / ``scan-once``. Metadata only —
     numeric counters from ``shell.turn.inference_done``. Does not require a
-    Paperclip run id. First sight of the log starts at EOF unless
+    Agent-runner id. First sight of the log starts at EOF unless
     ``AIM_GROK_LOG_BACKFILL_BYTES`` is set.
     """
     cp = state.load_checkpoint()
@@ -548,13 +548,13 @@ def scan_usage_log(*, dry_run: bool = False) -> list[dict]:
 def scan_once(*, dry_run: bool = False) -> list[dict]:
     """Continuous emission entrypoint for `aim watch` / `scan-once`.
 
-    1. If *this* process is inside a Paperclip/Grok run, emit presence.
-    2. Discover other live grok_local Paperclip processes via /proc.
-    3. Discover recent Paperclip run scratch dirs for known grok agents.
+    1. If *this* process is inside a Grok agent-runner, emit presence.
+    2. Discover other live grok_local agent-runner processes via /proc.
+    3. Discover recent agent-runner scratch dirs for known grok agents.
     4. Tail ``~/.grok/logs/unified.jsonl`` for per-session token deltas
        (— primary token accounting path).
 
-    Deduped by run_id for Paperclip presence. Never requires a human to call
+    Deduped by run_id for agent-runner presence. Never requires a human to call
     ``emit-run``.
     """
     emitted: list[dict] = []

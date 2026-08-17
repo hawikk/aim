@@ -36,7 +36,7 @@
     "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
     "os_user": null,
     "team": "Platform",
-    "operator_os_user": "vaque",
+    "operator_os_user": "operator",
     "rebind": {
       "from_device_id": "121dc40d-3aa9-4b37-952a-cd46d345d065",
       "to_device_id": "587fbf63-37e2-44c0-ab29-bed2e8194b70"
@@ -55,7 +55,7 @@
       },
       "resolve": {
         "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
-        "os_user": "vaque"
+        "os_user": "operator"
       },
       "expect": {
         "resolution": "service_identity",
@@ -75,7 +75,7 @@
       },
       "resolve": {
         "device_id": null,
-        "os_user": "vaque"
+        "os_user": "operator"
       },
       "expect": {
         "resolution": "unresolved",
@@ -90,12 +90,12 @@
         "service_id": "svc:agent-host-hawik",
         "kind": "agent_host",
         "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
-        "os_user": "vaque",
+        "os_user": "operator",
         "team": "Platform"
       },
       "resolve": {
         "device_id": null,
-        "os_user": "vaque"
+        "os_user": "operator"
       },
       "expect": {
         "resolution": "service_identity",

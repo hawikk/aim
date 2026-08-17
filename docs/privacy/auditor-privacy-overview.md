@@ -15,7 +15,7 @@ without trusting a live dashboard.
 
 ### Purpose of the product
 
-AI Monitoring gives a 700+ person company visibility into which AI coding tools
+AI Monitoring gives an engineering org visibility into which AI coding tools
 (Claude Code, Cursor, Kilo Code, and others) engineers use, and surfaces
 security findings — **without reading prompts or code**.
 
@@ -39,10 +39,17 @@ payload (an invalid payload could contain anything).
 
 ### Pseudonymization at the edge
 
-`user_ref`, `host_id`, `team_ref`, and `repo_ref` are salted HMACs produced on
-the endpoint. The salt lives outside this platform. Stored telemetry cannot be
-reversed by the platform alone. Role-gated identity reveal (when authorized)
-is audited; it is not available in auditor offline packs.
+`user_ref`, `host_ref`, and `repo_ref` are salted HMACs computed on the
+endpoint, before the event leaves the machine, so no raw identity reaches the
+telemetry store. The salt is held by the platform (secrets manager / KMS,
+security-role IAM only), so the platform **can** re-identify. That is
+deliberate — pure anonymity would make incident response impossible — and it
+is deliberately narrow: the identity-mapping service exposes a
+security-role-only, fully audited `user_ref -> user` lookup, and nothing else
+resolves the mapping. Dashboards and general querying show pseudonyms or
+team-level aggregates only. Reveal is a separate capability grant rather than
+a role, every reveal is audited, and it is not available in auditor offline
+packs.
 
 ### Retention (enforced in code)
 
@@ -59,10 +66,12 @@ audit records. Knobs and rationale:
 ### Honest residual risk
 
 Metadata-only does **not** mean “nothing personal can be inferred.” Flags,
-tool names, and small-team patterns can still describe employee activity.
-See the reconstruction risk report
-.
-That report **does not** recommend prompt capture as a mitigation.
+tool names, and small-team patterns can still describe employee activity. A
+red-team review of exactly that question — what flags and metadata alone can
+leak — concluded that the mitigations are access control and aggregate
+suppression: findings evidence stays behind the security role, identity
+reveal stays audited, and team dashboards need a minimum cohort size before
+they are shown. Prompt capture is explicitly **not** one of the mitigations.
 
 ---
 

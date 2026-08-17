@@ -152,7 +152,7 @@ Both manifests live under `collectors/adapter/manifests/`. Neither required a ch
 | Cursor | `cursor.yaml` | `local_session_logs` / `editor_extension_hooks` (vscdb) | **On contract** via legacy bridge |
 | Kilo Code | `kilo_code.yaml` | `local_session_logs` | **On contract** via legacy bridge |
 | Kimi Code | `kimi_code.yaml` | `local_session_logs` | **On contract** via legacy bridge |
-| Grok Build | `grok_build.yaml` | `local_session_logs` (Paperclip run usage) | **On contract** via legacy bridge |
+| Grok Build | `grok_build.yaml` | `local_session_logs` (local run usage) | **On contract** via legacy bridge |
 | Codex CLI | `codex_cli.yaml` | `local_session_logs` (`sqlite_table` on `state_*.sqlite`) | **On contract**; `other` + `tool_raw=codex_cli` |
 | Proxy ingest | (catalogue, not a tool) | `proxy_domain` | Surface implementation reuses `endpoints.json` |
 | OS egress | (catalogue-driven) | `proxy_domain` class signal | Companion to; not a per-tool fork |

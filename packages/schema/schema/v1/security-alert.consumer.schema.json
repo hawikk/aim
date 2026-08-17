@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ai-monitoring.internal/schema/v1/security-alert.consumer.schema.json",
+  "$id": "https://aimonitoring.dev/schemas/v1/security-alert.consumer.schema.json",
   "title": "security.alert/v1 (consumer profile)",
   "description": "Cross-pillar unified alert contract. A pointer to a finding in a source pillar, never a copy of it. Normative artifact of decision record D3.1.",
   "type": "object",

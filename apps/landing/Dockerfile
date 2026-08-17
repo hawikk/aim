@@ -5,7 +5,7 @@ FROM nginx:1.27-alpine
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/.htpasswd /etc/nginx/.htpasswd
-COPY index.html video.html demo.html /usr/share/nginx/html/
+COPY index.html video.html /usr/share/nginx/html/
 COPY assets/ /usr/share/nginx/html/assets/
 # Storyboard for operators (not required at runtime).
 COPY VIDEO.md /usr/share/nginx/html/VIDEO.md

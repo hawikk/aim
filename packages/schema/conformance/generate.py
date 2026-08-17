@@ -91,7 +91,7 @@ ex2 = {
 ex3 = {
   "schema_version": "1.1",
   "alert_id": "3d9a71f0-4c18-4b27-b9e5-6a0f2c841d55",
-  "dedupe_key": h("pr_security|hardcoded_secret|hawikk/ai-monitoring#412", 40),
+  "dedupe_key": h("pr_security|hardcoded_secret|hawikk/aim#412", 40),
   "pillar": "pr_security",
   "producer": {"name": "gatehouse", "version": "0.1.0"},
   "finding_type": "pr_security.hardcoded_secret",
@@ -104,8 +104,8 @@ ex3 = {
   "last_seen_at": "2026-07-25T09:20:00Z",
   "resource": {
     "kind": "pull_request",
-    "ref": "github:hawikk/ai-monitoring#412",
-    "display": "hawikk/ai-monitoring#412",
+    "ref": "github:hawikk/aim#412",
+    "display": "hawikk/aim#412",
     "provider": "github",
     "account_ref": "hawikk",
     "region": None

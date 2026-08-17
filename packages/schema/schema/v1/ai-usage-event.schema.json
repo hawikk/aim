@@ -174,7 +174,7 @@
         "other",
         "genai_app"
       ],
-      "description": "First-class tool enum (not the same as the policy allowlist). 'other' = unapproved/unknown tool (detection target, not blocking \u2014 observe-only posture v1). 'genai_app' (v1.3) = first-party company application calling an LLM API directly, observed via OTel GenAI instrumentation \u2014 NOT an employee coding tool; consumers must exclude it from sanctioned/unapproved tool reporting. 'grok_build' (v1.8) = Grok Build / Paperclip grok_local agent adapter (xAI-backed); first-class so fleet dashboards can name it without collapsing to other \u2014 inclusion in approved_tools remains a Security decision."
+      "description": "First-class tool enum (not the same as the policy allowlist). 'other' = unapproved/unknown tool (detection target, not blocking \u2014 observe-only posture v1). 'genai_app' (v1.3) = first-party company application calling an LLM API directly, observed via OTel GenAI instrumentation \u2014 NOT an employee coding tool; consumers must exclude it from sanctioned/unapproved tool reporting. 'grok_build' (v1.8) = Grok Build grok_local agent adapter (xAI-backed); first-class so fleet dashboards can name it without collapsing to other \u2014 inclusion in approved_tools remains a Security decision."
     },
     "tool_raw": {
       "type": "string",

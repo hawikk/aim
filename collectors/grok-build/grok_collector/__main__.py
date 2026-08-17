@@ -12,10 +12,10 @@ commands:
   uninstall               remove the local device token (stops heartbeats)
   heartbeat               send one fleet heartbeat (no-op when not enrolled)
   emit-run [--dry-run]    emit one metadata-only usage event for the current
-                          Paperclip/Grok Build run (PAPERCLIP_RUN_ID / --run-id)
+                          Grok Build run (PAPERCLIP_RUN_ID / --run-id)
                           options: --run-id ID --model MODEL --workspace PATH
                                    --tokens-in N --tokens-out N --force
-  scan-once [--dry-run]   emit Paperclip run presence + tail Grok usage log
+  scan-once [--dry-run]   emit agent-runner presence + tail Grok usage log
                           for per-session token deltas; then flush
   scan                    alias for scan-once
   flush                   drain local spool to ingestion API

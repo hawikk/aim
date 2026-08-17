@@ -402,7 +402,7 @@ def main() -> int:
             "approved_mcp_servers": approved,
             "mcp_allowlist_mode": "deny_unlisted",
             "bundle": str(ENFORCE_BUNDLE.relative_to(ROOT)),
-            "source_pr": "https://github.com/hawikk/ai-monitoring/pull/244",
+            "source_pr": "https://github.com/hawikk/aim/pull/244",
         },
         "acceptance": acceptance,
         "hosts": host_results,

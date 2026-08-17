@@ -123,7 +123,7 @@ def main() -> int:
         "session_id": "aim566-proof",
         "tool_name": "Read",
         "tool_input": {
-            "file_path": "/home/vaque/dogfood/security-stack/secrets/prod.pem",
+            "file_path": "/opt/security-stack/secrets/prod.pem",
         },
     }
     code, out, captured, state = _run_hook(PILOT_BUNDLE, payload)
@@ -139,7 +139,7 @@ def main() -> int:
         "policy_hash": POLICY_HASH,
     }, rec
     wire = json.dumps(captured[0])
-    assert "/home/vaque/dogfood/security-stack/secrets" not in wire
+    assert "/opt/security-stack/secrets" not in wire
     assert "reason" not in rec
     assert captured[0]["enforcement_posture"]["mode"] == "enforce"
 
@@ -150,7 +150,7 @@ def main() -> int:
     assert orec["action"] == "confirmed", orec
     assert orec["rule_id"] == RULE_ID
     assert orec["policy_hash"] == POLICY_HASH
-    assert "/home/vaque" not in json.dumps(captured2[0])
+    assert "/opt/security-stack" not in json.dumps(captured2[0])
 
     # Fleet bundle (enforce flag off) still only shadows.
     d_fleet = enforce.decide_restricted_repo(payload, fleet)

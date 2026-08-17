@@ -6,9 +6,9 @@ and [product/gatehouse.md](./product/gatehouse.md).
 
 ## Problem
 
-A 700+ person engineering org uses AI coding tools with no central
-visibility. Security cannot answer "what are our engineers doing with AI
-tools?" — and cannot detect unapproved tools or leaked secrets.
+An engineering org adopts AI coding tools with no central visibility.
+Security cannot answer "what are our engineers doing with AI tools?" — and
+cannot detect unapproved tools or leaked secrets.
 
 ## Locked scoping decisions (amended)
 

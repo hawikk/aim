@@ -10,9 +10,9 @@ Two consumption paths:
 1. **Continuous log tail** (primary): ``scan_inference_log`` advances a
    byte offset and returns per-session token *deltas* for newly observed turns.
    This is what ``aim watch`` / ``scan-once`` use so all local Grok usage is
-   counted — not only Paperclip heartbeats.
+   counted — not only agent-runner heartbeats.
 2. **Per-run correlation** (opt-in): ``resolve_tokens_for_run`` sums
-   turns for a Paperclip run via env session id, process tree, or workspace
+   turns for an agent-runner via env session id, process tree, or workspace
    time window. Used when ``AIM_GROK_RUN_TOKEN_RESOLVE=1`` or explicit token
    env/CLI overrides are set. Prefer continuous tail to avoid double-counting.
 
@@ -247,7 +247,7 @@ def nearest_grok_pids(start_pid: int | None = None) -> list[int]:
     """Return the closest Grok CLI ancestor of start_pid (inclusive).
 
     Stops at the first Grok process so we do not attribute unrelated outer
-    interactive Grok sessions that merely parent the Paperclip server.
+    interactive Grok sessions that merely parent the agent-runner server.
     """
     for pid in process_ancestor_pids(start_pid):
         if _is_grok_process(pid):
@@ -408,7 +408,7 @@ def resolve_tokens_for_run(
     log_path: Path | None = None,
     prefer_process_tree: bool = True,
 ) -> TokenTotals:
-    """Best-effort token totals for a Paperclip/Grok run.
+    """Best-effort token totals for a Grok agent-runner.
 
     Priority:
     1. Explicit AIM_GROK_TOKENS_IN/OUT env
@@ -477,7 +477,7 @@ def resolve_tokens_for_run(
         sids = list_workspace_sessions(
             workspace_path, home=home, around_epoch_s=around
         )
-        # Prefer the single closest session in the window (one Paperclip run
+        # Prefer the single closest session in the window (one agent-runner
         # ≈ one Grok session). Avoid summing concurrent sibling heartbeats.
         if sids:
             totals = sum_tokens_for_sessions(sids[:1], log_path=log_path)

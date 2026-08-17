@@ -29,8 +29,8 @@ the single source of truth. Collector source is vendored verbatim (no
 binaries) into src/aim/_vendor/ preserving the monorepo-relative layout the
 collectors walk up to discover.
 
-The *distribution* name may be ``aimonitoring-security`` (public PyPI /
-D-489-3) while the import package and console script remain ``aim``.
+The *distribution* name may be ``aimonitoring-security`` (public PyPI)
+while the import package and console script remain ``aim``.
 """
 
 import base64
@@ -206,7 +206,7 @@ def _metadata(proj: dict) -> str:
         "Classifier: License :: OSI Approved :: Apache Software License\n"
         "Classifier: Programming Language :: Python :: 3\n"
         "Classifier: Intended Audience :: Developers\n"
-        "Classifier: Topic :: Security\n\n"
+        "Classifier: Topic :: Security\nDescription-Content-Type: text/plain\n\n"
         "Packaged AI Monitoring collectors + local dashboard behind one `aim` "
         "CLI. Distribution name is aimonitoring-security (PyPI); the console "
         "script remains `aim`. Runtime is stdlib-only; run `aim personal` for "

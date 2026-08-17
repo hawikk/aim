@@ -310,7 +310,7 @@ def new_event(
         # transcript activity time so historical usage lands on its real day.
         "ts": (ts and _coerce_iso(ts)) or _now_iso(),
         "host_ref": host_ref(),
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": model,
@@ -361,7 +361,7 @@ def new_tool_use_event(
         "event_id": str(uuid.uuid4()),
         "ts": (ts and _coerce_iso(ts)) or _now_iso(),
         "host_ref": host_ref(),
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": model,
@@ -427,7 +427,7 @@ def new_inventory_event(
         "event_id": str(uuid.uuid4()),
         "ts": _now_iso(),
         "host_ref": host,
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": None,

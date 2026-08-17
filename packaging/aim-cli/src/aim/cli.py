@@ -189,7 +189,7 @@ def _cmd_uninstall(args) -> int:
 def _cmd_coming_soon(cmd: str, args) -> int:
     print(f"aim {cmd}: coming soon — {_COMING_SOON[cmd]}.")
     print("This subcommand's surface ships now; its behavior lands in a "
-          "follow-on of the magic-install epic.")
+          "follow-on to the one-command install work.")
     return 0
 
 

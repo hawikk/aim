@@ -1,14 +1,13 @@
 # Documentation
 
-This repository is a curated public snapshot of a larger internal monorepo.
+This repository is a curated public snapshot of a larger working repo.
 The documentation here is the subset that is useful if you are evaluating,
 self-hosting, or contributing to AI Monitoring.
 
-Some documents cross-reference internal design notes, rollout records, and
-compliance material that are **not** published here. Those links will not
-resolve, and that is deliberate rather than an oversight — the excluded
-material is either specific to one deployment or contains operational data
-from a private fleet.
+Some documents cross-reference design notes, rollout records, and compliance
+material that are **not** published here. Those links will not resolve, and
+that is deliberate rather than an oversight — the excluded material is either
+specific to one deployment or contains operational data from a private fleet.
 
 ## Start here
 

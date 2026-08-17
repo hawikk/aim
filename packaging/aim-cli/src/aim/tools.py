@@ -122,13 +122,13 @@ def _detect_copilot(tool) -> bool:
 
 
 def _detect_grok(tool) -> bool:
-    """Grok Build / Paperclip grok_local is active when Grok CLI is installed
-    or a Paperclip heartbeat is currently running (PAPERCLIP_RUN_ID)."""
+    """Grok Build grok_local is active when Grok CLI is installed
+    or an agent-runner heartbeat is currently running (PAPERCLIP_RUN_ID)."""
     if shutil.which("grok") is not None:
         return True
     if os.environ.get("PAPERCLIP_RUN_ID"):
         return True
-    # Also detect if the local Grok/Paperclip agent home exists.
+    # Also detect if the local Grok or agent-runner home exists.
     home = Path.home()
     if (home / ".grok").exists() or (home / ".paperclip").exists():
         return True

@@ -1,6 +1,6 @@
-# grok-collector — Grok Build / Paperclip endpoint collector
+# grok-collector — Grok Build endpoint collector
 
-Metadata-only usage collector for **Grok Build** when it runs as a Paperclip
+Metadata-only usage collector for **Grok Build** when it runs as a
 `grok_local` agent adapter (xAI-backed). Pure Python 3 stdlib — same packaging
 posture as the Claude Code / Kimi Code collectors.
 
@@ -21,12 +21,12 @@ v1.8 (`packages/schema/schema/v1/ai-usage-event.schema.json`):
   (numeric counters only — never prompt/response content):
   1. **Primary:** `scan-once` / `aim watch` tails the log and
      emits per-session token *deltas* for every local Grok turn, not only
-     Paperclip heartbeats. First sight starts at EOF (no historical dump);
+     agent-runner heartbeats. First sight starts at EOF (no historical dump);
      set `AIM_GROK_LOG_BACKFILL_BYTES` for a one-shot catch-up window.
   2. Optional per-run resolve (`AIM_GROK_RUN_TOKEN_RESOLVE=1`) or explicit
      CLI `--tokens-in/--tokens-out` / env `AIM_GROK_TOKENS_IN/OUT` — disabled
      by default so continuous tail + run resolve cannot double-count.
-- tool_version shaped as `paperclip-grok_local/<collector-version>`
+- tool_version shaped as `grok_local/<collector-version>`
 
 It **never** transmits prompt text, response text, tool arguments, skill
 contents, issue bodies, or file contents. It never opens Grok
@@ -35,7 +35,7 @@ metadata-only usage counters above.
 
 ## Why this exists
 
-Grok Build on Paperclip was in active use and
+Grok Build was in active use and
 invisible to AIM. Existing collectors covered Claude Code, Cursor, Kilo Code,
 and Kimi Code; proxy endpoint intelligence had no xAI domains. This package
 closes the endpoint path; `collectors/proxy/endpoints.json` closes the network

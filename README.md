@@ -19,15 +19,15 @@ install paths. Full map: [docs/architecture.md](docs/architecture.md).
 [stack overview](docs/product/stack-overview.md) ·
 [Gatehouse](docs/product/gatehouse.md).
 
-This repository is a curated public snapshot of a larger internal monorepo.
-It carries the code and the documentation you need to run and extend the
-product; internal design notes, rollout records, and deployment-specific
-compliance material are not published here, so a few cross-references in the
-docs will not resolve.
+This repository is a curated public snapshot of a larger working repo. It
+carries the code and the documentation you need to run and extend the
+product; design notes, rollout records, and deployment-specific compliance
+material are not published here, so a few cross-references in the docs will
+not resolve.
 
 Two consequences worth stating plainly, because the docs below reference both:
 **only `ci.yml` ships here** — the release, attestation and matrix workflows
-run in the internal repo, so any doc pointing at
+live outside this snapshot, so any doc pointing at
 `.github/workflows/release-*.yml` is describing something you cannot run — and
 **no container images are published**, so the GHCR pull path in
 [`docs/deployment/prebuilt-images.md`](docs/deployment/prebuilt-images.md) will
@@ -140,8 +140,8 @@ below, or write [sales@](mailto:sales@getaimonitoring.com).
 ### 2. Personal mode — your own AI usage in 60 seconds
 
 No company, no SSO, no Docker, no database. Install the single `aim` CLI and
-watch **your own** Claude Code, Cursor, Kilo Code, Kimi Code, and Grok Build
-usage on a local dashboard. Everything stays on your machine — **personal mode
+watch **your own** Claude Code, Cursor, Kilo Code, and Kimi Code usage on a
+local dashboard. Everything stays on your machine — **personal mode
 makes zero outbound network calls** (verify by running it with networking off).
 Requires only Python 3.11+ (standard library only).
 
@@ -270,10 +270,18 @@ These are non-negotiable design constraints, enforced in code and tests:
   they should. `pnpm --filter @aimon/ingest test` runs the schema and archive
   suites, including canaries for content smuggled through property names and
   `schema_version`. Both run in CI.
-- **Pseudonymization at the edge.** `user_ref`, `host_id`, `team_ref`, and
-  `repo_ref` are salted HMACs produced by collectors. Raw identity never
-  leaves the endpoint; the salt lives outside this platform, so stored data
-  cannot be reversed by the platform itself (EU / works-council posture).
+- **Pseudonymization at the edge.** `user_ref`, `host_ref`, and `repo_ref`
+  are salted HMACs computed on the endpoint, before the event leaves the
+  machine, so no raw identity is ever on the wire or in the telemetry store.
+  The salt is held by the platform (secrets manager / KMS, security-role IAM
+  only), so re-identification **is** possible — deliberately, because pure
+  anonymity would make incident response impossible. It is also deliberately
+  narrow: the identity-mapping service exposes a security-role-only, fully
+  audited `user_ref -> user` lookup and nothing else resolves the mapping.
+  Dashboards and general querying show pseudonyms or team-level aggregates
+  only. Audited, role-restricted re-identification is the standard
+  DPIA-friendly middle ground (EU / works-council posture); the reasoning is
+  in [`docs/privacy/data-minimization-and-pseudonymization.md`](docs/privacy/data-minimization-and-pseudonymization.md).
 - **Data minimization.** Only the fields in the canonical schema exist, each
   with a documented privacy justification (`packages/schema/README.md`).
   Rejected payloads are audited by SHA-256 hash and key names only — never
@@ -366,7 +374,7 @@ docs/architecture.md     Component map + path of record
 
 ## Dev quickstart
 
-Prereqs: Node 20+ (`nvm use`), pnpm 9 (`corepack enable`), Docker.
+Prereqs: Node 22+ (`nvm use`), pnpm 9 (`corepack enable`), Docker.
 
 ```bash
 pnpm install
@@ -383,14 +391,19 @@ so vitest exits non-zero on "no test files found". Run the suites listed under
 
 ### Tests in this snapshot
 
-> **Heads up:** this public repo is a snapshot of a larger internal monorepo and
+> **Heads up:** this public repo is a snapshot of a larger working repo and
 > **does not carry most of the per-collector and per-service `tests/`
 > directories**, so `pytest collectors/...` will collect nothing here. The one
 > deliberate exception is `services/ingest/test/`, which carries the schema and
 > archive suites because they are the executable proof of the metadata-only
 > claim above. What *is* present and running in CI is listed below.
 
-The collectors are pure-stdlib Python; the services declare their deps in
+The per-tool endpoint collectors are pure-stdlib Python, and so is the
+packaged `aim` CLI — that is why the shipped wheel has no runtime
+dependencies. Two support packages under `collectors/` are exempt and do have
+dependencies: `collectors/integrity` needs `cryptography` to verify signed
+config bundles, and `collectors/adapter` needs `PyYAML` (plus `jsonschema`,
+optionally) to load and validate manifests. The services declare their deps in
 their own `pyproject.toml`.
 
 ```bash

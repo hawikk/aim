@@ -101,15 +101,15 @@
       "discovery": "adapter_compose",
       "versions": [
         {
-          "version": "paperclip-grok_local/0.2.1",
-          "fixture_dir": "collectors/tool-version-fixtures/grok_build/paperclip-grok_local-0.2.1",
+          "version": "grok_local/0.2.1",
+          "fixture_dir": "collectors/tool-version-fixtures/grok_build/grok_local-0.2.1",
           "adapter_type": "grok_local",
           "source": "collectors/grok-build/grok_collector/__init__.py",
           "notes": "Default adapter composition from collector __version__"
         },
         {
-          "version": "paperclip-codex_cli/0.2.1",
-          "fixture_dir": "collectors/tool-version-fixtures/grok_build/paperclip-codex_cli-0.2.1",
+          "version": "codex_cli/0.2.1",
+          "fixture_dir": "collectors/tool-version-fixtures/grok_build/codex_cli-0.2.1",
           "adapter_type": "codex_cli",
           "source": "collectors/grok-build/grok_collector/events.py",
           "notes": "Alternate adapter_type must stay within 64 chars and validate"

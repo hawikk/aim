@@ -373,7 +373,7 @@
         "api.x.ai",
         "api.xai.com"
       ],
-      "notes": "xAI provider API (Grok models). Used by Grok Build / Paperclip grok_local and any direct Grok API client. First-class tool=grok_build (schema v1.8); not policy-approved yet \\u2014 unapproved-tool flag still fires for employee traffic until Security promotes grok_build into approved_tools."
+      "notes": "xAI provider API (Grok models). Used by Grok Build grok_local and any direct Grok API client. First-class tool=grok_build (schema v1.8); not policy-approved yet \\u2014 unapproved-tool flag still fires for employee traffic until Security promotes grok_build into approved_tools."
     },
     {
       "id": "xai-web",

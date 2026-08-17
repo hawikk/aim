@@ -86,28 +86,31 @@ settings:
   # INERT until the list is non-empty AND AIM_HASH_SALT is set on the
   # guardrail service (dashboard labels them inert_until_configured).
   #
-  # Security sign-off (dogfood host, 2026-08-01): populate with
-  # genuine sensitive working-directory roots. Exact-match against event cwd
-  # (platform rules); endpoint file-path prefix match uses
+  # The roots below are illustrative placeholders: operators must replace
+  # them with their own sensitive working-directory roots. Exact-match
+  # against event cwd (platform rules); endpoint file-path prefix match uses
   # enforcement.restricted_repo_paths below. Multi-host fleets must extend
   # this list with each site's absolute roots (or wait for git-remote
-  # identity). Historical pilot events used per-install salt and will not
-  # match until collectors roll to the company salt.
+  # identity). Entries are HMAC'd verbatim — no ~ or environment expansion —
+  # so every entry needs an absolute path. Historical pilot events used
+  # per-install salt and will not match until collectors roll to the
+  # company salt.
   restricted_repos:
     # Unified security stack — secrets, IdP, enroll tokens, CA material
-    - /home/vaque/dogfood/security-stack
-    - /home/vaque/security-stack
+    - /opt/security-stack
+    - /srv/security-stack
     # Direct work inside the secrets trees (credential stores)
-    - /home/vaque/dogfood/security-stack/secrets
-    - /home/vaque/security-stack/secrets
+    - /opt/security-stack/secrets
+    - /srv/security-stack/secrets
     # IdP / IAM credential material (OIDC client secrets, admin hashes)
-    - /home/vaque/dogfood/security-stack/secrets/idp
-    - /home/vaque/security-stack/secrets/idp
+    - /opt/security-stack/secrets/idp
+    - /srv/security-stack/secrets/idp
     # GCP service-account JSON / cloud IAM keys
-    - /home/vaque/dogfood/security-stack/secrets/gcp
-    - /home/vaque/security-stack/secrets/gcp
-    # Host IAM / CI credential store (AWS shared credentials + config)
-    - /home/vaque/.aws
+    - /opt/security-stack/secrets/gcp
+    - /srv/security-stack/secrets/gcp
+    # Host IAM / CI credential store (AWS shared credentials + config) for
+    # the account the agent runs as; add one entry per account home.
+    - /home/aim/.aws
   # Approved MCP servers: server
   # identifiers as they appear in tool_calls[].mcp_server on tool_use events.
   # Exact string match only (no wildcards). Grow via policy PR or
@@ -237,17 +240,19 @@ settings:
     # endpoint-local absolute paths of restricted roots
     # (boundary-safe prefix match on tool file_path/path/notebook_path).
     # Mirrors the sensitive absolute roots from settings.restricted_repos.
+    # Unlike settings.restricted_repos these are expanded with ~ / $HOME on
+    # the endpoint, so home-relative roots can be written portably.
     # Fleet restricted-repo-access.enforce stays false (is
     # pilot-overlay only). Populating this list de-inerts shadow/observe
     # evaluation on fleet hosts.
     restricted_repo_paths:
-      - /home/vaque/dogfood/security-stack/secrets
-      - /home/vaque/security-stack/secrets
-      - /home/vaque/dogfood/security-stack/secrets/idp
-      - /home/vaque/security-stack/secrets/idp
-      - /home/vaque/dogfood/security-stack/secrets/gcp
-      - /home/vaque/security-stack/secrets/gcp
-      - /home/vaque/.aws
+      - /opt/security-stack/secrets
+      - /srv/security-stack/secrets
+      - /opt/security-stack/secrets/idp
+      - /srv/security-stack/secrets/idp
+      - /opt/security-stack/secrets/gcp
+      - /srv/security-stack/secrets/gcp
+      - ~/.aws
     # seconds a PII confirm challenge stays valid (1..3600).
     pii_confirm_ttl_seconds: 120
     # seconds a secret break-glass override stays valid (1..3600).

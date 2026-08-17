@@ -194,7 +194,7 @@ def main() -> int:
     args.outdir.mkdir(parents=True)
 
     expected = len(PACKAGES)
-    with tempfile.TemporaryDirectory(prefix="aim-510-build-") as tools_td:
+    with tempfile.TemporaryDirectory(prefix="aim-stub-build-") as tools_td:
         build_python = ensure_build_python(Path(tools_td))
         all_artifacts: list[Path] = []
         for pkg in PACKAGES:
@@ -222,7 +222,7 @@ def main() -> int:
             if w.name.startswith(PRIMARY_DIST.replace("-", "_") + "-")
             or w.name.startswith(PRIMARY_DIST + "-")
         )
-        with tempfile.TemporaryDirectory(prefix="aim-510-stub-") as td:
+        with tempfile.TemporaryDirectory(prefix="aim-stub-install-") as td:
             clean_install_check(primary_wheel, Path(td))
 
     print("OK: stub build + security gates passed")

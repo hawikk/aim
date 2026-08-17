@@ -1,5 +1,5 @@
 /**
- * Severity taxonomy v1 (DRAFT — pending Security sign-off).
+ * Severity taxonomy v1.
  *
  * Maps guardrail finding types to Microsoft Sentinel alert severities.
  * Sentinel severities: Informational, Low, Medium, High.

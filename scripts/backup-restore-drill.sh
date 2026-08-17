@@ -422,7 +422,7 @@ Companion correctness proof (CI, no timing): \`./scripts/backup-restore-proof.sh
 
 ## Failure handling
 
-On **FAIL**, file a Paperclip issue under the deploy-maturity epic with the
+On **FAIL**, file an issue under the deploy-maturity epic with the
 drill_id, failing checks, and this log attached. Do not claim RTO/RPO proven
 until a subsequent drill PASSes.
 MD

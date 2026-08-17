@@ -117,7 +117,7 @@ jobs:
       # contract specifically: schema rejection of content-bearing fields and
       # content smuggled through property names or schema_version, plus the
       # archive layer's validated-input-only guarantee and its content canary.
-      # Other packages' suites live in the private monorepo, so `pnpm test` as
+      # Other packages' suites live outside this snapshot, so `pnpm test` as
       # a whole is not run here (see README).
       - name: ingest tests (privacy contract)
         run: pnpm --filter @aimon/ingest test

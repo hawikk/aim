@@ -27,7 +27,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REPO = os.environ.get("AIM446_REPO", "hawikk/ai-monitoring")
+DEFAULT_REPO = os.environ.get("AIM446_REPO", "hawikk/aim")
 
 
 def run(args: list[str]) -> str:

@@ -607,7 +607,7 @@
     },
     {
       "id": "grok_build",
-      "name": "Grok Build / Paperclip grok_local",
+      "name": "Grok Build grok_local",
       "package_dir": "collectors/grok-build",
       "python_package": "grok_collector",
       "tool_enum": "grok_build",
@@ -622,7 +622,7 @@
             "usage",
             "session"
           ],
-          "notes": "Paperclip/Grok Build adapter surface; scan-once under aim watch"
+          "notes": "Grok Build adapter surface; scan-once under aim watch"
         },
         "ide": {
           "status": "unsupported",

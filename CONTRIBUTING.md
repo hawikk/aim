@@ -5,14 +5,14 @@ paragraph — it will save you some.
 
 ## What this repository is
 
-This is a **public Apache-2.0 snapshot of a larger internal monorepo**,
-maintained by one developer. Most code here is written and reviewed upstream
-and then exported, which has two consequences worth knowing:
+This is a **public Apache-2.0 snapshot of a larger working repo**, maintained
+by one developer. Most code here is written and reviewed upstream and then
+exported, which has two consequences worth knowing:
 
 - **Some things are missing.** The per-collector and per-service `tests/`
   directories are not part of this snapshot, so `pytest` at the root will only
-  find the suites under `scripts/`. Likewise there is no internal CI tooling,
-  no self-hosted runner config, and no release automation here.
+  find the suites under `scripts/`. Likewise there is no CI tooling beyond
+  `ci.yml`, no self-hosted runner config, and no release automation here.
 - **Merges can be slow, and some are impossible as-written.** A change to a
   collector or service may need to be re-applied upstream by hand rather than
   merged directly. If that happens you will be told, and you will be credited.
@@ -109,9 +109,14 @@ in the pull request how you tested them.
   Prefix intentionally-unused bindings with an underscore rather than
   disabling the rule.
 - **Python** has no enforced formatter or linter in this repo. Match the
-  surrounding code: standard-library-only in `collectors/` (that is a hard
-  contract — the shipped wheel has zero runtime dependencies), type hints on
-  new functions, and a module docstring saying what the file is for.
+  surrounding code: standard-library-only in the per-tool endpoint collectors
+  and in the packaged CLI (that is a hard contract — it is what makes the
+  shipped wheel dependency-free), type hints on new functions, and a module
+  docstring saying what the file is for. The two exceptions are the support
+  packages `collectors/integrity`, which uses `cryptography`, and
+  `collectors/adapter`, which uses `PyYAML` and optionally `jsonschema`. Both
+  stay optional at import time — a collector may use `integrity` when it is
+  present, but must still work on a stdlib-only endpoint install without it.
 - **Comments** should explain intent or a constraint, not restate the code.
   A comment that records why a constraint exists is worth keeping even when
   it is long; one that restates the next line is not.

@@ -1,9 +1,9 @@
-"""Canonical event construction for Grok Build / Paperclip grok_local.
+"""Canonical event construction for Grok Build grok_local.
 
 Conforms to packages/schema/schema/v1/ai-usage-event.schema.json (v1.8+).
 
 Content policy (locked): no prompt text, conversation content, or
-file contents on an event. Paperclip run metadata and adapter config carry
+file contents on an event. Agent-runner metadata and adapter config carry
 model/session identity only — never the prompt or tool payloads. Ingest
 rejects out-of-schema fields whole.
 """
@@ -23,7 +23,7 @@ SCHEMA_VERSION = "1.8"
 TOOL_NAME = "grok_build"
 PROVIDER = "xai"
 
-# Paperclip adapter type → AIM tool enum. Only grok_local maps to this
+# Agent-runner adapter type → AIM tool enum. Only grok_local maps to this
 # collector's tool name; other adapters have their own collectors.
 _ADAPTER_TOOL = {
     "grok_local": "grok_build",
@@ -110,7 +110,7 @@ def derive_provider(model: str | None) -> str:
 def tool_version(adapter_type: str | None = None) -> str:
     from . import __version__
     adapter = adapter_type or "grok_local"
-    return f"paperclip-{adapter}/{__version__}"[:64]
+    return f"{adapter}/{__version__}"[:64]
 
 
 def make_flags(flag_names: list[str] | None = None) -> list[dict]:

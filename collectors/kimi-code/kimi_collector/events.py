@@ -233,7 +233,7 @@ def new_event(
         "event_id": str(uuid.uuid4()),
         "ts": format_ts(ts_epoch_ms),
         "host_ref": host_ref(),
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": (model or "")[:128] or None,
@@ -281,7 +281,7 @@ def new_tool_use_event(
         "event_id": str(uuid.uuid4()),
         "ts": format_ts(ts_epoch_ms),
         "host_ref": host_ref(),
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": (model or "")[:128] or None,
@@ -351,7 +351,7 @@ def new_inventory_event(
         "event_id": str(uuid.uuid4()),
         "ts": format_ts(None),
         "host_ref": host,
-        "user_ref": None, # identity mapping not yet approved
+        "user_ref": None, # populated by identity-sync; null on the endpoint path
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": None,

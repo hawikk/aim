@@ -384,8 +384,8 @@ def render(data, results, metrics):
         "   `--update-baseline` and get the same sign-off as a detector change.",
         "",
         "Detector behavior changes are security-relevant and need Security",
-        "sign-off before implementation (the proposal was ratified on the",
-        "issue thread). Refresh cadence for the corpus: `docs/security/adversarial-program.md`.",
+        "sign-off before implementation. Refresh cadence for the corpus:",
+        "`docs/security/adversarial-program.md`.",
         "",
     ]
     return "\n".join(lines)

@@ -343,4 +343,3 @@ Full cold build time is host-dependent; if wall time exceeds 30 minutes, the scr
 - Root [`README.md`](../../README.md) — personal mode + link to this guide  
 - [`prebuilt-images.md`](./prebuilt-images.md) — GHCR pull path + digest pins for pilot cold install
 - [`air-gapped-install.md`](./air-gapped-install.md) — offline media  
-- Soft-launch landing stub: [`site/index.html`](../../site/index.html)
