@@ -1,4 +1,4 @@
-/* Framework panels + rule coverage detail (AIM-1172 split).
+/* Framework panels + rule coverage detail (split).
  * fwHtml renders one panel per framework with live pass/fail/unknown rows and
  * the hidden drill-through row under each control; coverageHtml renders the
  * raw rule × framework mapping table (gaps fail the report). */
@@ -7,7 +7,7 @@ import { esc } from '../lib/dom.js';
 import { fmtInt } from '../lib/format.js';
 import { controlStatusBadge } from './badges.js';
 
-/** Legacy fallback for pre-AIM-694 snapshots that lack control.status. */
+/** Legacy fallback for earlier snapshots that lack control.status. */
 export function deriveLegacyStatus(c) {
   if (!c.rules?.length) return 'unknown';
   if ((c.findings?.open ?? 0) > 0) return 'fail';

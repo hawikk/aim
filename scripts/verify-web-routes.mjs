@@ -1,9 +1,9 @@
-// Browser-driven route check for the dashboard (AIM-153). Dev-only.
+// Browser-driven route check for the dashboard. Dev-only.
 //
 // apps/web has no DOM test harness: lib/router.js is unit-tested under
 // node:test, but "does the URL actually put the right view on screen" needs a
 // real browser. This is that check. It drives headless Chrome over CDP against
-// the preview server and asserts the properties AIM-153 exists to guarantee —
+// the preview server and asserts the properties exists to guarantee
 // module views (findings/rules/compliance/mcp/onboarding) are addressable,
 // survive a reload, take part in history, and stay invisible to a session
 // whose capabilities don't include them.
@@ -109,7 +109,7 @@ function check(name, ok, detail) {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? `\n        ${JSON.stringify(detail)}` : ''}`);
 }
 // A module view is "on screen and addressable" only when the DOM, the nav and
-// the URL all name it. Those three disagreeing is the defect AIM-153 removes.
+// the URL all name it. Those three disagreeing is the defect removes.
 const agrees = (s, view) => s.view === view && s.hash === `#/${view}` && s.tab === view;
 
 /* ---------- privileged session: the views exist and route ---------- */
@@ -130,16 +130,16 @@ const agrees = (s, view) => s.view === view && s.hash === `#/${view}` && s.tab =
   await t.evaluate(`document.querySelector('#tabs button[data-view="overview"]').click()`);
   check('leaving a module view for a static tab works', agrees(await t.state('overview'), 'overview'));
 
-  // AIM-152: a tab click whose hash already matches must still re-render.
+  // a tab click whose hash already matches must still re-render.
   await t.evaluate(`document.querySelector('#tab-compliance').click()`);
   await t.state('compliance');
   await t.evaluate(`document.querySelector('#tab-compliance').click()`);
-  check('re-clicking the active module tab keeps it (AIM-152)', agrees(await t.state('compliance'), 'compliance'));
+  check('re-clicking the active module tab keeps it', agrees(await t.state('compliance'), 'compliance'));
 
   const junk = await t.goto(`${BASE}/#/not-a-module`, 'overview');
   check('an unknown view name falls back to Overview', junk.view === 'overview', junk);
 
-  // AIM-152: first-run onboarding / the findings landing may claim a BARE
+  // first-run onboarding / the findings landing may claim a BARE
   // landing, and must now say so in the URL — but may never take an explicit one.
   await t.goto(`${BASE}/`);
   await new Promise((r) => setTimeout(r, 2500));
@@ -149,7 +149,7 @@ const agrees = (s, view) => s.view === view && s.hash === `#/${view}` && s.tab =
   await t.goto(`${BASE}/#/fleet`, 'fleet');
   await new Promise((r) => setTimeout(r, 2500));
   const explicit = await t.state();
-  check('an explicit URL is never stolen by a landing module (AIM-152)', agrees(explicit, 'fleet'), explicit);
+  check('an explicit URL is never stolen by a landing module', agrees(explicit, 'fleet'), explicit);
 
   t.close();
 }

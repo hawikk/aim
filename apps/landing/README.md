@@ -1,12 +1,12 @@
 # Landing page
 
-Active site (AI Monitoring only — multi-product stack framing removed in AIM-1071):
+Active site (AI Monitoring only — multi-product stack framing removed):
 
 | File | Role |
 |------|------|
 | [`index.html`](./index.html) | Hero + product features + pricing |
-| [`video.html`](./video.html) | Product video / walkthrough (AIM-1072) |
-| [`demo.html`](./demo.html) | Sample AI-usage demo (sibling AIM-1073) |
+| [`video.html`](./video.html) | Product video / walkthrough |
+| [`demo.html`](./demo.html) | Sample AI-usage demo (sibling) |
 
 Storyboard + capture plan: [`VIDEO.md`](./VIDEO.md).  
 Poster until `assets/demo.mp4` ships: [`assets/demo-poster.svg`](./assets/demo-poster.svg).  
@@ -14,7 +14,7 @@ The page probes for the MP4 and keeps a designed “coming soon” empty state i
 
 Public copy is **exclusively AI Monitoring**: usage visibility, policies, and guardrails for AI coding tools. No CNAPP / CI/CD / multi-product stack language on the live pages.
 
-Pricing numbers come from the AIM-167 CEO decision record. Do not invent alternate public prices.
+Pricing numbers come pricing decision record. Do not invent alternate public prices.
 
 ## Preview
 
@@ -41,7 +41,7 @@ git switch landing/fixed-viewport
 
 Public marketing host is the GitHub Pages repo `hawikk/getaimonitoring` (`CNAME` `getaimonitoring.com`). This monorepo stays the source of truth; publish the static tree from `apps/landing/` (not remotion) to that repo. Pages serving and the custom domain are configured only on the dedicated marketing repo — never on this one.
 
-## Cloud Run friend-preview (AIM-1048)
+## Cloud Run friend-preview
 
 Service: `aim-landing-preview` in `europe-west1` (public URL, basic auth).
 

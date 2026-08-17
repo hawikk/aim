@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""AIM-1149 — secret-enforce posture fixtures + dark-gate assertion.
+"""Secret-enforce posture fixtures + dark-gate assertion.
 
-The AIM-611 / AIM-563 quiet gate went dark when live pilot telemetry showed
+The quiet gate went dark when live pilot telemetry showed
 **0 hosts** with enforce-hash posture (policy=absent). Calendar remeasure is
 operator-owned; this script hardens the *measurement path* so CI fails if the
 fixture set (or its aggregation) can regress to the dark shape without a red X.
 
-What "enforce-hash posture" means (matches AIM-561 / AIM-789 gate queries):
+What "enforce-hash posture" means (matches gate queries):
   enforcement_posture.policy = 'loaded'
   AND mode = 'enforce'
   AND policy_hash is a non-empty string
@@ -42,7 +42,7 @@ SCHEMA_PATH = (
 # Operator remeasure SQL — same filters the quiet-gate / coverage path uses.
 # Metadata only: host_ref counts + posture fields. No prompt/secret content.
 REMEASURE_SQL = """\
--- AIM-611 / AIM-563 remeasure (AIM-1149): enforce-hash posture coverage
+-- remeasure: enforce-hash posture coverage
 -- Run against pilot Postgres after the calendar quiet window.
 -- Expect hosts_enforce_hash >= 1 (and preferably >= 3 pilot hosts) before
 -- treating block/confirmed rates as readable. 0 = gate still dark.
@@ -132,7 +132,7 @@ def is_enforce_hash(p: dict[str, Any] | None) -> bool:
 
 
 def aggregate(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
-    """Mirror AIM-789 install-path + AIM-611 enforce-hash host counts offline."""
+    """Mirror install-path + enforce-hash host counts offline."""
     events_total = 0
     with_posture = 0
     policy_loaded = 0
@@ -216,7 +216,7 @@ def aggregate(events: Iterable[dict[str, Any]]) -> dict[str, Any]:
         "statement": (
             "DARK — 0 hosts with enforce-hash posture "
             "(policy=loaded, mode=enforce, policy_hash set). "
-            "Quiet-gate measurements are unreadable (AIM-611 failure mode)."
+            "Quiet-gate measurements are unreadable (failure mode)."
             if dark
             else (
                 f"COVERED — {hosts_enforce} host(s) emit enforce-hash posture; "
@@ -310,21 +310,21 @@ def run_check(check: bool = False) -> int:
     if agg["dark"]:
         problems.append("aggregate verdict is DARK (0 enforce-hash hosts)")
 
-    # The AIM-611 dark shape is specifically "0 hosts + policy absent dominance".
+    # The dark shape is specifically "0 hosts + policy absent dominance".
     if (
         agg["hosts_enforce_hash"] == 0
         and agg["policy_loaded"] == 0
         and (agg["policy_absent"] > 0 or agg["with_posture"] == 0)
     ):
         problems.append(
-            "fixture set matches the AIM-611 dark shape: "
+            "fixture set matches the dark shape: "
             "0 hosts enforce-hash and policy=absent / no loaded posture"
         )
 
     exp_failures = check_manifest_expectations(agg, manifest["expected"])
     problems.extend(exp_failures)
 
-    print("# AIM-1149 secret-enforce posture fixtures")
+    print("# secret-enforce posture fixtures")
     print()
     print(f"events: {EVENTS_PATH.relative_to(ROOT)}")
     print(f"verdict: {agg['verdict']}")
@@ -416,7 +416,7 @@ def self_test() -> int:
                 f"hosts_enforce_hash={agg['hosts_enforce_hash']}"
             )
 
-    # The AIM-611 live failure mode: telemetry present, only policy=absent.
+    # The live failure mode: telemetry present, only policy=absent.
     check_case(
         "all policy=absent is dark",
         [
@@ -425,7 +425,7 @@ def self_test() -> int:
         ],
         expect_dark=True,
     )
-    # Shadow bake only (pre-AIM-296 posture) — not enforce-hash.
+    # Shadow bake only (earlier posture) — not enforce-hash.
     check_case(
         "shadow-only loaded is dark for enforce-hash",
         [

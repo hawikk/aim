@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * AIM-772 — Capacity projection model: 700 → 5k → 10k endpoints.
+ * Capacity projection model: 700 → 5k → 10k endpoints.
  *
  * Spreadsheet-grade, deterministic model. No live load is driven.
  * Combines two intensity tracks with explicit measured vs extrapolated labels:
  *
- *   dogfood  — AIM-323 per-device rates (security-team pilot intensity)
- *   coding   — AIM-118 upper-bound active-coding intensity
+ * dogfood — per-device rates (security-team pilot intensity)
+ * coding — upper-bound active-coding intensity
  *
  * Single-node ingest SLO ceiling (~775 eps p99≤500ms) is a MEASURED number
- * from AIM-118 on a co-located single-host rig (conservative). Replica counts
+ * on a co-located single-host rig (conservative). Replica counts
  * and IOPS are EXTRAPOLATED from that knee + stated write-amplification
  * assumptions — not re-measured at 5k/10k.
  *
@@ -26,26 +26,26 @@ import { writeFileSync } from "node:fs";
 
 // ---- measured / stated inputs ------------------------------------------
 
-/** AIM-323 dogfood model (docs/aim-323-fleet-scale-proof.md §2, results JSON). */
+/** dogfood model (docs/aim-323-fleet-scale-proof.md §2, results JSON). */
 const DOGFOOD = {
-  label: "dogfood (AIM-323)",
+  label: "dogfood",
   provenance: "measured model at 700 devices; rates linear-extrapolated beyond 700",
   eventsPerDevicePerDay: 6.833,
   activeHours: 8,
   /** Harness burst multiplier vs workday average (not diurnal×correlated). */
   burstMult: 10,
-  /** Measured during AIM-323 drill: pg_total_relation_size delta / rows. */
+  /** Measured during drill: pg_total_relation_size delta / rows. */
   pgBytesPerEvent: 1195,
   /** Measured MinIO /data byte delta / synthetic events (~27.7k). */
   minioBytesPerEvent: 973,
 };
 
 /**
- * AIM-118 coding-intensity upper bound
+ * coding-intensity upper bound
  * (docs/aim-118-ingest-scale-proof-2026-07-23.md §2).
  */
 const CODING = {
-  label: "coding intensity (AIM-118 upper bound)",
+  label: "coding intensity (upper bound)",
   provenance:
     "stated model (sessions×events), peak sustained on single-node at 700-scale; rates linear-extrapolated",
   sessionsPerDevicePerDay: 8,
@@ -53,20 +53,20 @@ const CODING = {
   activeHours: 8,
   diurnalBurst: 4, // peak-hour vs workday average
   correlatedBurst: 3, // short spike vs peak-hour
-  /** Measured during AIM-118 loadtest: ~1,332 B/event heap+indexes+TOAST. */
+  /** Measured during loadtest: ~1,332 B/event heap+indexes+TOAST. */
   pgBytesPerEvent: 1332,
   /**
-   * No AIM-118 MinIO measurement; reuse AIM-323 archive byte/event as
+   * No MinIO measurement; reuse archive byte/event as
    * EXTRAPOLATED lower-bound (coding events may be larger).
    */
   minioBytesPerEvent: 973,
 };
 
-/** AIM-118 Phase C — within-SLO ceiling on co-located single-host rig. */
+/** Phase C — within-SLO ceiling on co-located single-host rig. */
 const NODE = {
   sloCeilingEps: 775,
   maxThroughputEps: 2345,
-  /** Default admission cap (AIM-127 / AIM-323 tuned). Per-process. */
+  /** Default admission cap (tuned). Per-process. */
   maxInflight: 64,
   admissionMode: "enforce",
   retryAfterS: 1,
@@ -77,13 +77,13 @@ const NODE = {
    */
   targetUtilisation: 0.5,
   provenance:
-    "MEASURED on 16 vCPU / 15 GiB WSL2 host with loadgen+ingest+PG co-located (AIM-118). Absolute numbers are conservative vs split production topology.",
+    "MEASURED on 16 vCPU / 15 GiB WSL2 host with loadgen+ingest+PG co-located. Absolute numbers are conservative vs split production topology.",
 };
 
 /**
  * Postgres IOPS model — EXTRAPOLATED, not measured.
  * Budget 8 provisioned IOPS per event at peak for heap+index+WAL on gp3-class.
- * AIM-118 observed PG was not the bottleneck up to ~775 eps (active conns ≤13).
+ * observed PG was not the bottleneck up to ~775 eps (active conns ≤13).
  */
 const PG_IOPS_PER_EVENT = 8;
 
@@ -123,7 +123,7 @@ function dogfoodRates(devices) {
     flatDayAvgEps: round(flatDayAvgEps, 4),
     workdayAvgEps: round(workdayAvgEps, 4),
     burstEps: round(burstEps, 3),
-    burstDefinition: `workday_avg × ${DOGFOOD.burstMult} (AIM-323 harness)`,
+    burstDefinition: `workday_avg × ${DOGFOOD.burstMult} (harness)`,
     pgBytesPerEvent: DOGFOOD.pgBytesPerEvent,
     minioBytesPerEvent: DOGFOOD.minioBytesPerEvent,
   };
@@ -147,7 +147,7 @@ function codingRates(devices) {
     workdayAvgEps: round(workdayAvgEps, 3),
     peakHourEps: round(peakHourEps, 2),
     burstEps: round(correlatedBurstEps, 2),
-    burstDefinition: `workday_avg × ${CODING.diurnalBurst} × ${CODING.correlatedBurst} (AIM-118 honest peak)`,
+    burstDefinition: `workday_avg × ${CODING.diurnalBurst} × ${CODING.correlatedBurst} (honest peak)`,
     pgBytesPerEvent: CODING.pgBytesPerEvent,
     minioBytesPerEvent: CODING.minioBytesPerEvent,
   };
@@ -176,7 +176,7 @@ function iops(burstEps) {
   return {
     model: `peak_eps × ${PG_IOPS_PER_EVENT} IOPS/event (EXTRAPOLATED; not measured)`,
     peakProvisionedIops: round(peak, 0),
-    note: "AIM-118: Postgres was not the bottleneck up to ~775 eps on the test host. Provisioned IOPS is a planning budget, not a measured requirement.",
+    note: "Postgres was not the bottleneck up to ~775 eps on the test host. Provisioned IOPS is a planning budget, not a measured requirement.",
   };
 }
 
@@ -204,7 +204,7 @@ function replicas(burstEps) {
       maxInflightPerReplica: NODE.maxInflight,
       retryAfterS: NODE.retryAfterS,
       multiNodeNote:
-        "Admission is per-process (AIM-127 residual). Fleet-wide cap ≈ replicas × maxInflight under a LB.",
+        "Admission is per-process (residual). Fleet-wide cap ≈ replicas × maxInflight under a LB.",
     },
   };
 }
@@ -258,7 +258,7 @@ function topology(track, rates, rep) {
       reason: "archive + fail-open path must survive AZ loss",
     };
     notes.push(
-      "Move Postgres off the app host; do not co-locate loadgen/ingest/DB as in AIM-118 rig.",
+      "Move Postgres off the app host; do not co-locate loadgen/ingest/DB as rig.",
     );
   }
 
@@ -268,7 +268,7 @@ function topology(track, rates, rep) {
 
   return {
     ingestReplicas: rep.recommendedIngestReplicas,
-    ingestSize: "2 vCPU / 4 GB per replica (AIM-118 cost baseline class)",
+    ingestSize: "2 vCPU / 4 GB per replica (cost baseline class)",
     postgres,
     objectStore,
     admission: rep.admission,
@@ -289,7 +289,7 @@ function projectTier(devices) {
       iops: iops(dog.burstEps),
       scale: dogRep,
       topology: topology("dogfood", dog, dogRep),
-      confidence: "rates EXTRAPOLATED linearly from AIM-323 700-device dogfood model; node ceiling MEASURED",
+      confidence: "rates EXTRAPOLATED linearly 700-device dogfood model; node ceiling MEASURED",
     },
     coding: {
       ...code,
@@ -298,7 +298,7 @@ function projectTier(devices) {
       scale: codeRep,
       topology: topology("coding", code, codeRep),
       confidence:
-        "rates EXTRAPOLATED linearly from AIM-118 stated coding mix; 700-scale peak MEASURED at 93 eps; 5k/10k peaks not load-tested",
+        "rates EXTRAPOLATED linearly stated coding mix; 700-scale peak MEASURED at 93 eps; 5k/10k peaks not load-tested",
     },
   };
 }
@@ -318,7 +318,7 @@ function scalingTriggers() {
     {
       signal: "ingest_admission_shed_total rising under normal business load (not a drill)",
       action:
-        "Do NOT raise maxInflight blindly — scale out replicas. Cap is a collapse guard (AIM-323 §6)",
+        "Do NOT raise maxInflight blindly — scale out replicas. Cap is a collapse guard (§6)",
       owner: "platform",
     },
     {
@@ -349,7 +349,7 @@ function scalingTriggers() {
     {
       signal: "Multi-AZ required by policy (RPO≈0) regardless of load",
       action: "External multi-AZ DB + multi-AZ object store; document RPO/RTO",
-      owner: "security / CEO policy",
+      owner: "security policy",
     },
   ];
 }
@@ -358,17 +358,16 @@ function scalingTriggers() {
 
 function buildReport(endpoints) {
   return {
-    issue: "AIM-772",
     title: "Capacity plan projection — 5k–10k endpoints",
     generatedAt: new Date().toISOString(),
     honesty: {
       measured: [
-        "AIM-323 dogfood per-device rates at 700 devices (6.833 events/device/day)",
-        "AIM-323 PG bytes/event ≈ 1,195 B; MinIO ≈ 973 B/event",
-        "AIM-118 coding mix constants and 700-engineer peak 93.3 eps sustained p99=161ms",
-        "AIM-118 single-node SLO ceiling ≈ 775 eps; max throughput ≈ 2,345 eps (latency-degraded)",
-        "AIM-118 PG bytes/event ≈ 1,332 B",
-        "AIM-127/323 admission enforce maxInflight=64, zero silent loss under shed",
+        "Dogfood per-device rates at 700 devices (6.833 events/device/day)",
+        "PG bytes/event ≈ 1,195 B; MinIO ≈ 973 B/event",
+        "Coding mix constants and 700-engineer peak 93.3 eps sustained p99=161ms",
+        "Single-node SLO ceiling ≈ 775 eps; max throughput ≈ 2,345 eps (latency-degraded)",
+        "PG bytes/event ≈ 1,332 B",
+        "Admission enforce maxInflight=64, zero silent loss under shed",
       ],
       extrapolated: [
         "Linear scale of dogfood and coding rates from 700 → 5k/10k (no 5k/10k load test)",
@@ -379,7 +378,7 @@ function buildReport(endpoints) {
       ],
       caveats: [
         NODE.provenance,
-        "Admission is per-process; multi-node global admission is a residual (AIM-127)",
+        "Admission is per-process; multi-node global admission is a residual",
         "Cost figures in source docs exclude API/web tier, egress, backups",
       ],
     },

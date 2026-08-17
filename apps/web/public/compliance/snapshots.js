@@ -1,4 +1,4 @@
-/* AIM-99: posture history panel (AIM-1172 split) — weekly + on-demand
+/*: posture history panel (split) — weekly + on-demand
  * snapshots stored server-side; any snapshot re-renders the exact report
  * captured at that time (including control statuses). */
 

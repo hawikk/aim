@@ -1,4 +1,4 @@
-# Compose overrides — pilot pull path (AIM-1126)
+# Compose overrides — pilot pull path
 
 | File | Role |
 | --- | --- |

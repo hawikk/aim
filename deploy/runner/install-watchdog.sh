@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-406: install the aim-ci orphaned-job watchdog on a runner host.
+# install the aim-ci orphaned-job watchdog on a runner host.
 #
 # Usage (root, on aim-ci-runner / equivalent):
 #   export GH_REPO=hawikk/aim
@@ -66,7 +66,7 @@ fi
 
 umask 077
 cat >"$ENV_FILE" <<EOF
-# Managed by deploy/runner/install-watchdog.sh (AIM-406)
+# Managed by deploy/runner/install-watchdog.sh
 GH_REPO=${GH_REPO}
 RUNNER_NAME=${RUNNER_NAME}
 RUNNER_SERVICE=${RUNNER_SERVICE}

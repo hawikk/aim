@@ -1,8 +1,8 @@
-// Live Activity Trail feed (AIM-144). A reverse-chronological stream of
+// Live Activity Trail feed. A reverse-chronological stream of
 // individual events, each carrying a deterministic per-event security score
 // (1–10) and an estimated USD cost, for the dashboard's live Activity tab.
 //
-// Reads the canonical event store (metadata-only by contract, AIM-16). No new
+// Reads the canonical event store (metadata-only by contract). No new
 // data collection: every field here already exists in the schema. Cost reuses
 // the versioned price table in pricing.js (COST_SQL) — no third price table.
 // The score is computed in JS by the pure, config-driven scorer in
@@ -79,7 +79,7 @@ export async function activityRoutes(fastify, opts) {
 
   fastify.get('/api/activity/feed', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
-    // AIM-484: refresh allow-list before scoring so unapproved-tool factors
+    // refresh allow-list before scoring so unapproved-tool factors
     // match the live sanctioned list without a process restart.
     await listSanctionedToolNames(db);
 

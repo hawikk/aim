@@ -1,4 +1,4 @@
-// Sanctioned-tool management API (AIM-484).
+// Sanctioned-tool management API.
 //
 // Read: any authenticated dashboard role (same as /api/overview).
 // Mutate: admin only (Authelia group → role map in auth.js). No new token
@@ -6,7 +6,7 @@
 //
 // Every mutation is audit-logged with:
 //   * actor identity from the verified session (req.identity.email) —
-//     never a forgeable header (AIM-306 lesson)
+// never a forgeable header (lesson)
 //   * action (sanctioned.sanction | sanctioned.unsanction | sanctioned.note)
 //   * before/after tool lists, reason text, optional note
 //

@@ -1,8 +1,8 @@
-/* Alert destination cards (AIM-1147) — pure-moved from rules.js.
+/* Alert destination cards — pure-moved from rules.js.
  *
- * The AIM-94/584 alert destinations panel: routing summary, one form card per
+ * The alert destinations panel: routing summary, one form card per
  * destination (webhook, Sentinel, Google Chat, email, Slack, PagerDuty), the
- * save-all toolbar with its Audit deep-link (AIM-998), and the escalation
+ * save-all toolbar with its Audit deep-link, and the escalation
  * ladder editor below (./escalation.js). HTML builders only — the load/save
  * and test-send handlers live in ./alerts-panel.js.
  *
@@ -20,14 +20,14 @@ function secretBadge(configured) {
     : '<span class="secret-badge missing">secret not configured</span>';
 }
 
-/* AIM-515: each destination is an independent form. Marking it `role="group"`
+/*: each destination is an independent form. Marking it `role="group"`
  * named by its heading is what lets a screen reader user tell which "Enabled"
  * checkbox and which "Min severity" select they are on — there are three of
  * each on this panel and, before this, all six were unnamed duplicates.
  * The badge stays inside the heading visually but outside the group's
  * accessible name, so heading navigation reads "Webhook", not
  * "Webhook secret not configured". */
-/* `extraActions` (AIM-988) slots non-save controls (e.g. email Test send) into
+/* `extraActions` slots non-save controls (e.g. email Test send) into
  * the same actions row without inventing a second footer. */
 function alertCard({ dest, title, secretConfigured, minSeverity, body, enabled, extraActions = '' }) {
   const h = `ac-h-${dest}`;
@@ -50,7 +50,7 @@ function alertCard({ dest, title, secretConfigured, minSeverity, body, enabled, 
 const enabledToggle = (on) =>
   `<label class="ac-toggle"><input type="checkbox" class="ac-enabled"${on ? ' checked' : ''} /> Enabled</label>`;
 
-/* AIM-584: panel summary so multi-destination routing is answerable without
+/*: panel summary so multi-destination routing is answerable without
  * reading the cards. Empty state is first-class — zero enabled destinations
  * is not "all clear", it is "findings stay local". */
 function routingSummaryHtml(d) {
@@ -126,7 +126,7 @@ function destinationCardHtml(row) {
       body: `<p class="ac-hint">SMTP is set via deployment env (<code>ALERT_EMAIL_SMTP_HOST</code>, <code>ALERT_EMAIL_FROM</code>) — never entered here. Recipients are non-secret routing.</p>
         ${enabledToggle(row.enabled)}
         <label>To <input type="text" class="ac-email-to" value="${esc(row.to ?? '')}" placeholder="soc@example.com, oncall@example.com" autocomplete="off" /></label>`,
-      // AIM-988: Test send proves delivery without leaving Rules (no secrets in the request).
+      // Test send proves delivery without leaving Rules (no secrets in the request).
       extraActions: `<button type="button" class="rbtn" data-test-send="email"${row.secretConfigured ? '' : ' disabled title="SMTP env not configured — set ALERT_EMAIL_SMTP_HOST and ALERT_EMAIL_FROM first"'}>Test send</button>`,
     });
   }

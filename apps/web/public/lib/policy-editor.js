@@ -1,4 +1,4 @@
-/* AIM-689 — pure helpers for the analyst-facing policy editor.
+/* — pure helpers for the analyst-facing policy editor.
  *
  * Safe subset (no raw YAML):
  *   - sanctioned-tool allowlist (GET/POST/DELETE /api/sanctioned)

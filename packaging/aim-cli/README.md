@@ -6,7 +6,7 @@ behind a single `aim` command, so an engineer can install it with `pipx` and
 run `aim personal` — no repo clone, no `cd` into subdirectories, no
 infrastructure.
 
-This is the foundation of the magic-install epic (AIM-129); the rest of that
+This is the foundation of the magic-install epic; the rest of that
 epic's children hang off this artifact.
 
 ## Install
@@ -17,7 +17,7 @@ console script and import package remain **`aim`**. Do **not**
 
 Package install is a versioned wheel/sdist (reproducible, auditable). For fleet
 pilot enroll only, the dashboard also hosts a one-shot helper
-(`http://<aim-host>:8081/enroll.sh`, AIM-1124) that installs this package via
+(`http://<aim-host>:8081/enroll.sh`) that installs this package via
 pipx, then runs `aim join` + `aim doctor --fix` and fails closed if
 `token_file` is missing. Prefer the wheel path for air-gapped mirrors.
 
@@ -77,7 +77,7 @@ calls**. Content (prompts/responses) is matched for secrets/PII in memory and
 discarded immediately — only detector *names* and usage metadata are stored,
 in a local SQLite file under `~/.aim-collector/`.
 
-### Fleet mode — one line hooks + enrolls every installed tool (AIM-138)
+### Fleet mode — one line hooks + enrolls every installed tool
 
 ```sh
 aim join <ingest-url> --token <enroll-token>   # detect → hook → enroll → verify
@@ -85,7 +85,7 @@ aim status                                     # per-tool hook / enroll / heartb
 aim uninstall                                  # unhook every tool + remove all state
 ```
 
-Private CA / split-horizon (AIM-238) — needed when the stack gateway serves
+Private CA / split-horizon — needed when the stack gateway serves
 Caddy's internal CA, or when `ingest.localhost` does not resolve on the host:
 
 ```sh
@@ -119,7 +119,7 @@ and local spool depth — exiting non-zero when an installed tool is unhooked or
 the device is not enrolled, so it doubles as a health check.
 
 > Local end-to-end drive without the real ingest service:
-> `python3 scripts/aim-138-stub-ingest.py 8799` then
+> `python3 scripts/stub-ingest.py 8799` then
 > `aim join http://127.0.0.1:8799 --token demo`.
 
 ## Build the artifact (developers / air-gapped mirrors)
@@ -172,7 +172,7 @@ and must never be hand-edited.
 Aligned with the epic's binding security bar:
 
 - **Versioned, file-auditable wheel/sdist** as the install artifact (reproducible
-  build). The optional dashboard `enroll.sh` one-shot (AIM-1124) wraps pipx +
+  build). The optional dashboard `enroll.sh` one-shot wraps pipx +
   `aim join` for pilot UX; it never logs the enrollment token and fails closed
   without `token_file`.
 - **Stdlib-only runtime**, unchanged from the collectors.

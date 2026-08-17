@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- AIM-743: root LaunchDaemon — transcript scan + spool flush + enroll/heartbeat every 5 min. -->
+<!--: root LaunchDaemon — transcript scan + spool flush + enroll/heartbeat every 5 min. -->
 <plist version="1.0">
 <dict>
   <key>Label</key>

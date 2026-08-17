@@ -1,10 +1,10 @@
-"""Emit first-class shadow findings for AI SaaS OAuth grants (AIM-504).
+"""Emit first-class shadow findings for AI SaaS OAuth grants.
 
 Finding type: ``unapproved_ai_saas_grant``
 
 Emitted for every *active* grant (last_action=authorize) whose matched
 catalogue tool is unsanctioned OR uncatalogued. Sanctioned tools (Claude
-Code / Cursor / Kilo Code per AIM-16) do not emit this finding.
+Code / Cursor / Kilo Code) do not emit this finding.
 
 Subject carries ``user_ref`` = user_pseudonym only — never email. Evidence
 carries app name, client_id, scopes, first/last seen, idp_source. No prompt
@@ -52,7 +52,7 @@ def _should_emit(tool) -> tuple[bool, str]:
 
 
 def build_grant_findings(session: Session, catalogue: Catalogue) -> list[GrantFinding]:
-    """Build unapproved grant findings, honoring allow / known_non_ai (AIM-778).
+    """Build unapproved grant findings, honoring allow / known_non_ai.
 
     Analyst dispositions with action ``allow`` or ``known_non_ai`` suppress
     re-emit for matching finding_id / app_name / tool_id. ``persist_grant_findings``
@@ -68,7 +68,7 @@ def build_grant_findings(session: Session, catalogue: Catalogue) -> list[GrantFi
         tool = catalogue.match_oauth_app(g.app_name, g.client_id)
         if tool is None and catalogue.is_known_non_ai(g.app_name):
             continue
-        # AIM-778 closed loop: allow / known_non_ai dispositions suppress re-emit
+        # closed loop: allow / known_non_ai dispositions suppress re-emit
         app_key = (g.app_name or "").strip().lower()
         if app_key and app_key in suppress["apps"]:
             continue

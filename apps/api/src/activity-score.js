@@ -1,4 +1,4 @@
-// Deterministic per-event security score (AIM-144).
+// Deterministic per-event security score.
 //
 // A PURE, config-driven function of fields the schema already collects — no
 // new data collection, no model, no randomness. Identical inputs always
@@ -14,7 +14,7 @@
 // unit fixtures in test/activity-score.test.js).
 //
 // Grounded in existing config so the score cannot drift from policy:
-//   * sanctioned tools come from sanctioned.js (the AIM-16 locked list),
+// * sanctioned tools come from sanctioned.js (the locked list),
 //   * "known model" is a key in the pricing.js price table,
 //   * approved MCP servers mirror the guardrail policy's discovery-mode
 //     default (empty list ⇒ every MCP call is unapproved — intentional
@@ -136,7 +136,7 @@ export function scoreEvent(event = {}, ctx = {}) {
   // --- endpoint enforcement outcome ---
   const action = event.enforcement?.action;
   if (action && cfg.enforcement[action]) {
-    // AIM-567: confirmed is shared by secret break-glass and PII confirm —
+    // confirmed is shared by secret break-glass and PII confirm
     // label by rule so Activity trail does not mis-tag secret overrides as PII.
     const ruleId = event.enforcement?.rule_id;
     let label = 'would block (shadow)';

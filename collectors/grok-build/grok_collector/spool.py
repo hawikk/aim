@@ -1,4 +1,4 @@
-"""Local spool + flush to the ingestion API — canonical shared client (AIM-200/293).
+"""Local spool + flush to the ingestion API — canonical shared client.
 
 Every endpoint collector ships as a standalone package and vendors a
 byte-identical copy of this file (see scripts/sync_spool_client.py). It
@@ -12,14 +12,14 @@ batches; on failure the unacked remainder is kept for the next run.
 HTTP 200 is *not* full acceptance. The ingest API answers a batch with
 ``{accepted, duplicates, unresolved, rejected: [{index, error}]}`` and
 rejects individual schema-invalid events inside a 2xx response. Before
-AIM-200 this client read only the status line, so rejected events were
+this client read only the status line, so rejected events were
 dropped from the spool and counted as sent — a silent data-path loss that
 went fleet-wide whenever a producer was deployed ahead of its ingest
 (``additionalProperties: false`` means one unknown field rejects the whole
 event). Rejections are now parsed, written to a local DLQ with the reason,
 and surfaced by ``aim status`` / ``aim doctor`` and the heartbeat counters.
 
-Delivery integrity contract (AIM-293):
+Delivery integrity contract:
 
 * Only events ingest explicitly accepted (or already stored as duplicates)
   leave the spool as "delivered".
@@ -91,7 +91,7 @@ def rejections_path() -> Path:
 
 
 def dlq_path() -> Path:
-    """Permanent-rejection dead-letter file (AIM-293). One JSON object per line."""
+    """Permanent-rejection dead-letter file. One JSON object per line."""
     return state.state_dir() / "dlq.jsonl"
 
 
@@ -238,7 +238,7 @@ class _PostResult:
                  NOTE: ok does not mean every event was stored; see rejected.
     accepted     events ingest stored (excludes duplicates), when reported.
     rejected     per-event [{index, error}] ingest refused inside a 2xx.
-    backpressure ingest signalled overload (429/503, AIM-127). Stop draining
+    backpressure ingest signalled overload (429/503). Stop draining
                  and retain the spool; retry_after carries the server's
                  Retry-After hint (seconds) when present.
     """
@@ -292,7 +292,7 @@ def _parse_ack(raw: bytes) -> tuple[int | None, list[dict]]:
 
 
 def _ca_cert_path() -> str | None:
-    """Same resolution order as enroll-client (AIM-238)."""
+    """Same resolution order as enroll-client."""
     for key in ("AIM_CA_CERT", "SSL_CERT_FILE"):
         val = os.environ.get(key)
         if val:
@@ -302,7 +302,7 @@ def _ca_cert_path() -> str | None:
 
 
 def _resolve_map() -> dict:
-    """Hostname → connect-IP map (AIM-238). Mirrors enroll-client."""
+    """Hostname → connect-IP map. Mirrors enroll-client."""
     out = {}
     cfg_val = config.load().get("resolve")
     if isinstance(cfg_val, dict):
@@ -328,8 +328,8 @@ def _resolve_map() -> dict:
 
 def _post_batch(url: str, token: str, events: list[dict], collector: dict) -> _PostResult:
     # Identity is attested once per batch in the envelope — never inside
-    # event payloads (metadata-only contract, AIM-58).
-    # Transport honours ca_cert + resolve from config/env (AIM-238) so a
+    # event payloads (metadata-only contract).
+    # Transport honours ca_cert + resolve from config/env so a
     # single-VM join that needed --resolve/--ca-cert keeps flushing after.
     body_dict: dict = {"events": events}
     if collector:
@@ -380,7 +380,7 @@ def _post_batch(url: str, token: str, events: list[dict], collector: dict) -> _P
             conn.request("POST", request_path, body=body, headers=headers)
             resp = conn.getresponse()
             status = resp.status
-            # 429/503 = ingest admission control shedding under overload (AIM-127).
+            # 429/503 = ingest admission control shedding under overload.
             if status in (429, 503):
                 retry = _parse_retry_after(resp.getheader("Retry-After"))
                 return _PostResult(ok=False, backpressure=True, retry_after=retry)
@@ -407,12 +407,12 @@ def flush() -> dict:
     clean flush is ``rejected == 0 and error is None`` — callers that treat a
     2xx as success must check ``rejected``.
 
-    On ingest backpressure (429/503, AIM-127) the drain stops and the unsent
+    On ingest backpressure (429/503) the drain stops and the unsent
     remainder is retained for the next flush — the collector never piles on
     under overload. retry_after (when the server sends it) tells the daemon how
     long to wait before the next attempt; watch() honours it.
 
-    On a *fully* rejected batch the drain also stops (AIM-200). Every
+    On a *fully* rejected batch the drain also stops. Every
     following batch would fail the same way, so continuing would empty the
     whole spool into a contract mismatch; stopping bounds the loss to the one
     batch that already cannot be retried, and leaves the remainder for a

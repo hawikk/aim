@@ -1,4 +1,4 @@
-# grok-collector — Grok Build / Paperclip endpoint collector (AIM-271)
+# grok-collector — Grok Build / Paperclip endpoint collector
 
 Metadata-only usage collector for **Grok Build** when it runs as a Paperclip
 `grok_local` agent adapter (xAI-backed). Pure Python 3 stdlib — same packaging
@@ -6,20 +6,20 @@ posture as the Claude Code / Kimi Code collectors.
 
 ## What it collects (and what it never collects)
 
-Collects **metadata only**, per the locked content policy (AIM-16) and schema
+Collects **metadata only**, per the locked content policy and schema
 v1.8 (`packages/schema/schema/v1/ai-usage-event.schema.json`):
 
 - `tool = grok_build`, `provider = xai` (or derived from model prefix)
 - model id (from env / CLI; default `grok-4.5` for this fleet's adapter)
-- `cost_estimate_usd` (AIM-539): cache-aware xAI short-context list price
+- `cost_estimate_usd`: cache-aware xAI short-context list price
   (`uncached×$2 + cached×$0.30 + output×$6` per 1M for grok-4.5). Volume
   fields still use full `prompt_tokens`.
 - daily-rehashed session id derived from `PAPERCLIP_RUN_ID`
 - pseudonymized `host_ref` / optional `repo_ref` (workspace path HMAC)
-- token counts (AIM-371 / AIM-470) from the local Grok usage log
+- token counts from the local Grok usage log
   `~/.grok/logs/unified.jsonl` lines `shell.turn.inference_done`
   (numeric counters only — never prompt/response content):
-  1. **Primary (AIM-470):** `scan-once` / `aim watch` tails the log and
+  1. **Primary:** `scan-once` / `aim watch` tails the log and
      emits per-session token *deltas* for every local Grok turn, not only
      Paperclip heartbeats. First sight starts at EOF (no historical dump);
      set `AIM_GROK_LOG_BACKFILL_BYTES` for a one-shot catch-up window.
@@ -35,7 +35,7 @@ metadata-only usage counters above.
 
 ## Why this exists
 
-Board feedback on AIM-269: Grok Build on Paperclip was in active use and
+Grok Build on Paperclip was in active use and
 invisible to AIM. Existing collectors covered Claude Code, Cursor, Kilo Code,
 and Kimi Code; proxy endpoint intelligence had no xAI domains. This package
 closes the endpoint path; `collectors/proxy/endpoints.json` closes the network
@@ -59,7 +59,7 @@ match the other endpoint collectors.
 ## Policy note
 
 `grok_build` is a **first-class schema tool** (reportable by name). It is
-**not** automatically added to `approved_tools` — that remains a Security/CEO
+**not** automatically added to `approved_tools` — that remains a Security
 decision. Until approved, dashboard activity scoring and the unapproved-tool
 guardrail still treat it as outside the allowlist (same posture as
 `kimi_code`). See `docs/aim-271-grok-build-coverage.md`.

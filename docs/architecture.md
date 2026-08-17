@@ -10,7 +10,7 @@ A 700+ person engineering org uses AI coding tools with no central
 visibility. Security cannot answer "what are our engineers doing with AI
 tools?" — and cannot detect unapproved tools or leaked secrets.
 
-## Locked scoping decisions (AIM-15, amended)
+## Locked scoping decisions (amended)
 
 - Endpoints: mostly Windows + WSL + Linux. Windows/WSL collectors are P0;
   macOS install path exists (`deploy/macos`).
@@ -18,13 +18,13 @@ tools?" — and cannot detect unapproved tools or leaked secrets.
   SIEM is Microsoft Sentinel (CEF/webhook also supported).
 - Collection: **hybrid** — proxy/network log ingestion for breadth, endpoint
   collectors (tool hooks + scan) for depth, OS egress + IdP OAuth for shadow AI.
-- Sanctioned coding tools (AIM-16): Claude Code, Cursor, Kilo Code. Other
+- Sanctioned coding tools: Claude Code, Cursor, Kilo Code. Other
   first-class schema tools (e.g. `kimi_code`, `grok_build`) may be collected
   and shown in inventory while still scoring as unapproved until Security
   promotes them.
 - Platform guardrail engine: **observe-only** findings (`decision: "observe"`).
   Endpoint hooks may **enforce** the managed `enforcement.json` bundle
-  (secret-in-prompt block path; see AIM-296 / AIM-440).
+  (secret-in-prompt block path).
 - Content policy: **metadata-only** (tool, model, timestamps, token counts,
   repo/user/host pseudonyms, match flags). No prompt or code text stored.
 
@@ -32,7 +32,7 @@ tools?" — and cannot detect unapproved tools or leaked secrets.
 
 | Surface | Role |
 | --- | --- |
-| **`stack-aim-*` via security-stack gateway** (`https://ingest.localhost:8443` → product compose) | **Path of record** — demos, fleet truth, board metrics, dogfood |
+| **`stack-aim-*` via security-stack gateway** (`https://ingest.localhost:8443` → product compose) | **Path of record** — demos, fleet truth, program metrics, dogfood |
 | `aim-local-*` (`http://127.0.0.1:8080` / `:8181`) | Lab / pilot seed only — **do not** quote for fleet counts |
 | Personal mode (`aim personal`) | Offline single-user SQLite dashboard; zero outbound |
 
@@ -106,11 +106,11 @@ can only heartbeat on one ingest registry at a time.
   `SYSTEM_STATUS_ALERTS=1`.
 - Pipeline idle: `GET /api/pipeline/liveness` (threshold
   `PIPELINE_IDLE_THRESHOLD_SECONDS`, default 2h).
-- “What are we not seeing?”: `GET /api/coverage` / UI `#/coverage` (AIM-278).
+- “What are we not seeing?”: `GET /api/coverage` / UI `#/coverage`.
 
 ## Non-goals (current product boundary)
 
-- Multi-tenant SaaS control plane / billing (AIM-604: internal-only).
+- Multi-tenant SaaS control plane / billing (internal-only).
 - Storing prompt or response content.
 - Inline LLM gateway latency competition (observe-first architecture).
 - Claiming live AI-reviewer quality from stub-mode eval numbers — model

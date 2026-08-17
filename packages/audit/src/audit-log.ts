@@ -15,17 +15,17 @@
  * external WORM store (Azure Immutable Blob) — see docs/design. The record
  * format and verifier stay identical across backends.
  *
- * Audited action families (per AIM-27):
+ * Audited action families:
  *   dashboard.view                — who accessed which dashboard/data view
  *   policy.create|update|delete   — guardrail policy changes (incl. actor + diff ref)
- *   policy.sign|policy.promote    — signed policy packs (AIM-688: who sealed/promoted which policy_hash)
- *   policy.canary.start|expand|complete|rollback|clear — progressive canary + FP auto-rollback (AIM-687)
+ * policy.sign|policy.promote — signed policy packs (who sealed/promoted which policy_hash)
+ * policy.canary.start|expand|complete|rollback|clear — progressive canary + FP auto-rollback
  *   finding.open|ack|resolve      — finding lifecycle transitions
  *   alert.forwarded               — finding batches sent to Sentinel
  *   audit.verify                  — periodic chain-verification runs (self-audit)
- *   auth.login|auth.login.failed|auth.logout — SSO session lifecycle (AIM-95)
+ * auth.login|auth.login.failed|auth.logout — SSO session lifecycle
  *   authz.deny                    — rejected requests: 401 unauthenticated and
- *                                   403 wrong-role, incl. required roles (AIM-95)
+ * 403 wrong-role, incl. required roles
  */
 
 import { createHmac } from 'node:crypto';
@@ -38,7 +38,7 @@ const GENESIS = 'GENESIS';
  * (`localdev-audit-hmac-not-a-secret`). Public in the repo — anyone can forge
  * seals computed with it. Kept so verify/open can name the cause when an old
  * volume was sealed under this key and the operator switched to a real one
- * (or vice versa). AIM-244.
+ * (or vice versa)..
  */
 export const WELL_KNOWN_DEV_HMAC_KEY = 'localdev-audit-hmac-not-a-secret';
 
@@ -87,7 +87,7 @@ function canonical(value: unknown): string {
   // (they never reach disk), array entries become null. Without this a
   // caller passing { days: undefined } seals a string containing the literal
   // "undefined" while the stored record drops the key — every such record
-  // then fails verification (found via AIM-87 smoke test).
+  // then fails verification (found smoke test).
   if (value === undefined) return 'null'; // only reachable inside arrays
   if (value === null || typeof value !== 'object') return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
@@ -117,7 +117,7 @@ export class AuditLog {
     if (!existsSync(path)) writeFileSync(path, '');
     const records = AuditLog.readAll(path);
     if (records.length > 0) {
-      // AIM-244: refuse a non-empty chain sealed under the public compose
+      // refuse a non-empty chain sealed under the public compose
       // fallback. Using that key while a volume already holds records either
       // means we just re-keyed off a real secret (crash loop) or we are about
       // to append forgeable seals. Name the key, not "content tampered".
@@ -127,7 +127,7 @@ export class AuditLog {
             `well-known dev fallback (${WELL_KNOWN_DEV_HMAC_KEY}). That key is ` +
             `public in the repo — refuse to open. Restore the launcher-generated ` +
             `key from the stack .env (AIM_AUDIT_HMAC_KEY → AUDIT_HMAC_KEY), or ` +
-            `start with an empty audit volume if this is intentional (AIM-244).`,
+            `start with an empty audit volume if this is intentional.`,
         );
       }
       // Never append to a broken chain silently.
@@ -135,7 +135,7 @@ export class AuditLog {
       if (!result.ok) {
         const hint =
           result.reason?.includes('seal mismatch')
-            ? ' — usually content tampered OR AUDIT_HMAC_KEY does not match the key that sealed this volume (AIM-244)'
+            ? ' — usually content tampered OR AUDIT_HMAC_KEY does not match the key that sealed this volume'
             : '';
         throw new Error(`audit chain corrupt at seq ${result.failedSeq}: ${result.reason}${hint}`);
       }
@@ -188,7 +188,7 @@ export class AuditLog {
       if (r.prevSeal !== prevSeal) return { ok: false, count: i, failedSeq: r.seq, reason: 'broken chain link' };
       const { seal, ...unsigned } = r;
       if (sealRecord(key, unsigned) !== seal) {
-        // AIM-244: keep the short reason stable for existing tests/callers;
+        // keep the short reason stable for existing tests/callers;
         // constructors that need operator guidance add the key-mismatch hint.
         return {
           ok: false,

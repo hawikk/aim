@@ -6,14 +6,14 @@ Endpoints:
 - POST /resolve                     ingest pipeline calls this per event batch:
                                     endpoint identity in -> pseudonym + team out
 - GET  /device-mappings             list device_id/os_user -> directory email
-                                    bindings (AIM-455). Emails stay inside this
+                                    bindings. Emails stay inside this
                                     service; events still only carry pseudonyms.
 - POST /device-mappings             SECURITY-ROLE-GATED + audited. Creates the
                                     join key the resolver needs (rules 1–2).
-- GET  /service-identities          list declared non-human hosts (AIM-149)
+- GET /service-identities list declared non-human hosts
 - POST /service-identities          SECURITY-ROLE-GATED + audited. Declares a host
                                     as non-human, optionally naming its operator.
-- POST /join-keys/rebind-device     SECURITY-ROLE-GATED + audited (AIM-868). Moves
+- POST /join-keys/rebind-device SECURITY-ROLE-GATED + audited. Moves
                                     service_identities + device_mappings join keys
                                     from an obsolete device_id to the current one
                                     after re-enroll / stack recreate, so attribution
@@ -22,7 +22,7 @@ Endpoints:
                                     real identity. Every call (allowed or denied)
                                     is written to the audit log with actor+reason.
 
-Authn (AIM-306): the gated endpoints authenticate the caller with a bearer JWT
+Authn: the gated endpoints authenticate the caller with a bearer JWT
 this service verifies itself (see auth.py). No authorisation decision and no
 audit actor ever derives from a client-supplied header. The gate runs BEFORE
 request-body validation, so an unauthenticated probe gets a 403 and an audit
@@ -52,7 +52,7 @@ from .sync import sync_directory
 
 log = logging.getLogger(__name__)
 
-# AIM-1114: in-process counters for resolve fall-through signals. Exposed on
+# in-process counters for resolve fall-through signals. Exposed on
 # GET /metrics (Prometheus text). Process-local; reset on restart — page on
 # rate, not absolute value.
 _resolve_metrics = {
@@ -91,7 +91,7 @@ class ResolveResponse(BaseModel):
     team: str | None
     suspended: bool = False
     # "human" | "service" | "unknown" — machine activity stays labelled even when
-    # it resolves to a named operator's pseudonym (AIM-149).
+    # it resolves to a named operator's pseudonym.
     principal_kind: str = "human"
     service_id: str | None = None
 
@@ -140,7 +140,7 @@ DEVICE_MAPPING_SOURCES = ("intune", "collector", "manual", "enrollment")
 
 
 class DeviceMappingRequest(BaseModel):
-    """Bind an enrolled device (or OS user) to a directory human (AIM-455).
+    """Bind an enrolled device (or OS user) to a directory human.
 
     Without rows here the resolver rules 1–2 can never fire and every event
     falls through to unresolved — the 0% attribution failure mode.
@@ -178,7 +178,7 @@ def health() -> dict:
 
 @app.get("/metrics", response_class=PlainTextResponse)
 def metrics() -> str:
-    """Prometheus text exposition for resolve fall-through signals (AIM-1114)."""
+    """Prometheus text exposition for resolve fall-through signals."""
     lines = [
         "# HELP identity_resolve_total POST /resolve calls.",
         "# TYPE identity_resolve_total counter",
@@ -217,7 +217,7 @@ def resolve(
     _resolve_metrics["resolve_total"] += 1
     if r.resolution == "unresolved":
         _resolve_metrics["resolve_unresolved_total"] += 1
-        # AIM-1114: never silently absorb fall-through when a service principal
+        # never silently absorb fall-through when a service principal
         # is registered for this host. Missing device_id is the dogfood residual
         # (collector attests only os_user; service_identities are device_id-keyed).
         if not body.device_id:
@@ -228,8 +228,7 @@ def resolve(
             log.warning(
                 "resolve unresolved without device_id (os_user_present=%s "
                 "service_identities=%d) — registered service hosts will emit "
-                "principal_kind=unknown until the collector attests device_id "
-                "(AIM-1114)",
+                "principal_kind=unknown until the collector attests device_id",
                 bool(body.os_user),
                 svc_count,
             )
@@ -246,8 +245,7 @@ def resolve(
                 _resolve_metrics["resolve_unresolved_service_mapping_miss_total"] += 1
                 log.error(
                     "resolve returned unresolved but service_identity exists "
-                    "for device_id (service_id=%s); repairing to service principal "
-                    "(AIM-1114)",
+                    "for device_id (service_id=%s); repairing to service principal",
                     orphan.service_id,
                 )
                 r = resolve_service(session, orphan, settings.pseudonym_secret)
@@ -287,7 +285,7 @@ def _audit(
 _bearer = HTTPBearer(auto_error=False)
 
 #: Target recorded for audit rows written before the body is parsed. The gate
-#: runs ahead of validation on purpose (AIM-306): authorise first, then parse.
+#: runs ahead of validation on purpose: authorise first, then parse.
 _TARGET_UNPARSED = "(not parsed)"
 
 
@@ -405,7 +403,7 @@ def upsert_device_mapping(
 ) -> DeviceMappingResponse:
     """Bind a device (or OS user) to a directory human. Role-gated + audited.
 
-    AIM-455: enroll alone only mints a device token. This endpoint is the
+    enroll alone only mints a device token. This endpoint is the
     missing write path that populates ``device_mappings`` so resolver rules
     1–2 can fire. The email must already exist in ``dir_users`` — we refuse
     to invent identities that are not in the directory of record.
@@ -460,7 +458,7 @@ def upsert_device_mapping(
 
 
 class RebindDeviceRequest(BaseModel):
-    """Move identity-sync join keys when an enrolled device_id changes (AIM-868).
+    """Move identity-sync join keys when an enrolled device_id changes.
 
     Dogfood failure mode: identity-data volume keeps service_identities while
     ingest's devices table is recreated; re-enroll mints a new device_id and

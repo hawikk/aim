@@ -1,8 +1,8 @@
-// AIM-687: canary policy rollout + automatic rollback on FP spike.
+// canary policy rollout + automatic rollback on FP spike.
 //
-// Progressive deploy of a signed policy pack (AIM-688) with a cohort ladder
-// (AIM-793 semantics: percent of hosts). A periodic / manual tick evaluates
-// the detector session FP rate (AIM-672). If the rate breaches the canary
+// Progressive deploy of a signed policy pack with a cohort ladder
+// (semantics: percent of hosts). A periodic / manual tick evaluates
+// the detector session FP rate. If the rate breaches the canary
 // SLO with enough session volume, the controller restores the baseline pack
 // and freezes further expansion.
 //

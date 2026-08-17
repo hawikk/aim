@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * AIM-1126: pilot pull overrides must (1) clear `build:` on the pilot image
+ * pilot pull overrides must (1) clear `build:` on the pilot image
  * set, (2) pin `image:` from AIM_*_IMAGE, and (3) leave contributor
  * `docker compose up --build` intact when the pull override is not used.
  *

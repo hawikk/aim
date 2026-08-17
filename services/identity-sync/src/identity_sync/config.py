@@ -24,13 +24,13 @@ class Settings(BaseSettings):
     # Rotating this key rewrites every pseudonym — treat as a deliberate re-key event.
     pseudonym_secret: str = "dev-only-insecure-pseudonym-secret"
 
-    # Reveal grant (AIM-302 §1 / AIM-384): the IdP group (JWT `groups` claim,
+    # Reveal grant (§1 /): the IdP group (JWT `groups` claim,
     # minted by the platform IdP) whose members may reveal user-level identity.
     # Aligned with apps/api AIM_REVEAL_GROUPS — same grant name in both places.
     # Everything else sees team-level data only.
     reveal_role: str = "ai-monitoring-revealers"
 
-    # Caller authentication for the gated endpoints (AIM-306). The caller proves
+    # Caller authentication for the gated endpoints. The caller proves
     # identity with a bearer JWT this service verifies — never with headers.
     # Two verifier paths, either is sufficient, both fail closed when absent:
     # - jwt_hs256_secret: shared secret for in-network/service callers and dev.
@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     # Domain used when a bare OS username must be expanded to an email (fallback join key).
     primary_email_domain: str = "example.com"
 
-    # AIM-714: auto force-deny live AIM SSO sessions when a directory user is
+    # auto force-deny live AIM SSO sessions when a directory user is
     # newly suspended / missing. Both must be set; otherwise sync still
     # updates dir_users and skips the platform revoke (opt-in).
     # The bearer must be a service token whose name is listed in the API's

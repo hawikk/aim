@@ -1,7 +1,7 @@
 # Tool adapter contract
 
-**Status:** ratified (implementation) · **Date:** 2026-07-29 · **Issue:** AIM-304  
-**Author:** Founding Engineer 2  
+**Status:** ratified (implementation) · **Date:** 2026-07-29
+
 **Companion code:** `collectors/adapter/`
 
 ## 1. Charter
@@ -59,7 +59,7 @@ ExtractResult {
 
 Rules:
 
-1. **Metadata only (AIM-16).** Forbidden on the wire: `prompt*`, `response*`, `body`, `content`, `cmdline`, `args`, URL path/query, page title, file contents. The runtime strips these keys before emit; ingest still rejects via `additionalProperties: false`.
+1. **Metadata only.** Forbidden on the wire: `prompt*`, `response*`, `body`, `content`, `cmdline`, `args`, URL path/query, page title, file contents. The runtime strips these keys before emit; ingest still rejects via `additionalProperties: false`.
 2. Emit exactly the fields you have. Never invent token counts or models.
 3. First-class `tool` enum values (`claude_code`, `cursor`, `kilo_code`, `kimi_code`, `grok_build`, `genai_app`) are used when the schema already names the tool. Everything else is `tool: "other"` + `tool_raw: <manifest.id>`.
 4. Session ids that are stable across days are re-hashed per UTC day (`HMAC(date || raw_id)`).
@@ -136,13 +136,13 @@ Salt resolution (same as existing collectors): `AIM_HASH_SALT` env → managed c
 
 Both manifests live under `collectors/adapter/manifests/`. Neither required a change to surface implementations or the emit/identity core — only new YAML (+ fixture data for tests).
 
-**Not chosen for the first pair:** Codex CLI was deferred in AIM-304 (assumed JSONL; real state is SQLite). **Shipped in AIM-1012** as `codex_cli` via the reusable `sqlite_table` format on `local_session_logs` (see `docs/aim-1012-codex-cli-coverage.md`).
+**Not chosen for the first pair:** Codex CLI was deferred (assumed JSONL; real state is SQLite). **Shipped** as `codex_cli` via the reusable `sqlite_table` format on `local_session_logs` (see `docs/aim-1012-codex-cli-coverage.md`).
 
-**AIM-1169 high-prevalence pack:** `windsurf`, `cline` (Cline + Roo), `amazon_q`. Named `tool=other` + `tool_raw`. Cline/Roo is the depth tool (`json_session` on inspected HistoryItem files; optional `records_key` for Cline `globalState.json`). Windsurf and Amazon Q stay presence-only (path / extension / binary / existing proxy catalogue) — their local stores are contentful (Cascade transcripts; Amazon Q CLI `data.sqlite3` history/conversations/auth). See `docs/aim-1169-high-prevalence-adapter-pack.md`.
+**high-prevalence pack:** `windsurf`, `cline` (Cline + Roo), `amazon_q`. Named `tool=other` + `tool_raw`. Cline/Roo is the depth tool (`json_session` on inspected HistoryItem files; optional `records_key` for Cline `globalState.json`). Windsurf and Amazon Q stay presence-only (path / extension / binary / existing proxy catalogue) — their local stores are contentful (Cascade transcripts; Amazon Q CLI `data.sqlite3` history/conversations/auth). See `docs/aim-1169-high-prevalence-adapter-pack.md`.
 
-**AIM-1176 adapter pack 2:** `continue`, `cody`, `jetbrains_ai`. Continue is the depth tool (`sqlite_table` on inspected `~/.continue/dev_data/devdata.sqlite` `tokens_generated`). Cody and JetBrains AI stay presence-only after inspecting local state (VS Code `cody-local-chatHistory-v2` transcripts; JetBrains `ml-llm` chats). Optional glob on discovery paths names versioned JetBrains config trees. See `docs/aim-1176-adapter-pack-2.md`.
+**adapter pack 2:** `continue`, `cody`, `jetbrains_ai`. Continue is the depth tool (`sqlite_table` on inspected `~/.continue/dev_data/devdata.sqlite` `tokens_generated`). Cody and JetBrains AI stay presence-only after inspecting local state (VS Code `cody-local-chatHistory-v2` transcripts; JetBrains `ml-llm` chats). Optional glob on discovery paths names versioned JetBrains config trees. See `docs/aim-1176-adapter-pack-2.md`.
 
-**AIM-1185 adapter pack 3:** `tabnine`, `augment`, `supermaven`. All three stay presence-only after inspecting local state (Tabnine `tabnine_config.json` / `.refresh_token_v2`; Augment chat + `mcpServers.json`; Supermaven `~/.supermaven` binary cache). Named `tool=other` + `tool_raw`. Existing proxy catalogue rule ids already join those `tool_raw` values. See `docs/aim-1185-adapter-pack-3.md`.
+**adapter pack 3:** `tabnine`, `augment`, `supermaven`. All three stay presence-only after inspecting local state (Tabnine `tabnine_config.json` / `.refresh_token_v2`; Augment chat + `mcpServers.json`; Supermaven `~/.supermaven` binary cache). Named `tool=other` + `tool_raw`. Existing proxy catalogue rule ids already join those `tool_raw` values. See `docs/aim-1185-adapter-pack-3.md`.
 
 ## 5. Existing collectors on the contract
 
@@ -153,9 +153,9 @@ Both manifests live under `collectors/adapter/manifests/`. Neither required a ch
 | Kilo Code | `kilo_code.yaml` | `local_session_logs` | **On contract** via legacy bridge |
 | Kimi Code | `kimi_code.yaml` | `local_session_logs` | **On contract** via legacy bridge |
 | Grok Build | `grok_build.yaml` | `local_session_logs` (Paperclip run usage) | **On contract** via legacy bridge |
-| Codex CLI | `codex_cli.yaml` | `local_session_logs` (`sqlite_table` on `state_*.sqlite`) | **On contract** (AIM-1012); `other` + `tool_raw=codex_cli` |
+| Codex CLI | `codex_cli.yaml` | `local_session_logs` (`sqlite_table` on `state_*.sqlite`) | **On contract**; `other` + `tool_raw=codex_cli` |
 | Proxy ingest | (catalogue, not a tool) | `proxy_domain` | Surface implementation reuses `endpoints.json` |
-| OS egress | (catalogue-driven) | `proxy_domain` class signal | Companion to AIM-321; not a per-tool fork |
+| OS egress | (catalogue-driven) | `proxy_domain` class signal | Companion to; not a per-tool fork |
 
 **Documented reason some depth stays in legacy packages:** Claude Code’s PreToolUse/UserPromptSubmit enforcement and Cursor’s private vscdb layout are tool-specific parsers. Rewriting them as pure config would either lose fidelity or invent a second programming language inside YAML. The contract requires they **register as adapters** and **emit the same event / privacy boundary**; it does not require deleting working parsers on day one. New tools must not copy that pattern when a generic surface fits.
 
@@ -170,7 +170,7 @@ Proof: `python3 -m aim_adapter proof` (see `collectors/adapter/README.md`) loads
 
 ## 7. Privacy boundary
 
-Same as AIM-16 / existing collectors:
+Same as / existing collectors:
 
 - Metadata only on the wire.
 - `additionalProperties: false` at ingest.

@@ -1,4 +1,4 @@
-/* Shared runtime surface for dashboard views (AIM-527 pure move from app.js).
+/* Shared runtime surface for dashboard views (pure move from app.js).
  *
  * Views import from here instead of reaching into app.js. The mutable surface
  * is intentional and enumerated — see docs/frontend-app-js-split-map.md.
@@ -17,7 +17,7 @@ import { hashFor as buildHash } from './router.js';
 import { $ } from './dom.js';
 import { api, apiJson } from './api.js';
 
-/* The fetch boundary lives in lib/api.js (AIM-1089); re-exported here so
+/* The fetch boundary lives in lib/api.js; re-exported here so
  * the established `import { api } from './lib/runtime.js'` surface keeps
  * working unchanged. */
 export { api, apiJson };
@@ -118,7 +118,7 @@ export async function refreshSanctionedHint() {
   }
 }
 
-/* Underscore aliases for views/* pre-rename imports (AIM-527 → AIM-782). */
+/* Underscore aliases for views/* pre-rename imports (→). */
 export {
   state as _state,
   refresh as _refresh,

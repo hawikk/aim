@@ -1,4 +1,4 @@
-# matcher-ruleset — canonical endpoint secret/PII ruleset (AIM-91)
+# matcher-ruleset — canonical endpoint secret/PII ruleset
 
 `matchers.py` here is the **single source of truth** for the local secret/PII
 detectors that run inside every endpoint collector (claude-code, cursor,
@@ -23,7 +23,7 @@ so each carries a verbatim vendored copy.
   whitespace-deleted pass restricted to token-style detectors, and a
   bounded base64 decode-and-rescan.
 - Three detector categories (name prefix): `secret:*` (credential material),
-  `pii:*` (personal data), and `injection:*` (AIM-96 — prompt-injection /
+  `pii:*` (personal data), and `injection:*` (— prompt-injection /
   jailbreak phrasings in EN/DE/FR/ES: instruction override, persona and
   system-prompt override, prompt extraction, jailbreak personas,
   chat-template delimiter injection).
@@ -34,4 +34,4 @@ so each carries a verbatim vendored copy.
 - Output is detector names only — matched content never leaves the endpoint.
 
 Detector changes are security-relevant behavior changes: they need
-CEO/Security sign-off (see the AIM-91 thread for the ratified proposal).
+Security sign-off.

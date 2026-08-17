@@ -69,16 +69,16 @@ _VALID_BLOCK_ON = ("critical", "high", "medium", "low", "informational")
 class Config:
     suppressions: list[Suppression] = field(default_factory=list)
     disabled_scanners: list[str] = field(default_factory=list)
-    # `ai_review:` (AIM-162). None = no opinion (the environment decides);
+    # `ai_review:`. None = no opinion (the environment decides);
     # False = this repo opts the AI reviewer out entirely. `ai_blocking` is the
     # one way AI findings may fail a check, and it is opt-in per repo.
     ai_enabled: bool | None = None
     ai_blocking: bool = False
-    # `suggested_fixes:` (AIM-234). Default on — a repo opts out explicitly.
-    # Draft-PR routing still requires the service-level allowlist (AIM-185 gate);
+    # `suggested_fixes:`. Default on — a repo opts out explicitly.
+    # Draft-PR routing still requires the service-level allowlist (gate);
     # this flag only controls whether gatehouse posts ```suggestion comments.
     suggest_enabled: bool = True
-    # `enforcement.block_on` (AIM-298). Per-repo severity threshold for which
+    # `enforcement.block_on`. Per-repo severity threshold for which
     # findings fail the check. None = use service default (`GATEHOUSE_FAIL_ON`).
     # Security owns the value; engineering owns the mechanism.
     block_on: str | None = None
@@ -149,7 +149,7 @@ def parse(text: str) -> Config:
                 else:
                     config.problems.append("`suggested_fixes.enabled` must be true or false")
 
-    # AIM-298: per-repo blocking threshold. Service default remains
+    # per-repo blocking threshold. Service default remains
     # GATEHOUSE_FAIL_ON; this only overrides when the base-branch config says so.
     enforcement = raw.get("enforcement")
     if enforcement is not None:

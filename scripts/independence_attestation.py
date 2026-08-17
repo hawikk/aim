@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Continuous independence attestation for Dimension 16 (AIM-639 / AIM-751).
+"""Continuous independence attestation for Dimension 16.
 
 Exit 0 when all architectural controls for independence from the agent
 execution loop are present and self-consistent; exit 1 otherwise.

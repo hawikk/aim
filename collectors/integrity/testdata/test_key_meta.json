@@ -1,5 +1,5 @@
 {
   "key_id": "aim-test-config-v1",
   "alg": "Ed25519",
-  "note": "Ephemeral test keys for AIM-639 anti-bypass suite. Never use in production."
+  "note": "Ephemeral test keys anti-bypass suite. Never use in production."
 }

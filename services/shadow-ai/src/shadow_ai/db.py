@@ -5,7 +5,7 @@ platform norm for Postgres queryable data, applied at ingest boot). These
 models mirror it so dev/test can create_all against SQLite. Keep the two in
 sync — same columns, same constraints.
 
-Privacy (AIM-300 / AIM-504 boundary):
+Privacy (boundary):
 - user_pseudonym is u_<hmac> from the shared HMAC secret, never an email.
 - scopes are OAuth scope URIs (metadata), never content.
 - No URLs beyond domain level, no request content, anywhere in this subsystem.
@@ -77,7 +77,7 @@ class ToolInventoryRow(Base):
 
 
 class GrantFinding(Base):
-    """Materialized unapproved_ai_saas_grant rows (AIM-504). Pseudonym only."""
+    """Materialized unapproved_ai_saas_grant rows. Pseudonym only."""
 
     __tablename__ = "shadow_ai_findings"
 
@@ -102,7 +102,7 @@ class GrantFinding(Base):
 
 
 class CodingDiscoveryFinding(Base):
-    """Materialized unknown_ai_coding_tool rows (AIM-644). Discovery only.
+    """Materialized unknown_ai_coding_tool rows. Discovery only.
 
     Separate from grant findings so sync/persist of each rule_id cannot
     clobber the other. Analyst disposition is on platform ``findings``.
@@ -131,7 +131,7 @@ class CodingDiscoveryFinding(Base):
     )
 
 
-# Discovery-queue statuses (AIM-776 / migration 027).
+# Discovery-queue statuses (migration 027).
 DISCOVERY_STATUSES = frozenset(
     {"open", "proposed", "catalogued", "dismissed", "known_non_ai"}
 )
@@ -146,7 +146,7 @@ DISCOVERY_TRANSITIONS = {
 
 
 class DiscoveryQueueRow(Base):
-    """Uncatalogued IdP apps waiting for a catalogue PR (AIM-776).
+    """Uncatalogued IdP apps waiting for a catalogue PR.
 
     Table DDL: services/ingest/migrations/034_shadow_ai_ops.sql.
     Privacy: app names + client ids + identity counts only — no emails.
@@ -176,7 +176,7 @@ class DiscoveryQueueRow(Base):
 
 
 class Disposition(Base):
-    """Append-only analyst disposition on a finding / app / tool (AIM-778).
+    """Append-only analyst disposition on a finding / app / tool.
 
     Postgres enforces append-only via trigger (migration 027). SQLite unit
     tests only INSERT. Active disposition = latest row per

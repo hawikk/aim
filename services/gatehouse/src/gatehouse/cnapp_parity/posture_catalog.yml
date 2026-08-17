@@ -7,7 +7,7 @@
 # entry must point at a catalog slug; every catalog rule with
 # `iac_required: true` must have ≥1 IaC rule mapped to it.
 #
-# AIM-329.
+#.
 
 version: 1
 source: littlewiz/backend/rules

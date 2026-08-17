@@ -1,9 +1,9 @@
-/* Alert destinations panel: load + save interactions (AIM-1147) — pure-moved
+/* Alert destinations panel: load + save interactions — pure-moved
  * from rules.js.
  *
  * Owns everything that mutates /api/guardrail/alerts: the destination cards
- * (AIM-94/584 — per-card save and one-click save-all), the email Test send
- * (AIM-988), and the multi-stage escalation ladder editor (AIM-990). Applying
+ * (— per-card save and one-click save-all), the email Test send
+ *, and the multi-stage escalation ladder editor. Applying
  * a fresh payload re-renders the cards and re-stamps the per-rule route chips
  * on the rules list, since routing is derived from the same destinations.
  *
@@ -86,7 +86,7 @@ export async function loadAlerts(opts) {
 }
 
 /* Validation failures land in the card's .ac-err and focus moves to the
- * offending field — lib/form.js showFieldError (AIM-1113). */
+ * offending field — lib/form.js showFieldError. */
 function showCardError(cardEl, errEl, result) {
   showFieldError(errEl, result.message, result.field ? cardEl.querySelector(`.${result.field}`) : null);
 }
@@ -95,7 +95,7 @@ export function bindAlertsPanel() {
   const alertCards = rulesState.alertCards;
 
   alertCards.addEventListener('click', async (e) => {
-    /* AIM-990: escalation policy editor */
+    /*: escalation policy editor */
     const addPolicyBtn = e.target.closest('[data-add-policy]');
     if (addPolicyBtn) {
       const policies = collectEscalationPoliciesFromDom();
@@ -181,7 +181,7 @@ export function bindAlertsPanel() {
       return;
     }
 
-    /* AIM-988: prove email delivery without leaving Rules. Body is destination
+    /*: prove email delivery without leaving Rules. Body is destination
      * only — SMTP secrets stay server/env-side; never send host/password. */
     const testBtn = e.target.closest('[data-test-send]');
     if (testBtn) {
@@ -214,7 +214,7 @@ export function bindAlertsPanel() {
       return;
     }
 
-    /* AIM-584: one click commits every destination card — multi-destination
+    /*: one click commits every destination card — multi-destination
      * edits without hand-assembling JSON or three separate saves. */
     const saveAllBtn = e.target.closest('[data-save-all-alerts]');
     if (saveAllBtn) {
@@ -262,7 +262,7 @@ export function bindAlertsPanel() {
     const payload = payloadForDestination(dest, fields);
     const title = cardEl.querySelector('h3 span[id]')?.textContent ?? dest;
     try {
-      /* AIM-515: the PUT response re-renders all three cards, so the Save button
+      /*: the PUT response re-renders all three cards, so the Save button
        * the operator just pressed is destroyed and focus falls to <body>.
        * Restore it to the same card's Save button, and announce — the "Saved"
        * chip is a visual-only confirmation otherwise. */

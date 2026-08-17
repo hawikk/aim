@@ -1,4 +1,4 @@
-# AIM-1126 — Prefer prebuilt GHCR images over cold `compose build`.
+# — Prefer prebuilt GHCR images over cold `compose build`.
 #
 # Use with the base stack (and optionally the pilot profile filter):
 #
@@ -21,7 +21,7 @@
 # .github/workflows/release-images.yml). Always pin tag or digest.
 #
 # Compose v2: `build: !reset null` clears the base file's `build:` keys.
-# Plain `build: null` does NOT clear them (AIM-599 drill).
+# Plain `build: null` does NOT clear them (drill).
 
 name: aim-local
 

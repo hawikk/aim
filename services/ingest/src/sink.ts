@@ -44,14 +44,14 @@ function safeSerialize(value: unknown): string {
 }
 
 /**
- * Accepted event after identity enrichment (AIM-49). user_pseudonym/team come
+ * Accepted event after identity enrichment. user_pseudonym/team come
  * from identity-sync POST /resolve; both are null when the batch could not be
  * attributed (unresolved events are stored, never dropped).
  */
 export interface EnrichedEvent extends UsageEventV1 {
   user_pseudonym: string | null;
   team: string | null;
-  /** "human" | "service" | null — see identity.ts Resolution (AIM-149). */
+  /** "human" | "service" | null — see identity.ts Resolution. */
   principal_kind: string | null;
 }
 

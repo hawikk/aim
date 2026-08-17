@@ -1,4 +1,4 @@
-"""Non-secret health/self-check for gatehouse PAT consumers (AIM-1090).
+"""Non-secret health/self-check for gatehouse PAT consumers.
 
 Purpose: make the cutover from interim OAuth (`gho_*`) / classic PATs to
 repo-scoped fine-grained PATs a one-step swap with a fail-closed probe that
@@ -27,7 +27,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Callable
 
 API_ROOT = os.environ.get("GATEHOUSE_GITHUB_API", "https://api.github.com")
-USER_AGENT = "gatehouse-token-check/0.1 (+ai-monitoring AIM-1090)"
+USER_AGENT = "gatehouse-token-check/0.1 (+ai-monitoring)"
 
 # Ranked permission from GraphQL repository.viewerPermission.
 _PERM_RANK = {
@@ -40,7 +40,7 @@ _PERM_RANK = {
 }
 
 # Documented least-privilege matrix (must match the cutover runbook).
-# Issues: Read is enough for list_issue_comments; AIM-419 may still mint Issues
+# Issues: Read is enough for list_issue_comments; may still mint Issues
 # Read/Write for future issue-filing — either satisfies the current probe.
 READ_ROLE = "read"
 WRITE_ROLE = "write"
@@ -310,7 +310,7 @@ def check_read_token(
         report.warnings.append(
             f"{env_var} is still interim kind={ident.kind} (prefix "
             f"{'gho_' if ident.kind == 'oauth' else 'ghp_'}). Target is a "
-            f"repo-scoped fine-grained PAT (AIM-419)."
+            f"repo-scoped fine-grained PAT."
         )
     elif ident.kind == "unknown":
         report.warnings.append(
@@ -386,7 +386,7 @@ def check_write_token(
     elif ident.kind in ("oauth", "classic-pat"):
         report.warnings.append(
             f"{env_var} is still interim kind={ident.kind}. Target is a "
-            f"repo-scoped fine-grained PAT (AIM-360 / AIM-361)."
+            f"repo-scoped fine-grained PAT."
         )
 
     auth, scopes = probe_auth_and_scopes(token, http=http, api_root=api_root)
@@ -500,7 +500,7 @@ def check_tokens(
         msg = (
             "GATEHOUSE_GITHUB_TOKEN and GATEHOUSE_REVERT_TOKEN are the same "
             "credential — a read-path compromise is a write primitive. Prefer "
-            "separate fine-grained PATs (AIM-419 read + AIM-360/361 write)."
+            "separate fine-grained PATs (read + write)."
         )
         report.warnings.append(msg)
         if require_fine_grained:

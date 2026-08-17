@@ -1,11 +1,11 @@
 """AI/LLM security review — the layer that reads the diff like a reviewer
-(AIM-162, repo-graph slice AIM-233).
+(repo-graph slice).
 
 Static scanners match patterns; they do not reason about whether the account
 id on line 4 is ever checked against the caller on line 9. This package sends
 the PR's added hunks — plus a capped window of surrounding context, and a
 bounded call-graph of caller/callee *signatures* for the symbols the PR
-touched (AIM-233) — to a configurable, self-hostable LLM endpoint and
+touched — to a configurable, self-hostable LLM endpoint and
 normalizes what comes back into ordinary `Finding`s.
 
 Three rules shape everything in here:

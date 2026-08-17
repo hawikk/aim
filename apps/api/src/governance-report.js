@@ -1,4 +1,4 @@
-// Executive AI-governance report (AIM-325) — report builder, renderers, diff.
+// Executive AI-governance report — report builder, renderers, diff.
 //
 // Answers "what did AI tools do last month?" as a stored, hashed, diffable
 // artifact instead of a dashboard screenshot:
@@ -76,7 +76,7 @@ export async function buildReport(period, deps) {
   const { db } = deps;
   const now = deps.now ?? new Date();
   const p = [period.from, period.to];
-  // AIM-484: live allow-list (not the process-boot seed).
+  // live allow-list (not the process-boot seed).
   const sanctionedTools = new Set(await listSanctionedToolNames(db));
 
   const [
@@ -181,7 +181,7 @@ export async function buildReport(period, deps) {
   const enforcementTotals = { blocked: 0, would_block: 0, confirmed: 0 };
   for (const a of enforcementActions) enforcementTotals[a.action] = (enforcementTotals[a.action] ?? 0) + a.count;
 
-  // Enforcement coverage denominator (AIM-110 doctrine): zero blocks is only
+  // Enforcement coverage denominator (doctrine): zero blocks is only
   // a clean number when endpoints actually ran a policy bundle.
   const postureRow = postureRes.rows[0] ?? {};
   const posture = {
@@ -248,7 +248,7 @@ export async function buildReport(period, deps) {
         enforcement: enforcementActions,
         // No redacting enforcement surface is deployed; null, not zero.
         redactions: null,
-        // Exception workflow (AIM-322) is not yet in stored data; null so
+        // Exception workflow is not yet in stored data; null so
         // the report cannot invent a clean "0 exceptions" claim.
         exceptions: null,
         note: 'Triage dispositions from the append-only finding_transitions log (actor + reason). ' +

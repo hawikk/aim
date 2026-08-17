@@ -223,7 +223,7 @@ class Client:
                               start_side: str | None = None) -> int:
         """Post one pull-request review comment (inline on Files changed).
 
-        Used for AIM-234 ```suggestion blocks. Failures are the caller's to
+        Used ```suggestion blocks. Failures are the caller's to
         handle: a missing line in the diff is a 422 and must not crash the
         whole report. Returns the comment id, or 0 when GitHub omits it.
         """
@@ -253,7 +253,7 @@ class Client:
             return ""
         return payload if isinstance(payload, str) else ""
 
-    # ---- coverage ledger (AIM-332) ---------------------------------------
+    # ---- coverage ledger ---------------------------------------
 
     def list_installations(self) -> list[dict]:
         """Every installation of this App. App JWT, no installation token.
@@ -337,8 +337,8 @@ class Client:
                              body: str = "") -> int:
         """Post one PR review with inline comments on the exact diff lines.
 
-        Used for AIM-328 SAST annotations (message + fix hint on the line) and
-        for AIM-234 ```suggestion blocks. Always `event: COMMENT` — never
+        Used SAST annotations (message + fix hint on the line) and
+        ```suggestion blocks. Always `event: COMMENT` — never
         `REQUEST_CHANGES` or `APPROVE`. Returns the review id, or 0 when there
         is nothing to post.
         """
@@ -363,7 +363,7 @@ class Client:
                                  body: str = "") -> int:
         """Post one advisory PR review carrying committable ```suggestion blocks.
 
-        Thin wrapper over `create_inline_review` with the AIM-234 default body.
+        Thin wrapper over `create_inline_review` with the default body.
         """
         return self.create_inline_review(
             repo, pr_number, token=token, commit_id=commit_id, comments=comments,

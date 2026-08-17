@@ -14,7 +14,7 @@
 # Never put token values in this unit file.
 
 [Unit]
-Description=AIM-298 out-of-band gatehouse merge auditor (bus publish + auto-revert)
+Description=Out-of-band gatehouse merge auditor (bus publish + auto-revert)
 Documentation=https://github.com/hawikk/aim
 After=network-online.target
 Wants=network-online.target

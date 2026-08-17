@@ -1,4 +1,4 @@
-# kimi-collector — Kimi Code endpoint collector (AIM-60)
+# kimi-collector — Kimi Code endpoint collector
 
 Metadata-only usage collector for [Kimi Code](https://www.kimi.com/) (the
 terminal CLI by Moonshot AI) on Linux / macOS / WSL. Pure Python 3 stdlib —
@@ -9,9 +9,8 @@ data under `~/.kimi-code/`.
 
 ## What it collects (and what it never collects)
 
-Collects **metadata only**, per the locked content policy (AIM-16) and the
-ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`,
-AIM-18):
+Collects **metadata only**, per the locked content policy and the
+ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`):
 
 - model + provider (the wire log records both per request), token usage
   (`tokens_in`/`tokens_out`; all input-side counts — `inputOther`,
@@ -25,10 +24,9 @@ It **never** transmits prompt text, response text, session titles, or file
 contents. Kimi Code's `state.json` (`title`, `lastPrompt`) and `wire.jsonl`
 (`turn.prompt`, `context.append_message`, `context.append_loop_event`)
 contain all of these; the collector reads only the safe fields listed below
-and never emits content. Local content scanning (AIM-88) runs ON THE
+and never emits content. Local content scanning runs ON THE
 ENDPOINT with the unified secret/PII matcher ruleset shared by all
-collectors (canonical source `collectors/matcher-ruleset/matchers.py`,
-AIM-91): each `turn.prompt`'s text is
+collectors (canonical source `collectors/matcher-ruleset/matchers.py`): each `turn.prompt`'s text is
 scanned in memory and discarded, and only detector names leave the machine
 via `match_flags` on that turn's events. All other content-bearing records
 are still skipped by record type. Ingest rejects out-of-schema fields
@@ -88,9 +86,9 @@ Provider: taken from the wire log's own `provider` field when present
 derivation (`kimi`/`moonshot`/`k2`/`k3` → `"kimi"`; we emit `"kimi"`, not
 `"moonshot"`, to stay consistent with the tool's self-reporting).
 
-## Tool-call capture & MCP inventory (AIM-97)
+## Tool-call capture & MCP inventory
 
-Mirrors the Claude Code collector's AIM-86, against schema v1.2.
+Mirrors the Claude Code collector's, against schema v1.2.
 
 **Tool calls.** `context.append_loop_event` records nesting a
 `tool.call` event are counted per wire file and delta-emitted as one
@@ -107,7 +105,7 @@ produces an event. What IS captured, per tool per scan window
   `mcp_call` / `other` (unknown tools are `other`, never a guess)
 - invocation count (delta-emitted against the checkpoint's
   `tool_calls` / `emitted_tool_calls` fragments, so dashboards can sum;
-  pre-AIM-97 checkpoints are backfilled via `setdefault`)
+  earlier checkpoints are backfilled via `setdefault`)
 - `duration_ms` — always `null` (schema-valid): `tool.result` records
   carry no timing fields, so wall time is not derivable
 
@@ -164,7 +162,7 @@ caveats:
    aggregates multiple calls into one usage record, events would aggregate
    the same way (still sum-correct for tokens).
 3. **No cost.** No provider-reported cost on disk (see above), so
-   `cost_estimate_usd` is never emitted. `match_flags` ARE emitted (AIM-88):
+   `cost_estimate_usd` is never emitted. `match_flags` ARE emitted:
    `turn.prompt` text is scanned locally with the shared matcher ruleset and
    only detector names are attached to the turn's events, giving Kimi Code
    the same endpoint detection coverage as the other collectors.

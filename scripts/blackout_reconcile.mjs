@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// AIM-211 — reconcile merges made during the Actions blackout (AIM-209).
+// — reconcile merges made during the Actions blackout.
 //
 //   node scripts/blackout_reconcile.mjs --self-test   # prove the rules bite
 //   node scripts/blackout_reconcile.mjs               # report (read-only)
@@ -293,7 +293,7 @@ function sweep(window) {
 }
 
 // ---------------------------------------------------------------------------
-// machine-readable reconciliation record (AIM-211)
+// machine-readable reconciliation record
 //
 // The audit (.github/scripts/merge-audit.cjs) defers to this artifact for any
 // merge inside the closed window instead of re-deriving the verdict against
@@ -311,7 +311,6 @@ function artifact(rows, window) {
   });
   return {
     schema: "aim.blackout-reconciliation/v1",
-    issue: "AIM-211",
     generated_at: new Date().toISOString(),
     window: { start: window.start, end: window.end },
     // Direct pushes to main with no PR. The sweep enumerates via the PR API
@@ -320,9 +319,9 @@ function artifact(rows, window) {
     // excuses none of them: no PR means no gate, and no gate outside the
     // window is a bypass.
     direct_pushes: [
-      { sha: "9f44473b6042007867009d6c7ec53c7968fc59fd", committed_at: "2026-07-29T11:44:39Z", subject: "fix(AIM-364): restore AIM-319 ingest shared-token compose env after merge train", class: "bypass", direct_push: true },
-      { sha: "882e7657a9e3ef7b5dddb337208cffb1202f59be", committed_at: "2026-07-29T11:48:03Z", subject: "fix(AIM-364): drop reintroduced dangling shadow-ai import", class: "bypass", direct_push: true },
-      { sha: "f78e961003479e50cb0c17d1cde428fcf3ddae58", committed_at: "2026-07-29T11:56:55Z", subject: "fix(AIM-365): default local compose alert bus for api and guardrail", class: "bypass", direct_push: true },
+      { sha: "9f44473b6042007867009d6c7ec53c7968fc59fd", committed_at: "2026-07-29T11:44:39Z", subject: "fix: restore ingest shared-token compose env after merge train", class: "bypass", direct_push: true },
+      { sha: "882e7657a9e3ef7b5dddb337208cffb1202f59be", committed_at: "2026-07-29T11:48:03Z", subject: "fix: drop reintroduced dangling shadow-ai import", class: "bypass", direct_push: true },
+      { sha: "f78e961003479e50cb0c17d1cde428fcf3ddae58", committed_at: "2026-07-29T11:56:55Z", subject: "fix: default local compose alert bus for api and guardrail", class: "bypass", direct_push: true },
     ],
     merges: rows.map(({ pr, verdict, att }) => ({
       pr: pr.number,

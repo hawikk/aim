@@ -3,7 +3,7 @@
 Used only to produce ``cost_usd_estimate`` -- a rough proxy for chargeback
 and anomaly detection, not billing data. Unknown models yield ``None``.
 Prices are public list rates as of 2026-08 and should be refreshed
-periodically. Keep aligned with apps/api/src/pricing.js (AIM-539).
+periodically. Keep aligned with apps/api/src/pricing.js.
 """
 
 from __future__ import annotations

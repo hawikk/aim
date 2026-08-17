@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-1127 / AIM-1136 — CI smoke: install-pilot → health → mint → join → doctor → token_file.
+# — CI smoke: install-pilot → health → mint → join → doctor → token_file.
 #
 # Proves the product one-shot contract in a clean, isolated compose project:
 #   1. ./scripts/install-pilot.sh exits 0
@@ -30,7 +30,7 @@ KEEP=0
 
 usage() {
   cat <<'EOF'
-AIM-1127 — one-shot pilot CI smoke (install-pilot → health → enroll).
+one-shot pilot CI smoke (install-pilot → health → enroll).
 
 Usage:
   ./scripts/ci-oneshot-pilot-smoke.sh --self-test
@@ -83,9 +83,9 @@ self_test() {
   [[ -f "$ROOT/docs/deployment/self-host-quickstart.md" ]] \
     || die "self-host quickstart doc missing"
   [[ -f "$ROOT/deploy/compose/docker-compose.pilot.yml" ]] \
-    || die "deploy/compose/docker-compose.pilot.yml missing (AIM-1126)"
+    || die "deploy/compose/docker-compose.pilot.yml missing"
   [[ -f "$ROOT/deploy/compose/docker-compose.pull.yml" ]] \
-    || die "deploy/compose/docker-compose.pull.yml missing (AIM-1126)"
+    || die "deploy/compose/docker-compose.pull.yml missing"
 
   local pilot="$ROOT/scripts/install-pilot.sh"
   # install-pilot must refuse github-audit by clearing COMPOSE_PROFILES.
@@ -101,13 +101,13 @@ self_test() {
   # Pilot-critical service set must include ingest + api (health + mint contract).
   grep -q 'ingest' "$pilot" || die "install-pilot must start ingest"
   grep -Eq 'api|AIM_API_IMAGE' "$pilot" || die "install-pilot must start api"
-  # AIM-1126 image modes (Makefile + enterprise docs).
+  # image modes (Makefile + enterprise docs).
   for flag in --pull --build --prefer-pull --no-build --no-mint; do
     grep -q -- "$flag" "$pilot" || die "install-pilot must document/accept $flag"
   done
-  # AIM-1124: preferred device path is enroll.sh one-liner (not bare aim join).
+  # preferred device path is enroll.sh one-liner (not bare aim join).
   grep -q 'print-device-enroll-oneliner.sh' "$pilot" \
-    || die "install-pilot must source print-device-enroll-oneliner (AIM-1124)"
+    || die "install-pilot must source print-device-enroll-oneliner"
   grep -q 'device_enroll_command' "$pilot" \
     || die "install-pilot must call device_enroll_command"
   grep -q 'enroll.sh' "$pilot" || die "install-pilot must mention enroll.sh"
@@ -117,12 +117,12 @@ self_test() {
   grep -q '/healthz' "$pilot" || die "install-pilot must wait on ingest /healthz"
   grep -q '/api/health' "$pilot" || die "install-pilot must wait on dashboard /api/health"
 
-  # Doc must link this smoke (AIM-1127 / AIM-1136 acceptance).
+  # Doc must link this smoke (acceptance).
   grep -q 'ci-oneshot-pilot-smoke' \
     "$ROOT/docs/deployment/self-host-quickstart.md" \
     || die "self-host quickstart must link ci-oneshot-pilot-smoke"
 
-  # enroll.sh static contract (AIM-1124).
+  # enroll.sh static contract.
   if have python3 && [[ -f "$ROOT/scripts/test_enroll_sh.py" ]]; then
     info "self-test: scripts/test_enroll_sh.py"
     python3 "$ROOT/scripts/test_enroll_sh.py" || die "test_enroll_sh.py failed"
@@ -425,7 +425,7 @@ fi
 pass "aim doctor --fix left token_file healthy"
 
 echo
-green "AIM-1127/AIM-1136 oneshot pilot smoke GREEN"
+green "Oneshot pilot smoke GREEN"
 echo "  project=${COMPOSE_PROJECT_NAME}"
 echo "  ingest=${ingest_url}"
 echo "  dashboard=${dash_url}"

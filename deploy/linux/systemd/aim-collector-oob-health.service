@@ -1,5 +1,5 @@
 [Unit]
-Description=AI Monitoring out-of-band collector health (AIM-639)
+Description=AI Monitoring out-of-band collector health
 Documentation=file:///usr/share/doc/aim-collector/adr-independence-from-agent-loop.md
 After=network-online.target
 Wants=network-online.target

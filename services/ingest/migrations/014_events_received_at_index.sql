@@ -1,4 +1,4 @@
--- 014_events_received_at_index.sql — AIM-149: index the server-accept time.
+-- 014_events_received_at_index.sql — index the server-accept time.
 --
 -- Two operational queries scan on received_at and had no index behind them:
 --   * pipeline liveness  — max(received_at)                (polled every 60s)

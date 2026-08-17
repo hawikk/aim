@@ -1,4 +1,4 @@
-/* AIM-131 — Server first-run onboarding + enrollment-token minting.
+/* — Server first-run onboarding + enrollment-token minting.
  *
  * Self-contained module, same pattern as rules.js: injects its own nav tab,
  * view section and stylesheet at runtime, and activates for the admin
@@ -13,7 +13,7 @@
  * First-run: when the server has no events and no enrolled devices, an admin
  * lands here instead of on empty charts (GET /api/onboarding/status). This
  * module loads last, so its landing wins the initial one — but only when the
- * operator landed without asking for a view (AIM-152); an explicit or shared
+ * operator landed without asking for a view; an explicit or shared
  * URL is a destination, not a suggestion. When we stand down, the nav tab
  * carries the warning marker instead.
  */
@@ -25,7 +25,7 @@ import { table as dataTable, EMPTY } from './lib/components.js';
 import { api } from './lib/api.js';
 
 /* ---------- Gate: server-computed capability (same gate as the API) ----------
- * capabilities.admin is the admin gate (AIM-95). Minting is a
+ * capabilities.admin is the admin gate. Minting is a
  * security-sensitive action; do not reintroduce client-side group sniffing. */
 const me = await api('/api/me').catch((err) => {
   if (err.status === 401) window.location.assign('/auth/login');
@@ -73,8 +73,8 @@ async function init() {
   link.href = '/onboarding.css';
   document.head.appendChild(link);
 
-  // AIM-1070: Onboarding lives under Ops & health (collapsible), not leftmost permanent tab.
-  /* AIM-515: the warning badge was a bare "!" carrying its meaning in a `title`
+  // Onboarding lives under Ops & health (collapsible), not leftmost permanent tab.
+  /*: the warning badge was a bare "!" carrying its meaning in a `title`
    * alone. Titles are not reliably announced and never surface on touch or
    * keyboard focus, so the one persistent, cross-view signal that the stack is
    * running an insecure default enrollment token was invisible to a screen
@@ -122,7 +122,7 @@ async function init() {
   const table = section.querySelector('#ob-table');
   const firstRunBox = section.querySelector('#ob-firstrun');
 
-  // AIM-153: `#/onboarding` is a real route — the tab is an ordinary data-view
+  // `#/onboarding` is a real route — the tab is an ordinary data-view
   // button handled by app.js, and route() calls this to render.
   registerModuleView('onboarding', { onActivate: () => loadTokens() });
 
@@ -151,7 +151,7 @@ async function init() {
   }
 
   /* Prefer the platform the operator is looking at, so Windows admins land on
-   * Windows first rather than having to discover a second tab (AIM-744). */
+   * Windows first rather than having to discover a second tab. */
   function preferredPlatformId(platforms) {
     const ids = new Set((platforms || []).map((p) => p.id));
     const ua = (navigator.userAgent || navigator.platform || '').toLowerCase();
@@ -162,7 +162,7 @@ async function init() {
   }
 
   /* Platforms from the mint response, with a back-compat fallback when an
-   * older API only returns `command` (pre-AIM-744). */
+   * older API only returns `command` (earlier). */
   function platformsFromMint(d) {
     if (Array.isArray(d.platforms) && d.platforms.length) return d.platforms;
     return [{
@@ -175,7 +175,7 @@ async function init() {
 
   /* Render the one-time secret + copy-paste command after a successful mint.
    *
-   * AIM-515: this is the single most consequential surface in the view — the
+   * this is the single most consequential surface in the view — the
    * cleartext token is displayed exactly once and can never be retrieved again.
    * It used to appear silently below the fold with focus left on the (now
    * re-enabled) Mint button, so a keyboard or screen-reader operator got no
@@ -183,7 +183,7 @@ async function init() {
    * to the box itself rather than to its Copy button: the operator needs the
    * warning and the command read to them, not just the control at the end.
    *
-   * AIM-744: Windows is a first-class tab next to Linux, not a footnote. The
+   * Windows is a first-class tab next to Linux, not a footnote. The
    * same mint shows both self-enroll and Intune fleet commands, plus a
    * measured time-to-first-evidence bound from the API. */
   function renderMinted(d) {
@@ -330,7 +330,7 @@ async function init() {
    * keeps the consequence visible next to the row it applies to instead of in a
    * browser-chrome modal that cannot be styled or made consistent across the
    * fleet's platforms. The armed state disarms itself after 4 s. */
-  /* AIM-515: arm/disarm swaps the button's *markup*, not its text. The label
+  /*: arm/disarm swaps the button's *markup*, not its text. The label
    * carries an sr-only suffix naming the token, and the original textContent
    * round-trip flattened that span into visible text on disarm — the button
    * would silently grow to "Revoke enrollment token ring0 pilot" on screen.
@@ -394,7 +394,7 @@ async function init() {
   function renderStatusBanners(status) {
     const banners = [];
     if (status.insecureDefaultToken) {
-      // AIM-131 AC: dev-enroll-token-change-me must trigger a visible warning.
+      // AC: dev-enroll-token-change-me must trigger a visible warning.
       banners.push(
         '<div class="banner danger"><b>Insecure default enrollment token in use.</b> ' +
         'The stack is running with the shipped <code>ENROLL_TOKENS=dev-enroll-token-change-me</code> default — ' +
@@ -415,7 +415,7 @@ async function init() {
     }
     firstRunBox.innerHTML = banners.join('');
     firstRunBox.hidden = banners.length === 0;
-    /* AIM-152: the insecure-default warning used to be delivered by hijacking
+    /*: the insecure-default warning used to be delivered by hijacking
      * the main area. It no longer overrides an explicit destination, so mark
      * the tab — a live security warning must stay visible from every view. */
     const badge = btn.querySelector('#ob-badge');
@@ -436,7 +436,7 @@ async function init() {
   // First-run: land the admin here instead of on empty charts. Also land here
   // whenever there's a security warning to act on (insecure default token) —
   // but only if no view was requested in the URL. Stealing the main area from
-  // an explicit destination is what stranded operators in AIM-152.
+  // an explicit destination is what stranded operators.
   const status = await refreshStatus();
   if (status && landedWithoutView() && ((status.firstRun && status.canMint) || status.insecureDefaultToken)) {
     landOnView('onboarding');

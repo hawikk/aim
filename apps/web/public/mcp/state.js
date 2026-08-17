@@ -1,4 +1,4 @@
-/* Shared view-private state for the MCP module (AIM-1157 split).
+/* Shared view-private state for the MCP module (split).
  * fctx is view-private: zero cross-view surface. The orchestrator
  * (public/mcp.js) populates it during init() and every sibling module
  * imports it — never re-create it locally. resetMcpCtx() runs at the top

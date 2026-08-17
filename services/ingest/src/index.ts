@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   const resolver = config.identityResolveUrl
     ? new HttpIdentityResolver(config.identityResolveUrl)
     : undefined;
-  // AIM-455: enroll-time device_mappings registration. Needs both the resolve
+  // enroll-time device_mappings registration. Needs both the resolve
   // URL (identity-sync base) and a shared HS256 secret to pass the gate.
   const deviceMappingRegistrar =
     config.identityResolveUrl && config.identitySyncJwtHs256Secret
@@ -68,11 +68,11 @@ async function main(): Promise<void> {
       sharedTokenMode: config.sharedTokenMode,
       sharedTokenCount: config.ingestTokens.length,
     },
-    "event auth configured (AIM-319 — survives INGEST_TOKENS rotation)",
+    "event auth configured (— survives INGEST_TOKENS rotation)",
   );
   app.log.info(
     {
-      enrollTokenStore: "db-backed (dashboard-minted tokens, AIM-131)",
+      enrollTokenStore: "db-backed (dashboard-minted tokens)",
       legacyEnvTokens: config.enrollTokens.length > 0 ? "enabled (deprecated)" : "disabled (ENROLL_TOKENS unset)",
     },
     "collector enrollment configured",
@@ -92,7 +92,7 @@ async function main(): Promise<void> {
       maxInflight: config.admission.maxInflight,
       retryAfterSeconds: config.admission.retryAfterSeconds,
     },
-    "ingest admission control configured (AIM-127)",
+    "ingest admission control configured",
   );
 
   app.log.info(
@@ -100,7 +100,7 @@ async function main(): Promise<void> {
       mode: config.attestation.mode,
       publicKeyCount: config.attestation.publicKeys.size,
     },
-    "collector build attestation configured (AIM-646)",
+    "collector build attestation configured",
   );
 
   app.log.info(
@@ -109,7 +109,7 @@ async function main(): Promise<void> {
       otelMetrics: "enabled (/v1/metrics — Claude Code)",
       otelHostSalt: config.otelHostSalt ? "env (OTEL_HOST_SALT)" : "dev default — set OTEL_HOST_SALT in prod",
     },
-    "OTLP GenAI + Claude Code metrics receiver configured (AIM-105/AIM-1168)",
+    "OTLP GenAI + Claude Code metrics receiver configured",
   );
 
   app.log.info(
@@ -118,21 +118,21 @@ async function main(): Promise<void> {
       cursor: config.vendorAdmin.cursorApiKey ? "configured" : "dark (CURSOR_ADMIN_API_KEY unset)",
       pollIntervalSeconds: config.vendorAdmin.pollIntervalSeconds,
     },
-    "vendor admin poller configured (AIM-1168 — missing tokens degrade, do not fail ingest)",
+    "vendor admin poller configured (— missing tokens degrade, do not fail ingest)",
   );
 
-  // Retention enforcement (AIM-143). Fail-closed: an invalid config disables
+  // Retention enforcement. Fail-closed: an invalid config disables
   // the purge and lifecycle wiring but leaves ingest serving — a bad window
   // must never delete data or take the ingest path down.
   const retention = loadRetentionConfig();
   let purgeTimer: NodeJS.Timeout | undefined;
   if (!retention.ok) {
-    app.log.error({ error: retention.error }, "retention config invalid — purge DISABLED (AIM-143)");
+    app.log.error({ error: retention.error }, "retention config invalid — purge DISABLED");
   } else {
     const { config: rc } = retention;
     app.log.info(
       { windows: rc.windows, dryRun: rc.dryRun, batchSize: rc.batchSize, intervalHours: rc.intervalMs / 3_600_000 },
-      "retention enforcement configured (AIM-143)",
+      "retention enforcement configured",
     );
 
     // Object-store expiry: declare the raw-batch lifecycle so the store ages
@@ -142,7 +142,7 @@ async function main(): Promise<void> {
       archive
         .applyRetentionPolicy(rc.windows.events)
         .then(() =>
-          app.log.info({ days: rc.windows.events }, "object-store retention lifecycle applied (AIM-143)"),
+          app.log.info({ days: rc.windows.events }, "object-store retention lifecycle applied"),
         )
         .catch((err) =>
           app.log.error({ err }, "object-store retention lifecycle NOT applied — will retry next boot"),
@@ -157,9 +157,9 @@ async function main(): Promise<void> {
       const runPurge = async () => {
         try {
           const summary = await purger.purge();
-          app.log.info({ event: "retention.purge", ...summary }, "retention purge complete (AIM-143)");
+          app.log.info({ event: "retention.purge", ...summary }, "retention purge complete");
         } catch (err) {
-          app.log.error({ err }, "retention purge failed — retry next interval (AIM-143)");
+          app.log.error({ err }, "retention purge failed — retry next interval");
         }
       };
       void runPurge();
@@ -177,10 +177,10 @@ async function main(): Promise<void> {
       });
       app.log.info(
         { results: results.map((r) => ({ feed: r.feed, status: r.status, rows: r.rows })) },
-        "vendor admin poll complete (AIM-1168)",
+        "vendor admin poll complete",
       );
     } catch (err) {
-      app.log.error({ err }, "vendor admin poll failed — ingest stays up (AIM-1168)");
+      app.log.error({ err }, "vendor admin poll failed — ingest stays up");
     }
   };
   if (config.vendorAdmin.pollIntervalSeconds > 0) {

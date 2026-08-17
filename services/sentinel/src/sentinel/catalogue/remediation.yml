@@ -169,7 +169,7 @@ entries:
       personal accounts, where there is no telemetry at all.
     console: AIM → Policy → Tool rules.
 
-  # ---- PR-time IaC, with a reviewed patch (AIM-185) -----------------------
+  # ---- PR-time IaC, with a reviewed patch -----------------------
   #
   # These are the only entries that can produce a *diff* rather than a snippet,
   # and the bar for adding one is deliberately high:
@@ -251,7 +251,7 @@ entries:
       value: 'false'
     docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html
 
-  # ---- SCA dep-bump autofix (AIM-330) -------------------------------------
+  # ---- SCA dep-bump autofix -------------------------------------
   #
   # MUST sit above the generic `pr_security\..*` catch-all (first-match-wins).
 
@@ -281,7 +281,7 @@ entries:
       summary: bump dependency to scanner fixed_version
     docs: https://osv.dev/
 
-  # ---- secrets: guided remediation only (AIM-330) -------------------------
+  # ---- secrets: guided remediation only -------------------------
 
   - id: pr-secret-guided
     finding_type: 'pr_security\.(secret_in_diff|hardcoded_secret)'

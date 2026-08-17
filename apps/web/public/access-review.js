@@ -1,4 +1,4 @@
-/* AIM-718 — Access review / attestation workflow for AIM roles.
+/* — Access review / attestation workflow for AIM roles.
  *
  * Self-contained module (same pattern as compliance.js): injects its own
  * nav tab, view section and stylesheet at runtime. Activates for admin or
@@ -55,7 +55,7 @@ const PRINCIPAL_COLS = [
     // mapping; roster display still needs the server-provided group list field.
     key: 'groups',
     label: 'Groups',
-    // Bracket access avoids the smoke `.groups` IdP-sniff guard (AIM-151): this
+    // Bracket access avoids the smoke `.groups` IdP-sniff guard: this
     // is a server-provided roster display column, not client-side role mapping.
     render: (p) => {
       const list = p['groups'];
@@ -120,7 +120,7 @@ function init() {
   link.href = '/access-review.css';
   document.head.appendChild(link);
 
-  // AIM-1070: moduleTab places into the Control plane group via nav-ia.
+  // moduleTab places into the Control plane group via nav-ia.
   const btn = moduleTab({
     view: 'access-review',
     label: 'Access review',

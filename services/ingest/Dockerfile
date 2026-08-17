@@ -1,7 +1,7 @@
 # Build the ingest service from the repo root:
 #   docker compose build ingest
 #
-# AIM-1141: ship the lockfile so install is deterministic and GHA/buildx
+# ship the lockfile so install is deterministic and GHA/buildx
 # cache keys stay stable across matrix publishes. --frozen-lockfile fails
 # closed if package.json and pnpm-lock.yaml drift (prefer that over a
 # surprise resolution that only reproduces on the sole aim-ops runner).

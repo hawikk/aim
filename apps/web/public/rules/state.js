@@ -1,4 +1,4 @@
-/* View-private state for the rules module (AIM-1147) — was file-local in
+/* View-private state for the rules module — was file-local in
  * rules.js. Shared across the submodules so the alerts panel can re-stamp
  * per-rule route chips after a destination save without a full rules reload,
  * and so the threshold editor can patch a rule in place. */

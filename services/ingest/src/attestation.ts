@@ -1,5 +1,5 @@
 /**
- * Signed collector build identity verification (AIM-646).
+ * Signed collector build identity verification.
  *
  * Collectors report a `build` block in the batch envelope:
  *   { package, version, tool, git_sha?, built_at?, key_id?, sig? }

@@ -1,4 +1,4 @@
-/* App-LLM view (AIM-103) — pure-moved from app.js (AIM-527). */
+/* App-LLM view — pure-moved from app.js. */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, fmtUsd, fmtTs } from '../lib/format.js';
 import { state, hashFor, api } from '../lib/runtime.js';
@@ -6,11 +6,11 @@ import { EMPTY, table, card, skeletonCards } from '../lib/components.js';
 import { lineChart, setChartState, chartSummary, PALETTE } from '../lib/charts.js';
 import { refCell } from '../lib/ui.js';
 
-/* ---------- App-LLM view (AIM-103): provider-API metering by source class ----------
+/* ---------- App-LLM view: provider-API metering by source class ----------
  * Per-provider volume/bytes/status split application vs employee vs unknown,
  * plus the shadow-AI signal: sources whose first-ever LLM API call is recent.
  *
- * AIM-574 / AIM-737: when OTel sources exist, surface a compact model/token/cost
+ * when OTel sources exist, surface a compact model/token/cost
  * summary that deep-links to Apps (where full distribution lives). Proxy path
  * still has no tokens/models by design — we never invent them here. */
 export const CLASS_PILL = { application: 'ok', employee: 'muted', unknown: 'warn' };
@@ -68,7 +68,7 @@ export async function loadAppLlm() {
   lineChart('#al-trend', days, alSeries, chartSummary('Line', days, alSeries));
 }
 
-/** Compact OTel model/token/cost teaser when instrumented apps exist (AIM-574 / AIM-737). */
+/** Compact OTel model/token/cost teaser when instrumented apps exist. */
 export function renderAppLlmOtelSummary(otel) {
   const panel = $('#al-otel-panel');
   const cards = $('#al-otel-cards');

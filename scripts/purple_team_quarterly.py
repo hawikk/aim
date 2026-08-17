@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scaffold or refresh a quarterly purple-team report (AIM-636 / AIM-729).
+"""Scaffold or refresh a quarterly purple-team report.
 
 Collects live matcher rates + research-queue summary and writes
 docs/security/purple-team-reports/<quarter>.md unless --dry-run.
@@ -89,7 +89,7 @@ def render(quarter: str, evasion: dict, research_stdout: str) -> str:
     today = dt.date.today().isoformat()
     return f"""# Purple-team report — {quarter}
 
-**Program:** continuous purple-team (AIM-636)
+**Program:** continuous purple-team
 **Type:** quarterly exercise
 **Date:** {today}
 **Author:** _(fill)_
@@ -152,7 +152,7 @@ Update `docs/security/adversarial-maturity-score.md` history when finalizing.
 | Role | Name | Date |
 |---|---|---|
 | Purple lead | | |
-| Security/CEO (if behavior change) | | |
+| Security (if behavior change) | | |
 """
 
 

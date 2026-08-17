@@ -1,4 +1,4 @@
-"""Embedded SQLite store for personal mode (AIM-67).
+"""Embedded SQLite store for personal mode.
 
 Zero-infra alternative to the Postgres event store: the collector writes
 metadata-only usage events straight to a local SQLite file (stdlib `sqlite3`,
@@ -7,7 +7,7 @@ of it. The query functions here return the exact JSON shapes the existing web
 app (`apps/web/public/app.js`) already consumes, so the same dashboard renders
 against SQLite unchanged.
 
-Content policy is unchanged from the enterprise path (AIM-16): only the
+Content policy is unchanged from the enterprise path: only the
 canonical metadata-only event fields are persisted — no prompt text, tool
 input/output, file contents, or code. A single implicit local user; events
 with a null `user_ref` are attributed to this machine's `host_ref` so the
@@ -147,7 +147,7 @@ def _init(conn: sqlite3.Connection) -> None:
            )"""
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_events_epoch ON events(ts_epoch)")
-    # Retention bookkeeping (AIM-143): last-prune marker so the prune runs at
+    # Retention bookkeeping: last-prune marker so the prune runs at
     # most daily even across many collector restarts. Key/value, one row.
     conn.execute(
         "CREATE TABLE IF NOT EXISTS retention_meta (key TEXT PRIMARY KEY, value TEXT)"
@@ -210,7 +210,7 @@ def insert_events(events: list[dict], conn: sqlite3.Connection | None = None) ->
             conn.close()
 
 
-# ---- retention prune (AIM-143) ----
+# ---- retention prune ----
 
 PRUNE_MIN_INTERVAL_S = 86400  # at most once per day
 

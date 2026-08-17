@@ -1,4 +1,4 @@
-/* Lightweight i18n for the no-build ES-module dashboard (AIM-761).
+/* Lightweight i18n for the no-build ES-module dashboard.
  *
  * Constraints (from product policy + Agents.md):
  *  - No third-party runtime deps. Chart.js is the only vendored exception; i18n
@@ -28,9 +28,9 @@ export const DEFAULT_LOCALE = 'en';
  *  constant so the follow-up translation issue and the issue comment stay in
  *  sync — do not register catalogs for these until Security names them.
  *
- *  v1 ship set (AIM-916 / docs/security/admin-ui-locales-v1.md): en + de + fr + nl.
- *  de/fr/nl left this list when AIM-917 registered catalogs (severity/enforcement
- *  copy still needs Founding Engineer — Security & Platform acceptance on the PR). */
+ * v1 ship set (docs/security/admin-ui-locales-v1.md): en + de + fr + nl.
+ * de/fr/nl left this list when registered catalogs (severity/enforcement
+ * copy still needs engineering — Security & Platform acceptance on the PR). */
 export const LOCALES_AWAITING_SECURITY = Object.freeze([
   'es', // Spain / LATAM ops — reopen on customer contract or pack expansion
   'pl', // Poland / CEE ops
@@ -38,7 +38,7 @@ export const LOCALES_AWAITING_SECURITY = Object.freeze([
   'it', // Italy / EU ops
 ]);
 
-/** Locales registered at boot for the admin/analyst console (AIM-917). */
+/** Locales registered at boot for the admin/analyst console. */
 export const SHIPPED_LOCALES = Object.freeze(['en', 'de', 'fr', 'nl']);
 
 const catalogs = new Map(); // locale → flat Map(key → string template)

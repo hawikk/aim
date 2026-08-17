@@ -1,4 +1,4 @@
-"""Gate precision benchmark (AIM-334).
+"""Gate precision benchmark.
 
 Measured FP/FN rates on a versioned corpus, per gate (gitleaks / semgrep /
 checkov / trivy). Results feed the scorecard and drive auto-observe when a

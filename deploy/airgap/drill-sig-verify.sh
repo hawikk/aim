@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-747 — offline air-gap signature verification drill.
+# — offline air-gap signature verification drill.
 #
 # Builds a synthetic mini-bundle (no docker / no full image build), signs it,
 # verifies (positive path), tampers and confirms reject (negative path), and
@@ -32,7 +32,7 @@ record() {
   printf '  [%s] %s — %s\n' "$2" "$1" "$3"
 }
 
-echo "==> AIM-747 signature verification drill (${DRILL_ID})"
+echo "==> signature verification drill (${DRILL_ID})"
 echo "    work dir: $OUT_DIR"
 
 # --- 1. Generate ephemeral drill keys (never production) ---
@@ -157,7 +157,7 @@ fi
 
 # --- Evidence files ---
 {
-  echo "# AIM-747 — Air-gap signature verification drill"
+  echo "# — Air-gap signature verification drill"
   echo
   echo "| Field | Value |"
   echo "| --- | --- |"

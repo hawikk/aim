@@ -63,7 +63,7 @@ _REFUSED_SESSION_FILES = frozenset(
         "editinteraction.jsonl",
         "nexteditwithhistory.jsonl",
         "sessions.json",
-        # Tabnine cloud token + config sit next to discovery (AIM-1185).
+        # Tabnine cloud token + config sit next to discovery.
         ".refresh_token_v2",
         "tabnine_config.json",
     }

@@ -1,20 +1,20 @@
-/* AIM-81 — Guardrail rules transparency viewer. Orchestrator only.
+/* — Guardrail rules transparency viewer. Orchestrator only.
  *
  * Self-contained module, same pattern as findings.js: injects its own nav
  * tab, view section and stylesheet at runtime, gated on the server-computed
  * capabilities.guardrail flag (same gate as the API).
  *
- * History: AIM-94 made the viewer a working tool (threshold rules tunable
+ * History: made the viewer a working tool (threshold rules tunable
  * inline via PATCH /api/guardrail/rules/:id; alert destinations panel on
- * GET/PUT /api/guardrail/alerts). AIM-584 multi-destination routing is
- * form-only. AIM-987/990/699 added PagerDuty + Slack cards and the
- * multi-stage escalation editor. AIM-998 deep-links the destinations toolbar
- * to Audit filtered on `guardrail.alerts_update`. AIM-988 added the email
+ * GET/PUT /api/guardrail/alerts). multi-destination routing is
+ * form-only. added PagerDuty + Slack cards and the
+ * multi-stage escalation editor. deep-links the destinations toolbar
+ * to Audit filtered on `guardrail.alerts_update`. added the email
  * Test send. Match rules stay read-only: they are policy-as-code and change
  * via PR on policies/guardrail/v1/*.yaml. Alert secrets are env-managed and
  * never entered in this UI.
  *
- * Split (AIM-1147) — the panels live in sibling modules with clear ownership:
+ * Split — the panels live in sibling modules with clear ownership:
  *   ./state.js             view-private rulesState (last rules, last alerts, DOM roots)
  *   ./rule-list.js         policy settings dl + Active rules list + threshold edit form markup
  *   ./alert-cards.js       alert destination cards + routing summary markup
@@ -45,9 +45,9 @@ import { bindThresholdEditor } from './rules/threshold-editor.js';
 
 /* ---------- Gate: server-computed capability (same gate as /api/guardrail/rules) ----------
  * /api/me.capabilities.guardrail is the API's role-computed gate for the
- * guardrail surface (AIM-95). Do not reintroduce client-side group-name
+ * guardrail surface. Do not reintroduce client-side group-name
  * sniffing — it misfires on any group whose name merely contains "security".
- * Gate helper: lib/form.js (AIM-1113). */
+ * Gate helper: lib/form.js. */
 await requireCapability('guardrail', init, 'rules viewer');
 
 async function init() {
@@ -79,7 +79,7 @@ async function init() {
   rulesState.alertCards = section.querySelector('#alert-cards');
   const list = rulesState.list;
 
-  // AIM-153: `#/rules` is a real route — the tab is an ordinary data-view
+  // `#/rules` is a real route — the tab is an ordinary data-view
   // button handled by app.js, and route() calls this to render.
   registerModuleView('rules', {
     onActivate: () => {
@@ -92,7 +92,7 @@ async function init() {
     },
   });
 
-  /* AIM-515: cards sit in a list; attach role=listitem without reimplementing card(). */
+  /*: cards sit in a list; attach role=listitem without reimplementing card(). */
   const statCard = (label, value, tone) => card({ label, value, tone, role: 'listitem' });
 
   async function load() {
@@ -100,7 +100,7 @@ async function init() {
     rulesState.lastRules = d.rules;
     const totalFired = d.rules.reduce((n, r) => n + r.firedCount, 0);
     const fired = d.rules.filter((r) => r.firedCount > 0).length;
-    // AIM-441: "active" means evaluable (not inert), not "has fired".
+    // "active" means evaluable (not inert), not "has fired".
     const pc = d.postureCounts ?? {};
     const activeN = pc.active ?? d.rules.filter((r) => (r.posture ?? 'active') === 'active').length;
     const inertN = pc.inert ?? d.rules.filter((r) => r.posture === 'inert').length;

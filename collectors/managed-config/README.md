@@ -1,8 +1,8 @@
-# Managed config paths (AIM-1170)
+# Managed config paths
 
 Endpoint collectors resolve a JSON file dropped by IT / MDM. Darwin used to
 fall through to the Linux path (`/etc/aim-collector`). That is now a **legacy**
-AIM-743 Jamf candidate only.
+Jamf candidate only.
 
 | OS | First-class managed directory |
 |---|---|

@@ -1,4 +1,4 @@
-/* German (de) catalog — critical admin/analyst surface (AIM-917).
+/* German (de) catalog — critical admin/analyst surface.
  *
  * Key tree mirrors locales/en.js. Severity / exposure / findings / inbox /
  * enforcement wording requires Security review before merge.
@@ -78,7 +78,7 @@ export const de = Object.freeze({
     },
   },
 
-  /* Exposure is reach, not risk — different words on purpose (AIM-524). */
+  /* Exposure is reach, not risk — different words on purpose. */
   exposure: {
     wide: 'weit',
     moderate: 'mäßig',
@@ -87,7 +87,7 @@ export const de = Object.freeze({
     rule: 'Abgeleitet aus beobachteter Reichweite, nicht aus einer Risikobewertung: '
       + 'weit = 10+ Benutzer oder 3+ Teams, mäßig = 3+ Benutzer, begrenzt = weniger.',
     unknownTitle: 'Reichweite nicht berechenbar: kein Ereignis für dieses Tool ließ sich einem Benutzer oder Team zuordnen '
-      + '(AIM-149 Attributionslücke). Volumen ist real; die Verbreitung ist ungemessen.',
+      + '(Attributionslücke). Volumen ist real; die Verbreitung ist ungemessen.',
   },
 
   empty: {

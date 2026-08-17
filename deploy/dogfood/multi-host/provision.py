@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIM-1057 — restore dogfood multi-host coverage on stack-aim.
+"""Restore dogfood multi-host coverage on stack-aim.
 
 Provisions N distinct enrolled hosts (unique host_id + hostname), each posting
 live attributed usage events through real /v1/enroll + /v1/events.
@@ -386,7 +386,7 @@ def provision(args: argparse.Namespace) -> int:
     plan = build_host_plan(args.n, args.prefix)
 
     print(
-        f"AIM-1057 multi-host provision: n={args.n} prefix={args.prefix} "
+        f"Multi-host provision: n={args.n} prefix={args.prefix} "
         f"ingest={ingest_url} dry_run={args.dry_run}"
     )
 

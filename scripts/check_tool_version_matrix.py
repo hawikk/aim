@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Continuous tool-version compatibility matrix (AIM-648 / AIM-624).
+"""Continuous tool-version compatibility matrix.
 
 Pins representative versions of each supported AI coding tool and exercises
 collectors against recorded fixtures so version discovery + event emission
@@ -340,7 +340,7 @@ def run_all(matrix: dict | None = None) -> list[str]:
 
 def human_report(errors: list[str], matrix: dict) -> None:
     by_id = _tools_by_id(matrix)
-    print("Tool-version compatibility matrix (AIM-648)")
+    print("Tool-version compatibility matrix")
     print(f"  matrix: {MATRIX_PATH.relative_to(ROOT)}")
     print(f"  strategy: {matrix.get('strategy')}")
     policy = matrix.get("pin_policy") or {}

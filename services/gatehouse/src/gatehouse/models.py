@@ -1,4 +1,4 @@
-"""The one internal finding shape every scanner normalizes into (AIM-161).
+"""The one internal finding shape every scanner normalizes into.
 
 Four scanners with four output formats converge here *before* anything else in
 gatehouse runs. Dedupe, suppression, the check-run renderer and the alert
@@ -82,7 +82,7 @@ class ScanTarget:
     installation_id: int = 0
     # Where the ephemeral clone lives during the run. Never persisted.
     workdir: str = ""
-    # Head branch name and PR author login — action context on the bus (AIM-299),
+    # Head branch name and PR author login — action context on the bus,
     # never a monitored-person pseudonym (subject_ref stays null).
     head_ref: str = ""
     author_login: str = ""
@@ -98,7 +98,7 @@ class ScanTarget:
 
     @property
     def identity_ref(self) -> str:
-        """Stable identity scope for multi-PR dedupe (AIM-299 AC#3).
+        """Stable identity scope for multi-PR dedupe (AC#3).
 
         The same secret on five PRs of one repo is one issue with five
         occurrences, not five issues. PR number is an occurrence coordinate

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""AIM-684: cohort enforce rollout ops tooling + automatic hold on FP spike.
+"""cohort enforce rollout ops tooling + automatic hold on FP spike.
 
-Rolls endpoint enforce to a % host cohort (AIM-793 ladder bundles) and freezes
+Rolls endpoint enforce to a % host cohort (ladder bundles) and freezes
 actuation (percent=0) when the detector session FP rate spikes above SLO with
-enough volume (AIM-672 semantics).
+enough volume (semantics).
 
 This is **ops tooling** — pure local decision + bundle install. It does not
 call production APIs unless ``--api-url`` is set for live FP metrics. Privacy-ok:
@@ -55,7 +55,7 @@ from pathlib import Path
 from typing import Any
 
 # ---------------------------------------------------------------------------
-# Defaults (aligned with AIM-793 ladder + AIM-672 session FP SLO)
+# Defaults (aligned with ladder + session FP SLO)
 # ---------------------------------------------------------------------------
 
 SCHEMA = "aim.enforce-cohort-rollout/v1"
@@ -122,7 +122,7 @@ def evaluate_session_fp_rate(
     *,
     max_session_fp_pct: float = DEFAULT_FP_SLO_PCT,
 ) -> dict[str, Any]:
-    """Pure AIM-672-shaped evaluator (no DB)."""
+    """Pure evaluator (no DB)."""
     sessions = max(0, int(sessions))
     fp_sessions = max(0, min(int(fp_sessions), sessions))
     rate = (fp_sessions / sessions) if sessions else 0.0
@@ -600,7 +600,7 @@ def fetch_live_fp(
 
 
 def ladder_text() -> str:
-    return """# Enforce cohort rollout ladder + FP hold (AIM-684 / AIM-793)
+    return """# Enforce cohort rollout ladder + FP hold
 
 Expand/rollback is a **policy-hash bump only** — install a cohort bundle, no collector release.
 

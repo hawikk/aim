@@ -1,4 +1,4 @@
-"""Resolve Grok token totals from local metadata-only logs (AIM-371 / AIM-470).
+"""Resolve Grok token totals from local metadata-only logs.
 
 Source of truth: ``~/.grok/logs/unified.jsonl`` lines with
 ``msg == "shell.turn.inference_done"``. Those records carry only numeric
@@ -7,11 +7,11 @@ never prompt or response content.
 
 Two consumption paths:
 
-1. **Continuous log tail** (AIM-470, primary): ``scan_inference_log`` advances a
+1. **Continuous log tail** (primary): ``scan_inference_log`` advances a
    byte offset and returns per-session token *deltas* for newly observed turns.
    This is what ``aim watch`` / ``scan-once`` use so all local Grok usage is
    counted — not only Paperclip heartbeats.
-2. **Per-run correlation** (AIM-371, opt-in): ``resolve_tokens_for_run`` sums
+2. **Per-run correlation** (opt-in): ``resolve_tokens_for_run`` sums
    turns for a Paperclip run via env session id, process tree, or workspace
    time window. Used when ``AIM_GROK_RUN_TOKEN_RESOLVE=1`` or explicit token
    env/CLI overrides are set. Prefer continuous tail to avoid double-counting.
@@ -22,7 +22,7 @@ Token mapping (same posture as Kimi/Kilo collectors):
 - ``tokens_out``     = sum(completion_tokens)       # reasoning_tokens is a subset
 - ``tokens_cached``  = sum(cached_prompt_tokens)    # subset of prompt; cost only
 
-Cost estimates (AIM-539) bill uncached input + cached input + output at xAI
+Cost estimates bill uncached input + cached input + output at xAI
 list rates via ``pricing.estimate_cost``; volume fields stay full prompt.
 
 Never opens ``chat_history.jsonl``, ``prompt_context.json``, or any content
@@ -555,7 +555,7 @@ def scan_inference_log(
     log_path: Path | None = None,
     backfill_bytes: int | None = None,
 ) -> list[SessionDelta]:
-    """Tail ``unified.jsonl`` and return per-session token deltas (AIM-470).
+    """Tail ``unified.jsonl`` and return per-session token deltas.
 
     Advances ``cp["log_offsets"][path]`` to the end of what was read. On first
     sight of a path, seeks to ``max(0, size - backfill_bytes)`` so a fresh

@@ -5,7 +5,7 @@ CronJob; invoked here as `identity-sync sync`). The sync is a full upsert agains
 the directory snapshot; users that disappear are marked suspended rather than
 deleted so historical joins keep working.
 
-AIM-714: newly suspended / missing users trigger a best-effort session revoke
+newly suspended / missing users trigger a best-effort session revoke
 against the AIM API so live SSO cookies die before AIM_SESSION_TTL_HOURS.
 """
 

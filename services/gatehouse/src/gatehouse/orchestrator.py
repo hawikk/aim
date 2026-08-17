@@ -50,15 +50,15 @@ class ScanResult:
     scanned_files: int = 0
     cached_files: int = 0
     duration_ms: int = 0
-    # AIM-162: populated when the AI reviewer ran (or tried to). Empty dict
+    # populated when the AI reviewer ran (or tried). Empty dict
     # means the step was off or unconfigured — indistinguishable from a scan
     # that never had the feature, which is the point.
     ai_stats: dict = field(default_factory=dict)
     ai_blocking: bool = False
-    # AIM-298: per-repo blocking threshold from `.gatehouse.yml` enforcement.block_on
+    # per-repo blocking threshold from `.gatehouse.yml` enforcement.block_on
     # (falls back to GATEHOUSE_FAIL_ON when unset).
     fail_on: str = ""
-    # AIM-234: one-click suggested fixes built while the workspace still
+    # one-click suggested fixes built while the workspace still
     # exists. Empty when the feature is off, the catalogue has no match, or
     # the self-scan gate refused every candidate.
     suggestions: list[SuggestedFix] = field(default_factory=list)
@@ -161,7 +161,7 @@ def scan(repo_dir: str, target: ScanTarget, *, store: Store | None = None,
     result.config_problems = list(config.problems)
     result.ai_blocking = config.ai_blocking
     result.suggest_enabled = config.suggest_enabled
-    # AIM-298: repo may tighten/loosen the service default via enforcement.block_on.
+    # repo may tighten/loosen the service default via enforcement.block_on.
     result.fail_on = config.block_on or checkrun.FAIL_ON
 
     active = [n for n in (enabled or list(REGISTRY)) if n not in config.disabled_scanners]
@@ -187,14 +187,14 @@ def scan(repo_dir: str, target: ScanTarget, *, store: Store | None = None,
 
     in_scope = [f for f in raw if scope.touches(f.path, f.line, f.end_line)]
     merged = dedupe.merge(in_scope, target.identity_ref)
-    # AIM-329: name the CNAPP posture rule each IaC finding would become
-    # post-deploy (code-to-cloud story on the PR, before AIM-305 asset link).
+    # name the CNAPP posture rule each IaC finding would become
+    # post-deploy (code-to-cloud story on the PR, asset link).
     merged = cnapp_parity.enrich_findings(
         merged, align_severity=cnapp_parity.env_align_severity())
     result.findings, result.suppressed = suppress.apply(merged, config)
     result.config_problems = list(config.problems)  # apply() appends expiry notes
 
-    # AIM-162: the AI reviewer runs after suppression and before alerts, so its
+    # the AI reviewer runs after suppression and before alerts, so its
     # findings flow through the alert lifecycle like any finding. Off/unconfigured
     # provider or a repo opt-out means the step simply does not happen.
     if ai and config.ai_enabled is not False:
@@ -216,7 +216,7 @@ def scan(repo_dir: str, target: ScanTarget, *, store: Store | None = None,
                 # the exact semantics `checkrun.conclusion` gives scanner errors.
                 result.errors.append(f"ai-review: {stats['error']}")
 
-    # AIM-234: build one-click fixes while the workspace still holds the PR
+    # build one-click fixes while the workspace still holds the PR
     # tree. Must run before the caller tears the checkout down. Self-scan uses
     # the same scanners; suggestions never affect conclusion.
     if build_suggestions and config.suggest_enabled:
@@ -260,7 +260,7 @@ def _build_alerts(result: ScanResult, *, store: Store | None,
         [(f, "new", "") for f in result.findings]
         + [(f, "suppressed", r) for f, r in result.suppressed]
     ):
-        # Identity is repo-scoped (AIM-299 AC#3): same secret on five PRs → one
+        # Identity is repo-scoped (AC#3): same secret on five PRs → one
         # dedupe_key. resource.ref still names *this* PR for action.
         key = dedupe.dedupe_key(finding, target.identity_ref)
         live_keys.add(key)

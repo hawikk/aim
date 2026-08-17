@@ -1,4 +1,4 @@
-// AIM-994 / AIM-582: synthetic test email for POST /api/guardrail/alerts/test.
+// synthetic test email for POST /api/guardrail/alerts/test.
 //
 // Mirrors guardrail `EmailNotifier.deliver_test` (services/guardrail):
 //   - SMTP host/from/user/password stay env-only (ALERT_EMAIL_*)

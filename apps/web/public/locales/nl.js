@@ -1,4 +1,4 @@
-/* Dutch (nl) catalog — critical admin/analyst surface (AIM-917).
+/* Dutch (nl) catalog — critical admin/analyst surface.
  *
  * Key tree mirrors locales/en.js. Severity / exposure / findings / inbox /
  * enforcement wording requires Security review before merge.
@@ -78,7 +78,7 @@ export const nl = Object.freeze({
     },
   },
 
-  /* Exposure is reach, not risk — different words on purpose (AIM-524). */
+  /* Exposure is reach, not risk — different words on purpose. */
   exposure: {
     wide: 'breed',
     moderate: 'matig',
@@ -87,7 +87,7 @@ export const nl = Object.freeze({
     rule: 'Afgeleid van waargenomen bereik, niet van een risicoscore: '
       + 'breed = 10+ gebruikers of 3+ teams, matig = 3+ gebruikers, beperkt = minder.',
     unknownTitle: 'Bereik niet berekenbaar: geen event voor deze tool kon worden gekoppeld aan een gebruiker of team '
-      + '(AIM-149 attributiegat). Volume is reëel; de spreiding is niet gemeten.',
+      + '(attributiegat). Volume is reëel; de spreiding is niet gemeten.',
   },
 
   empty: {

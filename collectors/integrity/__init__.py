@@ -1,4 +1,4 @@
-"""Independence / tamper-evidence controls for endpoint collectors (AIM-639).
+"""Independence / tamper-evidence controls for endpoint collectors.
 
 This package is the reference implementation for Dimension 16 (independence
 from the agent execution loop):

@@ -1,4 +1,4 @@
-"""Build the seeded repository the AIM-163 acceptance criteria are written
+"""Build the seeded repository the acceptance criteria are written
 against: a historic leaked key, a committed `.env`, and an over-scoped PAT.
 
 **No secret literal is committed to *this* repository.** Every credential below
@@ -16,7 +16,7 @@ Two shapes are avoided on purpose:
 
 * `AKIAIOSFODNN7EXAMPLE`, AWS's documented example key, is allowlisted by
   gitleaks' own default ruleset. A fixture built on it detects nothing and
-  reports a confident zero (see `.gitleaks.toml` and AIM-161).
+  reports a confident zero (see `.gitleaks.toml`).
 * Any value with real entropy from `secrets`/`os.urandom`. A fixture that
   differs per run cannot be asserted against.
 

@@ -1,4 +1,4 @@
-"""Thin OTLP/HTTP-JSON exporter for GenAI spans (AIM-115 dogfood pilot).
+"""Thin OTLP/HTTP-JSON exporter for GenAI spans (dogfood pilot).
 
 This is the "thin SDK wrapper" path from docs/otel-genai-integration-guide.md
 §2b, applied to our own first-party service. It is deliberately stdlib-only:

@@ -1,5 +1,5 @@
 {
-  "comment": "Synthetic process/binary observations for AIM-644 coding-tool auto-discovery. Metadata only — basename + counts, no cmdline.",
+  "comment": "Synthetic process/binary observations coding-tool auto-discovery. Metadata only — basename + counts, no cmdline.",
   "observations": [
     {"binary": "aider", "first_seen": "2026-07-28T10:00:00Z", "last_seen": "2026-07-31T16:00:00Z", "host_count": 2, "event_count": 14},
     {"binary": "chrome", "first_seen": "2026-07-01T00:00:00Z", "last_seen": "2026-07-31T23:00:00Z", "host_count": 40, "event_count": 9000},

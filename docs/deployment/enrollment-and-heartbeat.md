@@ -1,4 +1,4 @@
-# Collector enrollment & heartbeat protocol (AIM-28, client wiring AIM-80)
+# Collector enrollment & heartbeat protocol (client wiring)
 
 Status: **implemented**. Server side lives in `services/ingest`
 (`src/device-store.ts` + the `/v1/enroll`, `/v1/heartbeat`, `/v1/coverage`
@@ -18,7 +18,7 @@ The Linux packaging path (`deploy/linux/aim-collector-heartbeat.sh`,
 driven by the device scan timer) remains supported and speaks the same
 protocol; the in-collector client is the default for new installs.
 Packaging install/enroll/heartbeat/uninstall under a prefixed root is
-covered by `tests/e2e_linux_packaging.sh` (AIM-28 / AIM-1100).
+covered by `tests/e2e_linux_packaging.sh`.
 
 One-line install UX (per collector):
 
@@ -39,7 +39,7 @@ stays an admin action. A heartbeat that gets a 401 deletes the local
 token for the same reason.
 
 Windows Scheduled Task (`deploy/windows/Install-AIMCollector.ps1`) runs
-`scan-once` + `flush` + `heartbeat` every 5 minutes (AIM-624 / AIM-643).
+`scan-once` + `flush` + `heartbeat` every 5 minutes.
 `heartbeat` is a no-op until the device is enrolled (device_token present);
 pilot token-only installs still rely on event last-seen for coverage.
 Live Windows host verification of enrolled heartbeat remains a pilot residual.
@@ -60,7 +60,7 @@ and heartbeats, so fleet coverage comes from the `devices` table (see
 `GET /v1/coverage`). Without an enrollment token, coverage falls back to
 `host_id` last-seen timestamps in the events table.
 
-## Corporate golden images (AIM-745)
+## Corporate golden images
 
 Image-time install is supported via `deploy/golden-image/`: bake payload +
 managed config (and optionally a **ring** enroll token), then **seal** so no
@@ -121,7 +121,7 @@ compares `config_version` and re-reads managed config when it changes
 
 A device with no heartbeat for >3 intervals is **dead** for coverage purposes.
 
-## Coverage dashboard contract (AIM-25 consumes this)
+## Coverage dashboard contract (consumes this)
 
 Per device: `device_id, host_id, hostname, os, ring, collector_version,
 enrolled_at, last_heartbeat_at, last_event_at, health ∈ {healthy, stale, dead, never_seen}`.
@@ -139,7 +139,7 @@ over this table plus the Intune export.
 - mTLS with device certs from Intune instead of bearer tokens.
 - Enrollment tokens rotated per ring; per-device tokens short-lived with
   silent refresh via heartbeat.
-- **Signed collector build identity (AIM-646):** each batch carries a
+- **Signed collector build identity:** each batch carries a
   `collector.build` block; ingest verifies Ed25519 signatures when
   `INGEST_ATTESTATION_MODE=shadow|enforce`. Install-time trust remains
   cosign/Sigstore (or internal CA). See

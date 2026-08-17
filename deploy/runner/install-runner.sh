@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-297 / Epic D: install a self-hosted GitHub Actions runner for PR security.
+# / Epic D: install a self-hosted GitHub Actions runner for PR security.
 #
 # This is the *standard* install path — not a snowflake box. Operators run it
 # from a clean host that must NOT run the product compose stack (D-C2 hard path).
@@ -64,7 +64,7 @@ fi
 # --- role marker (D-C2) --------------------------------------------------
 install -d -m 0755 /etc/aim
 cat > /etc/aim/runner-role <<EOF
-# Written by deploy/runner/install-runner.sh (AIM-297)
+# Written by deploy/runner/install-runner.sh
 role=${AIM_RUNNER_ROLE}
 product_compose=forbidden
 labels=${RUNNER_LABELS}
@@ -155,7 +155,7 @@ if [ -f "${SCRIPT_DIR}/health-report.sh" ]; then
   install -m 0755 "${SCRIPT_DIR}/health-report.sh" /usr/local/bin/aim-ci-runner-health
   cat > /etc/systemd/system/aim-ci-runner-health.service <<'UNIT'
 [Unit]
-Description=AIM CI runner health snapshot (AIM-297)
+Description=AIM CI runner health snapshot
 After=network-online.target
 
 [Service]
@@ -169,7 +169,7 @@ UNIT
   # Fix unit: %i is wrong without instance. Use a static unit.
   cat > /etc/systemd/system/aim-ci-runner-health.service <<UNIT
 [Unit]
-Description=AIM CI runner health snapshot (AIM-297)
+Description=AIM CI runner health snapshot
 After=network-online.target
 
 [Service]
@@ -203,12 +203,12 @@ EOF
   log "health reporter timer enabled → /var/lib/aim/ci-runner-status.json"
 fi
 
-# --- orphaned-job watchdog (AIM-406 / AIM-401 follow-up) -------------------
+# --- orphaned-job watchdog (follow-up) -------------------
 # Auto-restart when busy=true with 0 in_progress runs for >10 min.
 # Requires GH_TOKEN in env (or already in /etc/aim/runner-watchdog.env) for
 # GitHub API reads. Does not touch aim-local-hawik / D-C2 labels.
 if [ -f "${SCRIPT_DIR}/install-watchdog.sh" ]; then
-  log "installing orphaned-job watchdog (AIM-406)"
+  log "installing orphaned-job watchdog"
   # Preserve caller GH_TOKEN/GITHUB_TOKEN; install-watchdog is idempotent.
   env \
     GH_REPO="$GH_REPO" \

@@ -9,7 +9,7 @@ the `aimonitoring-security` name so lookalike packages cannot squat it.
 The original short names `aimonitoring` / `aim-monitoring` cannot be claimed:
 PyPI's similarity gate rejects them as too close to the unrelated existing
 project [`ai-monitoring`](https://pypi.org/project/ai-monitoring/)
-(Whitecircle). This package is the board-chosen alternate reservation.
+(Whitecircle). This package is the chosen alternate reservation.
 
 ## Do not use this package to install the CLI
 
@@ -25,7 +25,7 @@ pipx install https://github.com/hawikk/aim/releases/download/vX.Y.Z/aim-X.Y.Z-py
 
 PyPI is **not** a distribution channel for the product wheel. This stub exists
 only so an official project name is owned by us and points back at that single
-trust anchor (see AIM-489 decision D-489-2 / D-489-2a, amended for similarity).
+trust anchor.
 
 ## Why a non-empty stub?
 

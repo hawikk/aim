@@ -1,4 +1,4 @@
-/* Case / investigation workflow model (AIM-706).
+/* Case / investigation workflow model.
  *
  * Pure module — no DOM, no fetch — so unit tests and the API route can share
  * the same status machine and attachment vocabulary. Cases are the unit of

@@ -1,4 +1,4 @@
-/* Shared display formatters for the dashboard (AIM-479).
+/* Shared display formatters for the dashboard.
  *
  * Keep cost / timestamp / subject rendering consistent across app.js,
  * findings.js and activity.js so a security analyst correlating views
@@ -82,7 +82,7 @@ export const fmtUsd = fmtCost;
  * Second precision correlates cleanly with SIEM / collector logs when an
  * analyst pastes into Splunk; the trailing Z makes the UTC claim explicit
  * so readers never have to know "we always store UTC". One vocabulary
- * across every view — do not reimplement locally (AIM-533).
+ * across every view — do not reimplement locally.
  *
  * Full original value belongs in the cell title attribute.
  */
@@ -94,7 +94,7 @@ export function fmtTs(iso) {
 }
 
 /* ---------------------------------------------------------------------------
- * AIM-525: helpers that used to be re-declared per view (fmtInt in 9 files,
+ * helpers that used to be re-declared per view (fmtInt in 9 files,
  * relTime in 5). One definition each, one set of edge-case rules:
  * missing → '—', unparseable → '—', never a literal "NaN" in a stat tile.
  * ------------------------------------------------------------------------- */
@@ -148,7 +148,7 @@ export function fmtDay(d) {
 /**
  * Relative age for heartbeat / last-seen timestamps.
  *
- * Rules (the five prior copies disagreed on all three — see AIM-525):
+ * Rules (the five prior copies disagreed on all three —):
  *  - missing → 'never'. A null last-seen is "this collector has never
  *    reported", not "56 years ago" from the epoch.
  *  - unparseable → '—'.
@@ -169,8 +169,8 @@ export function relTime(d) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-/* ---------- AIM-527 surface used by split view modules ----------
- * fmtDay already returns '—' for missing/unparseable dates (AIM-525), so
+/* ---------- surface used by split view modules ----------
+ * fmtDay already returns '—' for missing/unparseable dates, so
  * fmtDaySafe is a stable alias for call sites that predated that hardening.
  * fmtMs remains the duration helper formerly local to app.js. */
 
@@ -184,7 +184,7 @@ export function fmtMs(ms) {
   return `${fmtInt(v)} ms`;
 }
 
-/* Underscore aliases for views/* pre-rename imports (AIM-527 → AIM-782). */
+/* Underscore aliases for views/* pre-rename imports (→). */
 export {
   fmtDay as _fmtDay,
   fmtDaySafe as _fmtDaySafe,

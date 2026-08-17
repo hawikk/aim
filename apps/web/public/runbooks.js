@@ -1,4 +1,4 @@
-/* AIM-703 — SOC runbook pages for every alert class.
+/* — SOC runbook pages for every alert class.
  *
  * Self-contained module (findings/rules pattern): injects nav tab, section,
  * stylesheet. Routable as `#/runbooks` and `#/runbooks/<slug>`.

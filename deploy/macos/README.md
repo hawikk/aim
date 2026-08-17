@@ -4,12 +4,12 @@ Two install surfaces. This directory holds both. Do not mix them.
 
 | Path | Privilege | Unit | Managed config | When to use |
 |---|---|---|---|---|
-| **`managed-user/`** (AIM-1170) | logged-in user; **refuses root** | LaunchAgent `com.aimonitoring.aim-watch` | `~/Library/Application Support/AI-Monitoring/collector/` | Artifact IT wraps (Jamf “Execute as user”, Intune signed-in user). Same `aim join` + watcher flow as Linux. |
-| `install.sh` + `jamf/` (AIM-743) | root / pkg postinstall | LaunchDaemons `com.aimonitoring.collector-scan` + `…-oob-health` | `/etc/aim-collector/` (legacy, still honored) | Existing Jamf system package. Live fleet rollout remains AIM-28. |
+| **`managed-user/`** | logged-in user; **refuses root** | LaunchAgent `com.aimonitoring.aim-watch` | `~/Library/Application Support/AI-Monitoring/collector/` | Artifact IT wraps (Jamf “Execute as user”, Intune signed-in user). Same `aim join` + watcher flow as Linux. |
+| `install.sh` + `jamf/` | root / pkg postinstall | LaunchDaemons `com.aimonitoring.collector-scan` + `…-oob-health` | `/etc/aim-collector/` (legacy, still honored) | Existing Jamf system package. Live fleet rollout remains. |
 
 Notarized Developer ID signing is **not** shipped (no cert in-repo). Residual: unsigned `pkgbuild` layout under `jamf/`.
 
-## What Jamf / Intune would call (AIM-1170)
+## What Jamf / Intune would call
 
 Run as the **logged-in user**, never as root:
 
@@ -39,7 +39,7 @@ First-class managed config the collectors read on Darwin:
 
 1. `/Library/Application Support/AI-Monitoring/collector/config.json` (MDM can drop this without our installer being root)
 2. `~/Library/Application Support/AI-Monitoring/collector/config.json` (this installer)
-3. `/etc/aim-collector/config.json` (AIM-743 legacy only)
+3. `/etc/aim-collector/config.json` (legacy only)
 
 ## Uninstall
 
@@ -54,11 +54,11 @@ Or `aim uninstall` if the CLI is on `PATH`.
 ## Dry-run (Linux CI / no Mac)
 
 ```sh
-bash scripts/aim-1170-macos-managed-user-proof.sh
+bash scripts/macos-managed-user-proof.sh
 ```
 
 Proves syntax, refuse-root, prefix install without root, LaunchAgent (not LaunchDaemon), and Darwin managed-config candidates.
 
-## AIM-743 system package
+## system package
 
-See `jamf/README.md` and `docs/deployment/jamf-macos.md`. That path stays for existing Jamf tenants; it is **not** the AIM-1170 least-privilege artifact.
+See `jamf/README.md` and `docs/deployment/jamf-macos.md`. That path stays for existing Jamf tenants; it is **not** the least-privilege artifact.

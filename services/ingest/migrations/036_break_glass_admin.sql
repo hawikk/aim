@@ -1,4 +1,4 @@
--- 036_break_glass_admin.sql — AIM-719: emergency admin break-glass
+-- 036_break_glass_admin.sql — emergency admin break-glass
 -- dual control + hardware-key (WebAuthn-compatible) with full audit.
 --
 -- Product path for IdP outage / emergency elevation. Complements the
@@ -27,7 +27,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS break_glass_admin_principals_email_uidx
   ON break_glass_admin_principals (lower(email));
 
 COMMENT ON TABLE break_glass_admin_principals IS
-  'AIM-719 pre-staged identities eligible for emergency admin (dual control / WebAuthn).';
+  'Pre-staged identities eligible for emergency admin (dual control / WebAuthn).';
 
 CREATE TABLE IF NOT EXISTS break_glass_admin_webauthn (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -55,7 +55,7 @@ CREATE INDEX IF NOT EXISTS break_glass_admin_webauthn_principal_idx
   WHERE revoked_at IS NULL;
 
 COMMENT ON TABLE break_glass_admin_webauthn IS
-  'AIM-719 hardware-key (WebAuthn-compatible ES256) credentials for emergency admin.';
+  'Hardware-key (WebAuthn-compatible ES256) credentials for emergency admin.';
 
 CREATE TABLE IF NOT EXISTS break_glass_admin_grants (
   id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -104,7 +104,7 @@ CREATE INDEX IF NOT EXISTS break_glass_admin_grants_requested_idx
   ON break_glass_admin_grants (requested_at DESC);
 
 COMMENT ON TABLE break_glass_admin_grants IS
-  'AIM-719 emergency admin grants: dual-control approvals or WebAuthn activation.';
+  'Emergency admin grants: dual-control approvals or WebAuthn activation.';
 
 CREATE TABLE IF NOT EXISTS break_glass_admin_events (
   id          BIGSERIAL PRIMARY KEY,
@@ -129,4 +129,4 @@ CREATE INDEX IF NOT EXISTS break_glass_admin_events_type_idx
   ON break_glass_admin_events (event_type, created_at DESC);
 
 COMMENT ON TABLE break_glass_admin_events IS
-  'AIM-719 append-only audit of emergency admin break-glass lifecycle.';
+  'Append-only audit of emergency admin break-glass lifecycle.';

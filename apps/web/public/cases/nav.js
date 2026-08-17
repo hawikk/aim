@@ -1,4 +1,4 @@
-/* List ↔ detail pane navigation for the Cases view (AIM-1186 split).
+/* List ↔ detail pane navigation for the Cases view (split).
  * Owns the hash-driven pane switch so list.js and detail.js never import
  * each other: both import goCase/goList from here, and this module imports
  * the pane renderers one-directionally. */

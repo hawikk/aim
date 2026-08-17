@@ -1,4 +1,4 @@
-# enroll-client — canonical fleet enroll/heartbeat client (AIM-136)
+# enroll-client — canonical fleet enroll/heartbeat client
 
 `enroll.py` here is the **single source of truth** for the fleet
 enrollment + heartbeat client that runs inside every endpoint collector

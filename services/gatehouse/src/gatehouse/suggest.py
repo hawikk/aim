@@ -1,4 +1,4 @@
-"""One-click suggested fixes on PR findings (AIM-234 / CodeRabbit parity).
+"""One-click suggested fixes on PR findings (CodeRabbit parity).
 
 For each corroborated scanner finding that has a reviewed catalogue patch:
 
@@ -9,7 +9,7 @@ For each corroborated scanner finding that has a reviewed catalogue patch:
 3. If the changed span is at or under the documented size threshold, post a
    GitHub ```suggestion review comment (committable in one click).
 4. If it is larger, and the repo is on the draft-PR allowlist (same gate as
-   AIM-185), record a draft-PR note that the summary comment can link.
+   ), record a draft-PR note that the summary comment can link.
 
 Advisory only. Suggestions never change the check conclusion and never use
 `REQUEST_CHANGES`. `ai_review.blocking` is untouched.
@@ -43,7 +43,7 @@ CATALOGUE_PATH = Path(__file__).resolve().parent / "catalogue" / "fixes.yml"
 MAX_SUGGESTION_LINES = int(os.environ.get("GATEHOUSE_SUGGEST_MAX_LINES", "5"))
 MAX_SUGGESTION_CHARS = int(os.environ.get("GATEHOUSE_SUGGEST_MAX_CHARS", "800"))
 
-# Same shape of gate as AIM-185: a comma-separated owner/repo allowlist. Gatehouse
+# Same shape of gate as: a comma-separated owner/repo allowlist. Gatehouse
 # never opens the draft PR itself (contents:read only); it only *links* the
 # path when the operator has opted the repo into sentinel draft-PR remediation.
 DRAFT_PR_REPOS_ENV = "GATEHOUSE_DRAFT_PR_REPOS"
@@ -128,7 +128,7 @@ SelfScanFn = Callable[[str, Finding, str], tuple[bool, str]]
 
 
 def draft_pr_allowlist(env: dict[str, str] | None = None) -> frozenset[str]:
-    """Repos on the AIM-185 draft-PR allowlist, mirrored into gatehouse env.
+    """Repos on the draft-PR allowlist, mirrored into gatehouse env.
 
     Empty means "no repo is opted in" — fail closed, same as sentinel when
     `remediation.draft_pr.repos` is empty.
@@ -249,7 +249,7 @@ def propose_for_finding(
 ) -> SuggestedFix | None:
     """Build a suggestion (or draft-PR note) for one finding, or None if no entry."""
     if finding.scanner == "ai-review":
-        # AIM-162: model findings are advisory and untrusted as a source of
+        # model findings are advisory and untrusted as a source of
         # machine-applied edits. Only corroborated scanner findings get a fix.
         return None
     entry = catalogue.match(finding)
@@ -358,7 +358,7 @@ def summary_section(fixes: list[SuggestedFix]) -> str:
         lines.append(
             f"\n{len(draft)} larger fix(es) exceed the inline threshold "
             f"({MAX_SUGGESTION_LINES} lines / {MAX_SUGGESTION_CHARS} chars) and are "
-            f"routed to the **sentinel draft-PR** path (AIM-185 opt-in):")
+            f"routed to the **sentinel draft-PR** path (opt-in):")
         for fix in draft[:MAX_SUGGESTIONS_PER_PR]:
             loc = checkrun.md(fix.path, 80) if fix.path else "?"
             lines.append(

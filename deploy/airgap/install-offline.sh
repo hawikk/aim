@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Offline installer for the AIM air-gapped bundle (AIM-98).
+# Offline installer for the AIM air-gapped bundle.
 # Runs on the TARGET host, from the untarred bundle directory.
 #
 # Usage: ./install-offline.sh
@@ -109,7 +109,7 @@ if [[ ! -d "$CHART_DIR" ]]; then
 fi
 
 # helm upgrade --install is intentional: greenfield install AND in-place
-# upgrades of an existing release share this path (AIM-599). Volumes / PVCs
+# upgrades of an existing release share this path. Volumes / PVCs
 # are left alone; the pre-upgrade migrate Job applies schema deltas.
 HELM_CMD=(
   helm upgrade --install "$RELEASE" "$CHART_DIR"

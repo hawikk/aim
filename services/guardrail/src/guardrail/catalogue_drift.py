@@ -1,6 +1,6 @@
-"""Provider / model catalogue drift alerts (AIM-738).
+"""Provider / model catalogue drift alerts.
 
-Complements AIM-575 new-sources (first-ever host×known-provider) with:
+Complements new-sources (first-ever host×known-provider) with:
 
   * ``app-llm-new-provider`` — a *provider string* whose first-ever event falls
     inside the lookback window AND is **not** in the known provider catalogue

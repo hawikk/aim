@@ -1,4 +1,4 @@
-"""First-class SIEM export for guardrail findings (AIM-324).
+"""First-class SIEM export for guardrail findings.
 
 Two destinations, both metadata-only and both reusing the finding_deliveries
 accounting contract (one row per finding per destination):
@@ -6,14 +6,14 @@ accounting contract (one row per finding per destination):
 - ``SplunkHecNotifier`` — Splunk HTTP Event Collector. Payload is an
   **OCSF Detection Finding** (class 2004): our finding contract is already an
   OCSF subset (metadata-only, pseudonymous subject, detector names), so the
-  native mapping is lossless. This is the AIM-324 reference integration.
-  AIM-701 projects the AIM-585 SOC triage fields (host, team, policy hash,
+  native mapping is lossless. This is the reference integration.
+  projects the SOC triage fields (host, team, policy hash,
   event ids, dynamic decision) that the early mapper dropped.
 - ``SyslogCefNotifier`` — RFC 5424 syslog (UDP, TCP, or TCP+TLS) carrying the
   CEF record from ``notify.to_cef``. The fallback for SIEMs without an HTTP /
   OCSF intake.
 
-Delivery semantics (AIM-324): both destinations opt into the run-start
+Delivery semantics: both destinations opt into the run-start
 sweeper (``sweeps_undelivered``) so a SIEM outage lasting one guardrail cycle
 no longer truncates the export — findings that committed but never reached
 the receiver are re-driven on the next run (at-least-once; receivers dedupe
@@ -24,7 +24,7 @@ accumulated attempts reach the cap, the sweeper dead-letters the row
 ``guardrail.alert.lag`` run log line and the poller's ``/lagz`` endpoint
 (see ``dbrunner.delivery_lag``).
 
-Data minimization (AIM-324 acceptance criterion): the exported identity is
+Data minimization (acceptance criterion): the exported identity is
 the pseudonymous ``user_ref`` — never a raw identity — unless the admin
 explicitly maps it. The mapping is policy-as-code
 (``settings.alerts.<dest>.identity_map``, pseudonym -> identity) and exists
@@ -35,7 +35,7 @@ pseudonymous correlation keeps working when a mapping is active.
 Secrets stay env-managed (``SPLUNK_HEC_TOKEN``), same posture as the
 webhook/Sentinel notifiers. Transports are injectable so tests need no
 network, and the HEC contract is additionally proven over a real loopback
-socket by ``tests/splunk_hec_contract_double.py`` (mirroring AIM-119).
+socket by ``tests/splunk_hec_contract_double.py`` (mirroring).
 """
 
 from __future__ import annotations
@@ -121,7 +121,7 @@ def _rfc5424_ts(ts: Any) -> str:
 def apply_identity_map(pseudonym: str, identity_map: dict | None) -> str:
     """Resolve the exported identity: the admin's explicit mapping, else the
     pseudonym itself. The ONLY path by which a raw identity may leave the
-    product in a SIEM payload (AIM-324 data-minimization criterion)."""
+    product in a SIEM payload (data-minimization criterion)."""
     if identity_map and pseudonym in identity_map:
         return identity_map[pseudonym]
     return pseudonym
@@ -130,7 +130,7 @@ def apply_identity_map(pseudonym: str, identity_map: dict | None) -> str:
 def _enforcement_mode(decision: str | None) -> str:
     """Map finding.decision onto the legacy EnforcementMode string.
 
-    Parity with notify.build_record / CEF (AIM-585): only a real ``blocked``
+    Parity with notify.build_record / CEF: only a real ``blocked``
     decision is enforce; would_block / observe / confirmed stay observe-only.
     """
     return "enforce" if decision == "blocked" else "observe-only"
@@ -146,10 +146,10 @@ def to_ocsf_detection_finding(
 
     Metadata-only: built from the same fields as notify.build_record — rule
     id, severity, pseudonymous subject, detector names — never prompt or
-    response content (AIM-16). ``finding_info.uid`` is the stable finding id
+    response content. ``finding_info.uid`` is the stable finding id
     so the receiver can dedupe the sweeper's at-least-once re-drives.
 
-    AIM-701: project the AIM-585 SOC triage fields that were present on the
+    project the SOC triage fields that were present on the
     engine finding / CEF path but previously dropped from OCSF — host
     (``device.uid``), team (``actor.user.groups``), policy hash
     (``finding_info.analytic``), event ids + match flags (``evidences``),
@@ -251,7 +251,7 @@ def to_ocsf_detection_finding(
     }
 
     if host_ref:
-        # Pseudonym only — never a raw hostname (AIM-16 / AIM-585 posture).
+        # Pseudonym only — never a raw hostname (posture).
         event["device"] = {
             "uid": host_ref,
             "type": "Unknown",
@@ -314,7 +314,7 @@ def build_cef_message(
 
 
 class SplunkHecNotifier:
-    """Splunk HTTP Event Collector, OCSF Detection Finding payload (AIM-324).
+    """Splunk HTTP Event Collector, OCSF Detection Finding payload.
 
     One POST per batch to ``<url>/services/collector/event`` — HEC accepts a
     batch as concatenated JSON event envelopes. Auth is the HEC token
@@ -487,7 +487,7 @@ def _make_syslog_sender(host: str, port: int, protocol: str, use_tls: bool) -> S
 
 
 class SyslogCefNotifier:
-    """RFC 5424 syslog carrying the CEF record (AIM-324 syslog/CEF fallback).
+    """RFC 5424 syslog carrying the CEF record (syslog/CEF fallback).
 
     One message per finding; a send failure raises with the whole batch's
     finding ids — at-least-once tolerates the duplicates (the receiver

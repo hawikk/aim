@@ -1,4 +1,4 @@
-// Saved views API (AIM-94 / AIM-587). Per-user persisted filter sets for the
+// Saved views API. Per-user persisted filter sets for the
 // findings console and the activity trail: a named filter combination the
 // dashboard can restore across sessions.
 //
@@ -7,7 +7,7 @@
 // Any authenticated user may manage THEIR OWN views (no security-group gate);
 // the data APIs the views point at keep their own gates.
 // Existence of another user's view is never leaked (404 on foreign ids).
-// Mutations are recorded in the immutable audit trail (AIM-27).
+// Mutations are recorded in the immutable audit trail.
 import { query } from '../db.js';
 import { audit } from '../audit.js';
 

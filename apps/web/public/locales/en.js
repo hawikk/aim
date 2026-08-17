@@ -1,4 +1,4 @@
-/* English catalog — source of truth for admin/analyst chrome (AIM-761 / AIM-917).
+/* English catalog — source of truth for admin/analyst chrome.
  *
  * Scope of this file is the *critical* string surface:
  *  - severity / exposure bands (the product's primary axis)
@@ -8,7 +8,7 @@
  *  - shared format helpers that an analyst sees next to severity
  *
  * View-specific copy (overview cards, fleet table headers, …) migrates later.
- * v1 non-English catalogs: de / fr / nl (AIM-916 ship set, AIM-917 catalogs).
+ * v1 non-English catalogs: de / fr / nl (ship set, catalogs).
  * Do not add further locales until Security amends admin-ui-locales-v1.md
  * (remaining candidates live in LOCALES_AWAITING_SECURITY).
  *
@@ -89,7 +89,7 @@ export const en = Object.freeze({
     },
   },
 
-  /* Exposure is reach, not risk — different words on purpose (AIM-524). */
+  /* Exposure is reach, not risk — different words on purpose. */
   exposure: {
     wide: 'wide',
     moderate: 'moderate',
@@ -98,7 +98,7 @@ export const en = Object.freeze({
     rule: 'Derived from observed reach, not from any risk rating: '
       + 'wide = 10+ users or 3+ teams, moderate = 3+ users, contained = fewer.',
     unknownTitle: 'Reach cannot be computed: no event for this tool resolved to a user or team '
-      + '(AIM-149 attribution gap). Volume is real; the spread is unmeasured.',
+      + '(attribution gap). Volume is real; the spread is unmeasured.',
   },
 
   empty: {

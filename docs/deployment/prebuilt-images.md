@@ -1,4 +1,4 @@
-# Prebuilt control-plane images (AIM-1126)
+# Prebuilt control-plane images
 
 Cold `docker compose up --build` on a clean host is typically **10–20 minutes**
 and is the dominant term in pilot time-to-green. It also flakes on low disk or
@@ -44,7 +44,7 @@ runtime image drift — the opposite of the supply-chain property this product
 sells. Images are **cosign-signed** (keyless) and carry build provenance
 attestations; see `docs/adr-supply-chain-slsa.md`.
 
-**Operator pin rule (AIM-1141):** only use a `main-<shortsha>` from a **green**
+**Operator pin rule:** only use a `main-<shortsha>` from a **green**
 `release-images` run whose summary lists **all four** pilot images
 (`aim-ingest`, `aim-api`, `aim-guardrail`, `aim-identity-sync`). A cancelled or
 partial matrix (historically: ingest cancelled while siblings pushed) is not a
@@ -120,7 +120,7 @@ docker compose \
 - **pilot.yml** — skips gatehouse / sentinel / hygiene-cron / shadow-ai so they
   are not cold-built.  
 - **pull.yml** — sets `image:` to GHCR refs and clears `build:` with
-  `build: !reset null` (required on Compose v2; see AIM-599).
+  `build: !reset null` (required on Compose v2).
 
 ### 5. Verify
 

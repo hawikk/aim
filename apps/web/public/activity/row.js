@@ -1,4 +1,4 @@
-/* Row + state rendering for the Live Activity trail (AIM-1163 split, extracted
+/* Row + state rendering for the Live Activity trail (split, extracted
  * from activity.js). Pure renderers: everything here turns an event (or a
  * loading/empty/error spec) into HTML/rows and owns no fetch, timer, or
  * listener. */
@@ -58,13 +58,13 @@ function toolCallsSummary(calls) {
 
 /* An event whose identity could not be resolved is unattributed, not anonymous
  * and not broken. Label it so a reviewer reads it as a known coverage gap
- * (AIM-149) rather than as a UI failure. */
+ * rather than as a UI failure. */
 function userCell(pseudonym) {
   if (!pseudonym) {
     return '<span class="faint" title="Identity could not be resolved for this event — the collector reported no user reference.">unattributed</span>';
   }
   const shown = pseudonym.length > 11 ? `${pseudonym.slice(0, 10)}…` : pseudonym;
-  // AIM-483 / AIM-589: drill-down via entityHref so ?days= survives the hop.
+  // drill-down via entityHref so ?days= survives the hop.
   // data-user stays for the legacy filter handoff.
   const href = entityHref('users', pseudonym, { days: dashState.days });
   return `<a class="pseudo-link" href="${esc(href)}" data-user="${esc(pseudonym)}" title="${esc(pseudonym)}">${esc(shown)}</a>`;
@@ -106,7 +106,7 @@ export function skeletonRows(n = 12) {
 
 /* Empty and error states say what nothing means here and what to do next.
  * Both are one row spanning the table so the header stays readable. */
-/* AIM-526: activity already drew no-data / filtered / error by hand — that is
+/*: activity already drew no-data / filtered / error by hand — that is
  * where the shared emptyState() signature came from. Optional control HTML
  * (Retry / Clear filters) is appended inside the empty-state container. */
 export function stateRow(spec, control = '') {

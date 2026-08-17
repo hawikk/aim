@@ -1,5 +1,5 @@
-/* MCP override path (AIM-1157 split): runtime-denials panel, the inline
- * override-deny form (AIM-667 — permanent allowlist approve with required
+/* MCP override path (split): runtime-denials panel, the inline
+ * override-deny form (— permanent allowlist approve with required
  * reason, optional dual control, full audit), and the recent-overrides
  * audit panel.
  * The orchestrator (public/mcp.js) populates fctx before bind*() runs. */

@@ -1,6 +1,6 @@
 """`python -m aim <command>` — same dispatch as the `aim` console script.
 
-The auto-start service (AIM-139) launches the watcher as
+The auto-start service launches the watcher as
 ``<interpreter> -m aim watch`` rather than by console-script name: the module
 form resolves against the exact interpreter that installed the service, so it
 keeps working even if the `aim` shim isn't on the service's PATH (a real gap

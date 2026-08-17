@@ -1,4 +1,4 @@
-"""Import-level reachability for SCA findings (AIM-327).
+"""Import-level reachability for SCA findings.
 
 Trivy (and every other lockfile scanner) reports *present* vulnerabilities.
 Most of those packages are never imported by first-party code, so treating
@@ -127,7 +127,7 @@ def analyze(repo_dir: str, package: str, manifest_path: str,
             UNKNOWN,
             f"import-level reachability not implemented for this ecosystem "
             f"({os.path.basename(manifest_path) or 'unknown manifest'}); "
-            f"npm + pip first (AIM-327)",
+            f"npm + pip first",
             dep_path=dep_path,
         )
 

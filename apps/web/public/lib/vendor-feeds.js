@@ -1,4 +1,4 @@
-/* AIM-1168: first-party vendor admin feed strip + empty-state copy. */
+/*: first-party vendor admin feed strip + empty-state copy. */
 import { esc } from './dom.js';
 
 export function darkVendorFeeds(feeds) {

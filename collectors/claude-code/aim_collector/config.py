@@ -1,4 +1,4 @@
-"""Managed configuration resolution (AIM-36).
+"""Managed configuration resolution.
 
 The collector is configured by a managed JSON file that endpoint tooling
 (Intune/SCCM on Windows, Jamf on macOS, config-management on Linux/WSL) drops at a
@@ -12,7 +12,7 @@ Search order for the config file (first existing wins):
    - Windows: ``%ProgramData%\\AI-Monitoring\\collector\\config.json``
    - macOS: ``/Library/Application Support/AI-Monitoring/collector/config.json``
      then ``~/Library/Application Support/AI-Monitoring/collector/config.json``
-     then legacy AIM-743 ``/etc/aim-collector/config.json``
+     then legacy ``/etc/aim-collector/config.json``
    - Linux/WSL: ``/etc/aim-collector/config.json``
 3. ``<state dir>/config.json`` (per-user fallback, dev default)
 
@@ -24,10 +24,10 @@ Recognized keys::
       "token":          null,              // dev only; prefer token_file
       "hash_salt":      "org-wide-salt",   // HMAC pseudonymization salt;
                                            // must match ingestion side
-      "ca_bundle":      "/path/to/ca.pem", // private ingest CA (AIM-238);
+      "ca_bundle": "/path/to/ca.pem", // private ingest CA;
                                            // alias key: ca_cert
       "resolve":        ["host:port:ip"]   // curl-style split-horizon
-                                           // overrides (AIM-238)
+                                           // overrides
     }
 
 Token resolution order: ``AIM_COLLECTOR_TOKEN`` env > ``device_token`` (enrolled) > ``token_file`` contents
@@ -47,13 +47,13 @@ from . import state
 
 MANAGED_PATH_WINDOWS = r"C:\ProgramData\AI-Monitoring\collector\config.json"
 MANAGED_PATH_LINUX = "/etc/aim-collector/config.json"
-# AIM-1170: first-class Darwin paths (do not fall through to Linux /etc only).
+# first-class Darwin paths (do not fall through to Linux /etc only).
 MANAGED_PATH_DARWIN = "/Library/Application Support/AI-Monitoring/collector/config.json"
 MANAGED_PATH_DARWIN_USER = "~/Library/Application Support/AI-Monitoring/collector/config.json"
 
 
 def _managed_candidates() -> list[Path]:
-    """Platform managed config files; Darwin is first-class (AIM-1170)."""
+    """Platform managed config files; Darwin is first-class."""
     plat = sys.platform
     if plat.startswith("win"):
         base = os.environ.get("ProgramData", r"C:\ProgramData")
@@ -62,7 +62,7 @@ def _managed_candidates() -> list[Path]:
         return [
             Path(MANAGED_PATH_DARWIN),
             Path(MANAGED_PATH_DARWIN_USER).expanduser(),
-            Path(MANAGED_PATH_LINUX),  # AIM-743 legacy Jamf layout
+            Path(MANAGED_PATH_LINUX), # legacy Jamf layout
         ]
     return [Path(MANAGED_PATH_LINUX)]
 
@@ -87,7 +87,7 @@ def config_path() -> Path | None:
 def load() -> dict:
     """Parsed config dict; {} if no file or unreadable/invalid.
 
-    AIM-639 / AIM-749: when harden mode is on (``AIM_HARDEN=1`` / ``harden:
+    when harden mode is on (``AIM_HARDEN=1`` / ``harden:
     true``) and the integrity package is importable, refuse unsigned or
     tampered signed envelopes. Tamper events are appended under the state
     dir. Without the integrity package (stdlib-only endpoint installs that
@@ -125,7 +125,7 @@ def ingest_url() -> str | None:
 def token() -> str | None:
     """Resolve the events bearer for spool flush.
 
-    Order (AIM-443 / AIM-319):
+    Order:
       1. ``AIM_COLLECTOR_TOKEN`` env — explicit operator override
       2. ``<state dir>/device_token`` — enrollment-issued per-device bearer
       3. ``token_file`` from managed config
@@ -133,7 +133,7 @@ def token() -> str | None:
 
     Heartbeat already uses the device token. Preferring it for events too
     means re-enrollment cannot leave the event path on a stale shared
-    bearer while liveness stays green (the AIM-443 dogfood failure mode:
+    bearer while liveness stays green (the dogfood failure mode:
     141k events lost to ``auth_rejected: HTTP 401`` with a healthy device).
     """
     env = os.environ.get("AIM_COLLECTOR_TOKEN")

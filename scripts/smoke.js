@@ -1,4 +1,4 @@
-// Smoke test for AIM-25 acceptance criteria:
+// Smoke test acceptance criteria:
 //  1. overview answers "who uses which AI tools and how much"
 //  2. unapproved view surfaces tool + first-seen + count
 //  3. all endpoints respond < 2s on pilot-scale data
@@ -7,7 +7,7 @@
 //     cookieless request must 401 instead)
 const base = process.env.API_URL ?? 'http://localhost:8080';
 
-// Dev role login (AIM-95): returns the aim_session cookie for a role, or null
+// Dev role login: returns the aim_session cookie for a role, or null
 // when the API has no dev endpoints (SSO mode).
 async function devLogin(role) {
   const res = await fetch(`${base}/auth/dev/login?role=${role}`);

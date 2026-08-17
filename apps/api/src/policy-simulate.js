@@ -1,4 +1,4 @@
-// Policy simulation / dry-run against historical findings (AIM-686).
+// Policy simulation / dry-run against historical findings.
 //
 // Replays the last N days of stored dispositions under a *candidate* policy
 // without writing anything. Two rails:

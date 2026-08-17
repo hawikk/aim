@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync the canonical spool/flush client into each collector (AIM-200).
+"""Sync the canonical spool/flush client into each collector.
 
 The endpoint collectors ship as standalone packages, so each carries a
 verbatim vendored copy of the shared spool client. The single source of
@@ -11,9 +11,9 @@ truth is `collectors/spool-client/spool.py`; this script copies it into:
     collectors/kimi-code/kimi_collector/spool.py
     collectors/github-copilot/copilot_collector/spool.py
 
-Why this exists: the four copies had already drifted. AIM-127 added ingest
+Why this exists: the four copies had already drifted. added ingest
 backpressure handling to the claude-code copy only, so the other three kept
-hammering an overloaded ingest; and AIM-200's silent-drop bug (HTTP 200 read
+hammering an overloaded ingest; and the silent-drop bug (HTTP 200 read
 as full acceptance) was present in all four but only reported against one.
 The client depends only on each package's `config`, `identity` and `state`
 modules — identical interfaces across the four collectors — so the copy is

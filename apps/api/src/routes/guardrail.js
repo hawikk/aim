@@ -1,4 +1,4 @@
-// Guardrail rules transparency + tuning API (AIM-81, AIM-94).
+// Guardrail rules transparency + tuning API.
 //
 // GET /api/guardrail/rules — the rules the guardrail engine has loaded right
 // now, read from the same YAML policy files on every request (no drift), plus
@@ -6,12 +6,12 @@
 // persisted record of rule firings — engine audit records are streamed, not
 // stored, so the findings table is the durable firing history).
 //
-// PATCH /api/guardrail/rules/:id (AIM-94) — UI-tunable threshold rules.
+// PATCH /api/guardrail/rules/:id — UI-tunable threshold rules.
 // Overrides (gt/gte/window_seconds/severity only) are written to the
 // machine-owned ui-overrides.yaml in the policy dir; match rules and every
 // other rule aspect stay PR-managed in the core policy files.
 //
-// GET/PUT /api/guardrail/alerts (AIM-94 / AIM-485 / AIM-582 / AIM-583 / AIM-699) —
+// GET/PUT /api/guardrail/alerts
 // non-secret alert destination config (webhook / Sentinel / Google Chat /
 // optional Slack / email / PagerDuty), machine-owned alerts.yaml. Secrets stay
 // env-managed (ALERT_WEBHOOK_SECRET, SENTINEL_SHARED_KEY,
@@ -19,10 +19,10 @@
 // ALERT_PAGERDUTY_ROUTING_KEY) and are only ever reported as presence
 // booleans — never values. Slack is further gated by ALERT_SLACK_ENABLED
 // (default off; SOC opt-in — see docs/security/slack-alert-destination.md).
-// AIM-699 escalation_policies are policy-as-code (read on GET; not written
+// escalation_policies are policy-as-code (read on GET; not written
 // by the dashboard form — stages with timers live in alerts.yaml / core).
 //
-// POST /api/guardrail/alerts/test (AIM-994) — admin-only synthetic delivery
+// POST /api/guardrail/alerts/test — admin-only synthetic delivery
 // proof for a destination. Today only `email` is supported (mirrors CLI
 // `python -m guardrail.cli notify-test --email` / EmailNotifier.deliver_test).
 // SMTP secrets stay env-managed; recipients come from alerts.yaml. Response
@@ -30,7 +30,7 @@
 //
 // All endpoints are gated to the security group, same as /api/findings:
 // active rule internals (thresholds, allowlists) and alert routing are
-// security posture, not org-wide telemetry. All mutations are audited (AIM-27).
+// security posture, not org-wide telemetry. All mutations are audited.
 import { writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
@@ -45,27 +45,27 @@ const WINDOW_MIN_SECONDS = 60;
 const WINDOW_MAX_SECONDS = 604800; // 7 days
 
 const OVERRIDES_HEADER =
-  '# Managed by the dashboard rule-tuning UI (AIM-94). Do not edit by hand —\n' +
+  '# Managed by the dashboard rule-tuning UI. Do not edit by hand —\n' +
   '# changes here are written by PATCH /api/guardrail/rules/:id and audited.\n';
 const ALERTS_HEADER =
-  '# Managed by the dashboard alert config UI (AIM-94 / AIM-485 / AIM-582 / AIM-583 / AIM-699). Do not edit by hand.\n' +
+  '# Managed by the dashboard alert config UI. Do not edit by hand.\n' +
   '# Secrets stay env-managed (ALERT_WEBHOOK_SECRET, SENTINEL_SHARED_KEY,\n' +
   '# ALERT_GOOGLE_CHAT_WEBHOOK_URL, ALERT_EMAIL_SMTP_*, ALERT_SLACK_WEBHOOK_URL,\n' +
   '# ALERT_PAGERDUTY_ROUTING_KEY) and are never written here.\n' +
   '# Slack also requires ALERT_SLACK_ENABLED (SOC opt-in).\n' +
-  '# escalation_policies (AIM-699 multi-stage timers) are policy-as-code —\n' +
+  '# escalation_policies (multi-stage timers) are policy-as-code —\n' +
   '# edit under settings.alerts.escalation_policies; the UI does not rewrite them.\n' +
   '# The guardrail engine merges settings.alerts from this file.\n';
 
 const WEBHOOK_DEFAULTS = { enabled: false, url: '', min_severity: 'high' };
 const SENTINEL_DEFAULTS = { enabled: false, workspace_id: '', log_type: 'AIGuardrailFinding' };
-// AIM-485: Google Chat webhook URL is env-only (the URL itself is the secret).
+// Google Chat webhook URL is env-only (the URL itself is the secret).
 const GOOGLE_CHAT_DEFAULTS = { enabled: false, min_severity: 'high' };
-// AIM-583: Slack is feature-flagged off by default (ALERT_SLACK_ENABLED).
+// Slack is feature-flagged off by default (ALERT_SLACK_ENABLED).
 const SLACK_DEFAULTS = { enabled: false, min_severity: 'high' };
-// AIM-699: PagerDuty Events API v2 — routing key is env-only.
+// PagerDuty Events API v2 — routing key is env-only.
 const PAGERDUTY_DEFAULTS = { enabled: false, min_severity: 'critical' };
-// AIM-582: recipients are non-secret; SMTP host/from/credentials stay env.
+// recipients are non-secret; SMTP host/from/credentials stay env.
 const EMAIL_DEFAULTS = { enabled: false, to: '', min_severity: 'high' };
 // Syntactic email check only — directory membership is identity-sync's job.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -109,7 +109,7 @@ function writeYamlAtomic(file, header, data) {
 function ruleItem(rule, policy, stats) {
   const s = stats.get(rule.id);
   const text = describeRule(rule, policy.settings);
-  // AIM-441: surface active / inert / discovery so operators never mistake a
+  // surface active / inert / discovery so operators never mistake a
   // permanently silent control for "all clear".
   const posture = rulePosture(rule, policy.settings);
   return {
@@ -153,7 +153,7 @@ function alertsPayload(policy) {
   const pagerduty = { ...PAGERDUTY_DEFAULTS, ...(alerts.pagerduty ?? {}) };
   const email = { ...EMAIL_DEFAULTS, ...(alerts.email ?? {}) };
   const slackFeature = envFlagTruthy('ALERT_SLACK_ENABLED');
-  // AIM-699: surface policy-as-code escalation stages (read-only wire shape).
+  // surface policy-as-code escalation stages (read-only wire shape).
   const escalationPolicies = Array.isArray(alerts.escalation_policies)
     ? alerts.escalation_policies.map((p) => ({
         id: p.id,
@@ -171,14 +171,14 @@ function alertsPayload(policy) {
     alerts: {
       webhook: { enabled: webhook.enabled, url: webhook.url, minSeverity: webhook.min_severity },
       sentinel: { enabled: sentinel.enabled, workspaceId: sentinel.workspace_id, logType: sentinel.log_type },
-      // AIM-485: no URL field — the Google Chat incoming-webhook URL is env-only.
+      // no URL field — the Google Chat incoming-webhook URL is env-only.
       googleChat: { enabled: googleChat.enabled, minSeverity: googleChat.min_severity },
-      // AIM-582: recipients are UI-managed; SMTP is env-only.
+      // recipients are UI-managed; SMTP is env-only.
       email: { enabled: email.enabled, to: email.to, minSeverity: email.min_severity },
-      // AIM-583: no URL field — Slack incoming-webhook URL is env-only. The UI
+      // no URL field — Slack incoming-webhook URL is env-only. The UI
       // only renders this card when features.slack is true.
       slack: { enabled: slack.enabled, minSeverity: slack.min_severity },
-      // AIM-699: PagerDuty routing key is env-only (ALERT_PAGERDUTY_ROUTING_KEY).
+      // PagerDuty routing key is env-only (ALERT_PAGERDUTY_ROUTING_KEY).
       pagerduty: { enabled: pagerduty.enabled, minSeverity: pagerduty.min_severity },
       escalationPolicies,
     },
@@ -207,7 +207,7 @@ export async function guardrailRoutes(fastify, opts) {
   const path = opts?.policyPath ?? policyPath();
   const runDeliverTestEmail = opts?.deliverTestEmail ?? deliverTestEmail;
   // Rule internals and alert routing are security posture: admin
-  // only (AIM-95).
+  // only.
   const adminOnly = requireRoles('admin');
 
   function loadPolicyOr500(req, reply) {
@@ -241,14 +241,14 @@ export async function guardrailRoutes(fastify, opts) {
       contentHash: policy.contentHash,
       sources: policy.sources,
       settings: policy.settings,
-      // AIM-441: mcp_allowlist_mode is deny_unlisted after discovery closed.
+      // mcp_allowlist_mode is deny_unlisted after discovery closed.
       mcpAllowlistMode: policy.settings.mcp_allowlist_mode ?? 'deny_unlisted',
       postureCounts,
       rules,
     };
   });
 
-  // ---- UI-tunable threshold rules (AIM-94). Overrides land in the
+  // ---- UI-tunable threshold rules. Overrides land in the
   // machine-owned ui-overrides.yaml; the core policy files are never touched.
   fastify.patch('/api/guardrail/rules/:id', async (req, reply) => {
     if (!adminOnly(req, reply)) return reply;
@@ -331,7 +331,7 @@ export async function guardrailRoutes(fastify, opts) {
     return ruleItem(effective.rules.find((r) => r.id === rule.id), effective, stats);
   });
 
-  // ---- alert destination config (AIM-94). Non-secret settings only, in the
+  // ---- alert destination config. Non-secret settings only, in the
   // machine-owned alerts.yaml; the engine merges settings.alerts from it. ----
   fastify.get('/api/guardrail/alerts', async (req, reply) => {
     if (!adminOnly(req, reply)) return reply;
@@ -476,7 +476,7 @@ export async function guardrailRoutes(fastify, opts) {
     }
 
     if (body.slack !== undefined) {
-      // AIM-583: Slack is SOC opt-in. Refuse config writes while the feature
+      // Slack is SOC opt-in. Refuse config writes while the feature
       // flag is off so a dashboard toggle cannot arm a destination that the
       // engine will ignore (and so operators learn about ALERT_SLACK_ENABLED).
       if (!envFlagTruthy('ALERT_SLACK_ENABLED')) {
@@ -508,7 +508,7 @@ export async function guardrailRoutes(fastify, opts) {
 
 
     if (body.pagerduty !== undefined) {
-      // AIM-699: PagerDuty Events API v2. Routing key is env-only.
+      // PagerDuty Events API v2. Routing key is env-only.
       const p = body.pagerduty;
       if (!p || typeof p !== 'object' || Array.isArray(p)) {
         return reply.code(400).send({ error: 'bad_request', detail: 'pagerduty must be an object' });
@@ -537,7 +537,7 @@ export async function guardrailRoutes(fastify, opts) {
     }
 
     try {
-      // AIM-699: preserve policy-as-code escalation_policies when rewriting destinations.
+      // preserve policy-as-code escalation_policies when rewriting destinations.
       const alertsOut = { webhook, sentinel, google_chat: googleChat, email, slack, pagerduty };
       if (Array.isArray(current.escalation_policies) && current.escalation_policies.length > 0) {
         alertsOut.escalation_policies = current.escalation_policies;
@@ -572,7 +572,7 @@ export async function guardrailRoutes(fastify, opts) {
     return alertsPayload(effective);
   });
 
-  // ---- AIM-994: synthetic delivery proof for alert destinations.
+  // ---- synthetic delivery proof for alert destinations.
   // UI "Test send" on Rules → Alert destinations. Admin-only; secrets stay
   // env-managed and are never accepted in the request body or returned.
   fastify.post('/api/guardrail/alerts/test', async (req, reply) => {

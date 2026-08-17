@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-353: provision (or re-document) the network-isolated aim-ci runner on GCE.
+# provision (or re-document) the network-isolated aim-ci runner on GCE.
 # Requires: gcloud auth, compute.admin on stock-analysis-project-vaque, gh auth.
 set -euo pipefail
 PROJECT="${PROJECT:-stock-analysis-project-vaque}"

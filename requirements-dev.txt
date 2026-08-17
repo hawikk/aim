@@ -9,14 +9,14 @@
 pytest>=8.0
 jsonschema>=4.20  # packages/schema/validate.py
 PyYAML>=6.0  # matrix/catalogue checks in scripts/ (also a guardrail dep, declared here on purpose)
-cryptography>=42.0  # collectors/integrity Ed25519 signed bundles (AIM-639)
+cryptography>=42.0 # collectors/integrity Ed25519 signed bundles
 
 -e ./services/guardrail[dev]
 -e ./services/identity-sync[dev]
-# shadow-ai (AIM-300/AIM-504). IdP OAuth-grant ingest (Entra/Okta/Google)
+# shadow-ai. IdP OAuth-grant ingest (Entra/Okta/Google)
 # + SaaS shadow findings; tests run against fixtures + SQLite, no network.
 -e ./services/shadow-ai[dev]
-# gatehouse (AIM-161). The scanner binaries are NOT pip-installable and are not
+# gatehouse. The scanner binaries are NOT pip-installable and are not
 # needed for this half of the suite: the acceptance tests skip themselves when
 # the binaries are absent and run for real inside the image (see the
 # `gatehouse acceptance` CI job).

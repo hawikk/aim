@@ -1,1 +1,1 @@
-"""Shadow AI discovery (AIM-300)."""
+"""Shadow AI discovery."""

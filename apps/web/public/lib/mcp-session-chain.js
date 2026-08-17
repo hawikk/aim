@@ -1,6 +1,6 @@
-/* AIM-800 — MCP session chain timeline helpers.
+/* — MCP session chain timeline helpers.
  *
- * Pure render/logic for GET /api/mcp-sessions/:sessionId (AIM-627 backend).
+ * Pure render/logic for GET /api/mcp-sessions/:sessionId (backend).
  * Analyst UI surfaces ordered tool_calls + agent_handoffs with parent/child
  * edges and a chain-completeness badge. Metadata only — never args, results,
  * prompts, command lines, or URLs.

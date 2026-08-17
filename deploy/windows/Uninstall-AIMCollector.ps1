@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  AI Monitoring collector uninstaller for Windows (AIM-28). Runs as SYSTEM.
+  AI Monitoring collector uninstaller for Windows. Runs as SYSTEM.
   Removes scheduled task, hooks, payload, config, and the detection key;
   verifies no residue and exits 1 if anything remains.
 

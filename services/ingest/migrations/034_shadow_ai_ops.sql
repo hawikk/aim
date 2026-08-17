@@ -1,11 +1,11 @@
--- 034_shadow_ai_ops.sql — AIM-626 / AIM-776 / AIM-778:
+-- 034_shadow_ai_ops.sql
 --   continuous catalogue ops (discovery queue) + disposition closed loop.
 --
 --   shadow_ai_discovery_queue — uncatalogued IdP apps waiting for catalogue PR
 --   shadow_ai_dispositions    — analyst allow / watch / propose_enforce / known_non_ai
 --
 -- Privacy: app names + client ids + pseudonym counts only. No emails, no content.
--- Dispositions are append-only (same contract as finding_transitions, AIM-432):
+-- Dispositions are append-only (same contract as finding_transitions):
 -- a "correction" is a new INSERT, never UPDATE/DELETE.
 
 CREATE TABLE IF NOT EXISTS shadow_ai_discovery_queue (

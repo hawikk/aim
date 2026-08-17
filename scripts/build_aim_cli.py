@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the packaged `aim` CLI (AIM-135 / AIM-489) — wheel + sdist, stdlib only.
+"""Build the packaged `aim` CLI — wheel + sdist, stdlib only.
 
 One command produces both artifacts::
 
@@ -15,7 +15,7 @@ name in ``packaging/aim-cli/pyproject.toml``, currently
 
 Why a hand-rolled builder instead of `python -m build`:
 
-  * Security bar (AIM-129): versioned, auditable artifacts, no `curl | sh`,
+  * Security bar: versioned, auditable artifacts, no `curl | sh`,
     stdlib-only runtime. This script depends on nothing outside the standard
     library, so an IT admin can build the mirror artifact on an air-gapped box
     with a bare Python — no pip, no setuptools, no network.
@@ -148,7 +148,7 @@ def _record_line(arcname: str, data: bytes) -> str:
     return f"{arcname},sha256={digest.decode()},{len(data)}"
 
 
-# AIM-1125: packaging floor. Keep in lockstep with
+# packaging floor. Keep in lockstep with
 # packaging/aim-cli/pyproject.toml `requires-python` and aim.MIN_PYTHON.
 REQUIRED_PYTHON = ">=3.11"
 
@@ -164,7 +164,7 @@ def _assert_python_floor(proj: dict) -> None:
     req = (proj.get("requires-python") or "").strip()
     if req != REQUIRED_PYTHON:
         raise SystemExit(
-            f"AIM-1125: packaging/aim-cli requires-python must be "
+            f"packaging/aim-cli requires-python must be "
             f"{REQUIRED_PYTHON!r} (got {req!r}). Hard-require 3.11+ so "
             f"pip install refuses on 3.9/3.10 instead of mid-join TypeError."
         )

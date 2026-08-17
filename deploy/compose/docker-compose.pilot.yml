@@ -1,4 +1,4 @@
-# AIM-1126 / AIM-1123 — Pilot control-plane profile filter.
+# — Pilot control-plane profile filter.
 #
 # Cold pilot path only needs the telemetry control plane:
 #   postgres, minio (+ init), redis-bus, identity-sync, ingest, guardrail, api
@@ -20,7 +20,7 @@ services:
   shadow-ai:
     profiles: ["shadow-ai"]
 
-  # PR-security pillar (AIM-161) — not required for collector → ingest → dashboard.
+  # PR-security pillar — not required for collector → ingest → dashboard.
   gatehouse:
     profiles: ["gatehouse"]
 

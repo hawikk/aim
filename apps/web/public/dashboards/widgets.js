@@ -1,4 +1,4 @@
-/* Widget renderers for the custom dashboards builder (AIM-1162 split).
+/* Widget renderers for the custom dashboards builder (split).
  * KPI tiles, charts, and tables — each re-fetches via loadSource under the
  * active time range. Gated findings widgets surface an empty/gated card when
  * the operator lacks findingsConsole. */

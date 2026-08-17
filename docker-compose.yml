@@ -10,13 +10,13 @@ name: aim-local
 #   identity-sync — directory sync + identity resolution (services/identity-sync),
 #                   dev fixture directory, no host port (internal only)
 #   ingest        — ingestion API (services/ingest)
-#   guardrail     — post-ingest evaluator, polls evaluate-db on an interval (AIM-65)
+# guardrail — post-ingest evaluator, polls evaluate-db on an interval
 #   api           — dashboard API + web UI (apps/api)
 #
 # Credentials default to documented local-only values; override via .env
 # (gitignored — see .env.example).
 #
-# HOST PORT BINDING (AIM-184). Every published port names an interface. A
+# HOST PORT BINDING. Every published port names an interface. A
 # mapping written "8080:8080" has no interface and Docker binds it to 0.0.0.0,
 # which puts it on every network the host is attached to — and, because Docker
 # publishes by inserting DNAT rules ahead of the INPUT chain, a host firewall
@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
     networks: [aim]
 
-  # Cross-pillar alert bus (AIM-158, decision record D3.1 §4).
+  # Cross-pillar alert bus (decision record D3.1 §4).
   #
   # One stream, secstack:alerts:v1, one consumer group per consumer. Redis
   # Streams rather than pub/sub because consumers need independent cursors,
@@ -142,11 +142,11 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-aim-telemetry-local}
     networks: [aim]
 
-  # SaaS/OAuth shadow discovery (AIM-504 / AIM-300): IdP OAuth-grant inventory
+  # SaaS/OAuth shadow discovery: IdP OAuth-grant inventory
   # → unapproved_ai_saas_grant findings. Default dogfood path uses the fixture
   # grant source (no real IdP credentials). Live tenant:
   #   SHADOW_AI_GRANT_SOURCE=entra|okta|google  (+ matching secrets)
-  # Multi-IdP pilot/prod (AIM-777):
+  # Multi-IdP pilot/prod:
   #   SHADOW_AI_GRANT_SOURCE=multi
   #   SHADOW_AI_GRANT_SOURCES=entra,okta,google
   # Shares the platform Postgres so apps/api can read shadow_ai_* tables
@@ -165,14 +165,14 @@ services:
       # MUST equal IDENTITY_SYNC_PSEUDONYM_SECRET so grant pseudonyms join.
       SHADOW_AI_PSEUDONYM_SECRET: ${IDENTITY_SYNC_PSEUDONYM_SECRET:-localdev-only-not-a-secret}
       SHADOW_AI_GRANT_SOURCE: ${SHADOW_AI_GRANT_SOURCE:-fixture}
-      # Comma-separated when SHADOW_AI_GRANT_SOURCE=multi (AIM-777).
+      # Comma-separated when SHADOW_AI_GRANT_SOURCE=multi.
       SHADOW_AI_GRANT_SOURCES: ${SHADOW_AI_GRANT_SOURCES:-}
       # Prefer the Entra/Okta-normalized fixture in dogfood so ChatGPT work
       # grants appear as first-class signals without collector install.
       SHADOW_AI_GRANT_FIXTURE_PATH: ${SHADOW_AI_GRANT_FIXTURE_PATH:-/app/fixtures/entra_grants.json}
       # Explicit /app paths: pip-install puts code under site-packages, so
       # package-relative defaults miss the bind-mounted catalogue/fixtures
-      # (AIM-1032). Dockerfile also sets these ENV defaults.
+      #. Dockerfile also sets these ENV defaults.
       SHADOW_AI_CATALOGUE_PATH: ${SHADOW_AI_CATALOGUE_PATH:-/app/catalogue/ai-tools.json}
       SHADOW_AI_PROXY_FIXTURE_PATH: ${SHADOW_AI_PROXY_FIXTURE_PATH:-/app/fixtures/proxy_observations.json}
       SHADOW_AI_PROCESS_FIXTURE_PATH: ${SHADOW_AI_PROCESS_FIXTURE_PATH:-/app/fixtures/process_observations.json}
@@ -191,7 +191,7 @@ services:
     restart: unless-stopped
     networks: [aim]
 
-  # Identity resolution (AIM-24/49): syncs the dev fixture directory at startup
+  # Identity resolution: syncs the dev fixture directory at startup
   # (identity-sync sync is idempotent) and serves POST /resolve, which ingest
   # calls once per batch to stamp user_pseudonym + team onto events. Internal
   # only — deliberately no host port: /reveal must not be reachable off-box.
@@ -203,19 +203,19 @@ services:
       # SQLite is fine for dev, but it must outlive the container: dir_users is
       # rebuilt by the fixture sync on every start, while service_identities and
       # the reveal audit log are operator-entered and would be silently lost on
-      # a rebuild (AIM-149). Named volume, not the image filesystem.
+      # a rebuild. Named volume, not the image filesystem.
       IDENTITY_SYNC_DATABASE_URL: sqlite:////app/data/identity_sync.db
       IDENTITY_SYNC_DIRECTORY_SOURCE: fixture
       IDENTITY_SYNC_FIXTURE_DIR: /app/fixtures
       IDENTITY_SYNC_PSEUDONYM_SECRET: ${IDENTITY_SYNC_PSEUDONYM_SECRET:-localdev-only-not-a-secret}
       # Caller authentication for the gated endpoints (/reveal, POST
-      # /service-identities, AIM-306): bearer JWTs verified against this shared
+      # /service-identities): bearer JWTs verified against this shared
       # secret. Dev default keeps the local stack working; prod uses the IdP
       # JWKS (IDENTITY_SYNC_JWT_JWKS_URL) from the secret manager instead.
       IDENTITY_SYNC_JWT_HS256_SECRET: ${IDENTITY_SYNC_JWT_HS256_SECRET:-localdev-only-not-a-secret}
       # Bare OS usernames resolve via <user>@<domain> (email heuristic).
       IDENTITY_SYNC_PRIMARY_EMAIL_DOMAIN: ${IDENTITY_SYNC_PRIMARY_EMAIL_DOMAIN:-example.com}
-      # AIM-714: on newly suspended / missing directory users, force-deny live
+      # on newly suspended / missing directory users, force-deny live
       # AIM SSO sessions via POST /api/admin/sessions/revoke. Opt-in: both must
       # be set. Token name must appear in AIM_SESSION_REVOKE_SERVICES on `api`.
       IDENTITY_SYNC_AIM_API_URL: ${IDENTITY_SYNC_AIM_API_URL:-}
@@ -247,36 +247,36 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
       PORT: "8080"
-      # Shared fleet / bootstrap bearer (AIM-319). Preferred event auth is the
+      # Shared fleet / bootstrap bearer. Preferred event auth is the
       # enrollment-issued device_token (DB-backed) — it survives stack recreate
       # and INGEST_TOKENS rotation. Mode: full (default, deprecated use counted)
       # → bootstrap (ops label) → disabled (device tokens only on /v1/events).
       INGEST_TOKENS: ${INGEST_TOKENS:-dev-token-change-me}
       INGEST_SHARED_TOKEN_MODE: ${INGEST_SHARED_TOKEN_MODE:-full}
-      # Identity enrichment (AIM-49): one POST /resolve per batch; events are
+      # Identity enrichment: one POST /resolve per batch; events are
       # stamped with user_pseudonym + team. Resolution is fail-open, so an
       # identity-sync outage stores events unattributed rather than dropping.
       IDENTITY_RESOLVE_URL: http://identity-sync:8080
-      # AIM-455: enroll-time device_mappings registration. Same HS256 secret
+      # enroll-time device_mappings registration. Same HS256 secret
       # as identity-sync so ingest can mint a short-lived service JWT for
       # POST /device-mappings when a minted enroll token carries bound_email.
       # Without this, enroll still works but leaves devices unattributed.
       IDENTITY_SYNC_JWT_HS256_SECRET: ${IDENTITY_SYNC_JWT_HS256_SECRET:-localdev-only-not-a-secret}
-      # Fleet enrollment (AIM-80/AIM-131): the supported path is now
+      # Fleet enrollment: the supported path is now
       # dashboard-minted, DB-backed enrollment tokens (Onboarding view, security
       # -admin) — no env surgery needed. This legacy env var still works for the
       # bare dev-compose bootstrap and logs a deprecation warning on use; leave
       # empty in real deployments and mint tokens from the dashboard instead.
       ENROLL_TOKENS: ${ENROLL_TOKENS:-dev-enroll-token-change-me}
-      # OTLP receiver (AIM-105): HMAC salt for service-name host_ref derivation.
+      # OTLP receiver: HMAC salt for service-name host_ref derivation.
       OTEL_HOST_SALT: ${OTEL_HOST_SALT:-}
-      # AIM-1168 vendor admin puller. Unset tokens → feed dark, ingest stays up.
+      # vendor admin puller. Unset tokens → feed dark, ingest stays up.
       COPILOT_METRICS_TOKEN: ${COPILOT_METRICS_TOKEN:-}
       COPILOT_METRICS_ORG: ${COPILOT_METRICS_ORG:-}
       COPILOT_METRICS_ENTERPRISE: ${COPILOT_METRICS_ENTERPRISE:-}
       CURSOR_ADMIN_API_KEY: ${CURSOR_ADMIN_API_KEY:-}
       VENDOR_ADMIN_POLL_INTERVAL_S: ${VENDOR_ADMIN_POLL_INTERVAL_S:-3600}
-      # Overload admission control (AIM-127): cap concurrent in-flight
+      # Overload admission control: cap concurrent in-flight
       # /v1/events and shed with 429/Retry-After above it. Default shadow
       # (observe-only); set INGEST_ADMISSION_MODE=enforce to actually shed.
       INGEST_ADMISSION_MODE: ${INGEST_ADMISSION_MODE:-shadow}
@@ -292,7 +292,7 @@ services:
     restart: unless-stopped
     networks: [aim]
 
-  # Guardrail evaluator (AIM-65) — the post-ingest consumer, compose form.
+  # Guardrail evaluator — the post-ingest consumer, compose form.
   # Polls `evaluate-db` every GUARDRAIL_POLL_INTERVAL seconds: drains every
   # event not yet in evaluated_events, writes findings, marks them evaluated.
   # Idempotent (UNIQUE (rule_id, event_id) ON CONFLICT DO NOTHING), so this is
@@ -316,10 +316,10 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
       GUARDRAIL_POLL_INTERVAL: ${GUARDRAIL_POLL_INTERVAL:-15}
       # Same pseudonymization salt the collectors use — required for the
-      # restricted-repo-access rule to match event.repo_ref (AIM-78). Empty =
+      # restricted-repo-access rule to match event.repo_ref. Empty =
       # the rule stays inert (fail-closed) and the audit detail says so.
       AIM_HASH_SALT: ${AIM_HASH_SALT:-}
-      # --- AIM-76: alert delivery (off by default) -------------------------
+      # --- alert delivery (off by default) -------------------------
       # Newly inserted findings are forwarded to the configured destinations
       # after each batch commit; outcomes are recorded in finding_deliveries.
       # Uncomment (and set the values in .env) to enable.
@@ -331,16 +331,16 @@ services:
       # Microsoft Sentinel (Log Analytics Data Collector API, SharedKey auth):
       # SENTINEL_WORKSPACE_ID: ${SENTINEL_WORKSPACE_ID:-}
       # SENTINEL_SHARED_KEY: ${SENTINEL_SHARED_KEY:-}
-      # Google Chat company channel (AIM-485). Webhook URL is the secret —
+      # Google Chat company channel. Webhook URL is the secret
       # never put it in alerts.yaml / the Rules UI. AIM_BASE_URL builds the
       # triage deep link on each card:
       # ALERT_GOOGLE_CHAT_WEBHOOK_URL: ${ALERT_GOOGLE_CHAT_WEBHOOK_URL:-}
       # ALERT_GOOGLE_CHAT_MIN_SEVERITY: ${ALERT_GOOGLE_CHAT_MIN_SEVERITY:-high}
-      # Slack (AIM-583) — SOC opt-in only. Default off until ALERT_SLACK_ENABLED=1:
+      # Slack — SOC opt-in only. Default off until ALERT_SLACK_ENABLED=1:
       # ALERT_SLACK_ENABLED: ${ALERT_SLACK_ENABLED:-}
       # ALERT_SLACK_WEBHOOK_URL: ${ALERT_SLACK_WEBHOOK_URL:-}
       # ALERT_SLACK_MIN_SEVERITY: ${ALERT_SLACK_MIN_SEVERITY:-high}
-      # PagerDuty (AIM-699) — on-call escalation stage; routing key is the secret:
+      # PagerDuty — on-call escalation stage; routing key is the secret:
       # ALERT_PAGERDUTY_ROUTING_KEY: ${ALERT_PAGERDUTY_ROUTING_KEY:-}
       # ALERT_PAGERDUTY_MIN_SEVERITY: ${ALERT_PAGERDUTY_MIN_SEVERITY:-critical}
       # ALERT_EMAIL_SMTP_HOST: ${ALERT_EMAIL_SMTP_HOST:-}
@@ -351,12 +351,12 @@ services:
       # ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-}
       # ALERT_EMAIL_MIN_SEVERITY: ${ALERT_EMAIL_MIN_SEVERITY:-high}
       # AIM_BASE_URL: ${AIM_BASE_URL:-http://localhost:8081}
-      # AIM-575: App-LLM new-sources signal (always evaluated; alerts only when
+      # App-LLM new-sources signal (always evaluated; alerts only when
       # a destination above is enabled). First-ever proxy provider-API caller
       # inside lookback → app-llm-new-source finding → same notifiers.
       # APP_LLM_NEW_SOURCE_LOOKBACK_HOURS: ${APP_LLM_NEW_SOURCE_LOOKBACK_HOURS:-48}
       # APP_LLM_NEW_SOURCE_PROVIDERS: ${APP_LLM_NEW_SOURCE_PROVIDERS:-anthropic,openai,openrouter,xai}
-      # --- AIM-324: first-class SIEM export (off by default) ---------------
+      # --- first-class SIEM export (off by default) ---------------
       # Splunk HEC (OCSF Detection Finding) — reference integration:
       # SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
       # SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
@@ -364,7 +364,7 @@ services:
       # SYSLOG_CEF_HOST: ${SYSLOG_CEF_HOST:-}
       # SYSLOG_CEF_PORT: ${SYSLOG_CEF_PORT:-514}
       # Delivery lag: poll mode serves GET /lagz (pending/dead per destination).
-      # --- AIM-115: LLM-judge + GenAI telemetry (off by default) -----------
+      # --- LLM-judge + GenAI telemetry (off by default) -----------
       # The guardrail LLM-judge call site (llm-judge CLI) reports GenAI spans
       # to the ingest OTLP receiver. Set the OTEL_* values (and AIM_LLM_* for
       # the provider) in .env to enable; unset = spans are not exported.
@@ -376,7 +376,7 @@ services:
       AIM_LLM_MODEL: ${AIM_LLM_MODEL:-}
       # SENTINEL_LOG_TYPE: ${SENTINEL_LOG_TYPE:-AIGuardrailFinding}
       # RUNBOOK_BASE_URL: ${RUNBOOK_BASE_URL:-}
-      # --- AIM-158: unified alert bus --------------------------------------
+      # --- unified alert bus --------------------------------------
       # Publishes guardrail findings as security.alert/v1.1 onto the shared
       # cross-pillar stream (same redis-bus the rest of the stack uses).
       # Default matches gatehouse/sentinel so local compose shows the inbox;
@@ -386,7 +386,7 @@ services:
       # context, and producer.version is what makes a noisy build traceable.
       GUARDRAIL_VERSION: ${GUARDRAIL_VERSION:-unknown}
     command: ["poll", "--rules", "/app/policies/guardrail/v1"]
-    # Read-only bind of the same policy dir the api service can write (AIM-94):
+    # Read-only bind of the same policy dir the api service can write:
     # the poller re-loads the ruleset every tick, so UI-tuned rule overrides
     # and alert destinations take effect on the next evaluation pass.
     volumes:
@@ -395,7 +395,7 @@ services:
     networks: [aim]
 
   # Dashboard API (apps/api) — serves the web dashboard and read API.
-  # Auth model (AIM-95): in-app OIDC SSO when AIM_OIDC_* is set (authorization
+  # Auth model: in-app OIDC SSO when AIM_OIDC_* is set (authorization
   # code flow + PKCE, HMAC-signed session cookie); with no AIM_OIDC_* set it
   # runs in personal/standalone mode (local admin, single-user use).
   api:
@@ -408,25 +408,25 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
       PORT: "8080"
-      # AIM-158: read side of the alert bus. Same redis-bus as gatehouse /
+      # read side of the alert bus. Same redis-bus as gatehouse /
       # sentinel / merge-audit publishers. Default is on for full local compose
-      # so AIM-160 inbox is not a silent 503 (AIM-365). Override with
+      # so inbox is not a silent 503. Override with
       # ALERT_BUS_READ_URL / ALERT_BUS_URL when the bus is external or absent;
       # a true single-pillar install without redis-bus still 503s honestly.
       ALERT_BUS_URL: ${ALERT_BUS_READ_URL:-${ALERT_BUS_URL:-redis://redis-bus:6379/0}}
-      # AIM-452 / AIM-290: publish system-status breaches (including
+      # publish system-status breaches (including
       # unattributed-rate) onto the same alert bus Sentinel already consumes.
       # Status "degraded" alone is not enough — the alerter XADDs candidates.
       # Override SYSTEM_STATUS_ALERTS=0 to disable without removing the bus.
       SYSTEM_STATUS_ALERTS: ${SYSTEM_STATUS_ALERTS:-1}
       SYSTEM_STATUS_ALERT_INTERVAL_SEC: ${SYSTEM_STATUS_ALERT_INTERVAL_SEC:-300}
-      # AIM-442: critical findings must leave status=new within this many hours
+      # critical findings must leave status=new within this many hours
       # or a standing alert is published on the same bus (finding_type
       # ai_usage.finding_sla_breach). Override FINDING_SLA_ALERTS=0 to disable.
       FINDING_CRITICAL_ACK_SLA_HOURS: ${FINDING_CRITICAL_ACK_SLA_HOURS:-4}
       FINDING_SLA_ALERTS: ${FINDING_SLA_ALERTS:-1}
       FINDING_SLA_ALERT_INTERVAL_SEC: ${FINDING_SLA_ALERT_INTERVAL_SEC:-300}
-      # AIM-672: live pilot secret/PII detector FP rate SLO (sessions with a
+      # live pilot secret/PII detector FP rate SLO (sessions with a
       # false_positive finding / all sessions). Breach publishes
       # ai_usage.detector_fp_rate_breach on the same bus. Weekly snapshots
       # land in fp_rate_snapshots. Override DETECTOR_FP_RATE_ALERTS=0 or
@@ -436,7 +436,7 @@ services:
       DETECTOR_FP_RATE_ALERT_INTERVAL_SEC: ${DETECTOR_FP_RATE_ALERT_INTERVAL_SEC:-300}
       DETECTOR_FP_RATE_SNAPSHOTS: ${DETECTOR_FP_RATE_SNAPSHOTS:-1}
       DETECTOR_FP_RATE_SNAPSHOT_CHECK_SEC: ${DETECTOR_FP_RATE_SNAPSHOT_CHECK_SEC:-3600}
-      # AIM-160: unified shell chrome. AIM_STACK_SERVICES is the JSON array
+      # unified shell chrome. AIM_STACK_SERVICES is the JSON array
       # the stack-health strip probes (name/healthz-url/pillar-UI deep link);
       # AIM_GATEWAY_HOST is the host the UI resolves evidence source_uri refs
       # against (scheme -> <subdomain>.<host>, same mapping as the sentinel's
@@ -444,18 +444,18 @@ services:
       # this API alone, with configured:false.
       AIM_STACK_SERVICES: '${AIM_STACK_SERVICES:-[{"name":"ingest","url":"http://ingest:8080/healthz","ui":"https://aim.localhost:8443/"},{"name":"gatehouse","url":"http://gatehouse:8090/healthz","ui":"https://gatehouse.localhost:8443/"},{"name":"sentinel","url":"http://sentinel:8091/healthz","ui":"https://sentinel.localhost:8443/"}]}'
       AIM_GATEWAY_HOST: ${AIM_GATEWAY_HOST:-localhost:8443}
-      # AIM-297: PR CI runner queue/health for #/status (file from health-report
+      # PR CI runner queue/health for #/status (file from health-report
       # or live GitHub API). Unset = tile never_configured (honest, not green).
       AIM_CI_RUNNER_STATUS_FILE: ${AIM_CI_RUNNER_STATUS_FILE:-}
       AIM_CI_RUNNER_STATUS_URL: ${AIM_CI_RUNNER_STATUS_URL:-}
       AIM_CI_RUNNER_REPOS: ${AIM_CI_RUNNER_REPOS:-}
       GITHUB_TOKEN: ${AIM_CI_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
       # SSO (leave unset for personal mode; see .env.example):
-      # OIDC (AIM-95) and/or SAML 2.0 SP (AIM-715). Partial either fails closed.
+      # OIDC and/or SAML 2.0 SP. Partial either fails closed.
       AIM_OIDC_ISSUER: ${AIM_OIDC_ISSUER:-}
       AIM_OIDC_CLIENT_ID: ${AIM_OIDC_CLIENT_ID:-}
       AIM_OIDC_CLIENT_SECRET: ${AIM_OIDC_CLIENT_SECRET:-}
-      # AIM-716 multi-IdP (optional; see docs/deployment/multi-idp-sso.md)
+      # multi-IdP (optional; see docs/deployment/multi-idp-sso.md)
       AIM_OIDC_PROVIDERS: ${AIM_OIDC_PROVIDERS:-}
       AIM_OIDC_GOOGLE_ISSUER: ${AIM_OIDC_GOOGLE_ISSUER:-}
       AIM_OIDC_GOOGLE_CLIENT_ID: ${AIM_OIDC_GOOGLE_CLIENT_ID:-}
@@ -484,11 +484,11 @@ services:
       AIM_REVEAL_GROUPS: ${AIM_REVEAL_GROUPS:-ai-monitoring-revealers}
       AIM_SESSION_SECRET: ${AIM_SESSION_SECRET:-}
       AIM_SESSION_TTL_HOURS: ${AIM_SESSION_TTL_HOURS:-8}
-      # AIM-714: service-token names allowed to call POST /api/admin/sessions/revoke
+      # service-token names allowed to call POST /api/admin/sessions/revoke
       # (identity-sync deprovision automation). Empty = human admins only.
       AIM_SESSION_REVOKE_SERVICES: ${AIM_SESSION_REVOKE_SERVICES:-}
       AIM_AUTH_DEV: ${AIM_AUTH_DEV:-}
-      # Machine credentials for headless consumers (AIM-165). The sentinel
+      # Machine credentials for headless consumers. The sentinel
       # reads /api/alerts, and no OIDC flow can authenticate a daemon — this
       # is the only non-interactive way in. A file, not an env var: env vars
       # land in `docker inspect` and are inherited by child processes, and
@@ -499,7 +499,7 @@ services:
       # Broken = the API refuses to boot, rather than coming up healthy while
       #          every consumer silently 401s.
       AIM_SERVICE_TOKENS_FILE: ${AIM_SERVICE_TOKENS_FILE:-}
-      # Onboarding (AIM-131): the public ingest URL an engineer's collector
+      # Onboarding: the public ingest URL an engineer's collector
       # posts to, rendered into the copy-paste join command. Defaults to the
       # local pilot ingest port; set to the reachable ingest hostname in prod.
       AIM_INGEST_PUBLIC_URL: ${AIM_INGEST_PUBLIC_URL:-http://localhost:8080}
@@ -507,13 +507,13 @@ services:
       # detect the insecure shipped default and warn loudly — token values are
       # never returned to the client. Clear it once you mint scoped tokens.
       ENROLL_TOKENS: ${ENROLL_TOKENS:-dev-enroll-token-change-me}
-      # Immutable audit trail (AIM-27): mint/revoke of enrollment tokens
-      # (AIM-131) and every other sensitive action are hash-chained + HMAC
+      # Immutable audit trail: mint/revoke of enrollment tokens
+      # and every other sensitive action are hash-chained + HMAC
       # -sealed here. Both must be set for the trail to be enabled; unset = a
       # startup warning and no audit. The log lives on the aim-audit volume so
       # it survives container recreation.
       #
-      # AIM-244: do NOT default AUDIT_HMAC_KEY to a well-known value. A public
+      # do NOT default AUDIT_HMAC_KEY to a well-known value. A public
       # fallback re-keys the chain when compose is launched without the stack
       # .env (wrong cwd, missing --env-file), crash-loops the API on seal
       # mismatch, and for the window it ran made every seal forgeable. The
@@ -521,7 +521,7 @@ services:
       # must set AUDIT_HMAC_KEY explicitly or leave the trail off.
       AUDIT_LOG_PATH: ${AUDIT_LOG_PATH:-/app/data/audit.jsonl}
       AUDIT_HMAC_KEY: ${AUDIT_HMAC_KEY:-}
-    # Writable bind of the guardrail policy dir (AIM-94): the rule-tuning and
+    # Writable bind of the guardrail policy dir: the rule-tuning and
     # alert-destination APIs write machine-owned ui-overrides.yaml / alerts.yaml
     # here; the guardrail service mounts the same dir read-only and picks the
     # changes up on its next poll tick. core.yaml stays PR-managed.
@@ -540,7 +540,7 @@ services:
     restart: unless-stopped
     networks: [aim]
 
-  # ── Pillar 3: PR-time security review (AIM-161) ────────────────────────────
+  # ── Pillar 3: PR-time security review ────────────────────────────
   # Webhook receiver + scanner orchestrator. Independent of Postgres and of
   # ingest: it holds its own SQLite state and speaks to the rest of the stack
   # only through the alert bus, so a PR scan still works when AIM is down.
@@ -562,17 +562,17 @@ services:
       # Security owns the blocking threshold; this is the shipped proposal.
       GATEHOUSE_FAIL_ON: ${GATEHOUSE_FAIL_ON:-high}
       GATEHOUSE_STATE_DB: /var/lib/gatehouse/state.db
-      # AIM-446 — same durable evidence DB the merge-auditor writes.
+      # — same durable evidence DB the merge-auditor writes.
       GATEHOUSE_EVIDENCE_DB: /var/lib/gatehouse/gate-evidence.db
       GATEHOUSE_EVIDENCE_RETENTION_DAYS: ${GATEHOUSE_EVIDENCE_RETENTION_DAYS:-90}
-      # AIM-357 / AIM-298: auto-revert write token. Prefer a fine-grained PAT
+      # auto-revert write token. Prefer a fine-grained PAT
       # (contents:write + pull_requests:write on the audited repo only). Never
       # commit the value — set it in the stack .env (0600). Rotation runbook:
       # docs/security/enforcing-ci-gates.md § Auto-revert token.
       GATEHOUSE_REVERT_TOKEN: ${GATEHOUSE_REVERT_TOKEN:-}
       # Read token for merge-audit / API (contents:read + checks:read + PRs).
       GATEHOUSE_GITHUB_TOKEN: ${GATEHOUSE_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
-      # AIM-736: GenAI spans from HttpProvider.review (AI security reviewer).
+      # GenAI spans from HttpProvider.review (AI security reviewer).
       # Same OTEL_* contract as guardrail; unset = spans not exported.
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
@@ -612,12 +612,12 @@ services:
     restart: unless-stopped
     networks: [aim]
 
-  # AIM-357 / AIM-298: out-of-band merge auditor. Failure domain is this
+  # out-of-band merge auditor. Failure domain is this
   # process + the bus, not the GitHub Actions queue (which is what it audits).
   # Publishes pr_security.merge_bypass / audited_bypass to secstack:alerts:v1
   # and opens auto-revert PRs when GATEHOUSE_REVERT_TOKEN is set.
   gatehouse-merge-audit:
-    # AIM-1061: opt-in only. GitHub merge auditing needs
+    # opt-in only. GitHub merge auditing needs
     # GATEHOUSE_GITHUB_TOKEN and reaches the GitHub API — out of scope for a
     # metadata-only, observe-only pilot. Without the token the worker exits
     # ("... is required") and crash-loops. A `profiles` key keeps it OFF by
@@ -637,21 +637,21 @@ services:
       # Optional: pin the gate file when the image ships a copy; empty = fetch
       # from each repo's default branch via the GitHub API.
       GATEHOUSE_REQUIRED_CHECKS: ${GATEHOUSE_REQUIRED_CHECKS:-}
-      # AIM-446 — durable gate verdicts (≥90 days). Shared volume with the
+      # — durable gate verdicts (≥90 days). Shared volume with the
       # PR gatehouse service so `gatehouse evidence get --sha …` answers
       # "why was this blocked/allowed" months later from either process.
       GATEHOUSE_EVIDENCE_DB: /var/lib/gatehouse/gate-evidence.db
       GATEHOUSE_EVIDENCE_RETENTION_DAYS: ${GATEHOUSE_EVIDENCE_RETENTION_DAYS:-90}
-      # Liveness heartbeat for the healthcheck below (AIM-413). The poller
+      # Liveness heartbeat for the healthcheck below. The poller
       # touches this file at startup and after every cycle; a stale mtime
       # means the auditor died and `docker ps` shows the container unhealthy.
       GATEHOUSE_HEARTBEAT_FILE: /tmp/merge-audit.heartbeat
     volumes:
       - gatehouse-state:/var/lib/gatehouse
-    # Poll every 2 minutes. --publish is required for the bus half of AIM-298.
+    # Poll every 2 minutes. --publish is required for the bus half of.
     # Twin repo (littlewiz) is optional: set GATEHOUSE_AUDIT_REPO_TWIN when that
     # repo ships `.github/required-checks.json` and the read token can see it.
-    # Repos may carry a per-repo base-ref suffix (AIM-413), e.g.
+    # Repos may carry a per-repo base-ref suffix, e.g.
     #   GATEHOUSE_AUDIT_REPO=hawikk/aim:main
     #   GATEHOUSE_AUDIT_REPO_TWIN=hawikk/littlewiz:master
     # Shared code path — do not fork for the twin.
@@ -703,7 +703,7 @@ services:
       - ./packages/schema:/src/packages/schema:ro
     networks: [aim]
 
-  # The sentinel agent (AIM-165): reads the bus, collapses bursts into
+  # The sentinel agent: reads the bus, collapses bursts into
   # incidents, triages, and pings a human with a copy-paste fix.
   sentinel:
     build:
@@ -721,7 +721,7 @@ services:
       SENTINEL_LLM_ENDPOINT: ${SENTINEL_LLM_ENDPOINT:-}
       SENTINEL_LLM_API_KEY: ${SENTINEL_LLM_API_KEY:-}
       SENTINEL_LLM_MODEL: ${SENTINEL_LLM_MODEL:-claude-sonnet-5}
-      # AIM-736: GenAI spans from Triager (alert triage LLM). Unset OTEL = off.
+      # GenAI spans from Triager (alert triage LLM). Unset OTEL = off.
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       AIM_OTEL_SERVICE_NAME: ${SENTINEL_OTEL_SERVICE_NAME:-sentinel}
@@ -778,7 +778,7 @@ services:
     networks: [aim]
 
   # ---------------------------------------------------------------------
-  # hygiene — pillar 4: secrets & token hygiene (AIM-163).
+  # hygiene — pillar 4: secrets & token hygiene.
   #
   # A scheduled batch job, not a daemon. `hygiene-cron` below owns the
   # schedule; this service exists so an operator can run a scan on demand:

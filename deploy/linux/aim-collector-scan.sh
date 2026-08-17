@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — periodic scan wrapper (AIM-28).
+# AI Monitoring — periodic scan wrapper.
 # Runs `scan-once` + `flush` for every human user (uid >= 1000, plus root if
 # it has collector state). Invoked by systemd timer or cron as root.
 set -uo pipefail
@@ -22,7 +22,7 @@ for u in $users; do
   scan_user "$u"
 done
 
-# Device-level enrollment + heartbeat (AIM-28), once per cycle, best-effort.
+# Device-level enrollment + heartbeat, once per cycle, best-effort.
 HEARTBEAT="$PAYLOAD_DIR/aim-collector-heartbeat.sh"
 [ -x "$HEARTBEAT" ] && "$HEARTBEAT" >/dev/null 2>&1
 exit 0

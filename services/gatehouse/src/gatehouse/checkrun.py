@@ -26,7 +26,7 @@ from .models import Finding
 
 MARKER = "<!-- gatehouse:v1 -->"
 # Marker on inline review comments so a re-push can identify gatehouse threads
-# on the Files changed tab (AIM-328).
+# on the Files changed tab.
 INLINE_MARKER = "<!-- gatehouse:inline:v1 -->"
 MAX_ANNOTATIONS_PER_REQUEST = 50  # GitHub's cap; the rest go in follow-up updates
 MAX_LISTED_IN_COMMENT = 20
@@ -61,7 +61,7 @@ def md(text: str, limit: int = 160) -> str:
 
 
 def is_merge_blocking(finding: Finding) -> bool:
-    """Whether a finding is *allowed* to fail the check (AIM-327).
+    """Whether a finding is *allowed* to fail the check.
 
     Unreachable SCA findings are still reported and published to the bus, but
     they never block a merge — the precision bar for dependency scanning.
@@ -81,12 +81,12 @@ def blocks(findings: list[Finding], fail_on: str = FAIL_ON,
 
     AI-review findings are excluded unless the repo opted in (`ai_blocking`):
     the model's output is advisory by default, so it must not be able to fail
-    a check on its own (AIM-162).
+    a check on its own.
 
     Unreachable SCA findings are excluded even when severity is critical
-    (AIM-327 guardrail-precision lens).
+    (guardrail-precision lens).
 
-    Scanners in observe mode (AIM-334 precision budget breach) are also
+    Scanners in observe mode (precision budget breach) are also
     excluded: their findings still appear on the check and the bus, but they
     cannot fail a merge until precision is restored.
     """
@@ -155,7 +155,7 @@ def annotations(findings: list[Finding]) -> list[dict]:
 
 
 def _inline_body(finding: Finding) -> str:
-    """Markdown for one PR review comment on the exact diff line (AIM-328).
+    """Markdown for one PR review comment on the exact diff line.
 
     Leaders annotate the line; status-check-only noise is what we are replacing.
     Fix hint is always present when the rule pack provides remediation (every
@@ -233,7 +233,7 @@ def summary(findings: list[Finding], *, suppressed: list[tuple[Finding, str]],
     lines: list[str] = []
     if scanner_findings:
         lines.append(f"**{len(scanner_findings)} finding(s)** in the lines this pull request changed.\n")
-        # Reachability column only when SCA findings are present (AIM-327) so
+        # Reachability column only when SCA findings are present so
         # the default secrets/SAST/IaC table stays compact.
         has_sca = any(f.finding_type == "pr_security.vulnerable_dependency"
                       for f in scanner_findings)
@@ -266,13 +266,13 @@ def summary(findings: list[Finding], *, suppressed: list[tuple[Finding, str]],
             lines.append(
                 f"\n**{len(sca_unreach)} unreachable SCA finding(s)** are reported "
                 "and published to the alert bus but **do not fail this check** "
-                "(import-level reachability; AIM-327)."
+                "(import-level reachability)."
             )
         blocking = blocks(scanner_findings, fail_on)
         if blocking:
             lines.append(f"\n**{len(blocking)} of these fail this check** "
                          f"(threshold: {fail_on} and above).")
-        # AIM-329: code-to-cloud — would-be CNAPP cloud findings on this PR.
+        # code-to-cloud — would-be CNAPP cloud findings on this PR.
         from . import cnapp_parity
         would_be = cnapp_parity.render_would_be_section(scanner_findings)
         if would_be:
@@ -281,7 +281,7 @@ def summary(findings: list[Finding], *, suppressed: list[tuple[Finding, str]],
         observing = sorted(gate_modes.observe_scanners())
         if observing:
             lines.append(
-                f"\n> [!NOTE]\n> **Observe mode** (AIM-334): "
+                f"\n> [!NOTE]\n> **Observe mode**: "
                 f"`{'`, `'.join(observing)}` findings are reported but do not "
                 "fail this check — precision budget breach; re-enforce when "
                 "the gate corpus is green.")
@@ -293,7 +293,7 @@ def summary(findings: list[Finding], *, suppressed: list[tuple[Finding, str]],
 
     if ai_findings:
         # Advisory by design: the model reviewed the same diff the scanners
-        # did, but its output is untrusted and opt-in to block on (AIM-162).
+        # did, but its output is untrusted and opt-in to block on.
         mode = ("blocking per repo config" if ai_blocking
                 else "advisory — does not fail this check")
         lines.append(f"\n**AI security review** ({mode})\n")

@@ -1,7 +1,7 @@
--- 038_email_alert_destination.sql — AIM-582: Email as a first-class
+-- 038_email_alert_destination.sql — Email as a first-class
 -- finding_deliveries destination.
 --
--- AIM-582 ships EmailNotifier (destination = 'email') for SOC mailbox
+-- ships EmailNotifier (destination = 'email') for SOC mailbox
 -- routes. Delivery accounting reuses the same contract as webhook /
 -- sentinel / bus / SIEM / chat: one row per finding per destination.
 --

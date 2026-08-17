@@ -1,4 +1,4 @@
-/* AIM-667 — pure MCP analyst-override helpers (DOM-free for node:test).
+/* — pure MCP analyst-override helpers (DOM-free for node:test).
  *
  * Runtime deny → analyst permanent override is an allowlist add via
  * PUT /api/mcp-allowlist. Dual control is optional: when requested, a second

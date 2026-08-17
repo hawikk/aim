@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-601: prove helm chart security defaults fail closed where required.
+# prove helm chart security defaults fail closed where required.
 #
 # Exit 0 only when:
 #   - dev shape renders

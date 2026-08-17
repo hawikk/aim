@@ -1,4 +1,4 @@
-/* Shared view-private state for the custom dashboards builder (AIM-1162 split).
+/* Shared view-private state for the custom dashboards builder (split).
  * dctx is view-private: zero cross-view surface. The orchestrator
  * (public/dashboards.js) populates it during init() and every sibling module
  * imports it — never re-create it locally. resetDashboardsCtx() runs at the

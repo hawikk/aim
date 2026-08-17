@@ -1,4 +1,4 @@
-# Proxy log format inventory (AIM-1111 / AIM-1094 / AIM-50 prep)
+# Proxy log format inventory (prep)
 
 Code-side readiness for multi-vendor proxy exports **without** waiting on
 corporate IT. When IT confirms a live export, wiring is: drop sample →
@@ -68,7 +68,7 @@ cd collectors/proxy
 Exit 0 ⇒ at least one schema-valid `event.v1` AI hit was produced.
 Exit non-zero ⇒ zero AI events or schema validation failure — fix format /
 detection DB, re-run. Pin the working `--format` on the production connector
-once IT confirms the live export ([AIM-50](/AIM/issues/AIM-50)).
+once IT confirms the live export.
 
 Batch-check every shipped sample:
 

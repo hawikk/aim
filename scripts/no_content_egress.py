@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Continuous no-content-egress CI assertions (AIM-650).
+"""Continuous no-content-egress CI assertions.
 
 Proves the privacy invariant that collector → ingest payloads cannot carry
 prompt/response body fields. Four layers, all run on every PR (via the
@@ -21,7 +21,7 @@ python-tests job, which already covers collectors + ingest + schema):
        from a fixture row that deliberately carries them
      - the resulting wire event validates against the schema
 
-  4. Ingest archive path (AIM-83 raw-batch object store)
+  4. Ingest archive path (raw-batch object store)
      - Postgres is safe because the canonical schema runs before the insert.
        The object archive is a *second* store on the same request path, so
        these checks pin that it is written after validation, that only
@@ -82,7 +82,7 @@ ARCHIVE_SOURCES: tuple[Path, ...] = (
 
 # Field names that re-introduce content collection. Exact match (schema style).
 # Kept in sync with collectors/adapter/aim_adapter/emit.py DEFAULT_FORBIDDEN_KEYS
-# plus the broader AIM-16 content vocabulary auditors expect blocked.
+# plus the broader content vocabulary auditors expect blocked.
 FORBIDDEN_CONTENT_KEYS: frozenset[str] = frozenset(
     {
         "prompt",
@@ -842,7 +842,7 @@ def _ts_block_after(src: str, anchor: str) -> str | None:
 
 
 def check_archive(root: Path = REPO_ROOT) -> list[Check]:
-    """Layer 4: the ingest raw-batch object archive (AIM-83).
+    """Layer 4: the ingest raw-batch object archive.
 
     Postgres cannot store content because the canonical schema runs before the
     insert and `rejected_events` keeps only a hash + key names. The object
@@ -1091,12 +1091,12 @@ def self_test(root: Path = REPO_ROOT) -> int:
         text = path.read_text(encoding="utf-8")
         poisoned = text.replace(
             "return {k: v for k, v in obj.items() if k.lower() not in ban}",
-            "return dict(obj)  # AIM-650 self-test poison",
+            "return dict(obj) # self-test poison",
         )
         if poisoned == text:
             poisoned = text.replace(
                 "ban = DEFAULT_FORBIDDEN_KEYS | {k.lower() for k in (extra or [])}",
-                "ban = set()  # AIM-650 self-test poison",
+                "ban = set() # self-test poison",
             )
         path.write_text(poisoned, encoding="utf-8")
 

@@ -5,7 +5,7 @@ Tables:
 - dir_users:     directory users with their OU and team attribution.
 - device_mappings: endpoint identity (device id / hostname / OS user) -> directory user.
 - service_identities: non-human hosts (agent hosts, CI runners) -> service principal,
-  with an optional accountable operator (AIM-149).
+  with an optional accountable operator.
 - audit_log:     immutable record of every user-level identity reveal.
 
 Design note: real emails live ONLY in this service's database. Events and dashboards
@@ -73,14 +73,14 @@ class DeviceMapping(Base):
 
 
 class ServiceIdentity(Base):
-    """Non-human host -> service principal (AIM-149, ADR identity-source-of-record).
+    """Non-human host -> service principal (ADR identity-source-of-record).
 
     Agent hosts, CI runners and shared build boxes generate real AI-tool usage
     that belongs to no single person. Without a row here the bare-username
     heuristic is free to guess a human from the OS login, which is the wrong
     fix: it attributes autonomous machine activity to a named employee.
 
-    CEO/Security decision on AIM-149: use both principals — attribute to the
+    Security decision on: use both principals — attribute to the
     ``operator_email`` when the accountable operator is known, and to the
     service principal itself when it is not. Either way the resolution is
     labelled ``principal_kind="service"`` so machine activity is never

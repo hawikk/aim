@@ -1,4 +1,4 @@
-/* Live feed for the Activity trail (AIM-1163 split, extracted from
+/* Live feed for the Activity trail (split, extracted from
  * activity.js): short-polling (10 s) with keyset cursor pagination, stream
  * pause/resume, and the loading/empty/error row states.
  *
@@ -110,7 +110,7 @@ function renderEmpty(tbody) {
       body: 'The trail has events in this window, but none match the current filter set.',
     }, '<button type="button" class="btn-control" id="act-clear-filters">Clear filters</button>');
   } else {
-    // AIM-591: EMPTY.activity carries setup doc + Fleet CTA.
+    // EMPTY.activity carries setup doc + Fleet CTA.
     tbody.innerHTML = stateRow(EMPTY.activity);
   }
   setHint('0 events');

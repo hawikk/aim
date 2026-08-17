@@ -1,8 +1,8 @@
-# Identity-bearing JSONL — synthetic (AIM-1094).
+# Identity-bearing JSONL — synthetic.
 # Models a cloud-proxy / SSE export that already joins directory identity
 # onto each flow (login / UPN / nested identity block). Metadata only:
 # hostnames + pseudonymizable labels; no real customer data.
-# user_ref stays null at emit time until AIM-24/38 mapping; the user/login
+# user_ref stays null at emit time mapping; the user/login
 # fields are used for coverage reporting only and never leave the collector.
 # Replay: ./replay_sample.sh samples/identity_jsonl.sample.jsonl
 # Pin:    --format jsonl   (or auto)

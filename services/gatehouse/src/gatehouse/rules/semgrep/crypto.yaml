@@ -1,4 +1,4 @@
-# Vendored semgrep pack — crypto misuse (AIM-328).
+# Vendored semgrep pack — crypto misuse.
 #
 # Note: do not combine python + javascript in one rule that uses language-
 # specific patterns (e.g. requests.$FN with keyword args). Semgrep silently

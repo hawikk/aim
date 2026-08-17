@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — device enrollment + heartbeat for macOS (AIM-743).
+# AI Monitoring — device enrollment + heartbeat for macOS.
 # Runs as root on the LaunchDaemon schedule. Contract:
 # docs/deployment/enrollment-and-heartbeat.md
 set -uo pipefail

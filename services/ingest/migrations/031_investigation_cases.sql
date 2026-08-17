@@ -1,4 +1,4 @@
--- 031_investigation_cases.sql — AIM-706: case / investigation workflow.
+-- 031_investigation_cases.sql — case / investigation workflow.
 --
 -- Cases are the unit of investigation beyond the findings list: a security
 -- analyst opens a case, attaches findings / users / tools (refs only), tracks
@@ -11,7 +11,7 @@
 --   * Cases are org-scoped (shared among analyst+) — not per-user UI prefs.
 --     The API gates every route with the same privacy bar as /api/findings.
 --   * case_events is append-only audit for the case itself (status changes,
---     notes, attach/detach). Immutable company audit trail (AIM-27) still
+-- notes, attach/detach). Immutable company audit trail still
 --     records the API mutations separately.
 
 CREATE TABLE IF NOT EXISTS investigation_cases (

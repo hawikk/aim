@@ -1,4 +1,4 @@
-// AIM-672: HTTP surface for the live pilot detector FP-rate SLO.
+// HTTP surface for the live pilot detector FP-rate SLO.
 //
 //   GET  /api/security/fp-rate              — live trailing-window evaluation
 //   GET  /api/security/fp-rate/snapshots    — stored weekly/on-demand history

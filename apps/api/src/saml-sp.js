@@ -1,4 +1,4 @@
-// SAML 2.0 Service Provider helpers (AIM-715).
+// SAML 2.0 Service Provider helpers.
 //
 // Builds a @node-saml/node-saml SP against env config and extracts identity
 // claims for the same fail-closed group→role path used by OIDC (auth.js).

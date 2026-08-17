@@ -1,4 +1,4 @@
-"""Interval poller — runs evaluate-db unattended (AIM-65).
+"""Interval poller — runs evaluate-db unattended.
 
 Wraps `dbrunner.run_dsn` in a sleep loop so the guardrail engine runs as a
 compose service / post-ingest consumer without a manual command. In the
@@ -29,7 +29,7 @@ from . import dbrunner, health
 
 DEFAULT_INTERVAL_SECONDS = 15.0
 
-# AIM-158 (D3.1 §5). Retention is enforced from the poller rather than a cron
+# (D3.1 §5). Retention is enforced from the poller rather than a cron
 # or a dedicated container: it is the one process already awake on an interval
 # with the bus credential, and a retention rule enforced by a component that
 # can be forgotten at deploy time is not enforced at all.
@@ -114,7 +114,7 @@ def poll_forever(
     `sleep`/`max_ticks`/`now`/`trim` are injection points for tests; in
     production the loop runs forever and is stopped by SIGTERM (see
     cli.cmd_poll). `health_state`, when given, is marked on every successful
-    tick so /readyz can tell a live poller from a wedged one (AIM-98). Returns
+    tick so /readyz can tell a live poller from a wedged one. Returns
     the number of ticks executed.
     """
     _log({

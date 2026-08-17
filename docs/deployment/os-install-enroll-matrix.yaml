@@ -1,4 +1,4 @@
-# AIM-763 — Win / WSL / Linux install + enroll continuous proof matrix
+# — Win / WSL / Linux install + enroll continuous proof matrix
 #
 # Living contract for the three locked endpoint shapes the product must
 # support under dimension 18 (fit to locked constraints):
@@ -18,11 +18,11 @@
 # os_string) so fleet coverage does not collapse WSL into bare linux.
 
 schema_version: 1
-issue: AIM-763
-parent: AIM-641
+issue:
+parent:
 owner: founding-engineer
 page_on_failure: true
-sticky_issue_title: "[AIM-763] OS install/enroll matrix FAILED"
+sticky_issue_title: "OS install/enroll matrix FAILED"
 
 # Required OS shapes. Adding a shape without a cell is a hard fail.
 oses:

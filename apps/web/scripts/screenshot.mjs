@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Headless screenshots of dashboard views (AIM-515 board decision).
+ * Headless screenshots of dashboard views.
  *
  * Why this exists: UI PRs require pixel evidence, and the agent environment
- * previously had no browser. Board chose "add a headless browser as a
+ * previously had no browser. The decision was "add a headless browser as a
  * devDependency" rather than shipping CSS changes on jsdom dumps alone.
  *
  * Supply-chain posture (same discipline as Chart.js, different layer):

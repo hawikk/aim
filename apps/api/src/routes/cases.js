@@ -1,11 +1,11 @@
-// Investigation cases API (AIM-706).
+// Investigation cases API.
 //
 // Cases are the unit of investigation beyond the findings list: open a case,
 // attach findings / users / tools (refs only), track status, export a package.
 //
 // Privacy gate: analyst+ (same tier as /api/findings). Attachments store
 // finding UUIDs, user_ref HMAC pseudonyms, and tool names only — never matched
-// content or cleartext identity. Mutations are audited (AIM-27).
+// content or cleartext identity. Mutations are audited.
 //
 // Validation vocabulary lives in apps/web/public/lib/cases.js and is re-used
 // here so the status machine cannot drift between UI and API.

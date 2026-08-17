@@ -1,5 +1,5 @@
 """Is the leaked credential still live? — the question that turns a report line
-into a page (AIM-163).
+into a page.
 
 A history scan finds every secret ever committed. Most of them were rotated
 years ago, and a pillar that pages on all of them gets muted in a week. The

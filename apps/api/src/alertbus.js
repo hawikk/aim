@@ -1,4 +1,4 @@
-// Cursor-based consumer client for the unified alert bus (AIM-158).
+// Cursor-based consumer client for the unified alert bus.
 //
 // The browser never speaks Redis (D3.1 §5): the inbox UI and the sentinel
 // agent read alerts through the authenticated API, which is the only thing
@@ -36,16 +36,16 @@ export const STREAM_KEY = process.env.ALERT_BUS_STREAM ?? 'secstack:alerts:v1';
 export const DEFAULT_LIMIT = 50;
 export const MAX_LIMIT = 500;
 // Wire field name, owned by packages/schema/conformance/security-alert-wire.json
-// (AIM-392). Publishers MUST write this field. Consumers accept LEGACY_WIRE_FIELDS
-// as a one-release compatibility shim so pre-AIM-392 dogfood streams (gatehouse
+//. Publishers MUST write this field. Consumers accept LEGACY_WIRE_FIELDS
+// as a one-release compatibility shim so earlier dogfood streams (gatehouse
 // wrote `payload`) still page instead of rendering as an empty inbox while every
-// health check stays green — the exact silent-drop class AIM-392 closed for
+// health check stays green — the exact silent-drop class closed for
 // publishers and that sentinel already shims in services/sentinel/.../bus.py.
 export const WIRE_FIELD = 'alert';
 export const LEGACY_WIRE_FIELDS = ['payload'];
 // When a page is full of dropped (legacy/malformed) entries, keep scanning so
 // the inbox never presents "0 loaded" while valid alerts sit one page further
-// on the stream (AIM-476). Cap the scan so a fully-poisoned stream cannot burn
+// on the stream. Cap the scan so a fully-poisoned stream cannot burn
 // unbounded Redis round-trips per request.
 export const MAX_SCAN_MULTIPLIER = 10;
 
@@ -60,7 +60,7 @@ const schemaDir = join(here, '..', '..', '..', 'packages', 'schema', 'schema', '
 //     tolerated, and every security constraint (patterns, caps, ranges,
 //     required) still strict.
 //
-// Validating against the strict schema here would be the AIM-174 defect: the
+// Validating against the strict schema here would be the defect: the
 // first additive minor bump — one new optional field, one new severity member
 // — would be dropped as invalid by exactly the consumer §7.4 tells to keep it.
 // The profile is DERIVED by packages/schema/validate.py and CI fails if this
@@ -240,7 +240,7 @@ export function isSupportedVersion(alert) {
  * Pull the alert JSON string out of a stream entry's field map.
  *
  * Prefers the contract field (`alert`); falls back to LEGACY_WIRE_FIELDS so a
- * stream that still carries pre-AIM-392 `payload` entries is consumable. An
+ * stream that still carries earlier `payload` entries is consumable. An
  * entry with neither is malformed — counted, not fatal (§7.10).
  */
 export function wireRaw(entry) {
@@ -331,7 +331,7 @@ export function newStats() {
  * `direction`:
  *   - `newest` (default for the inbox): XREVRANGE from the newest end, so the
  *     first page is recent alerts rather than the retention-window oldest
- *     (AIM-476: oldest-first + a mid-stream block of legacy `payload` entries
+ * (oldest-first + a mid-stream block of legacy `payload` entries
  *     made the first page look empty while 728 ai_usage alerts sat later).
  *   - `oldest`: classic XRANGE from the oldest end (completeness scan).
  *
@@ -339,7 +339,7 @@ export function newStats() {
  * additionally sorts the loaded page on last_seen_at; newest-first just means
  * the first page is the one operators actually look at.
  *
- * Fill semantics (AIM-476): a single Redis page may be 100% dropped (legacy
+ * Fill semantics: a single Redis page may be 100% dropped (legacy
  * wire, malformed). We keep scanning (up to MAX_SCAN_MULTIPLIER × limit stream
  * entries) until we have `limit` valid alerts or the stream is exhausted, so
  * "0 loaded / Load more" is never the face of a stream that still has alerts.

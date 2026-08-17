@@ -1,6 +1,6 @@
-# Per-user macOS managed install (AIM-1170)
+# Per-user macOS managed install
 
-Least-privilege artifact IT wraps. Not a live Jamf/Intune fleet rollout (AIM-28).
+Least-privilege artifact IT wraps. Not a live Jamf/Intune fleet rollout.
 
 **Jamf / Intune call (as the logged-in user):**
 
@@ -16,4 +16,4 @@ AIM_ENROLL_TOKEN_FILE=/path/to/enroll-token \
 **Uninstall:** `./deploy/macos/managed-user/uninstall.sh`
 
 See `../README.md` for the full operator table, managed-config search order,
-and the separate AIM-743 root LaunchDaemon package.
+and the separate root LaunchDaemon package.

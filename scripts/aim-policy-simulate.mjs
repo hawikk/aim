@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Operator CLI for AIM-686 policy simulation (dry-run against historical findings).
+ * Operator CLI policy simulation (dry-run against historical findings).
  * Equivalent surface to `aim policy simulate`.
  *
  * Usage:

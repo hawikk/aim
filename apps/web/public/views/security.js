@@ -1,14 +1,14 @@
-/* Security view (AIM-482/484) — orchestrator only.
+/* Security view — orchestrator only.
  *
- * Pure-moved from app.js (AIM-527), then split (AIM-1135) — the panels live in
+ * Pure-moved from app.js, then split — the panels live in
  * sibling modules with clear ownership:
  *   ./state.js             view-private secState (zero cross-view surface)
- *   ./findings-hops.js     Findings capability gate + severity-aware hops (AIM-1023)
- *   ./enforce-coverage.js  fleet enforce coverage panel (AIM-796)
- *   ./tables.js            flags + unapproved tables, criticality filter, Sanction (AIM-482/484)
- *   ./detail.js            row drill-down panel (AIM-482)
- *   ./charts.js            severity mix / flags trend / detection volume / enforce blocks (AIM-524/588)
- *   ./break-glass.js       break-glass trail (AIM-567) + grants mutations (AIM-784)
+ * ./findings-hops.js Findings capability gate + severity-aware hops
+ * ./enforce-coverage.js fleet enforce coverage panel
+ * ./tables.js flags + unapproved tables, criticality filter, Sanction
+ * ./detail.js row drill-down panel
+ * ./charts.js severity mix / flags trend / detection volume / enforce blocks
+ * ./break-glass.js break-glass trail + grants mutations
  *
  * This file wires interactions, fetches, paints the KPI cards, and calls the
  * panels in order. Keep it thin — new panel code goes in a sibling module.
@@ -65,14 +65,14 @@ export async function loadSecurity() {
   bindSecInteractions();
   closeSecDetail();
   $('#sec-cards').innerHTML = skeletonCards(5);
-  // AIM-796: fire enforce-coverage in parallel with the existing security
+  // fire enforce-coverage in parallel with the existing security
   // fetches. It self-gates on capabilities and never blocks flags/unapproved.
   const coverageP = loadEnforceCoverage();
   const [flags, unapproved, toolCalls, enforcement] = await Promise.all([
     api(`/api/flags?days=${state.days}`),
     api(`/api/unapproved?days=${state.days}`),
     api(`/api/tool-calls?days=${state.days}`),
-    // Optional until the API lands the daily rollup (AIM-588).
+    // Optional until the API lands the daily rollup.
     api(`/api/enforcement?days=${state.days}`).catch(() => null),
   ]);
   secState.flags = flags;
@@ -87,7 +87,7 @@ export async function loadSecurity() {
   const blockTotals = enforcement?.totals ?? {};
   const blockedN = Number(blockTotals.blocked) || 0;
   const wouldBlockN = Number(blockTotals.would_block) || 0;
-  // AIM-1023: KPI cards that show alert volume / severity hop into Findings
+  // KPI cards that show alert volume / severity hop into Findings
   // so operators never stare at "high" with nowhere to click.
   const canFindings = canOpenFindings();
   const allFindingsHref = canFindings ? findingsTriageHref('all') : null;
@@ -116,7 +116,7 @@ export async function loadSecurity() {
   renderEnforceBlocksChart(enforcement);
   await refreshSanctionedHint();
   renderSecUnapprovedTable({ reload: loadSecurity });
-  /* MCP server usage (AIM-86): mcp_call tool_calls entries grouped by server.
+  /* MCP server usage: mcp_call tool_calls entries grouped by server.
      This is where unapproved-MCP findings correlate — server names come from
      collector MCP config ids and are matched against the approved allowlist. */
   table($('#mcp-table'), [
@@ -130,7 +130,7 @@ export async function loadSecurity() {
   ], toolCalls.mcpServers, { caption: 'MCP server usage from tool_use events', empty: EMPTY.mcpServers });
   await coverageP;
 
-  // AIM-567/784: break-glass trail + grants. Failures must not blank the rest
+  // break-glass trail + grants. Failures must not blank the rest
   // of Security — each panel degrades to an error empty state.
   await loadBreakGlass();
   await loadBreakGlassGrants();

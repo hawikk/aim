@@ -1,8 +1,8 @@
 # Guardrail engine v1 — design & policy proposal
 
-**Issue:** AIM-26 · **Status:** implemented (observe-only) · **Author:** Founding Engineer
-**Posture:** detect-and-alert only — no blocking (locked CEO decision, AIM-15, 2026-07-21;
-AMENDED 2026-07-22 by the AIM-110 board verdict to "observe + endpoint blocking for
+**Status:** implemented (observe-only)
+**Posture:** detect-and-alert only — no blocking (locked policy decision, 2026-07-21;
+AMENDED 2026-07-22 to "observe + endpoint blocking for
 critical rules": the platform-side engine described here stays detect-and-alert only;
 the amendment authorizes ENDPOINT hook blocking, specified in
 `docs/inline-enforcement-design-2026-07.md` §Phase 1 and policy'd in
@@ -16,16 +16,16 @@ are validated in CI, and every change goes through PR review. The engine
 (`services/guardrail/`) consumes events post-ingest and emits structured
 **finding** events; it never blocks, redacts, or stores content.
 
-**Boundary the design enforces:** engineering owns the *mechanism*; Security/CEO
+**Boundary the design enforces:** engineering owns the *mechanism*; Security
 own the *content*. The shipped ruleset is explicitly marked as a proposal —
-thresholds, allowlists, and severities need Security/CEO sign-off before they
+thresholds, allowlists, and severities need Security sign-off before they
 are treated as enforced policy.
 
 ## Architecture
 
 ```
-collectors/proxy ──► ingest API (AIM-23/35) ──► queue ──► guardrail evaluator ──► findings ──► Sentinel (AIM-27/41)
-                                                            │                     └── dashboard findings view (AIM-25/39)
+collectors/proxy ──► ingest API ──► queue ──► guardrail evaluator ──► findings ──► Sentinel
+                                                            │ └── dashboard findings view
                                                             └──► audit log (append-only, every decision)
 ```
 
@@ -42,7 +42,7 @@ collectors/proxy ──► ingest API (AIM-23/35) ──► queue ──► guar
   written: `fired | clear | error`, ruleset version, and `policy_hash`
   (SHA-256 of the ruleset content) so any finding traces back to the exact
   policy revision that produced it. Findings and audit records are NDJSON,
-  append-only — the sink becomes the immutable audit store from AIM-27.
+  append-only — the sink becomes the immutable audit store.
 - **Metadata-only by construction.** Findings carry event ids, detector names,
   pseudonymized refs (`user_ref`, `host_ref`, `repo_ref`), and rule-match
   details. There is no code path that can attach prompt/response content —
@@ -59,7 +59,7 @@ YAML, one or more files per ruleset directory. Two rule types:
   `in_off_hours`, `in_restricted_repos`,
   `mcp_call_to_unapproved_server`, `tool_call_action_class_in`, and
   `configured_mcp_server_unapproved`.
-  **ABAC attribute leaves (AIM-690):** `attr: user|group|repo_class|tool`
+  **ABAC attribute leaves:** `attr: user|group|repo_class|tool`
   with ops `eq|neq|in|not_in` — see `docs/guardrail-abac-conditions.md`.
 - `threshold` — sliding-window aggregation: `group_by` fields, `window_seconds`,
   `metric` (`count`, `sum_tokens`, `sum:<field>`), optional `filter` condition
@@ -69,49 +69,49 @@ YAML, one or more files per ruleset directory. Two rule types:
 `prefix:*` glob — this is how secret/PII/policy detector outcomes drive rules
 without any matched content leaving the endpoint.
 
-## v1 rule set (PROPOSAL — awaiting Security/CEO approval)
+## v1 rule set (PROPOSAL — awaiting Security approval)
 
 | Rule | Type | Severity | Signal |
 |---|---|---|---|
-| `unapproved-tool` | match | high | `tool not_in approved_tools` (AIM-441; was `tool==other` only) |
+| `unapproved-tool` | match | high | `tool not_in approved_tools` (was `tool==other` only) |
 | `unapproved-provider-or-model` | match | high | provider outside per-tool approved matrix, or `policy:unapproved-domain/provider` detector |
-| `model-provider-not-permitted` | match | high | model/provider outside scoped allowlist (AIM-383) |
-| `restricted-repo-access` | match | critical | `repo_ref` matches `settings.restricted_repos` (HMAC + `AIM_HASH_SALT`; **inert until list+salt** — AIM-441 labelled) |
+| `model-provider-not-permitted` | match | high | model/provider outside scoped allowlist |
+| `restricted-repo-access` | match | critical | `repo_ref` matches `settings.restricted_repos` (HMAC + `AIM_HASH_SALT`; **inert until list+salt** — labelled) |
 | `secret-pattern-in-prompt` | match | critical | `secret:*` detector fired (boolean only, never content) — 60-day security-win candidate |
-| `pii-in-prompt` | match | low (warning tier, AIM-81) | `pii:*` detector fired — surfaces PII in findings, not just aggregates |
-| `injection-attempt-in-prompt` | match | medium | `injection:*` detector fired (AIM-96) — prose-class; expect defensive-discussion FPs |
-| `unapproved-mcp-server` | match | high | MCP call outside `approved_mcp_servers` (AIM-441: empty = **deny-unlisted**, discovery closed) |
+| `pii-in-prompt` | match | low (warning tier) | `pii:*` detector fired — surfaces PII in findings, not just aggregates |
+| `injection-attempt-in-prompt` | match | medium | `injection:*` detector fired — prose-class; expect defensive-discussion FPs |
+| `unapproved-mcp-server` | match | high | MCP call outside `approved_mcp_servers` (empty = **deny-unlisted**, discovery closed) |
 | `shell-tool-restricted-repo` | match | high | shell tool_call against restricted repo (**inert until list+salt**) |
 | `network-tool-restricted-repo` | match | medium | network tool_call against restricted repo (**inert until list+salt**) |
 | `unapproved-mcp-server-configured` | match | medium | inventory configured MCP outside allowlist (deny-unlisted) |
-| `credential-shaped-tool-call` | match | high | AIM-441: tool_name matches credential-shaped substrings (metadata only) |
-| `high-volume-repo-egress` | threshold | high | AIM-441: network tool_calls per repo/hour > 5 |
-| `bulk-shell-hourly` | threshold | medium | AIM-441: shell tool_calls per user/hour > 250 |
-| `high-volume-repo-tokens` | threshold | medium | AIM-441: tokens per repo/hour > 50M |
+| `credential-shaped-tool-call` | match | high | tool_name matches credential-shaped substrings (metadata only) |
+| `high-volume-repo-egress` | threshold | high | network tool_calls per repo/hour > 5 |
+| `bulk-shell-hourly` | threshold | medium | shell tool_calls per user/hour > 250 |
+| `high-volume-repo-tokens` | threshold | medium | tokens per repo/hour > 50M |
 | `anomalous-volume-hourly` | threshold | medium | user > 500k tokens (in+out) in 1h |
 | `off-hours-bulk-usage` | threshold | medium | user > 100 events in 24h during off-hours (20:00–07:00 local) |
 
 Precision scorecard (28k-event corpus): `docs/aim-441-ruleset-precision.md`.
 
-Open items for Security/CEO (not decided by engineering):
+Open items for Security (not decided by engineering):
 
 1. Approve/adjust the sanctioned provider matrix (`settings.approved_providers`).
-2. **AIM-441:** MCP inventory found **0** servers in the pilot corpus.
+2. **** MCP inventory found **0** servers in the pilot corpus.
    `mcp_allowlist_mode: deny_unlisted` with empty `approved_mcp_servers` is the
    formal proposal (deny all until Security adds servers by PR). Sign off or
    supply an approved seed list.
-3. **AIM-535:** `restricted_repos` + `enforcement.restricted_repo_paths` are
+3. **** `restricted_repos` + `enforcement.restricted_repo_paths` are
    Security-populated (policy-as-code). Company-wide `AIM_HASH_SALT` must be set
    on guardrail + collectors (env/managed config; never commit). Until salt is set
    the restricted-repo family is **labelled inert** in the Rules dashboard.
 4. Approve volume/off-hours/shell/repo thresholds after pilot triage.
 5. Confirm off-hours definition with works-council guidance before any alert
    routing beyond the security team.
-6. Decide finding severity → Sentinel routing (with AIM-27).
-7. AIM-81 asked for a "warning" severity on `pii-in-prompt`; it shipped as
+6. Decide finding severity → Sentinel routing (with).
+7. asked for a "warning" severity on `pii-in-prompt`; it shipped as
    `low`. A distinct `warning` level would be a taxonomy change — Security's call.
 
-## Rules transparency (AIM-81)
+## Rules transparency
 
 The active ruleset is visible in the app without repo access:
 
@@ -132,13 +132,13 @@ The active ruleset is visible in the app without repo access:
   condition ops; a new op in `conditions.py` renders as "unrecognized op"
   until mirrored there — loud, never silently wrong.
 
-## Privacy notes (feeds DPIA pack, AIM-29/43)
+## Privacy notes (feeds DPIA pack)
 
 - Engine input is already pseudonymized and content-free; the engine adds no
   new personal data — findings reference `user_ref`/`host_ref` hashes only.
 - Off-hours analysis uses endpoint-local hour. The canonical schema does not
   carry it yet; the engine falls back to UTC hour meanwhile. **Proposal to
-  AIM-34:** add optional `local_hour` (int 0–23) — additive, avoids storing
+  ** add optional `local_hour` (int 0–23) — additive, avoids storing
   endpoint timezone while keeping off-hours detection meaningful.
 - Threshold rules aggregate per `user_ref`. If the works council prefers
   team-level aggregation for volume rules, `group_by` changes to `team_ref`
@@ -148,21 +148,21 @@ The active ruleset is visible in the app without repo access:
 
 - `services/guardrail/tests/` — unit tests including a drift guard that
   evaluates the canonical schema package's example events, and a test that
-  every collector-emitted `pii:*` detector fires `pii-in-prompt` (AIM-81).
+  every collector-emitted `pii:*` detector fires `pii-in-prompt`.
 - `apps/api/test/guardrail-rules.test.js` — rules endpoint: security gating,
   engine-identical content hash, humanized condition/threshold text, firing
-  stats from findings (AIM-81).
+  stats from findings.
 - `services/guardrail/demo/` — 7-event stream exercising every rule class:
   5 findings (see `demo/findings.ndjson`), 42 audit records
   (`demo/audit.ndjson`), max per-event eval latency 0.102 ms.
 - `validate-rules` command is the CI gate for policy PRs (invalid DSL,
   duplicate rule ids, bad thresholds all fail closed).
-- `scripts/aim-97-tool-policy-e2e.mjs` — staging-style e2e for the
-  per-tool-call rail (AIM-97): synthetic tool_use/inventory events through
+- `scripts/tool-policy-e2e.mjs` — staging-style e2e for the
+  per-tool-call rail: synthetic tool_use/inventory events through
   the real ingest API and `evaluate-db` against a scratch DB + staging
   ruleset overlay, asserting findings for `shell-tool-restricted-repo`,
   `network-tool-restricted-repo`, and `unapproved-mcp-server-configured`,
-  plus AIM-76 webhook delivery of the new-MCP-server alert with a valid
+  plus webhook delivery of the new-MCP-server alert with a valid
   `X-AIM-Signature` HMAC (measurement: `docs/aim-97-tool-policy-e2e.json`).
 
 ## Not in v1 (deliberate)

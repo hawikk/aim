@@ -1,4 +1,4 @@
-"""Personal mode (AIM-67): monitor your OWN AI usage, zero infra.
+"""Personal mode: monitor your OWN AI usage, zero infra.
 
 `python -m aim_collector personal` scans this machine's real AI tool data —
 Claude Code transcripts, Cursor state.vscdb, Kilo Code task logs, Kimi Code
@@ -6,7 +6,7 @@ wire logs — into a local SQLite file and serves the existing dashboard bound
 to 127.0.0.1 — no docker, no Postgres, no auth, and (by design) zero outbound
 network calls. Everything stays on the machine.
 
-Detection is real (AIM-77): the local secret/PII matchers run over content
+Detection is real: the local secret/PII matchers run over content
 IN MEMORY at scan time; matched content is discarded immediately and only
 detector names land on events. The metadata-only contract is unchanged —
 nothing but the canonical event fields is ever persisted.
@@ -80,7 +80,7 @@ def _import_sibling(pkg_dir: str, pkg: str):
     Two layouts are supported:
       * git clone — the sibling collectors are not installed; their parent
         dir is put on sys.path lazily (AIM_COLLECTORS_ROOT / walk-up).
-      * packaged (AIM-130) — the `aim` distribution ships every collector as
+      * packaged — the `aim` distribution ships every collector as
         a real top-level package, so a plain import already resolves.
     Returns the module, or None when unavailable — a missing sibling must
     never break the rest of the scan."""
@@ -209,7 +209,7 @@ def scan(db: store.sqlite3.Connection | None = None) -> int:
 
 
 def prune_once(db: store.sqlite3.Connection | None = None) -> dict | None:
-    """Enforce retention on the personal store, at most daily (AIM-143).
+    """Enforce retention on the personal store, at most daily.
 
     Fail-closed on a bad config (skip + log, delete nothing); never raises — a
     prune failure must not stop the dashboard from serving. Returns the prune

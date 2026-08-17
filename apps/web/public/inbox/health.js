@@ -1,4 +1,4 @@
-/* Alerts inbox stack-health strip + pillar deep links (AIM-1181 split).
+/* Alerts inbox stack-health strip + pillar deep links (split).
  * Polls /api/stack/health, unlocks evidence links once gatewayHost is known,
  * and renders Related deep links from operator config. The strip reports
  * unreachability; it never takes the shell down. */
@@ -14,8 +14,8 @@ function renderPillarLinks(services) {
   // Deep links only (D1): the shell points at related UIs, it does not
   // embed or rewrite them. Links come from operator config
   // (AIM_STACK_SERVICES ui fields); only https: URLs are rendered as hrefs.
-  // AIM-482: label as "Related" rather than "Pillars" — CNAPP vocabulary.
-  // AIM-589: shell deep-links only (D1). List destinations; entity hops live in lib/deeplinks.js.
+  // label as "Related" rather than "Pillars" — CNAPP vocabulary.
+  // shell deep-links only (D1). List destinations; entity hops live in lib/deeplinks.js.
   const links = ['<a href="#/overview">Dashboard</a>', '<a href="#/security">Security</a>', '<a href="#/findings">Findings</a>', '<a href="#/fleet">Fleet</a>'];
   for (const svc of services) {
     if (!svc.ui) continue;

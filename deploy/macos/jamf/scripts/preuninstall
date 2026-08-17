@@ -1,5 +1,5 @@
 #!/bin/bash
-# AIM-743 — pkg preuninstall for AIMonitoringCollector.
+# — pkg preuninstall for AIMonitoringCollector.
 set -euo pipefail
 
 LOG="/var/log/aim-collector-preuninstall.log"

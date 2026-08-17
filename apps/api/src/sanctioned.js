@@ -1,18 +1,18 @@
-// Sanctioned tool list — AIM-484 persisted allow-list (seeded from AIM-16).
+// Sanctioned tool list — persisted allow-list (seeded).
 //
-// Policy decisions sit with Security/Legal/CEO; this module is the
+// Policy decisions sit with Security/Legal; this module is the
 // enforcement mechanism, not the decision. The live list lives in the
 // event-store table `sanctioned_tools`. The in-process Set is a cache that
 // is mutated in place so existing `import { SANCTIONED_TOOLS }` call sites
 // see updates without a restart (activity-score is pure/sync).
 //
 // Fail-open on a missing table (pre-migration / cold boot race): fall back
-// to the AIM-16 seed so the fleet does not suddenly treat Claude Code as
+// to the seed so the fleet does not suddenly treat Claude Code as
 // unapproved while ingest is still applying migrations.
 
 import { query as defaultQuery } from './db.js';
 
-/** AIM-16 locked seed — also the migration 022 INSERT and the offline fallback. */
+/** locked seed — also the migration 022 INSERT and the offline fallback. */
 export const DEFAULT_SANCTIONED_TOOLS = Object.freeze([
   'claude_code',
   'cursor',
@@ -136,7 +136,7 @@ export async function listSanctionedTools(db = { query: defaultQuery }) {
       replaceCache([...DEFAULT_SANCTIONED_TOOLS]);
       return DEFAULT_SANCTIONED_TOOLS.map((tool) => ({
         tool,
-        note: 'AIM-16 seed (table not yet migrated)',
+        note: 'Seed (table not yet migrated)',
         createdAt: null,
         createdBy: 'system:fallback',
         updatedAt: null,

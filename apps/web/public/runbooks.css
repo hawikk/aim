@@ -1,4 +1,4 @@
-/* AIM-703 — SOC runbook pages (injected by runbooks.js).
+/* — SOC runbook pages (injected by runbooks.js).
    Reuses tokens, .card/.cards, .panel, .banner, .pill from styles.css. */
 
 #view-runbooks .rb-index {
@@ -156,7 +156,7 @@
   justify-content: center;
   width: 1.4rem;
   height: 1.4rem;
-  border-radius: 6px; /* AIM-151 ceiling — no pill-shaped chrome */
+  border-radius: 6px; /* ceiling — no pill-shaped chrome */
   background: var(--code-bg, rgba(0, 0, 0, 0.25));
   font-size: 11px;
   font-weight: 600;

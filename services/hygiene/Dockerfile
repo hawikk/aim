@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 #
-# Pillar 4 — secrets & token hygiene (AIM-163).
+# Pillar 4 — secrets & token hygiene.
 #
 # Ships gitleaks alongside the service for the same reason gatehouse does: the
 # scanner IS the behaviour, so it is versioned and pinned with the code rather

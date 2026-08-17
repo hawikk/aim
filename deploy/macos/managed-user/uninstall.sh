@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — per-user macOS uninstaller (AIM-1170).
+# AI Monitoring — per-user macOS uninstaller.
 # Idempotent. Refuses root (same as install) unless AIM_HOME remaps writes.
 #
 #   ./deploy/macos/managed-user/uninstall.sh

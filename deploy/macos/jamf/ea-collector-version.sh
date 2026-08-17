@@ -1,5 +1,5 @@
 #!/bin/bash
-# Jamf Extension Attribute — AI Monitoring Collector Version (AIM-743).
+# Jamf Extension Attribute — AI Monitoring Collector Version.
 # Data Type: String. Input Type: Script.
 # Smart group example: "AI Monitoring Collector Version is 0.1.0"
 VERSION_FILE="/etc/aim-collector/version"

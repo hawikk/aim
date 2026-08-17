@@ -65,7 +65,7 @@ const webRoot = join(here, '..', '..', 'web', 'public');
 
 const fastify = Fastify({ logger: true });
 
-// Service tokens (AIM-165). Unlike the bus, a broken token FILE is fatal:
+// Service tokens. Unlike the bus, a broken token FILE is fatal:
 // it was explicitly configured, and the failure mode of continuing is an API
 // that boots clean and 401s every headless consumer — the sentinel goes quiet
 // and nothing says why. Refuse to start instead.
@@ -103,8 +103,8 @@ await fastify.register(vendorAdminRoutes);
 await fastify.register(mcpRoutes);
 await fastify.register(shadowAiRoutes);
 await fastify.register(coverageRoutes);
-// AIM-781 fleet coverage on /api/enforcement/fleet-coverage (path split after
-// concurrent AIM-789/AIM-781 merges both claimed /api/enforcement/coverage).
+// fleet coverage on /api/enforcement/fleet-coverage (path split after
+// concurrent merges both claimed /api/enforcement/coverage).
 await fastify.register(enforcementCoverageRoutes);
 await fastify.register(activityRoutes);
 await fastify.register(pipelineRoutes);
@@ -119,7 +119,7 @@ await fastify.register(scimRoutes);
 await fastify.register(breakGlassAdminRoutes);
 initAudit(fastify);
 
-// AIM-713: hydrate SCIM directory from Postgres when configured. Missing
+// hydrate SCIM directory from Postgres when configured. Missing
 // table / DB offline is non-fatal — routes still work in-memory after push.
 if (isScimConfigured()) {
   try {
@@ -142,9 +142,9 @@ if (isScimConfigured()) {
   fastify.log.info('SCIM provisioning disabled (AIM_SCIM_BEARER_TOKEN unset)');
 }
 
-// AIM-484: load the persisted sanctioned-tool list into the in-process cache
+// load the persisted sanctioned-tool list into the in-process cache
 // so activity-score and other sync consumers start on the live allow-list
-// rather than the AIM-16 seed until the first request refresh.
+// rather than the seed until the first request refresh.
 try {
   await refreshSanctionedTools();
   fastify.log.info({ tools: [...SANCTIONED_TOOLS] }, 'sanctioned-tool list loaded from store');
@@ -155,7 +155,7 @@ try {
   fastify.log.warn({ err: err.message }, 'sanctioned-tool list not loaded at boot — using seed until first successful refresh');
 }
 
-// AIM-613: hydrate session-revoke watermarks so process restarts keep
+// hydrate session-revoke watermarks so process restarts keep
 // mid-TTL leaver denials (memory alone would re-admit until re-revoke).
 try {
   const n = await loadRevocationsFromDb(db);
@@ -169,7 +169,7 @@ try {
   );
 }
 
-// AIM-718: hydrate access-review campaigns so attestations survive restart.
+// hydrate access-review campaigns so attestations survive restart.
 try {
   await loadAccessReviewCampaigns(db);
   fastify.log.info('access-review campaigns loaded from store (if any)');
@@ -180,13 +180,13 @@ try {
   );
 }
 
-// AIM-290: publish system-status breaches onto the existing alert bus so
+// publish system-status breaches onto the existing alert bus so
 // Sentinel pages the same signals the #/status screen shows. Opt-in
 // (SYSTEM_STATUS_ALERTS=1); never runs XADD on the request path.
-// AIM-442: same bus for critical finding-ack SLA breaches (FINDING_SLA_ALERTS=1).
-// AIM-672: same bus for secret/PII detector session FP-rate SLO breaches
+// same bus for critical finding-ack SLA breaches (FINDING_SLA_ALERTS=1).
+// same bus for secret/PII detector session FP-rate SLO breaches
 // (DETECTOR_FP_RATE_ALERTS=1).
-// AIM-704: same bus for alert destination delivery failures / SLO breaches
+// same bus for alert destination delivery failures / SLO breaches
 // (DESTINATION_HEALTH_ALERTS=1).
 if (process.env.ALERT_BUS_URL) {
   const publish = createAlertBusPublisher({ log: fastify.log });
@@ -212,7 +212,7 @@ if (process.env.ALERT_BUS_URL) {
   }
 }
 
-// AIM-672: weekly FP-rate snapshot series (independent of the alert bus —
+// weekly FP-rate snapshot series (independent of the alert bus
 // history is retained even when ALERT_BUS_URL is unset).
 {
   const snap = startFpRateSnapshotScheduler({ log: fastify.log });
@@ -222,7 +222,7 @@ if (process.env.ALERT_BUS_URL) {
   }
 }
 
-// Cross-pillar alert bus (AIM-158). Optional: a single-pillar or personal
+// Cross-pillar alert bus. Optional: a single-pillar or personal
 // install sets no ALERT_BUS_URL, and /api/alerts then answers 503 "not
 // configured" rather than pretending the inbox is empty.
 if (process.env.ALERT_BUS_URL) {
@@ -240,7 +240,7 @@ if (process.env.ALERT_BUS_URL) {
   }
 }
 
-// Immutable audit trail (AIM-27): record who accessed which dashboard/data view,
+// Immutable audit trail: record who accessed which dashboard/data view,
 // including denied attempts (statusCode in detail). Metadata only — no payloads.
 fastify.addHook('onResponse', async (req, reply) => {
   if (req.method !== 'GET' || !req.url.startsWith('/api/')) return;

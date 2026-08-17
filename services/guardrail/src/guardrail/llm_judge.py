@@ -1,4 +1,4 @@
-"""LLM-as-judge call site for the guardrail engine (AIM-115 dogfood pilot).
+"""LLM-as-judge call site for the guardrail engine (dogfood pilot).
 
 The guardrail rules engine is deterministic (policy-as-code over event
 metadata). The judge is the escalation path for *content-adjacent* questions a

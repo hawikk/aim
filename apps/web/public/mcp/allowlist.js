@@ -1,6 +1,6 @@
-/* MCP allowlist manage panel (AIM-1157 split): approved-server chips,
+/* MCP allowlist manage panel (split): approved-server chips,
  * add/remove/reload wiring. Writes go through PUT /api/mcp-allowlist and
- * are audited as mcp.allowlist_update (AIM-547).
+ * are audited as mcp.allowlist_update.
  * The orchestrator (public/mcp.js) populates fctx before bind*() runs. */
 
 import { fmtInt } from '../lib/format.js';

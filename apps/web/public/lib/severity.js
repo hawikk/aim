@@ -1,4 +1,4 @@
-/* Severity — the product's primary axis, in exactly one place (AIM-524).
+/* Severity — the product's primary axis, in exactly one place.
  *
  * Before this module, severity pill markup was hand-written at seven sites with
  * three competing variants inside app.js alone (`severityBadge`, `sevPill`, and
@@ -21,7 +21,7 @@
  * the steps apart runs into the AA text-contrast floor these pills need. A ramp
  * built from unrelated hues would validate, but it would stop reading as an
  * ordinal risk scale to everyone else, and that is a design-system call above
- * this refactor (noted in docs/frontend-design-system.md for the CTO).
+ * this refactor (noted in docs/frontend-design-system.md for review).
  *
  * So the mitigation is structural too, and it is not optional: every badge this
  * module emits carries TWO non-colour channels —
@@ -105,7 +105,7 @@ export function worstSeverity(values) {
 /**
  * THE severity badge. Every site that shows a severity calls this.
  *
- * Visible band text and provenance titles go through i18n (AIM-761). The
+ * Visible band text and provenance titles go through i18n. The
  * `data-sev` attribute and `sev-*` class stay on the English band key forever
  * so CSS shape markers and DOM tests remain stable across locales.
  *
@@ -119,13 +119,13 @@ export function worstSeverity(values) {
  * @param {string}  [opts.title]  overrides the hover text entirely
  * @param {boolean|string} [opts.srLabel]
  *   Screen-reader role prefix inside the pill so severity is never announced
- *   as colour alone (AIM-515). Defaults to t('severity.srPrefix'). Pass `false`
+ * as colour alone. Defaults to t('severity.srPrefix'). Pass `false`
  *   when the visible label is not a severity word (e.g. an SLA chip that
  *   reuses the critical band look).
  * @returns {string} trusted HTML; every interpolated value is escaped here
  */
 export function severityBadge(severity, opts = {}) {
-  /* AIM-527 call sites still pass source as a positional string:
+  /* call sites still pass source as a positional string:
    *   severityBadge(r.severity, r.severitySource)
    * Accept that shape without forcing every view to re-wrap. */
   if (typeof opts === 'string' || opts == null) {
@@ -179,7 +179,7 @@ const FALLBACK_COLOR = {
 };
 
 /** Resolved colour for a band, straight off the --sev-* tokens. Re-read on
- *  every call so a theme switch repaints charts without a reload (AIM-514). */
+ * every call so a theme switch repaints charts without a reload. */
 export function severityColor(severity) {
   const band = severityBand(severity);
   if (typeof getComputedStyle !== 'function' || typeof document === 'undefined') return FALLBACK_COLOR[band];
@@ -197,7 +197,7 @@ export function severityColors(bands) {
  * The pill reuses the sev-* tint scale as a reach language the operator already
  * knows, but the labels are different words so the two axes cannot be confused. */
 
-/** Operator-facing reach thresholds (AIM-151). Kept as an exported constant so
+/** Operator-facing reach thresholds. Kept as an exported constant so
  *  the rule stays discoverable in source / smoke guards — not colour alone. */
 export const EXPOSURE_RULE =
   'wide: ≥10 users or ≥3 teams; moderate: ≥3 users; contained: otherwise; unknown when both zero';
@@ -216,7 +216,7 @@ export function exposureBadge(r) {
   return `<span class="pill ${band}" title="${esc(t('exposure.rule') || EXPOSURE_RULE)}">${esc(t(`exposure.${key}`))}</span>`;
 }
 
-/** @deprecated AIM-524 — use severityBadge(). Kept as a thin alias so any
+/** @deprecated — use severityBadge(). Kept as a thin alias so any
  *  transitional import fails closed on the shared markup rather than a 404. */
 export function sevPill(sev) {
   return severityBadge(sev);

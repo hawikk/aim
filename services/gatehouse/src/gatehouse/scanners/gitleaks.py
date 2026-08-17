@@ -10,13 +10,13 @@ The matched secret is never carried out of this function. `Match` is used to
 build a one-way digest and to render a masked hint; `Secret` is dropped on the
 floor. The scanner sees the credential because it must; nothing downstream does.
 
-Exit-code note (AIM-252): gitleaks exits 1 when it finds leaks *and* on many
+Exit-code note: gitleaks exits 1 when it finds leaks *and* on many
 fatal errors (FTL), e.g. an unwritable `--report-path`. Treating 1 as success
 and then failing open on a missing report used to mask the real error as
 "report unreadable". The report is therefore written to a guaranteed-writable
 temp path outside the scanned worktree, and exit 1 without a readable report
 is treated as a scanner failure with stderr surfaced. This was also a plausible
-cause of the pre-rebuild "scan incomplete" before-shot on AIM-230 (stale image
+cause of the pre-rebuild "scan incomplete" before-shot on (stale image
 vs. unwritable report path); the audit reran on a rebuilt image so the original
 evidence is gone.
 """
@@ -70,7 +70,7 @@ def scan(repo_dir: str, paths: list[str], *, config: str | None = None) -> ScanO
     try:
         # gitleaks v8 CLI: `detect` was renamed `git` (history scan) and
         # `dir` (working tree, no VCS). We scan the working tree like the old
-        # `detect --no-git` did, so `dir` is the direct replacement (AIM-246).
+        # `detect --no-git` did, so `dir` is the direct replacement.
         argv = ["gitleaks", "dir", ".", "--exit-code", "1",
                 "--redact=0", "--report-format", "json", "--report-path", report]
         if config:

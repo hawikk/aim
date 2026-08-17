@@ -1,4 +1,4 @@
-"""Process / binary observation source for coding-tool auto-discovery (AIM-644).
+"""Process / binary observation source for coding-tool auto-discovery.
 
 Endpoint agents (or a future process-inventory collector) can ship metadata-only
 rows: binary basename + host pseudonym counts. No cmdline, no cwd, no content.

@@ -1,4 +1,4 @@
-// Local preview server for the dashboard redesign (AIM-151).
+// Local preview server for the dashboard redesign.
 // Serves apps/web/public from the working tree and proxies /api + /auth to a
 // running api service, so the new UI can be reviewed against REAL collector
 // telemetry instead of a seed fixture. Dev-only; never shipped in an image.
@@ -60,7 +60,7 @@ createServer(async (req, res) => {
       const rangeJs = /^\d+$/.test(range ?? '')
         ? `const r=document.querySelector('#range button[data-days="${range}"]');if(r&&!r.classList.contains('active'))r.click();`
         : '';
-      // Since AIM-152 a re-click actually re-renders even when the hash already
+      // Since a re-click actually re-renders even when the hash already
       // matches, so clicking is enough to reclaim the view — this no longer has
       // to forge .active classes behind the router's back. Settle the view
       // FIRST and only then touch the range, or the range click leaves the

@@ -1,6 +1,6 @@
-"""Bounded repo-graph context for the AI reviewer (AIM-233 / Greptile parity).
+"""Bounded repo-graph context for the AI reviewer (Greptile parity).
 
-AIM-162's bundle is the PR's added hunks plus a ±N line window — enough for
+the bundle is the PR's added hunks plus a ±N line window — enough for
 many defects, useless for the ones where safety lives in a *caller* three
 files away. Greptile's differentiator is whole-repo awareness; we take the
 narrow slice of that that is still data-minimizing: for each symbol the PR

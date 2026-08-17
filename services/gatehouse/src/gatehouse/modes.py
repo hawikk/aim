@@ -1,4 +1,4 @@
-"""Per-scanner enforce/observe modes (AIM-334).
+"""Per-scanner enforce/observe modes.
 
 A gate whose measured precision falls below its published FP budget is auto-
 reverted to **observe**: findings are still listed and published, but they do

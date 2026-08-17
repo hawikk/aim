@@ -34,7 +34,7 @@ def _sink_write(sink: str, path: str | None, events: list[dict]) -> None:
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
         prog="os_egress",
-        description="AIM-321 OS egress metadata collector (AI SaaS domain presence).",
+        description="OS egress metadata collector (AI SaaS domain presence).",
     )
     p.add_argument("--version", action="version", version=f"os_egress {__version__}")
     p.add_argument(
@@ -51,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--shadow-catalogue",
         default=None,
-        help="Optional AIM-300 ai-tools.json to merge (discovery→coverage loop)",
+        help="Optional ai-tools.json to merge (discovery→coverage loop)",
     )
     p.add_argument("--sink", choices=("stdout", "file"), default="stdout")
     p.add_argument("--output", default=None, help="Path for --sink file")

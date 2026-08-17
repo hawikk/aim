@@ -1,4 +1,4 @@
-"""The system prompt and the category vocabulary (AIM-162).
+"""The system prompt and the category vocabulary.
 
 The prompt is a security control, not copy. Three instructions in it do real
 work:

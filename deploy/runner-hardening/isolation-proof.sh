@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "===== AIM-308 D-C2 isolation proof $(date -u +%Y-%m-%dT%H:%M:%SZ) ====="
+echo "===== D-C2 isolation proof $(date -u +%Y-%m-%dT%H:%M:%SZ) ====="
 
 PG_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' stack-aim-postgres-1 | awk '{print $1}')
 REDIS_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' stack-aim-redis-bus-1 | awk '{print $NF}')

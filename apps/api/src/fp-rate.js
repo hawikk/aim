@@ -1,4 +1,4 @@
-// AIM-672: live pilot false-positive rate SLO for secret/PII detectors.
+// live pilot false-positive rate SLO for secret/PII detectors.
 //
 // Acceptance: publish weekly FP rate; SLO e.g. <0.5% of sessions; page when
 // breached. Telemetry (events + findings + triage) already collected —
@@ -249,7 +249,7 @@ export function fpRateBreachAlert(evaluation, { now = new Date() } = {}) {
     remediation_hint: (
       'Open GET /api/security/fp-rate and #/findings filtered to '
       + 'rule_id=secret-pattern-in-prompt|pii-in-prompt&status=false_positive. '
-      + 'Tune matchers (AIM-128) or suppress proven noise classes (AIM-442) '
+      + 'Tune matchers or suppress proven noise classes '
       + 'before the rate erodes operator trust in enforce mode.'
     ).slice(0, 500),
   };

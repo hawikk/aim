@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify GHCR image digests carry SLSA build provenance (AIM-333 / AIM-1060).
+"""Verify GHCR image digests carry SLSA build provenance.
 
 After ``release-images.yml`` pushes an image with buildx ``provenance: mode=max``,
 this script reads the digest back through the OCI Referrers API and fails if no
@@ -9,7 +9,7 @@ Dogfood: we generate provenance in the same workflow; this is the check that
 the control actually landed. A green build with no provenance is exactly the
 drift this product exists to catch.
 
-Auth note (AIM-1060): GHCR rejects raw GitHub PATs / ``GITHUB_TOKEN`` values
+Auth note: GHCR rejects raw GitHub PATs / ``GITHUB_TOKEN`` values
 when sent as ``Authorization: Bearer <token>`` on the registry v2 API — the
 response is ``HTTP 403 DENIED: invalid token``. The Docker registry token
 exchange is required: Basic-auth the GitHub credential against
@@ -279,7 +279,7 @@ def exchange_registry_token(
         headers={
             "Authorization": f"Basic {basic}",
             "Accept": "application/json",
-            "User-Agent": "aim-verify-image-provenance/1.1 (AIM-1060)",
+            "User-Agent": "aim-verify-image-provenance/1.1",
         },
         method="GET",
     )
@@ -337,7 +337,7 @@ def fetch_registry_json(
     """
     base_headers = {
         "Accept": accept,
-        "User-Agent": "aim-verify-image-provenance/1.2 (AIM-1060)",
+        "User-Agent": "aim-verify-image-provenance/1.2",
     }
 
     # 1) Public packages need no auth.
@@ -348,7 +348,7 @@ def fetch_registry_json(
         return {"manifests": []}
 
     # 2) Authenticated path. Never send a raw GitHub token as Bearer — GHCR
-    # returns 403 DENIED/invalid token for ghs_/gho_ values (AIM-1060).
+    # returns 403 DENIED/invalid token for ghs_/gho_ values.
     if not token:
         raise urllib.error.HTTPError(
             url, status, f"HTTP Error {status}: authentication required and no token provided",
@@ -658,7 +658,7 @@ def self_test() -> int:
     expect("predicate reject random", not is_slsa_predicate("application/vnd.cyclonedx+json"))
     expect("predicate reject empty", not is_slsa_predicate(""))
 
-    # AIM-1060: auth challenge parser + default token URL (no network).
+    # auth challenge parser + default token URL (no network).
     challenge = parse_www_authenticate(
         'Bearer realm="https://ghcr.io/token",service="ghcr.io",'
         'scope="repository:hawikk/aim-api:pull"'
@@ -695,7 +695,7 @@ def self_test() -> int:
         "self-test OK — referrers parser finds SLSA v0.2/v1 provenance, "
         "rejects SBOM-only and empty indexes, URL builder normalizes names, "
         "WWW-Authenticate/token-exchange helpers parse GHCR challenges "
-        "(AIM-1060: raw GITHUB_TOKEN as Bearer is never used)."
+        "(raw GITHUB_TOKEN as Bearer is never used)."
     )
     return 0
 

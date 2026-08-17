@@ -1,4 +1,4 @@
--- 020_finding_transitions_append_only.sql — AIM-432 F2/F3: enforce
+-- 020_finding_transitions_append_only.sql — F2/F3: enforce
 -- append-only on finding_transitions and wire it into findings retention.
 --
 -- F2 — Append-only was convention only (routes/findings.js is the sole
@@ -19,7 +19,7 @@
 -- manual 90d DELETE comment in 018 is superseded by that sweep.
 --
 -- A transition that needs "correcting" remains a new INSERT, never an edit
--- — same rule as the AIM-27 audit trail.
+-- — same rule as the audit trail.
 
 CREATE OR REPLACE FUNCTION finding_transitions_reject_mutation()
 RETURNS trigger

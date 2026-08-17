@@ -1,4 +1,4 @@
-// Versioned signed policy packs with provenance (AIM-688).
+// Versioned signed policy packs with provenance.
 //
 // Extends the existing policy_hash / contentHash work: every pack carries the
 // same sha256-over-sorted-YAML-bytes that findings.policy_hash and

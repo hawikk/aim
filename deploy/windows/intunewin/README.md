@@ -1,8 +1,8 @@
-# Intune Win32 app packaging — AIM Collector (AIM-742)
+# Intune Win32 app packaging — AIM Collector
 
 Package the Windows collector as an `.intunewin` for deployment through
 Microsoft Intune. **Prerequisite (external):** Intune tenant access with
-Win32-app upload rights + a ring-0 pilot device group — owner: CEO/IT.
+Win32-app upload rights + a ring-0 pilot device group — owner: IT.
 
 Related: enrollment protocol in
 [`docs/deployment/enrollment-and-heartbeat.md`](../../../docs/deployment/enrollment-and-heartbeat.md),
@@ -14,7 +14,7 @@ pilot proof checklist in
 ## Build the package
 
 From the monorepo root (pulls the production collector from
-`collectors/claude-code`, AIM-20):
+`collectors/claude-code`):
 
 ```bash
 ./deploy/windows/stage-intunewin.sh
@@ -42,7 +42,7 @@ staging/
   payload/
     aim_collector/                 # collectors/claude-code/aim_collector
   enforcement/
-    enforcement.enforce.json       # AIM-440 endpoint enforce bundle
+    enforcement.enforce.json # endpoint enforce bundle
   wsl-linux/                       # Linux install path for the WSL bridge
   runtime/                         # optional: embeddable Python 3.11+
 ```
@@ -129,7 +129,7 @@ with endpoint tooling, aligns with Wazuh/Intune change control).
 
 This stages the package, asserts required files and a non-stub collector
 payload, and writes a pilot-proof record under `docs/deployment/` when
-requested. Live ring-0 install still needs CEO/IT Intune rights.
+requested. Live ring-0 install still needs IT Intune rights.
 
 ## Rollout rings
 

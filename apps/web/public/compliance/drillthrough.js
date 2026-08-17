@@ -1,6 +1,5 @@
-/* Drill-through + deep-links for the Compliance evidence view (AIM-1172
- * split). Expanding a control lists its mapped rules with per-rule counts;
- * clicking a rule fetches the underlying findings. AIM-696: a
+/* Drill-through + deep-links for the Compliance evidence view. Expanding a control lists its mapped rules with per-rule counts;
+ * clicking a rule fetches the underlying findings. a
  * `#/compliance?framework=&control=` hash scrolls/highlights the row. */
 
 import { esc } from '../lib/dom.js';
@@ -86,7 +85,7 @@ export function bindRuleLinkClicks() {
 }
 
 function findingsTable(findings) {
-  // Shared tableHtml path (AIM-526 contract). Dual-merge had left a hand-rolled
+  // Shared tableHtml path (contract). Dual-merge had left a hand-rolled
   // early return in front of this block, which made the rest unreachable.
   const note = findings.length
     ? `<div class="hint">latest ${findings.length} — full list in the Findings tab</div>`

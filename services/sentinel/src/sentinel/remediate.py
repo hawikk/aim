@@ -19,7 +19,7 @@ hallucinated flag in a real ``aws`` invocation is not a quality problem, it is
 an incident of its own — and the whole value of "copy-paste, human applies" is
 that the human is reviewing something a human wrote.
 
-The same precedence carries into the draft-PR path (AIM-185). An entry may
+The same precedence carries into the draft-PR path. An entry may
 additionally carry a ``patch:`` block, which is a *reviewed transformation* —
 "set this attribute to this literal on this kind of block" — that ``patch.py``
 applies to the flagged file. The model may cause an entry to be selected and
@@ -49,7 +49,7 @@ class CatalogueUnavailable(Exception):
     no fix in them. Loud at startup rather than empty at 02:00."""
 
 
-# autofix_mode values (AIM-330):
+# autofix_mode values:
 #   patch   — catalogue may open a draft PR carrying a reviewed diff
 #   guided  — post rotate/purge guidance only; NEVER open a history-rewriting
 #             or secret-stripping PR without explicit human approval
@@ -73,7 +73,7 @@ class Proposal:
     # the common case and means "copy-paste only" — the draft-PR path renders
     # that as an explicit sentence rather than opening nothing quietly.
     patch: PatchSpec | None = None
-    # AIM-330: how far autofix is allowed to go for this finding class.
+    # how far autofix is allowed to go for this finding class.
     autofix_mode: str = AUTOFIX_PATCH
 
     @property

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIM-793: summarize enforce canary cohort membership from posture events.
+"""summarize enforce canary cohort membership from posture events.
 
 Reads either:
   - NDJSON of usage events (or just enforcement_posture objects) from stdin / file
@@ -120,7 +120,7 @@ def report_events(path: Path | None) -> dict:
         "note": (
             "member_rate is share of posture-loaded events that carried "
             "cohort_member=true. Null when no canary field was present "
-            "(no cohort configured, or collectors pre-AIM-793)."
+            "(no cohort configured, or collectors earlier)."
         ),
     }
 
@@ -142,7 +142,7 @@ def dry_run(percent: int, salt: str, n: int) -> dict:
 
 
 def ladder() -> str:
-    return """# Enforce canary rollout ladder (AIM-793)
+    return """# Enforce canary rollout ladder
 
 Expand/rollback is a **policy-hash bump only** — no collector release.
 
@@ -165,7 +165,7 @@ Policy shape (per-rule preferred):
 
 Keep `salt` stable across expand steps so membership is monotonic.
 Outside cohort → `would_block` + local reason; audit stays metadata-only.
-Posture emits `cohort_member` boolean for reports (schema v1.11 (AIM-793)).
+Posture emits `cohort_member` boolean for reports (schema v1.11).
 """
 
 

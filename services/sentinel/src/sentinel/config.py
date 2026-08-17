@@ -13,7 +13,7 @@ validated here rather than at first use:
 * ``page_from`` — the severity at which a human is interrupted. Everything
   below it rolls into the daily digest. Security owns this number; this file
   ships the proposal (high).
-* ``remediation.draft_pr`` — off by default (board answer Q7). Turning it on
+* ``remediation.draft_pr`` — off by default. Turning it on
   requires *both* halves of the opt-in to be present at startup: the
   separately-scoped GitHub App credential, and a non-empty per-repo allowlist.
   Enabling the flag without either of those fails startup with a pointer,
@@ -89,7 +89,7 @@ class LLMConfig:
 
 @dataclass(frozen=True)
 class DraftPRConfig:
-    """Opt-in, off by default, per repo (board answer Q7; AIM-185).
+    """Opt-in, off by default, per repo.
 
     ``repos`` is the half of the opt-in that lives in git. The other half — the
     App actually being installed on the repo — lives in GitHub and is checked at
@@ -123,7 +123,7 @@ class Config:
 
     page_from: str = "high"
     # Two alerts that share a correlation key inside this window collapse to
-    # one parent incident with child links (AIM-700). Wide enough to swallow a
+    # one parent incident with child links. Wide enough to swallow a
     # Terraform apply that turns 40 resources public, or the same secret
     # pattern across Claude Code and Cursor for two engineers; short enough
     # that tomorrow's recurrence pages again. Configurable via
@@ -141,7 +141,7 @@ class Config:
     digest_hour_utc: int = 8
     # A failed digest is retried with exponential backoff from this base,
     # doubling per failure up to the max — not on every poll pass. Before
-    # AIM-250 a misconfigured deployment (no channel) logged a
+    # a misconfigured deployment (no channel) logged a
     # `degraded: delivery_failed` decision every ~2s, ~12k/day, drowning the
     # audit trail.
     digest_retry_base_seconds: float = 60.0

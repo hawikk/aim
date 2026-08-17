@@ -1,6 +1,6 @@
 # How to add a dashboard view
 
-Companion to the AIM-453 frontend assessment and the AIM-1089 shared kernel.
+Companion to the frontend assessment and the shared kernel.
 This is the checklist the next view author follows so the wiring is mechanical
 instead of re-derived from a 2,000-line file. The enforceable subset is guarded
 by `apps/web/test/view-registration.test.js` — a static view that misses a
@@ -20,9 +20,9 @@ There are two kinds of view. Pick first, then follow that path.
 
 ## Rule zero: import the kernel, do not reimplement it
 
-The AIM-1089 kernel owns the primitives every view needs. **Never** copy a
+The kernel owns the primitives every view needs. **Never** copy a
 local `api`, `esc`, or `fmtTs` into a new view — the copies are what diverged
-in the first place (AIM-523/533/1089), and CI guards fail the build:
+in the first place, and CI guards fail the build:
 
 - `lib/api.js` — the only fetch boundary: `api()`, `apiJson()`, `apiText()`,
   `isUnauthorized()`, `redirectToLogin()`. 204 → `null`; non-2xx → `Error`
@@ -32,14 +32,14 @@ in the first place (AIM-523/533/1089), and CI guards fail the build:
   re-export of all of `lib/format.js` (`fmtTs`, `fmtInt`, `fmtTok`, …).
   Guard: `no module under public/ defines a local esc` in
   `apps/web/test/dom.test.js`; timestamp drift guard in
-  `apps/web/test/smoke.test.js` (AIM-533).
+  `apps/web/test/smoke.test.js`.
 - `lib/components.js` — `table()`, `card()`, `emptyState()`, `skeletonCards()`.
   Loading/empty/error states come from here, not hand-rolled markup.
 - `lib/entity-detail.js` — `entityDetailShell()` / `entityDetailError()` /
   `hideEntityDetail()`: the one skeleton for `#/view/<entity>` drill-down
   panels (guard/hide, back-linked heading, cards strip, failure state). A new
   drill-down consumes it; the per-view part is only the cards list and the
-  `body` markup after them (AIM-1131).
+  `body` markup after them.
 - `lib/severity.js` — severity/criticality badges and pills. One scale
   everywhere; a critical looks identical on every view.
 - `lib/charts.js` / `lib/chart-series.js` — Chart.js integration. Read the
@@ -47,13 +47,13 @@ in the first place (AIM-523/533/1089), and CI guards fail the build:
 - `lib/runtime.js` — shared router-owned `state`, `hashFor()`, error surfaces.
   Re-exports `api`/`apiJson`, so `from '../lib/runtime.js'` is also a kernel
   import for view modules.
-- `lib/form.js` — the mutation-UI primitives (AIM-1113): `requireCapability()`
+- `lib/form.js` — the mutation-UI primitives: `requireCapability()`
   for the module bootstrap gate, `withBusy()` for submit busy state, and
   `showFieldError()` / `clearFieldError()` for inline validation errors.
   Guard: `no-local-form-gate` in `apps/web/test/form.test.js`.
 
 Design the **empty, loading, partial, and failure states first** — a blank
-security dashboard is an incident (AIM-475/476). Every new view ships with a
+security dashboard is an incident. Every new view ships with a
 DOM test covering: mounts, renders with data, renders empty, renders on API
 error.
 
@@ -79,7 +79,7 @@ Touch points, in order (example name: `widgets`):
    - Independent panels load independently (see `views/teams.js`): one failed
      aggregate must not blank the whole view.
    - Exception — the streaming pattern: a static tab whose rendering is owned
-     by a top-level module (AIM-144 Activity: `activity.js` watches the section
+     by a top-level module (Activity: `activity.js` watches the section
      and owns the trail) registers a deliberate no-op shim
      (`views/activity.js`) so `refresh()` has a loader. Don't add a second one
      without the same justification; a no-op loader is a silent blank view
@@ -111,7 +111,7 @@ Touch points, in order (example name: `widgets`):
      ```
      **Never** put the HTML `hidden` attribute on the section. The view
      switcher toggles `.active`; a static `hidden` is never cleared and the
-     view renders blank (AIM-475 — this exact bug shipped once on Audit).
+     view renders blank (— this exact bug shipped once on Audit).
    - Give the view's dynamic containers stable ids (`widgets-table`, …) —
      smoke tests assert them.
 
@@ -149,7 +149,7 @@ Touch points, in order (example name: `widgets`):
 6. **Kernel imports** — same rule zero (`./lib/…` paths at top level). Pure
    logic worth testing goes in `lib/widgets.js`; the module file stays thin
    (the `dashboards.js` + `lib/dashboards.js` split is the pattern).
-7. **Mutation UIs use the form primitives (AIM-1113)** — if the module writes
+7. **Mutation UIs use the form primitives** — if the module writes
    (POST/PUT/PATCH/DELETE), run every submit through `withBusy(control, task,
    { reenable })` so a double-click cannot fire a second write:
    `reenable: 'error'` (default) when success re-renders and destroys the
@@ -157,20 +157,20 @@ Touch points, in order (example name: `widgets`):
    bars), `'connected'` when success may re-render the row away but a
    validation blocker leaves it in place. Show validation failures with
    `showFieldError(errEl, message, field)` — it sets the `role="alert"`
-   message *and* moves focus to the offending field (AIM-515); clear with
+   message *and* moves focus to the offending field; clear with
    `clearFieldError(...)` before re-validating. `findings.js` (triage, bulk
    bar, saved views) and `rules.js` (threshold editor, alert destinations)
    are the reference consumers.
 8. **Smoke test** — assert the script tag, the `registerModuleView('widgets'`
    call, and the `requireCapability('yourCap'` gate in `smoke.test.js` (see
-   the AIM-708 dashboards block for the shape).
+   the dashboards block for the shape).
 
 ## When a module outgrows one file: the sibling split
 
-Proven five times now — `views/security.js` → `views/security/*` (AIM-1135),
-`findings.js` → `findings/*` (AIM-1140), `mcp.js` → `mcp/*` (AIM-1157),
-`activity.js` → `activity/*` (AIM-1163), and `compliance.js` → `compliance/*`
-(AIM-1172). When a module view crosses ~800 LOC:
+Proven five times now — `views/security.js` → `views/security/*`,
+`findings.js` → `findings/*`, `mcp.js` → `mcp/*`,
+`activity.js` → `activity/*`, and `compliance.js` → `compliance/*`
+. When a module view crosses ~800 LOC:
 
 1. Keep the top-level file (`findings.js`) as the **thin orchestrator** —
    capability gate, tab/section injection, fetches, and panel wiring only.

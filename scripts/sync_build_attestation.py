@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync the shared build-attestation loader into each collector (AIM-646).
+"""Sync the shared build-attestation loader into each collector.
 
 Canonical source: ``collectors/build-identity/build_attestation.py``
 

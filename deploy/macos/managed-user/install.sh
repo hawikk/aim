@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# AI Monitoring — per-user macOS managed installer (AIM-1170).
+# AI Monitoring — per-user macOS managed installer.
 #
 # Least privilege: LaunchAgent only. Refuses root (same policy as `aim join`).
 # This is the artifact Jamf / Intune would call as the logged-in user.
-# Live MDM fleet rollout remains AIM-28. The AIM-743 root LaunchDaemon
+# Live MDM fleet rollout remains. The root LaunchDaemon
 # package is deploy/macos/install.sh + deploy/macos/jamf/.
 #
 #   AIM_INGEST_URL=https://ingest.corp.example \

@@ -1,4 +1,4 @@
-"""OAuth grant sources: where IdP grant inventory comes from (AIM-504 Track 2).
+"""OAuth grant sources: where IdP grant inventory comes from (Track 2).
 
 Preferred build path — read-only grant inventory from corporate IdP:
 

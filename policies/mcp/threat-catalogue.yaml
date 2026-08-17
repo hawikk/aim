@@ -1,4 +1,4 @@
-# MCP threat catalogue (AIM-627 / AIM-668) — continuous-update source of truth.
+# MCP threat catalogue — continuous-update source of truth.
 # Versioned, PR-reviewed. Security owns additions; engineering owns wiring
 # to detectors/rails. Metadata-only posture: catalogue entries describe
 # threat classes and server/tool *names*, not payloads from customer envs.
@@ -18,10 +18,10 @@ version: 1
 last_reviewed: "2026-08-01"
 owners:
   security: Security on-call
-  engineering: Founding Engineer (platform)
+  engineering: engineering (platform)
 update_cadence: monthly_or_cve_driven
 
-# Continuous-update → allowlist recommendations (AIM-668).
+# Continuous-update → allowlist recommendations.
 # Policy *suggestions* derived from threat classes below. Names are metadata
 # identifiers only (no package URLs, no secrets, no customer inventory dumps).
 allowlist_recommendations:
@@ -97,9 +97,9 @@ allowlist_recommendations:
     - substring: "exec_command"
       reason: "Generic remote command execution tools"
 
-  # Pilot seed candidates Security may promote after inventory bake (AIM-568).
+  # Pilot seed candidates Security may promote after inventory bake.
   # These are the *only* first-party ids currently safe to grow from; still
-  # require Security sign-off before enforce flip (AIM-564).
+  # require Security sign-off before enforce flip.
   pilot_seed_servers:
     - ide
     - claude_ai_Gmail
@@ -117,7 +117,6 @@ threats:
       including unknown/null server ids.
     detector_or_rail: unapproved-mcp-server
     residual_gap: null
-    references: ["AIM-86", "AIM-441", "AIM-547"]
     allowlist_map: never_approve_servers + deny_unlisted mode
 
   - id: mcp-unapproved-tool
@@ -130,7 +129,6 @@ threats:
     residual_gap: >
       Endpoint tool-level enforce ships observe-first; flip after Security
       populates approved_mcp_tools and completes a bake.
-    references: ["AIM-627"]
     allowlist_map: never_approve_tool_substrings + approved_mcp_tools matrix
 
   - id: mcp-configured-intent
@@ -140,7 +138,6 @@ threats:
       Config inventory shows intent-to-use before any live call.
     detector_or_rail: unapproved-mcp-server-configured
     residual_gap: null
-    references: ["AIM-97"]
     allowlist_map: never_approve_servers / substrings vs inventory
 
   - id: mcp-credential-tool-name
@@ -150,7 +147,6 @@ threats:
       tool_name matches credential/vault/token substrings without needing args.
     detector_or_rail: credential-shaped-tool-call
     residual_gap: null
-    references: ["AIM-441"]
     allowlist_map: never_approve_tool_substrings (credential/vault/token/password)
 
   - id: mcp-supply-chain-server
@@ -163,8 +159,7 @@ threats:
     detector_or_rail: unapproved-mcp-server
     residual_gap: >
       No SBOM/signature verification of MCP server packages at install time.
-      Gateway path (AIM-112) could add network-level mediation later.
-    references: ["AIM-627", "AIM-112"]
+      Gateway path could add network-level mediation later.
     allowlist_map: never_approve_server_substrings (typosquat, free-mcp, …)
 
   - id: mcp-confused-deputy
@@ -177,7 +172,6 @@ threats:
     residual_gap: >
       Chain fields optional until collectors emit call_id/parent_call_id;
       no cross-session policy inheritance model yet.
-    references: ["AIM-627", "AIM-799"]
     allowlist_map: same server/tool allowlist applied on child session events
 
   - id: mcp-exfil-via-tool
@@ -188,9 +182,8 @@ threats:
       Content of args/results is not observed (privacy design).
     detector_or_rail: network-tool-restricted-repo / shell-tool-restricted-repo (partial)
     residual_gap: >
-      True content DLP requires gateway (AIM-100/112) under legal gates;
+      True content DLP requires gateway under legal gates;
       metadata rails cover restricted-repo + action_class only.
-    references: ["AIM-100", "AIM-112", "AIM-15"]
     allowlist_map: never_approve_servers (pastebin-mcp, anonymous-proxy-mcp) + tool substrings
 
   - id: mcp-prompt-injection-tool-output
@@ -203,7 +196,6 @@ threats:
     residual_gap: >
       No tool-result injection detector (would require content on the wire
       or endpoint-local only with no export — future endpoint-local work).
-    references: ["AIM-96", "AIM-627"]
     allowlist_map: minimize approved surface; prefer first-party pilot seeds only
 
   - id: mcp-destructive-scm-tool
@@ -216,7 +208,6 @@ threats:
     residual_gap: >
       Requires approved_mcp_tools population for each approved SCM server
       before enforce can deny by tool name.
-    references: ["AIM-668", "AIM-627"]
     allowlist_map: never_approve_tool_substrings (delete_repo, force_push)
 
   - id: mcp-unscoped-exec
@@ -229,5 +220,4 @@ threats:
     residual_gap: >
       shell-tool-restricted-repo only applies in restricted-repo context;
       global deny depends on keep raw_shell / exec_command off allowlists.
-    references: ["AIM-668", "AIM-535"]
     allowlist_map: never_approve_servers (mcp-shell, open-shell-mcp) + tool substrings

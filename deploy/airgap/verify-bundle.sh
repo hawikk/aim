@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify an AIM air-gap tarball signature offline (AIM-747).
+# Verify an AIM air-gap tarball signature offline.
 #
 # Usage:
 #   AIM_AIRGAP_PUBKEY=/path/to/pub.pem \

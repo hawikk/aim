@@ -12,7 +12,7 @@ export function query(text, params) {
 /**
  * Run `fn` on a single pooled client inside BEGIN…COMMIT.
  * On any throw: ROLLBACK, then rethrow. Guarantees the status update and
- * transition insert for findings triage share one connection (AIM-432 F1).
+ * transition insert for findings triage share one connection (F1).
  *
  * @template T
  * @param {(client: { query: typeof pool.query }) => Promise<T>} fn

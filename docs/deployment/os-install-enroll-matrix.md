@@ -1,6 +1,6 @@
-# OS install / enroll continuous matrix (AIM-763)
+# OS install / enroll continuous matrix
 
-**Parent:** AIM-641 · **Issue:** AIM-763
+**Status:** shipped
 **Owner:** `founding-engineer` · **Page on failure:** `True`
 
 Living contract: `docs/deployment/os-install-enroll-matrix.yaml`.
@@ -13,7 +13,7 @@ Dimension 18 (fit to locked constraints) requires Windows + WSL + Linux
 endpoint install/enroll paths to stay real, not doc-only. This matrix is
 the continuous CI/ops proof: structural contracts, dry-run install for
 Linux/WSL, and Intune packaging contract for Windows. Failures page the
-owner via sticky issue `[AIM-763] OS install/enroll matrix FAILED`.
+owner via sticky issue `OS install/enroll matrix FAILED`.
 
 ## Cells
 
@@ -45,4 +45,4 @@ python3 scripts/check_os_install_enroll_matrix.py --self-test
 python3 scripts/check_os_install_enroll_matrix.py --render  # refresh this doc
 ```
 
-_Last rendered report: ok=True at 2026-08-17T10:43:29Z_
+_Last rendered report: ok=True at 2026-08-17T12:17:32Z_

@@ -1,18 +1,17 @@
-# App-LLM provider / model catalogue (AIM-576 + AIM-738)
+# App-LLM provider / model catalogue
 
-**Date:** 2026-08-01 · **Author:** Founding Engineer · **Status:** shipped (catalogue v5)
-**Issues:** AIM-576 · AIM-738 · **Parent epic:** AIM-637
+**Date:** 2026-08-01 · **Status:** shipped (catalogue v5)
 
 ## Ownership (clear)
 
 | Surface | Path | Owner | Change path |
 |---|---|---|---|
-| **Domain catalogue (SoT)** | `collectors/proxy/endpoints.json` | **Engineering** (structure, domains, categories); **Security/CEO** (sanctioned flags, policy promotion) | PR; CI validates JSON + provider-api mirrors |
+| **Domain catalogue (SoT)** | `collectors/proxy/endpoints.json` | **Engineering** (structure, domains, categories); **Security** (sanctioned flags, policy promotion) | PR; CI validates JSON + provider-api mirrors |
 | **App-LLM provider set (mirror)** | `apps/api/src/routes/dashboard.js` → `PROVIDER_API_PROVIDERS` | Engineering | Must match `category: provider-api` providers; CI fails on drift |
 | **New-source default providers (mirror)** | `services/guardrail/src/guardrail/new_sources.py` → `DEFAULT_PROVIDERS` | Engineering | Same membership as SoT; override via `APP_LLM_NEW_SOURCE_PROVIDERS` |
 | **Model price catalogue (SoT for cost)** | `apps/api/src/pricing.js` → `PRICE_PER_MTOK` (+ personal-mode `collectors/claude-code/.../store.py`) | Engineering | PR; `pricing.test.js` fails when JS/Python tables diverge |
-| **Runtime drift alerts** | `services/guardrail/src/guardrail/catalogue_drift.py` | Engineering (mechanism); Security triages Low alerts | Wired into evaluate-db after AIM-575 new-sources |
-| **Policy content** | `policies/guardrail/v1/core.yaml` approved_providers / approved_models | **Security/CEO** | Policy PR; not auto-expanded by catalogue ops |
+| **Runtime drift alerts** | `services/guardrail/src/guardrail/catalogue_drift.py` | Engineering (mechanism); Security triages Low alerts | Wired into evaluate-db new-sources |
+| **Policy content** | `policies/guardrail/v1/core.yaml` approved_providers / approved_models | **Security** | Policy PR; not auto-expanded by catalogue ops |
 
 **Rule:** never edit only a mirror. Change `endpoints.json` first (or `pricing.js` for models), update mirrors, run:
 
@@ -25,13 +24,12 @@ python3 scripts/check_provider_catalogue_drift.py --check
 App-LLM metering only surfaces proxy events whose `provider` is in the
 `provider-api` set. Competitive analysis called out first-party apps calling
 Bedrock / Vertex as invisible, and hard-coded dashboard sets **drifted** from
-`endpoints.json` (xAI already `provider-api` but missing from the view under
-AIM-576).
+`endpoints.json` (xAI already `provider-api` but missing from the view).
 
-AIM-738 closes the residual:
+closes the residual:
 
 1. **Completeness** — expand provider-api with Moonshot/Kimi, Together, Fireworks;
-   repair AIM-595 merge corruption that left `endpoints.json` invalid JSON on main.
+   repair merge corruption that left `endpoints.json` invalid JSON on main.
 2. **Drift alerts** — CI mirror guard + runtime Low findings when a *new*
    uncatalogued provider string or unpriced model first appears.
 3. **Ownership** — this document is the single ownership map.
@@ -50,11 +48,11 @@ AIM-738 closes the residual:
 | `groq` | `groq-api` | `api.groq.com` only | bare `groq.com` marketing excluded |
 | `xai` | `xai-api` | `api.x.ai`, `api.xai.com` | |
 | `openrouter` | `openrouter-gateway` | `openrouter.ai` | |
-| `moonshot` | `kimi-moonshot` | Moonshot / Kimi API hosts | **AIM-738 completeness** |
-| `together` | `together-ai` | Together inference API | **AIM-738 completeness** |
-| `fireworks` | `fireworks-ai` | Fireworks inference API | **AIM-738 completeness** |
+| `moonshot` | `kimi-moonshot` | Moonshot / Kimi API hosts | **Completeness** |
+| `together` | `together-ai` | Together inference API | **Completeness** |
+| `fireworks` | `fireworks-ai` | Fireworks inference API | **Completeness** |
 
-Dashboard + guardrail mirrors: **13** providers (was 10 after AIM-576; was 3 at phase-1).
+Dashboard + guardrail mirrors: **13** providers (was 10; was 3 at phase-1).
 
 ### Deliberately not provider-api
 
@@ -71,7 +69,7 @@ After each guardrail evaluate-db pass:
 
 | Rule id | Finding type | Severity | When |
 |---|---|---|---|
-| `app-llm-new-source` | `app_llm_new_source` | Medium | First-ever `(host_ref, known provider-api)` — AIM-575 |
+| `app-llm-new-source` | `app_llm_new_source` | Medium | First-ever `(host_ref, known provider-api)` — |
 | `app-llm-new-provider` | `app_llm_new_provider` | Low | First-ever **provider** string not in any endpoints.json rule |
 | `app-llm-new-model` | `app_llm_new_model` | Low | First-ever **model** id not matching `PRICE_PER_MTOK` keys |
 
@@ -81,9 +79,9 @@ Env:
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `APP_LLM_NEW_SOURCE_LOOKBACK_HOURS` | 48 | AIM-575 window |
+| `APP_LLM_NEW_SOURCE_LOOKBACK_HOURS` | 48 window |
 | `APP_LLM_NEW_SOURCE_PROVIDERS` | (DEFAULT_PROVIDERS) | Override known provider-api set for new-sources |
-| `APP_LLM_CATALOGUE_DRIFT_LOOKBACK_HOURS` | same as new-source | AIM-738 window |
+| `APP_LLM_CATALOGUE_DRIFT_LOOKBACK_HOURS` | same as new-source window |
 
 Edge-trigger: `UNIQUE (rule_id, event_id)` on the first event — re-runs never re-page.
 
@@ -103,14 +101,14 @@ Edge-trigger: `UNIQUE (rule_id, event_id)` on the first event — re-runs never 
 
 ## CI
 
-- `scripts/check_provider_catalogue_drift.py --check` — static checks job (AIM-738)
+- `scripts/check_provider_catalogue_drift.py --check` — static checks job
 - `scripts/check_provider_catalogue_drift.py --self-test` — proves the guard fires
 - Proxy unit tests load `endpoints.json` (invalid JSON fails the suite)
-- `apps/api/test/pricing.test.js` — JS/Python price-table parity (AIM-84)
+- `apps/api/test/pricing.test.js` — JS/Python price-table parity
 
 ## Residual gaps
 
 - Regional Vertex / Bedrock hosts beyond the listed set → PR on observation.
 - HuggingFace Inference-only promotion if dogfood shows first-party volume.
 - Populating `subnets.json` remains a network-team prerequisite for reducing
-  `traffic_class=unknown` (AIM-103); catalogue alone cannot reclass without CIDRs.
+  `traffic_class=unknown`; catalogue alone cannot reclass without CIDRs.

@@ -21,15 +21,15 @@ On-disk layout per session agent:
         ``context.append_loop_event``, ...) carry full prompt/response
         text. They are parsed only far enough to skip them — with one
         exception: ``context.append_loop_event`` records nesting a
-        ``tool.call`` event are counted by tool NAME only (AIM-97,
-        mirroring the Claude Code collector's AIM-86). ``args``,
+        ``tool.call`` event are counted by tool NAME only (
+        mirroring the Claude Code collector's). ``args``,
         ``description``, ``display`` and every ``tool.result`` payload are
         never read.
 
 Content policy: message content never leaves the endpoint. ``turn.prompt``
 text is scanned locally by the endpoint matchers (same ruleset as the other
 collectors) and then discarded; only detector names go on the event via
-``match_flags`` (AIM-88). All other content-bearing records are never read
+``match_flags``. All other content-bearing records are never read
 beyond their ``type`` field.
 
 Emission unit: one event per ``usage.record`` (≈ one per completed LLM API
@@ -38,7 +38,7 @@ model/provider/turnStep. Incremental: the checkpoint stores a byte offset
 per wire file, so each scan emits only newly appended records. Tool calls
 are aggregated per wire file keyed by (tool_name, mcp_server) and
 delta-emitted as one ``event_type="tool_use"`` event per scan when new
-calls appear — independently of usage records (AIM-97).
+calls appear — independently of usage records.
 
 Unsettled requests / quota-ended turns: a turn can end without its last
 ``llm.request`` ever producing a ``usage.record`` — e.g. Kimi's turn ends
@@ -74,7 +74,7 @@ _ACTION_CLASS = {
     "WebSearch": "network", "FetchURL": "network",
 }
 
-# Built-in tools that spawn sub-agents / Task loops (AIM-627 A2A handoffs).
+# Built-in tools that spawn sub-agents / Task loops (A2A handoffs).
 _HANDOFF_TOOL_KIND = {
     "Agent": "subagent",
     "AgentSwarm": "subagent",
@@ -153,7 +153,7 @@ def collect_wire(
     llm.request, ``turn_flags`` is the current turn's matcher flag entries
     (detector metadata + redacted fingerprints, never content), and ``tool_calls`` /
     ``emitted_tool_calls`` are the per-(tool, MCP server) aggregate and its
-    emitted watermark (counts only; AIM-97). Returns (events,
+    emitted watermark (counts only). Returns (events,
     new_file_state). Never raises.
     """
     state_out = dict(file_state or {})
@@ -161,12 +161,12 @@ def collect_wire(
     pending = state_out.get("pending") if isinstance(state_out.get("pending"), dict) else None
     tf = state_out.get("turn_flags")
     # Legacy checkpoints hold bare detector-name strings; current ones hold
-    # match_flags entry dicts (names + redacted fingerprints, AIM-225).
+    # match_flags entry dicts (names + redacted fingerprints).
     turn_flags = [f for f in tf if isinstance(f, (str, dict))] if isinstance(tf, list) else []
-    # checkpoints written before AIM-97 lack the tool-call keys
+    # checkpoints written lack the tool-call keys
     tool_calls = state_out.setdefault("tool_calls", {})
     emitted_calls = state_out.setdefault("emitted_tool_calls", {})
-    # AIM-799 chain state: discrete invocations keyed by framework toolCallId
+    # chain state: discrete invocations keyed by framework toolCallId
     inv = state_out.setdefault("invocations", [])
     seen_ids = state_out.setdefault("seen_tool_call_ids", [])
     if isinstance(seen_ids, list):
@@ -233,7 +233,7 @@ def collect_wire(
             pending = None
             # Scan this turn's prompt text locally; the text is fingerprinted
             # and discarded here and never leaves the endpoint — only detector
-            # metadata (names + redacted fingerprints, AIM-225) is attached to
+            # metadata (names + redacted fingerprints) is attached to
             # the turn's usage.record events.
             turn_flags = matchers.scan_text_matches(_prompt_text(rec))
         elif rtype == "llm.request":
@@ -248,7 +248,7 @@ def collect_wire(
             if isinstance(m, str) and m:
                 last_model = m
         elif rtype == "context.append_loop_event":
-            # Tool-call counting (AIM-97) + chain fields (AIM-799):
+            # Tool-call counting + chain fields:
             # read ONLY nested event name + toolCallId + tool.result isError.
             # ``args``/``description``/``display``/result bodies never touched.
             ev_rec = rec.get("event")
@@ -361,7 +361,7 @@ def collect_wire(
             out.append(ev)
             pending = None
 
-    # Tool-call deltas (AIM-97 / AIM-799), emitted independently of usage
+    # Tool-call deltas, emitted independently of usage
     # records: a tool_use event goes out even when no usage.record settled
     # this pass. Prefer discrete chain rows when toolCallId was present.
     delta_calls = []

@@ -1,4 +1,4 @@
-// Compliance framework map reader (AIM-87).
+// Compliance framework map reader.
 //
 // Loads policies/compliance/framework-map.yaml straight from disk on every
 // request (same no-drift principle as guardrail-policy.js) and validates
@@ -73,7 +73,7 @@ export function loadComplianceMap(path = complianceMapPath()) {
     auditEvents[action] = entry;
   }
 
-  // Evidence retention policy per report type (AIM-99). Day counts are
+  // Evidence retention policy per report type. Day counts are
   // enforced by the snapshot store; the note is surfaced verbatim so the
   // policy statement travels with the report.
   const retention = {

@@ -18,7 +18,7 @@ from .conditions import ATTR_OPS, KNOWN_ATTRS, KNOWN_OPS
 RULE_TYPES = ("match", "threshold")
 SEVERITIES = ("low", "medium", "high", "critical")
 THRESHOLD_METRICS = ("count", "sum_tokens", "sum_cost_usd")  # plus "sum:<field>"
-# Top-level `rule_overrides` (AIM-94, UI-tuned thresholds) may touch only these.
+# Top-level `rule_overrides` (UI-tuned thresholds) may touch only these.
 OVERRIDE_KEYS = ("gt", "gte", "window_seconds", "severity")
 
 
@@ -31,7 +31,7 @@ def _validate_condition_tree(tree, where: str) -> None:
 
     An unknown op or malformed leaf would otherwise only surface at runtime as
     a per-event audit 'error' — the rule silently dead while everything looks
-    deployed (AIM-102 adversarial finding: policy laundering via a typo'd
+    deployed (adversarial finding: policy laundering via a typo'd
     policy file).
     """
     if not isinstance(tree, dict):
@@ -44,7 +44,7 @@ def _validate_condition_tree(tree, where: str) -> None:
         for sub in subs:
             _validate_condition_tree(sub, where)
         return
-    # AIM-690: ABAC attribute leaves (attr: user|group|repo_class|tool).
+    # ABAC attribute leaves (attr: user|group|repo_class|tool).
     if "attr" in tree:
         if "field" in tree:
             raise RulesetError(f"{where}: leaf cannot set both 'field' and 'attr'")

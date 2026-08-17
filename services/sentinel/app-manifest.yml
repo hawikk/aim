@@ -1,4 +1,4 @@
-# GitHub App manifest for sentinel's draft-PR remediation (AIM-185).
+# GitHub App manifest for sentinel's draft-PR remediation.
 #
 # THIS IS A SECOND APP. It is not gatehouse's, and gatehouse's must not be
 # widened to do this job. Create it from this file (Settings -> Developer

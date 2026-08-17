@@ -1,4 +1,4 @@
-// First-party vendor admin feed status (AIM-1168).
+// First-party vendor admin feed status.
 // Read-only aggregates for Overview / Tools / Apps empty-state copy.
 // Fail-open: a missing table (pre-migration) returns dark feeds, never 500.
 

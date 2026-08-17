@@ -1,4 +1,4 @@
--- 037_shadow_ai_coding_discoveries.sql — AIM-644: unknown_ai_coding_tool findings.
+-- 037_shadow_ai_coding_discoveries.sql — unknown_ai_coding_tool findings.
 --
 -- Materialized discovery rows for uncatalogued AI coding tools (binary/domain/
 -- process heuristics). Analyst disposition is on the platform findings table;

@@ -1,4 +1,4 @@
-// Destination health / failed delivery SLO (AIM-704).
+// Destination health / failed delivery SLO.
 //
 // Ops answer: "are webhook / email / Slack (and other) alert destinations
 // actually receiving findings — and is our success rate inside the SLO?"
@@ -28,7 +28,7 @@ export const DEFAULT_SUCCESS_PCT = 99;
 export const DEFAULT_MIN_SAMPLES = 5;
 export const DEFAULT_FAIL_HARD = 3;
 
-/** Primary SOC destinations called out by AIM-704 acceptance. */
+/** Primary SOC destinations called out acceptance. */
 export const PRIMARY_DESTINATIONS = Object.freeze(['webhook', 'email', 'slack']);
 
 /**

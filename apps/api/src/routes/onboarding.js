@@ -1,4 +1,4 @@
-// Server first-run onboarding + enrollment-token minting (AIM-131).
+// Server first-run onboarding + enrollment-token minting.
 //
 // Replaces hand-edited ENROLL_TOKENS env surgery with an admin flow: a
 // admin mints named, scoped (expiry / max enrollments), revocable
@@ -13,7 +13,7 @@
 //     never exposes token_hash — only a short non-secret prefix.
 //   * Minting and revocation are admin only (fail-closed; viewer /
 //     auditor / analyst get 403) and are recorded in the immutable audit trail
-//     (AIM-27) with actor identity.
+// with actor identity.
 //   * Revoking blocks new enrollments immediately; already-issued per-device
 //     tokens are untouched (device blast radius unchanged).
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
@@ -25,7 +25,7 @@ import { audit } from '../audit.js';
 // copy-paste join command; defaults to the local pilot ingest port.
 const INGEST_PUBLIC_URL = (process.env.AIM_INGEST_PUBLIC_URL ?? 'http://localhost:8080').replace(/\/+$/, '');
 
-// Dashboard base URL that serves the public enroll.sh one-shot (AIM-1124).
+// Dashboard base URL that serves the public enroll.sh one-shot.
 // Prefer AIM_BASE_URL (compose default http://localhost:8081 for the API
 // container's public face); fall back to the local pilot dashboard port.
 const DASHBOARD_PUBLIC_URL = (
@@ -65,15 +65,15 @@ function newToken() {
 
 // Heartbeat cadence the fleet client posts on (enroll-client DEFAULT_INTERVAL).
 // Surfaces in the mint response so the UI can state a real time-to-first-
-// evidence bound rather than inventing one client-side (AIM-744).
+// evidence bound rather than inventing one client-side.
 const HEARTBEAT_INTERVAL_SEC = 300;
 const FIRST_EVIDENCE_MAX_MINUTES = Math.ceil(HEARTBEAT_INTERVAL_SEC / 60);
 
 // The exact commands an engineer (or fleet package) runs. Linux and Windows
-// are first-class and equally specific (AIM-744) — the dashboard used to only
+// are first-class and equally specific — the dashboard used to only
 // show the python one-liner, which made Windows fleet install look unsupported.
 //
-// AIM-1124: Linux/macOS primary path is the dashboard-hosted enroll.sh
+// Linux/macOS primary path is the dashboard-hosted enroll.sh
 // one-shot (install aimonitoring-security → aim join → doctor --fix →
 // token_file verify). Legacy `python -m aim_collector install` remains as
 // `command` for older clients; `futureCommand` stays the bare `aim join`
@@ -100,7 +100,7 @@ function joinCommands(token) {
     command: `python -m aim_collector install --ingest-url ${url} --enroll-token ${token}`,
     // Bare join once aimonitoring-security is already on PATH:
     futureCommand: `aim join ${url} --token ${token}`,
-    // AIM-1124 primary engineer path (also printed by install-pilot):
+    // primary engineer path (also printed by install-pilot):
     enrollCommand: linux,
     platforms: [
       {
@@ -155,7 +155,7 @@ function tokenView(row, now) {
     expiresAt: toIso(row.expires_at),
     maxEnrollments: row.max_enrollments === null ? null : Number(row.max_enrollments),
     enrollmentCount: Number(row.enrollment_count),
-    // AIM-455: directory human this token attributes enrolled devices to.
+    // directory human this token attributes enrolled devices to.
     // Never a secret, but it is personal data — only on the admin surface.
     boundEmail: row.bound_email ?? null,
     createdBy: row.created_by,
@@ -174,7 +174,7 @@ export async function onboardingRoutes(fastify, opts) {
   const db = opts?.db ?? { query };
   const adminOnly = requireRoles('admin');
 
-  // ---- Install state: what "nothing on screen" actually means (AIM-215) ----
+  // ---- Install state: what "nothing on screen" actually means ----
   //
   // Available to any authenticated role so the SPA can land the right user on
   // the onboarding view AND so every event-dependent empty state can say the
@@ -228,7 +228,7 @@ export async function onboardingRoutes(fastify, opts) {
       deviceCount,
       canMint,
       ingestUrl: INGEST_PUBLIC_URL,
-      // Legacy ENROLL_TOKENS posture (AIM-131). Booleans only — never the
+      // Legacy ENROLL_TOKENS posture. Booleans only — never the
       // token values. insecureDefaultToken drives a loud dashboard warning.
       legacyTokensPresent: legacy.length > 0,
       insecureDefaultToken: legacy.includes(INSECURE_DEFAULT_ENROLL_TOKEN),
@@ -281,7 +281,7 @@ export async function onboardingRoutes(fastify, opts) {
       maxEnrollments = n;
     }
 
-    // AIM-455: optional directory email this token attributes devices to.
+    // optional directory email this token attributes devices to.
     // Validation is syntactic only — identity-sync refuses emails not in
     // dir_users at enroll time (fail-open: enroll still succeeds).
     let boundEmail = null;
@@ -304,7 +304,7 @@ export async function onboardingRoutes(fastify, opts) {
       [id, name, hashToken(token), token.slice(0, 8), expiresAt, maxEnrollments, boundEmail, actor]
     );
 
-    // Audit the mint — actor + scope, never the token or its hash (AIM-27).
+    // Audit the mint — actor + scope, never the token or its hash.
     audit(actor, 'enroll_token.mint', `onboarding/tokens/${id}`, {
       name,
       expiresAt,

@@ -2,11 +2,11 @@
 
 Audience: Security, Legal, works council, engineers building on the schema.
 This document is the privacy rationale for `packages/schema/ai-usage-event.v1.schema.json`
-and feeds the DPIA / works-council pack (AIM-29).
+and feeds the DPIA / works-council pack.
 
 ## Policy basis
 
-CEO decision (AIM-15, 2026-07-21), locked in AIM-16: **metadata-only
+policy decision (2026-07-21), locked: **metadata-only
 collection**. EU / works-council scope is confirmed, so data minimization is
 a launch blocker, not a nice-to-have. This schema is the technical
 enforcement of that decision.
@@ -23,7 +23,7 @@ enforcement of that decision.
 | `session_id` | Group events into sessions for usage analytics; opaque, not content-derived |
 | `tokens_in`, `tokens_out`, `cost_estimate_usd`, `duration_ms` | Volume and cost analytics; anomaly detection signals (counts, not content) |
 | `repo_ref` | Detect AI usage against restricted repositories. Pseudonymized hash |
-| `match_flags.*` | The ONLY persisted output of content inspection — see below. v1.8 (AIM-225) adds a redacted `fingerprint` + match-location metadata to secret/pii flags so findings can be proven and deduped per secret instance |
+| `match_flags.*` | The ONLY persisted output of content inspection — see below. v1.8 adds a redacted `fingerprint` + match-location metadata to secret/pii flags so findings can be proven and deduped per secret instance |
 
 ## What we explicitly do NOT collect
 
@@ -48,11 +48,11 @@ boolean flag (`secret_pattern_match`, `pii_match`). An alert therefore says
 at time T" — not what the secret was. Remediation happens out-of-band with
 the engineer.
 
-### Redacted fingerprints (schema v1.8, AIM-225)
+### Redacted fingerprints (schema v1.8)
 
 Since v1.8, a secret/pii flag also carries a **redacted per-occurrence
 fingerprint** so a finding can be *proven* and *deduped* without storing the
-secret — adopted from Costa.app's secrets-detection posture (AIM-221, item
+secret — adopted from Costa.app's secrets-detection posture (item
 3): detect-and-prove, never detect-and-store.
 
 - **Construction:** `HMAC-SHA256(key = company salt, "fp1" | detector |
@@ -80,7 +80,7 @@ secret — adopted from Costa.app's secrets-detection posture (AIM-221, item
   you; there is deliberately no "reveal secret" code path.
 - **Retention:** fingerprints introduce no new data class. They live inside
   `events.match_flags` (90-day events window) and `findings.evidence`
-  (365-day findings window) and are purged by the same AIM-143 machinery,
+  (365-day findings window) and are purged by the same machinery,
   under the same `audit ≥ findings ≥ events` invariant. Endpoint checkpoints
   (personal mode, wire-state) store only the fingerprinted form — never the
   match — and age out with their stores.
@@ -90,7 +90,7 @@ secret — adopted from Costa.app's secrets-detection posture (AIM-221, item
   manager, security-role IAM only; a fingerprint without the salt is
   inert. The per-install fallback salt (unmanaged pilot devices) scopes
   dedupe to that device, which fails safe, not silent.
-- **Fixture allowlist (AIM-541):** operators may keep an offline registry of
+- **Fixture allowlist:** operators may keep an offline registry of
   fingerprints for **known cryptographically-dead** fixture secrets (secret
   corpus, dogfood dead keys). Entries are `detector + fingerprint + label +
   source` only — never raw secrets. Membership suggests incident cluster A
@@ -138,7 +138,7 @@ the security role, only for incident response, and is audited.
 - [x] New fields require a privacy justification in the schema PR (see
   `packages/schema/README.md` change process).
 
-## Retention — enforced defaults (AIM-143)
+## Retention — enforced defaults
 
 Retention is **enforced by default**, not opt-in. Every event past its
 justified window is liability, not asset, so the stores age themselves out on
@@ -180,7 +180,7 @@ be deleted without deleting anything.
 **Legal hold / litigation freeze does not exist yet.** There is currently no
 mechanism to exempt specific records from retention for a legal hold; when a
 hold is needed it must be handled operationally (out-of-band export) until the
-machinery is built. Explicitly out of scope for AIM-143; tracked as a
+machinery is built. Explicitly out of scope; tracked as a
 follow-up.
 
 Retention knobs (`RETENTION_EVENTS_DAYS`, `RETENTION_FINDINGS_DAYS`,

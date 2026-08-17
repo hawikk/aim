@@ -5,7 +5,7 @@ packs) resolve over the network at scan time, which would mean a security gate
 whose behaviour changes without a commit, an outbound dependency on every scan,
 and a supply-chain path straight into a service that has the customer's source
 tree on disk. `rules/semgrep/` in this repo is the ruleset (injection, authz,
-crypto, deserialization — AIM-328; ai_llm + ssrf depth — AIM-445): reviewable
+crypto, deserialization; ai_llm + ssrf depth —): reviewable
 in a PR, pinned by commit, and it works air-gapped (D6 ships on one VM,
 possibly with no egress). Adding a rule is a YAML edit under that directory,
 not a scanner/runner code change.

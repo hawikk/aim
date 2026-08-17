@@ -1,5 +1,5 @@
-# AIM-1013 landing page preview (hero-only particle WebGL single HTML).
-# AIM-1048: rate-limited nginx + basic auth for friend previews.
+# landing page preview (hero-only particle WebGL single HTML).
+# rate-limited nginx + basic auth for friend previews.
 # deploy/.htpasswd is generated at deploy time (not committed).
 FROM nginx:1.27-alpine
 

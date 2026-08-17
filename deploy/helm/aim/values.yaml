@@ -6,7 +6,7 @@
 # enterprise use values-enterprise.yaml; for air-gapped installs see
 # values-airgapped.yaml and docs/deployment/air-gapped-install.md.
 #
-# Security posture (AIM-601): the chart fail-closes insecure opens when
+# Security posture: the chart fail-closes insecure opens when
 # security.allowInsecureDefaults=false (set by values-standard /
 # values-airgapped / values-enterprise). See
 # docs/security/helm-values-security-defaults.md.
@@ -23,7 +23,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 # ----------------------------------------------------------------------------
-# Security gates (AIM-601) + pod security defaults (AIM-553).
+# Security gates + pod security defaults.
 # Applied to app workloads (ingest/api/guardrail/migrate). Postgres/MinIO
 # keep vendor image defaults — see docs/deployment/helm-security-defaults-audit.md
 # and docs/security/helm-values-security-defaults.md.
@@ -59,7 +59,7 @@ podDisruptionBudgets:
   minAvailable: 1
 
 # ----------------------------------------------------------------------------
-# Multi-AZ placement (AIM-635). Off by default for single-node dev clusters.
+# Multi-AZ placement. Off by default for single-node dev clusters.
 # values-enterprise.yaml turns these on.
 # ----------------------------------------------------------------------------
 topology:
@@ -74,7 +74,7 @@ topology:
     weight: 100
     topologyKey: kubernetes.io/hostname
 
-# NetworkPolicy pack (AIM-769 / AIM-635). Off by default; enterprise enables.
+# NetworkPolicy pack. Off by default; enterprise enables.
 networkPolicy:
   enabled: false
   # When true, emit a default-deny-all for chart pods plus selective allows.
@@ -86,7 +86,7 @@ networkPolicy:
   externalEgressCIDRs: []
   dnsNamespace: kube-system
 
-# Progressive delivery knobs (AIM-635). Labels only — no Argo Rollouts dep.
+# Progressive delivery knobs. Labels only — no Argo Rollouts dep.
 progressiveDelivery:
   # Optional version label applied to api/ingest pods for canary selection.
   versionLabel: ""
@@ -119,18 +119,18 @@ secrets:
   # Comma-separated bearer tokens collectors use to POST /v1/events.
   ingestTokens: dev-token-change-me # NOT for production
   # Comma-separated enrollment tokens collectors exchange for per-device
-  # tokens via POST /v1/enroll (AIM-80). Empty = enrollment disabled.
+  # tokens via POST /v1/enroll. Empty = enrollment disabled.
   enrollTokens: dev-enroll-token-change-me # NOT for production
-  # Pseudonymization salt shared with collectors (AIM-78). Empty = the
+  # Pseudonymization salt shared with collectors. Empty = the
   # restricted-repo-access guardrail rule stays inert (fail-closed).
   hashSalt: ""
-  # HMAC key that signs the dashboard session cookie (AIM-95). Empty = the
+  # HMAC key that signs the dashboard session cookie. Empty = the
   # API generates an ephemeral one at boot (sessions die on restart —
   # acceptable for local dev only).
   sessionSecret: ""
   # See api.oidc.clientSecret — only used when api.oidc.issuer is set.
   oidcClientSecret: ""
-  # IdP signing certificate PEM for SAML SP (AIM-715). Prefer existingSecret.
+  # IdP signing certificate PEM for SAML SP. Prefer existingSecret.
   samlIdpCert: ""
 
 ingest:
@@ -154,7 +154,7 @@ api:
     repository: aim/api
     tag: "" # defaults to .Chart.AppVersion
   replicas: 1
-  # Authentication (AIM-95 / AIM-302 / AIM-715): with oidc.issuer *or*
+  # Authentication: with oidc.issuer *or*
   # saml.entryPoint set, the API runs in-app SSO (OIDC PKCE and/or SAML 2.0
   # SP) with an HMAC-signed session cookie and maps IdP groups to roles via
   # roleGroups below. With neither configured the API runs in
@@ -171,7 +171,7 @@ api:
     # Defaults to https://<ingress.host>/auth/callback when ingress is set.
     redirectUri: ""
     groupsClaim: groups
-    # AIM-716 multi-IdP: when non-empty, takes precedence over issuer/clientId.
+    # multi-IdP: when non-empty, takes precedence over issuer/clientId.
     # Each entry needs id + clientId; issuer required except google (preset).
     # Secrets: AIM_OIDC_<ID>_CLIENT_SECRET on existingSecret (recommended).
     # Example:
@@ -186,7 +186,7 @@ api:
     #     clientId: aim-okta
     #     scopes: openid profile email groups
     providers: []
-  # SAML 2.0 SP (AIM-715). When entryPoint is set, also set idpIssuer and
+  # SAML 2.0 SP. When entryPoint is set, also set idpIssuer and
   # put the IdP signing cert PEM in secrets.samlIdpCert (or existingSecret
   # key AIM_SAML_IDP_CERT).
   saml:
@@ -202,18 +202,18 @@ api:
     analyst: ai-monitoring-analysts
     auditor: ai-monitoring-auditors
     viewer: ai-monitoring-viewers
-  # Reveal grant (AIM-302 §1 / AIM-384): de-pseudonymization is a separate
+  # Reveal grant (§1 /): de-pseudonymization is a separate
   # capability, NOT a role and not bundled into admin. Same group name as
   # identity-sync's reveal gate.
   revealGroups: ai-monitoring-revealers
   # authDev: true adds /auth/dev/login role-switch endpoints — LOCAL UI
   # DEVELOPMENT ONLY, never acceptable for a shared environment.
   # Incompatible with requireSso (chart fails render if both are true).
-  # Fail-closed under security.allowInsecureDefaults=false (AIM-601).
+  # Fail-closed under security.allowInsecureDefaults=false.
   authDev: false
   # requireSso: true sets AIM_REQUIRE_SSO=1 — API refuses to boot in
   # personal/local-admin mode if neither OIDC nor SAML is complete
-  # (AIM-545 / AIM-715 pilot graduation). values-standard.yaml enables this;
+  # (pilot graduation). values-standard.yaml enables this;
   # leave false for personal eval installs.
   requireSso: false
   service:
@@ -227,7 +227,7 @@ guardrail:
     tag: "" # defaults to .Chart.AppVersion
   replicas: 1
   pollInterval: "15" # seconds between evaluate-db ticks
-  healthPort: 8090   # /healthz + /readyz served by poll mode (AIM-98)
+  healthPort: 8090 # /healthz + /readyz served by poll mode
   resources: {}
 
 postgres:
@@ -238,7 +238,7 @@ postgres:
     repository: postgres
     tag: 16-alpine
   service:
-    # Always ClusterIP. LoadBalancer/NodePort are hard-blocked (AIM-601).
+    # Always ClusterIP. LoadBalancer/NodePort are hard-blocked.
     type: ClusterIP
     port: 5432
   persistence:
@@ -255,7 +255,7 @@ minio:
     repository: minio/minio
     tag: RELEASE.2025-04-22T22-12-26Z
   service:
-    # Always ClusterIP. LoadBalancer/NodePort are hard-blocked (AIM-601).
+    # Always ClusterIP. LoadBalancer/NodePort are hard-blocked.
     type: ClusterIP
     apiPort: 9000
     consolePort: 9001
@@ -265,7 +265,7 @@ minio:
     storageClass: ""
   resources: {}
 
-# External/object-store endpoint override (AIM-635). Used when minio.enabled=false
+# External/object-store endpoint override. Used when minio.enabled=false
 # or when you need a non-in-cluster endpoint.
 objectStore:
   # e.g. https://s3.eu-central-1.amazonaws.com or http://minio.other-ns:9000

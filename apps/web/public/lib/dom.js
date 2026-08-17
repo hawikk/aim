@@ -1,4 +1,4 @@
-/* The HTML escaping boundary for the dashboard (AIM-523).
+/* The HTML escaping boundary for the dashboard.
  *
  * Every view renders API data through template literals into innerHTML, and
  * much of that data is attacker-influenceable telemetry: tool names, repo
@@ -8,7 +8,7 @@
  *
  * It used to be reimplemented in eleven view modules. Eleven copies is
  * eleven things to audit, and they had already diverged — see the
- * behavioural diff in the AIM-523 PR body. This module is the one copy.
+ * behavioural diff PR body. This module is the one copy.
  * The `no-local-esc` test in test/dom.test.js fails the build if a view
  * reintroduces a local definition.
  */
@@ -43,10 +43,10 @@ export function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => HTML_ENTITIES[c]);
 }
 
-/** Document query helper shared by bootstrap and view modules (AIM-527). */
+/** Document query helper shared by bootstrap and view modules. */
 export const $ = (sel) => document.querySelector(sel);
 
-/* AIM-1089: formatters complete the dom kernel surface (esc / $ / formatters)
+/*: formatters complete the dom kernel surface (esc / $ / formatters)
  * so a new view needs one import for its rendering basics. format.js has no
  * imports of its own, so there is no cycle. */
 export * from './format.js';

@@ -1,4 +1,4 @@
-# Frontend deep-links (AIM-589)
+# Frontend deep-links
 
 Cross-module navigation for security analysts. Source of truth for builders:
 `apps/web/public/lib/deeplinks.js` (`LINK_MAP`, `entityHref`, `findingHrefs`).
@@ -66,7 +66,7 @@ add a hop.
    plain text (or "unattributed"), not a dead link.
 4. **Capability gates** — module views (`findings`, …) only route after
    registration. A shared `#/findings` link for a non-security session falls
-   back to Overview (router contract, AIM-153).
+   back to Overview (router contract).
 5. **Privacy** — links use the same pseudonyms the API already returned.
    Never widen a query or reveal redacted prompt content to "make the link work".
 
@@ -106,4 +106,4 @@ findingHrefs(finding, { days: state.days });
 
 - Fleet host drill-down (`#/fleet/<host_id>`) — API has no host detail route yet.
 - Tool → user / repo tables — tool detail API returns aggregates only.
-- Findings list filter-by-user in the hash — saved views (AIM-587) own that.
+- Findings list filter-by-user in the hash — saved views own that.

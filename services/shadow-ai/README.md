@@ -1,20 +1,20 @@
 # shadow-ai
 
-Shadow AI discovery — **IdP OAuth / SaaS grant inventory** (AIM-504 Track 2)
-plus tool-level risk inventory (AIM-300 foundation). Catalogue breadth expanded
-in AIM-594 (40 AI SaaS tools in `catalogue/ai-tools.json`).
+Shadow AI discovery — **IdP OAuth / SaaS grant inventory** (Track 2)
+plus tool-level risk inventory (foundation). Catalogue breadth expanded
+(40 AI SaaS tools in `catalogue/ai-tools.json`).
 
 Answers: **which employees authorized which AI SaaS apps with work identity**,
 without a collector on that path.
 
 ## Signal sources
 
-1. **IdP OAuth grants** (primary, AIM-504)
+1. **IdP OAuth grants** (primary)
    - `fixture` — dogfood / CI (Google Reports shape **or** normalized inventory)
    - `google` — Google Workspace Admin SDK Reports API `token` activities
    - `entra` — Microsoft Graph `oauth2PermissionGrants` + servicePrincipals + users
    - `okta` — Okta Apps API + user assignments
-   - `multi` — comma-separated combination via `SHADOW_AI_GRANT_SOURCES` (AIM-777)
+   - `multi` — comma-separated combination via `SHADOW_AI_GRANT_SOURCES`
 2. **Proxy domain observations** (corroborator) — read-only over stored proxy events.
 
 ## Outputs
@@ -24,14 +24,14 @@ without a collector on that path.
 | `shadow_ai_grants` | Per (pseudonym, idp, app) grant metadata |
 | `shadow_ai_findings` | `unapproved_ai_saas_grant` rows |
 | `shadow_ai_tools` | Aggregate tool inventory + risk |
-| `shadow_ai_discovery_queue` | Uncatalogued IdP apps + draft catalogue entries (AIM-776) |
+| `shadow_ai_discovery_queue` | Uncatalogued IdP apps + draft catalogue entries |
 | `GET /api/shadow-ai/grants` | Analyst list (pseudonyms) |
 | `GET /api/shadow-ai/tools` | Tool inventory |
 | `GET /api/shadow-ai/summary` | Headline counts + discovery lag (`discovery_queue_open`, oldest open age) |
 | `GET /api/shadow-ai/discovery-queue` | Catalogue-ops queue; draft `proposed_entry` per candidate |
 | `PATCH /api/shadow-ai/discovery-queue/:queueId` | Status transitions: open→proposed\|catalogued\|dismissed\|known_non_ai |
 
-### Continuous catalogue ops (AIM-776)
+### Continuous catalogue ops
 
 On every `shadow-ai sync`, active IdP grants that do **not** match a catalogue
 tool and are not known-non-AI upsert into `shadow_ai_discovery_queue` with a
@@ -41,7 +41,7 @@ tool remains a data change to `catalogue/ai-tools.json`, never a code change.
 | `GET /v1/shadow-ai/summary` | Service-local summary (same per-IdP breakdown) |
 | `POST /sync` | Sync stats include `grants_by_idp_source` |
 
-## Production multi-IdP (AIM-777)
+## Production multi-IdP
 
 Pilot every corporate IdP you have read-only access to:
 
@@ -84,7 +84,7 @@ Pseudonym only at rest. Same HMAC secret as identity-sync. Reveal is
 identity-sync `POST /reveal` (audited). See
 [docs/aim-504-saas-oauth-shadow-discovery.md](../../docs/aim-504-saas-oauth-shadow-discovery.md).
 
-## Coding-tool auto-discovery (AIM-644)
+## Coding-tool auto-discovery
 
 Uncatalogued signals that look like AI coding tools emit
 `unknown_ai_coding_tool` findings (observe only). Heuristics:

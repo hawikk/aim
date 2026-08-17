@@ -1,4 +1,4 @@
-/* Coverage & Trust (AIM-278) — one screen that answers "what are we NOT
+/* Coverage & Trust — one screen that answers "what are we NOT
  * seeing?".
  *
  * Self-contained module, same pattern as mcp.js: injects its nav tab, view
@@ -151,7 +151,7 @@ function darkTable(items, kind) {
   }</table></div>`;
 }
 
-/** AIM-443: per-tool ledger with last-verified and sustained-coverage stats. */
+/**: per-tool ledger with last-verified and sustained-coverage stats. */
 const TOOL_LEDGER_COLS = [
   {
     key: 'tool',
@@ -205,7 +205,7 @@ function conclusionPill(conclusion) {
   return `<span class="pill warn">${esc(conclusion)}</span>`;
 }
 
-/** AIM-332: full forge ledger — last gate run, mode, result, dark reason. */
+/**: full forge ledger — last gate run, mode, result, dark reason. */
 const LEDGER_COLS = [
   { key: 'fullName', label: 'Repo', render: (r) => `<code>${esc(r.fullName || r.label || r.repoRef || '—')}</code>` },
   {
@@ -262,7 +262,7 @@ function columnHtml(key, title, col) {
   }
 
   // Drill-through: dark items first; for repos also the full forge ledger
-  // (AIM-332) so operators can see last gate run / mode / result per repo.
+  // so operators can see last gate run / mode / result per repo.
   if (col.darkItems && col.darkItems.length) {
     parts.push(`<button type="button" class="btn-control cov-toggle" data-col="${esc(key)}" data-kind="dark">Show ${esc(fmtInt(col.darkItems.length))} dark</button>`);
     parts.push(`<div class="cov-list" id="cov-list-${esc(key)}" hidden>${darkTable(col.darkItems, key)}</div>`);
@@ -337,7 +337,7 @@ async function init() {
 
     grid.innerHTML = COLUMNS.map(({ key, title }) => columnHtml(key, title, cols[key])).join('');
 
-    // Staleness + AIM-443/596 sanctioned-tool coverage alerts (fireable only).
+    // Staleness + sanctioned-tool coverage alerts (fireable only).
     const staleCols = COLUMNS.filter(({ key }) => cols[key].freshness?.stale && cols[key].state !== 'not_wired');
     const alerts = d.coverageAlerts || cols.aiTools?.alerts || [];
     const precision = d.coverageAlertPrecision || cols.aiTools?.alertPrecision || null;
@@ -350,7 +350,7 @@ async function init() {
         `Absence of telemetry is not "no usage".</div>`
       );
     } else if (precision && precision.suppressed > 0) {
-      // AIM-596: dark tools still on the ledger; suppressions are intentional, not silent.
+      // dark tools still on the ledger; suppressions are intentional, not silent.
       banners.push(
         `<div class="banner info"><b>Coverage alert precision.</b> ` +
         `${esc(fmtInt(precision.suppressed))} dark sanctioned-tool candidate(s) held under pilot gates ` +
@@ -369,7 +369,7 @@ async function init() {
     }
     section.querySelector('#cov-stale').innerHTML = banners.join('');
 
-    // Only state what the payload actually carries (AIM-525). Include AIM-443
+    // Only state what the payload actually carries. Include
     // lastVerifiedEndToEnd + sustained window when present.
     const hours = (s) => (Number.isFinite(Number(s)) ? `${Number(s) / 3600}h` : null);
     section.querySelector('#cov-foot').textContent = [

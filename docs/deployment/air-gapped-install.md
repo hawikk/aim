@@ -1,4 +1,4 @@
-# Air-gapped install (AIM-98)
+# Air-gapped install
 
 How to install the AI Monitoring platform on a host or cluster with **no
 internet access** — the common case in enterprises where outbound egress is
@@ -24,10 +24,10 @@ target by the bundled `install-offline.sh`.
 Ed25519 signature companions — see [Sign the bundle](#sign-the-bundle-required-for-production-air-gap--aim-747):
 `.sha256`, `.sig`, `.sha256.sig`, `.sigmeta.json`.
 
-SSO is terminated in-app by the API (OIDC, AIM-95); no `sso-proxy`
+SSO is terminated in-app by the API (OIDC); no `sso-proxy`
 (oauth2-proxy) is bundled. Point `api.oidc` at the site-internal IdP —
 air-gapped environments typically run one anyway. Client-supplied identity
-headers are never trusted (AIM-302).
+headers are never trusted.
 
 ## Building the bundle (connected machine)
 
@@ -42,7 +42,7 @@ Requires docker with network access. If `deploy/helm/aim` does not exist at
 build time the bundle is still produced (with a warning), minus the chart —
 the compose install path below then applies.
 
-### Sign the bundle (required for production air-gap — AIM-747)
+### Sign the bundle (required for production air-gap —)
 
 Integrity alone (MANIFEST hashes) detects accidental corruption. **Signature
 verification** proves the tarball came from your release pipeline and was not
@@ -97,7 +97,7 @@ In works-council / regulated environments, treat the bundle like any other
 software import: container images + text files, no credentials — record
 version, key fingerprint, and digest in the import ticket.
 
-## Verify on the target (signature first — AIM-747)
+## Verify on the target (signature first —)
 
 **Fail closed.** Do not unpack or run `install-offline.sh` until verify exits 0.
 
@@ -194,7 +194,7 @@ The bundle carries the exact `docker-compose.yml` from the repo **and** a
 generated `docker-compose.airgap.yml` that pins the three bundled app images
 and disables pulls. **Do not hand-write `build: null`** — Compose v2 keeps the
 original `build:` context when merging that form; the bundle uses
-`build: !reset null` instead (AIM-599 drill).
+`build: !reset null` instead (drill).
 
 ```sh
 ./install-offline.sh   # loads images.tar (helm step auto-skips without chart/)
@@ -237,7 +237,7 @@ services:
 Verify: `docker compose ... ps` shows the core services healthy, and the
 dashboard answers on the configured `DASHBOARD_PORT`.
 
-### Compose scope note (AIM-599)
+### Compose scope note
 
 The offline bundle is the **core platform** (ingest + api + guardrail +
 postgres + redis-bus + minio). Services such as `gatehouse`, `sentinel`,
@@ -293,7 +293,7 @@ docker compose \
 Pin `PORT` / published ports consistently across releases. Older ingest
 images default to container port **3000**; newer compose mappings often use
 **8080**. An upgrade that changes the listen port without updating the
-publish map looks like a failed upgrade (AIM-599 drill).
+publish map looks like a failed upgrade (drill).
 
 ### Post-upgrade checks
 
@@ -324,7 +324,7 @@ publish map looks like a failed upgrade (AIM-599 drill).
   Compose v2 merge). Use the bundle's `docker-compose.airgap.yml` or
   `build: !reset null`.
 - **`redis:7-alpine` missing offline** — rebuild the bundle from a tree that
-  includes `redis-bus` in `deploy/airgap/build-bundle.sh` (post AIM-599).
+  includes `redis-bus` in `deploy/airgap/build-bundle.sh` (post).
 - **Health checks fail after upgrade but logs show the server up** — container
   listen port may have changed (3000 vs 8080). Align `ports:` mapping and
   `PORT` env with the image you just loaded.

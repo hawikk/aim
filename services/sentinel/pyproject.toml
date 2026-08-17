@@ -1,7 +1,7 @@
 [project]
 name = "sentinel"
 version = "0.1.0"
-description = "Sentinel agent — consumes the unified alert bus, correlates, triages, notifies, proposes fixes (AIM-165)"
+description = "Sentinel agent — consumes the unified alert bus, correlates, triages, notifies, proposes fixes"
 requires-python = ">=3.11"
 # Deliberately short. This service holds zero cloud credentials (D4), so it has
 # no cloud SDK; it talks to the LLM and to Slack over stdlib HTTP so that the
@@ -11,7 +11,7 @@ dependencies = [
     "PyYAML>=6.0",        # sentinel.yml
     "jsonschema>=4.20",   # consumer-profile validation of every bus entry
     "redis>=5.0",         # alert bus (XRANGE, read-only usage)
-    # Signs the App JWT for the draft-PR path only (AIM-185). Still zero cloud
+    # Signs the App JWT for the draft-PR path only. Still zero cloud
     # credentials — the one repo write scope is the documented exception, and
     # `jwt` is imported inside github.app_jwt rather than at module scope so a
     # deployment with draft PRs off never loads it.

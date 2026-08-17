@@ -1,7 +1,7 @@
 [project]
 name = "shadow-ai"
 version = "0.1.0"
-description = "Shadow AI discovery: IdP OAuth-grant ingest (Entra/Okta/Google) + unapproved_ai_saas_grant findings + proxy corroboration (AIM-504/AIM-300)"
+description = "Shadow AI discovery: IdP OAuth-grant ingest (Entra/Okta/Google) + unapproved_ai_saas_grant findings + proxy corroboration"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.110",
@@ -11,7 +11,6 @@ dependencies = [
     # sqlite dev default needs no driver, which hid this at unit-test time;
     # the deployed stack points at Postgres and create_engine() imports
     # psycopg2. Binary wheel avoids a compiler in the slim image.
-    # (AIM-1061)
     "psycopg2-binary>=2.9",
     "pydantic>=2.6",
     "pydantic-settings>=2.2",

@@ -1,4 +1,4 @@
-# Continue (continue.dev) — named unsanctioned adapter (AIM-1176).
+# Continue (continue.dev) — named unsanctioned adapter.
 # Depth from inspected local token stores only:
 #   ~/.continue/dev_data/devdata.sqlite  table tokens_generated
 #     (model, provider, tokens_prompt, tokens_generated, timestamp)

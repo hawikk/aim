@@ -1,4 +1,4 @@
-// Access review / attestation workflow for AIM roles (AIM-718).
+// Access review / attestation workflow for AIM roles.
 //
 // Compliance UX + API:
 //   GET  /api/access-review/roster              live role holders (JSON or CSV)

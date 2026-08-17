@@ -1,4 +1,4 @@
-// Immutable audit trail wiring (AIM-27). Appends dashboard/data access records
+// Immutable audit trail wiring. Appends dashboard/data access records
 // to the hash-chained, HMAC-sealed audit log from @aim/audit.
 //
 // Config (both required to enable; missing config = no-op with a startup warn):
@@ -19,7 +19,7 @@ export function initAudit(fastify) {
   fastify.log.info({ path }, 'immutable audit trail enabled');
 }
 
-// Full-chain verification for the compliance evidence report (AIM-87).
+// Full-chain verification for the compliance evidence report.
 // Re-reads env so it works even when initAudit was never called; never
 // throws — a broken chain is a reportable result, not a request failure.
 // Returns { enabled, ok, records, reason? }.
@@ -35,7 +35,7 @@ export function verifyAuditChain() {
   }
 }
 
-// Chain head for evidence bundles (AIM-99): the current tail seq + seal an
+// Chain head for evidence bundles: the current tail seq + seal an
 // exported artifact anchors to. Never throws; mirrors verifyAuditChain's
 // enabled/disabled contract. Returns { enabled, records, headSeq, headSeal }.
 export function auditHead() {
@@ -53,7 +53,7 @@ export function auditHead() {
 
 // Never let auditing break the request path. Returns the appended record
 // (or null when the trail is not configured) so callers can hash-link
-// artifacts to the chain (AIM-99 evidence bundles/snapshots).
+// artifacts to the chain (evidence bundles/snapshots).
 export function audit(actor, action, resource, detail = {}) {
   if (!log) return null;
   try {

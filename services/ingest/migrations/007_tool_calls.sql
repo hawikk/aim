@@ -1,4 +1,4 @@
--- 007_tool_calls.sql — AIM-86: tool_use event storage (schema v1.1).
+-- 007_tool_calls.sql — tool_use event storage (schema v1.1).
 --
 -- Schema v1.1 adds the optional event_type discriminator ("usage" | "tool_use",
 -- absent = "usage") and tool_calls[] aggregates describing agent tool

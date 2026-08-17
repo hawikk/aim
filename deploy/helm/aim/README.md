@@ -28,7 +28,7 @@ API_URL=http://localhost:8081 node scripts/smoke.js
 | `values.yaml` (default) | Single-node, documented local-only credentials — dev only (`security.allowInsecureDefaults: true`) |
 | `values-dev.yaml` | Throwaway cluster: no persistence, smallest footprint |
 | `values-standard.yaml` | On-prem production: persistence, replicas, in-app OIDC SSO (`api.oidc`); **fail-closed** on local-only secrets / authDev / public data stores |
-| `values-enterprise.yaml` | Multi-AZ enterprise: topologySpread + anti-affinity, NetworkPolicies, external Postgres/S3, PDBs + limits (AIM-722 / AIM-635); same fail-closed posture |
+| `values-enterprise.yaml` | Multi-AZ enterprise: topologySpread + anti-affinity, NetworkPolicies, external Postgres/S3, PDBs + limits; same fail-closed posture |
 | `values-airgapped.yaml` | Offline: `imagePullPolicy: Never` / internal registry; same fail-closed posture; use with `deploy/airgap/install-offline.sh` |
 
 Security defaults audit and residual risks:
@@ -63,7 +63,7 @@ backup first (`docs/deployment/backup-restore.md`).
 (images + this chart + offline installer + manifest). Sign with
 `deploy/airgap/sign-bundle.sh` (or `AIM_AIRGAP_SIGNING_KEY=...` during build)
 and verify offline with `deploy/airgap/verify-bundle.sh` **before** unpack
-(AIM-747). See `docs/deployment/air-gapped-install.md`.
+. See `docs/deployment/air-gapped-install.md`.
 
 ## Secrets
 
@@ -98,7 +98,7 @@ helm upgrade --install aim deploy/helm/aim \
 
 `values-standard.yaml` sets `ingest`/`api`/`guardrail` to 2 replicas and enables
 PodDisruptionBudgets (`podDisruptionBudgets.enabled=true`). HA kill-drill
-evidence: `docs/aim-553-deploy-maturity.md` and `scripts/aim-553-ha-smoke.sh`.
+evidence: `docs/aim-553-deploy-maturity.md` and `scripts/ha-smoke.sh`.
 Security defaults audit: `docs/deployment/helm-security-defaults-audit.md`.
 
 ## Enterprise multi-AZ
@@ -110,10 +110,10 @@ store (`postgres.enabled` / `minio.enabled` false + `secrets.existingSecret` +
 `docs/deployment/enterprise-topology.md`. Proofs (no billable cloud):
 
 ```sh
-./scripts/aim-722-topology-failover-proof.sh   # helm render + optional compose HA/RTO
-./scripts/aim-769-topology-render-proof.sh     # helm-only subset
+./scripts/topology-failover-proof.sh # helm render + optional compose HA/RTO
+./scripts/topology-render-proof.sh # helm-only subset
 `docs/deployment/enterprise-topology.md`. Render proof (no cluster):
 
 ```sh
-./scripts/aim-769-topology-render-proof.sh
+./scripts/topology-render-proof.sh
 ```

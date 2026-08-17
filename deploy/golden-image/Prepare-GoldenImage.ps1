@@ -1,13 +1,13 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  AIM-745 — golden-image prepare for Windows corporate templates.
+  golden-image prepare for Windows corporate templates.
 
 .DESCRIPTION
   Installs the collector payload + scheduled task at image build time.
   Does not leave a durable device identity when -Seal is set (default).
 
-  Prefer the Intune Win32 path (AIM-742) for day-2 fleet; use this when
+  Prefer the Intune Win32 path for day-2 fleet; use this when
   imaging teams bake software into a golden VHD / WIM before Sysprep.
 
 .PARAMETER IngestUrl

@@ -31,7 +31,7 @@ def spool_path() -> Path:
 
 def checkpoint_path(name: str = "checkpoint") -> Path:
     # `name` selects the checkpoint file so independent scan pipelines don't
-    # share offsets — personal mode (AIM-67) uses its own namespace so it
+    # share offsets — personal mode uses its own namespace so it
     # never consumes offsets the network collector needs, and vice versa.
     return state_dir() / f"{name}.json"
 

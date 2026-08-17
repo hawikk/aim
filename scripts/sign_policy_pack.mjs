@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Offline / CI signer for AIM-688 policy packs.
+ * Offline / CI signer policy packs.
  *
  * Usage:
  *   node scripts/sign_policy_pack.mjs \

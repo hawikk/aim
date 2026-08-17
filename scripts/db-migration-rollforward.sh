@@ -194,7 +194,7 @@ BEGIN
     VALUES ('repo-hmac-1', 'payments-service', 'sec-admin@example.com');
   END IF;
 
-  -- Retention-across-upgrade fixtures (AIM-291 AC4): one event inside the
+  -- Retention-across-upgrade fixtures (AC4): one event inside the
   -- default 90d window and one strictly older, so a post-upgrade purge keeps
   -- the recent row and removes the expired one without orphaning findings.
   IF to_regclass('events') IS NOT NULL THEN
@@ -350,7 +350,7 @@ PENDING=$(comm -23 \
   <(psql_ -c "SELECT id FROM schema_migrations ORDER BY id"))
 check "migrator delta after upgrade: no pending migrations" "" "$PENDING"
 
-# --- retention/purge across the upgrade boundary (AIM-291 AC4) --------------
+# --- retention/purge across the upgrade boundary (AC4) --------------
 # Simulate the purger's events class rule (strictly older than 90d) with SQL
 # so we do not need a full Node runtime in this shell proof. The real purger
 # (services/ingest/src/retention.ts) uses the same boundary.

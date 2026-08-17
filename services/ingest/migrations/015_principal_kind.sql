@@ -1,6 +1,6 @@
--- 015_principal_kind.sql — AIM-149: label machine attribution.
+-- 015_principal_kind.sql — label machine attribution.
 --
--- CEO/Security decision on the identity-source ADR: agent and CI hosts may be
+-- Security decision on the identity-source ADR: agent and CI hosts may be
 -- attributed to their operator when one is known, and to a service principal
 -- when one is not. That makes a second column necessary. Without it, an agent
 -- host mapped to its operator is byte-for-byte indistinguishable from that

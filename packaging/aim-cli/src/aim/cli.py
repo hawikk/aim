@@ -19,12 +19,12 @@ Commands:
               what the per-user auto-start service runs)
   uninstall   remove everything `aim` wrote outside the package (state dirs,
               all tool hook registrations, device token, auto-start service)
-  policy      control-plane policy ops (AIM-686): simulate candidate policy
+  policy control-plane policy ops: simulate candidate policy
               against historical findings (Δ blocks/alerts, dry-run)
 
-`join`/`status` land the unified-install behavior (AIM-138); `doctor`/`watch`
-and per-user auto-start (systemd/launchd/Scheduled Task) land AIM-139 on top
-of the packaged CLI (AIM-135). `policy simulate` is an operator surface that
+`join`/`status` land the unified-install behavior; `doctor`/`watch`
+and per-user auto-start (systemd/launchd/Scheduled Task) land on top
+of the packaged CLI. `policy simulate` is an operator surface that
 calls the control-plane API (not local collector state).
 """
 
@@ -168,7 +168,7 @@ def _cmd_uninstall(args) -> int:
          Cursor) in each tool's own settings file
       3. the enrolled device token / id / heartbeat marker
       4. the per-user auto-start service (systemd user unit / launchd agent /
-         Scheduled Task) that runs the background watcher (AIM-139)
+         Scheduled Task) that runs the background watcher
     Each removal is a no-op when its target is already absent, so running
     uninstall twice — or on a machine that only ever ran `aim personal` — is
     safe and reports plainly what (if anything) it cleaned. The per-tool
@@ -189,7 +189,7 @@ def _cmd_uninstall(args) -> int:
 def _cmd_coming_soon(cmd: str, args) -> int:
     print(f"aim {cmd}: coming soon — {_COMING_SOON[cmd]}.")
     print("This subcommand's surface ships now; its behavior lands in a "
-          "follow-on of the magic-install epic (AIM-129).")
+          "follow-on of the magic-install epic.")
     return 0
 
 

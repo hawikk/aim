@@ -1,4 +1,4 @@
-"""Managed configuration resolution (AIM-36). Identical contract to the
+"""Managed configuration resolution. Identical contract to the
 Claude Code collector: a managed JSON file dropped by endpoint tooling,
 with env overrides for dev.
 
@@ -9,13 +9,13 @@ Search order (first existing wins):
    - Windows: ``%ProgramData%\\AI-Monitoring\\collector\\config.json``
    - macOS: ``/Library/Application Support/AI-Monitoring/collector/config.json``
      then ``~/Library/Application Support/AI-Monitoring/collector/config.json``
-     then legacy AIM-743 ``/etc/aim-collector/config.json``
+     then legacy ``/etc/aim-collector/config.json``
    - Linux/WSL: ``/etc/aim-collector/config.json``
 3. ``<state dir>/config.json`` (per-user fallback, dev default)
 
 Recognized keys: ``ingest_url``, ``token_file``, ``token`` (dev only),
 ``hash_salt`` (must match ingestion side). Token resolution falls back to
-the enrollment ``device_token`` (AIM-217) so ``aim join`` alone can flush.
+the enrollment ``device_token`` so ``aim join`` alone can flush.
 """
 
 import json
@@ -32,7 +32,7 @@ MANAGED_PATH_DARWIN_USER = "~/Library/Application Support/AI-Monitoring/collecto
 
 
 def _managed_candidates() -> list[Path]:
-    """Platform managed config files; Darwin is first-class (AIM-1170)."""
+    """Platform managed config files; Darwin is first-class."""
     plat = sys.platform
     if plat.startswith("win"):
         base = os.environ.get("ProgramData", r"C:\ProgramData")
@@ -66,7 +66,7 @@ def config_path() -> Path | None:
 def load() -> dict:
     """Parsed config dict; {} if no file or unreadable/invalid.
 
-    AIM-749: prefer signed/harden load when ``collectors.integrity`` is
+    prefer signed/harden load when ``collectors.integrity`` is
     importable; fall back to bare JSON so pilot hooks never hard-fail.
     """
     p = config_path()
@@ -100,7 +100,7 @@ def ingest_url() -> str | None:
 def token() -> str | None:
     """Resolve the events bearer for spool flush.
 
-    Order (AIM-443 / AIM-319):
+    Order:
       1. ``AIM_COLLECTOR_TOKEN`` env — explicit operator override
       2. ``<state dir>/device_token`` — enrollment-issued per-device bearer
       3. ``token_file`` from managed config
@@ -108,7 +108,7 @@ def token() -> str | None:
 
     Heartbeat already uses the device token. Preferring it for events too
     means re-enrollment cannot leave the event path on a stale shared
-    bearer while liveness stays green (the AIM-443 dogfood failure mode:
+    bearer while liveness stays green (the dogfood failure mode:
     141k events lost to ``auth_rejected: HTTP 401`` with a healthy device).
     """
     env = os.environ.get("AIM_COLLECTOR_TOKEN")

@@ -1,4 +1,4 @@
-/* Canonical /api/findings item shape (AIM-532).
+/* Canonical /api/findings item shape.
  *
  * Pure module — no db/auth deps — so web DOM fixtures can import the same
  * key list the API response builder uses. If a rename lands on either side

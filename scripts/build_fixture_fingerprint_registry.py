@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""AIM-541 — build / verify the non-reversible fixture fingerprint registry.
+"""Build / verify the non-reversible fixture fingerprint registry.
 
 Offline process: hash known cryptographically-dead fixture secrets (secret
 corpus positives, optional extra dead-key files) with the fleet
-``AIM_HASH_SALT`` using the same contract as collectors (AIM-225):
+``AIM_HASH_SALT`` using the same contract as collectors:
 
     HMAC-SHA256(key=salt, msg="fp1|" + detector + "|" + nfkc_ws_stripped)[:16]
 
@@ -57,7 +57,7 @@ CORPUS = ROOT / "collectors" / "matcher-fixtures" / "secret-corpus.json"
 CANONICAL = ROOT / "collectors" / "matcher-fixtures" / "fixture-fingerprint-registry.json"
 WEB_COPY = ROOT / "apps" / "web" / "public" / "fixture-fingerprint-registry.json"
 
-# Categories that receive AIM-225 fingerprints in collectors.
+# Categories that receive fingerprints in collectors.
 _FP_CATEGORIES = ("secret", "pii")
 
 # Well-known salt for the *committed* CI registry. This is NOT a production
@@ -74,7 +74,7 @@ ALGORITHM = (
 
 
 def fingerprint(salt: bytes, detector: str, matched: str) -> str:
-    """Mirror collectors/*/*_collector/events.py::_fingerprint (AIM-225)."""
+    """Mirror collectors/*/*_collector/events.py::_fingerprint."""
     norm = "".join(unicodedata.normalize("NFKC", matched).split())
     return hmac.new(salt, f"fp1|{detector}|{norm}".encode(), hashlib.sha256).hexdigest()[:16]
 
@@ -177,7 +177,7 @@ def build_registry(
     reg = {
         "version": 1,
         "description": (
-            "Non-reversible fixture fingerprint allowlist (AIM-541). "
+            "Non-reversible fixture fingerprint allowlist. "
             "Stores detector+fingerprint+label+source only — never raw secrets "
             "or unsalted digests. Fingerprint ∈ registry → suggest incident "
             "cluster A (known synthetic / dead-key fixture)."

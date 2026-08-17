@@ -1,11 +1,11 @@
-# Collector schema versioning & silent event loss (AIM-439)
+# Collector schema versioning & silent event loss
 
 ## Why this exists
 
 A monitoring product that drops events without paging anyone is worse than one
 that fails loudly. Collectors already keep a local **rejection ledger**
 (`events_rejected`, `batches_fully_rejected`, `last_rejection_at`) and ship it
-on every heartbeat as `last_counters`. Until AIM-439 the platform **stored**
+on every heartbeat as `last_counters`. Until the platform **stored**
 those counters and then never surfaced them — so client-side loss was invisible
 next to the server-side `rejected_events` DLQ.
 
@@ -28,7 +28,7 @@ looked healthy while **5× more events were discarded client-side than were
 ever stored**.
 
 The drop storm stopped when the collector stopped sending bad batches (~30h
-before AIM-439 diagnosis). Lifetime counters remain on the device row so the
+diagnosis). Lifetime counters remain on the device row so the
 incident is still visible as historical loss.
 
 ## Contract: what an out-of-date collector must do
@@ -54,7 +54,7 @@ incident is still visible as historical loss.
    device until the collector process resets its ledger. Active alerting uses
    `last_rejection_at` recency so a fixed host does not page forever.
 
-## Platform surfaces (AIM-439)
+## Platform surfaces
 
 | Surface | Behaviour |
 | --- | --- |
@@ -76,7 +76,7 @@ incident is still visible as historical loss.
 
 ## Related
 
-- AIM-200 — rejection ledger on collectors
-- AIM-28 / AIM-80 — enrollment + fleet coverage
-- AIM-290 — system status tiles + alert bus publisher
+- rejection ledger on collectors
+- enrollment + fleet coverage
+- system status tiles + alert bus publisher
 - `docs/identity-mapping-design.md` — attribution is independent of drop health

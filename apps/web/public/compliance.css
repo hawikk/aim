@@ -1,4 +1,4 @@
-/* AIM-87 — Compliance evidence report view. Reuses app-wide panel/card/table
+/* — Compliance evidence report view. Reuses app-wide panel/card/table
  * classes; only compliance-specific bits live here. */
 
 .cmp-badge {
@@ -17,11 +17,11 @@
 .cmp-table td.num, .cmp-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 tr.cmp-ctrl.has-findings:hover { background: var(--panel-hover); }
-/* AIM-694 continuous control monitoring row cues */
+/* continuous control monitoring row cues */
 tr.cmp-ctrl.is-fail td:first-child { box-shadow: inset 3px 0 0 var(--bad, #c0392b); }
 tr.cmp-ctrl.is-unknown td:first-child { box-shadow: inset 3px 0 0 var(--warn, #b78103); }
 tr.cmp-ctrl.is-pass td:first-child { box-shadow: inset 3px 0 0 var(--good, #1a7f37); }
-/* AIM-696: deep-link target from a high-sev finding control chip */
+/*: deep-link target from a high-sev finding control chip */
 tr.cmp-ctrl.cmp-focus {
   background: var(--accent-soft, rgba(99, 132, 255, 0.12));
   box-shadow: inset 3px 0 0 var(--accent, #8da2ff);
@@ -54,7 +54,7 @@ tr.cmp-ctrl.cmp-focus {
 
 .cmp-findings { margin: 6px 0 0 12px; }
 
-/* AIM-693 — auditor self-serve offline pack portal */
+/* — auditor self-serve offline pack portal */
 .cmp-portal {
   border: 1px solid var(--accent-border, var(--border));
   box-shadow: inset 0 0 0 1px var(--accent-soft, transparent);
@@ -111,7 +111,7 @@ tr.cmp-ctrl.cmp-focus {
   border-top: 1px solid var(--border, rgba(127,127,127,0.25));
 }
 
-/* AIM-695 — active control → framework map + gaps */
+/* — active control → framework map + gaps */
 .cmp-map-lead {
   margin: 0 0 12px;
   max-width: 80ch;

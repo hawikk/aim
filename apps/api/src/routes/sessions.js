@@ -1,10 +1,10 @@
-// Session admin routes (AIM-613 / AIM-714): force-deny live SSO sessions for a
+// Session admin routes: force-deny live SSO sessions for a
 // leaver before the HMAC cookie TTL expires.
 //
 // Callers:
 //   * Human admin (SSO role `admin`) — operator leaver playbook
 //   * Designated service tokens (AIM_SESSION_REVOKE_SERVICES) — automation from
-//     identity-sync deprovision (AIM-714) or future SCIM deactivate
+// identity-sync deprovision or future SCIM deactivate
 //
 // Complements IdP group-removal deprovision (next login is already fail-closed).
 // Deliberately keeps canRevokeSessions free of heavy OIDC deps so unit tests

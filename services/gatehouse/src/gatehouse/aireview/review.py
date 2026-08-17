@@ -1,4 +1,4 @@
-"""The AI review step: bundle -> provider -> validated, anchored findings (AIM-162).
+"""The AI review step: bundle -> provider -> validated, anchored findings.
 
 Everything the model says is treated as untrusted output from a text
 generator that the PR author can partly steer (the prompt's context is the

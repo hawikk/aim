@@ -1,4 +1,4 @@
-// SCIM 2.0 User/Group provisioning surface (AIM-713).
+// SCIM 2.0 User/Group provisioning surface.
 //
 // IdPs authenticate with AIM_SCIM_BEARER_TOKEN (Bearer). Routes are exempt
 // from the SSO cookie hook; this module is the only gate on /scim/v2/*.

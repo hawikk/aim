@@ -1,4 +1,4 @@
-"""Where the bundle goes, and how much it costs (AIM-162).
+"""Where the bundle goes, and how much it costs.
 
 Two implementations of one tiny protocol:
 
@@ -81,7 +81,7 @@ class HttpProvider:
             # is the OpenAI-compatible protocol doing what the prompt asks —
             # not output repair: review.py still rejects anything that is not
             # strict JSON. Without it, small instruct models wrap the answer in
-            # ```json fences and every review soft-fails (AIM-239 live eval).
+            # ```json fences and every review soft-fails (live eval).
             "response_format": {"type": "json_object"},
             "messages": [
                 {"role": "system", "content": self.system_prompt},
@@ -94,7 +94,7 @@ class HttpProvider:
         request = urllib.request.Request(
             f"{self.endpoint}/chat/completions",
             data=json.dumps(payload).encode(), headers=headers)
-        # AIM-736: every live LLM call emits one GenAI span (never prompt text).
+        # every live LLM call emits one GenAI span (never prompt text).
         with telemetry.llm_span(self.gen_ai_system, model) as span:
             try:
                 with urllib.request.urlopen(request, timeout=self.timeout) as response:
@@ -175,7 +175,7 @@ def from_env(env: dict | None = None) -> Provider | None:
 def settings(env: dict | None = None) -> dict:
     """The non-provider knobs of the AI step, read once per scan."""
     env = os.environ if env is None else env
-    # GATEHOUSE_AI_GRAPH=0/false/off disables the AIM-233 slice entirely.
+    # GATEHOUSE_AI_GRAPH=0/false/off disables the slice entirely.
     graph_raw = (env.get("GATEHOUSE_AI_GRAPH") or "1").strip().lower()
     include_graph = graph_raw not in {"0", "false", "off", "no"}
     max_graph = env.get("GATEHOUSE_AI_MAX_GRAPH_BYTES")

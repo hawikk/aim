@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-745 — first-boot auto-enroll for sealed golden-image clones (Linux).
+# — first-boot auto-enroll for sealed golden-image clones (Linux).
 #
 # Idempotent. Generates a fresh host_id if missing, then enrolls when a ring
 # enroll-token is present and no device token exists. Prefer the normal

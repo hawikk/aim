@@ -1,4 +1,4 @@
-# Golden-image zero-touch enrollment (AIM-745)
+# Golden-image zero-touch enrollment
 
 Image-time install + seal + first-boot auto-enroll for corporate golden
 images. Full operator recipe:
@@ -45,5 +45,5 @@ exits non-zero if either remains.
 ## Proof
 
 ```sh
-./scripts/aim-745-golden-image-proof.sh
+./scripts/golden-image-proof.sh
 ```

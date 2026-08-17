@@ -1,7 +1,7 @@
-/* Shared list pagination for large inventory tables (AIM-867).
+/* Shared list pagination for large inventory tables.
  *
  * Users and Fleet must not re-assemble multi-megabyte full lists client-side
- * once the API supports limit/offset (AIM-866). This module:
+ * once the API supports limit/offset. This module:
  *  - caps the default page at 100 rows
  *  - builds the query string the views pass to /api/users and /api/fleet
  *  - resolves a page from either a server-paginated payload or a legacy
@@ -108,7 +108,7 @@ export function resolvePage(opts) {
     });
   }
 
-  // Server pagination (AIM-866): rows are already this page; total is authoritative.
+  // Server pagination: rows are already this page; total is authoritative.
   if (serverTotal != null) {
     const rows = raw;
     const total = serverTotal;

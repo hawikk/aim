@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aimonitoring.dev/schemas/mcp/tool-argument-policy.schema.json",
   "title": "MCP tool-argument policy (metadata-only)",
-  "description": "AIM-664: express allow / deny / confirm on MCP tool name + argument *shape* (key presence and value *type class* only). This is NOT a license to store or inspect argument content. Value equality, substrings of values, paths, URLs, bodies, and argv are privacy-blocked (AIM-16). Endpoint evaluators may read tool_input locally to compute shape; only the decision (and optional shape metadata already allowed on the wire) leaves the host.",
+  "description": "express allow / deny / confirm on MCP tool name + argument *shape* (key presence and value *type class* only). This is NOT a license to store or inspect argument content. Value equality, substrings of values, paths, URLs, bodies, and argv are privacy-blocked. Endpoint evaluators may read tool_input locally to compute shape; only the decision (and optional shape metadata already allowed on the wire) leaves the host.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "default_effect", "rules"],
@@ -32,7 +32,7 @@
     },
     "default_effect": {
       "$ref": "#/$defs/effect",
-      "description": "Effect when no rule matches. Prefer 'allow' so this policy is additive on top of the server allowlist (AIM-86/441)."
+      "description": "Effect when no rule matches. Prefer 'allow' so this policy is additive on top of the server allowlist."
     },
     "rules": {
       "type": "array",

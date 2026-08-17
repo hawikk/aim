@@ -1,11 +1,11 @@
-"""Analyst dispositions over shadow findings / apps (AIM-778).
+"""Analyst dispositions over shadow findings / apps.
 
 Closed loop:
   allow           — suppress re-emit of matching findings on next sync
   known_non_ai    — same suppress semantics (not an AI SaaS)
   watch           — record interest; findings still emit
   propose_enforce — blocklist export candidate; findings still emit
-  catalogue       — reserved for discovery-queue → catalogue PR path (AIM-776)
+  catalogue — reserved for discovery-queue → catalogue PR path
 
 Active disposition = latest row per (target_kind, target_key) by created_at.
 Append-only: never UPDATE/DELETE; a new INSERT supersedes the prior action.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Provider catalogue completeness + mirror drift guard (AIM-738).
+"""Provider catalogue completeness + mirror drift guard.
 
 Source of truth for App-LLM provider-api ids:
   collectors/proxy/endpoints.json  (rules where category == "provider-api")
@@ -9,8 +9,8 @@ Mirrors that MUST match that set (same membership; order free):
   services/guardrail/.../new_sources.py → DEFAULT_PROVIDERS
 
 Also enforces:
-  * endpoints.json is valid JSON (catches merge corruption like the AIM-595
-    domain-expansion damage repaired under AIM-738)
+  * endpoints.json is valid JSON (catches merge corruption like the
+    domain-expansion damage repaired)
   * every provider-api rule has at least one domain
   * optional self-test proves the rules fire
 
@@ -113,7 +113,7 @@ def check() -> list[str]:
         errs.append(f"missing ownership doc {DOC.relative_to(ROOT)}")
     else:
         body = DOC.read_text(encoding="utf-8")
-        for needle in ("Ownership", "provider-api", "endpoints.json", "AIM-738"):
+        for needle in ("Ownership", "provider-api", "endpoints.json"):
             if needle not in body:
                 errs.append(f"docs/app-llm-provider-catalogue.md missing section/mark '{needle}'")
 

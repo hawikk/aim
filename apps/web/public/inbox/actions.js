@@ -1,4 +1,4 @@
-/* Alerts inbox actions (AIM-1181 split): ack / snooze / unack mutations
+/* Alerts inbox actions (split): ack / snooze / unack mutations
  * (optimistic, verified) and the filter / pager event bindings. */
 
 import { api } from '../lib/api.js';

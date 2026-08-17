@@ -1,4 +1,4 @@
-/* AIM-706 — Case / investigation workflow.
+/* — Case / investigation workflow.
  *
  * Self-contained module (same pattern as findings.js): injects nav tab, view
  * section, and stylesheet at runtime. Gated on findingsConsole — cases attach
@@ -7,8 +7,8 @@
  * Route: `#/cases` list · `#/cases/<id>` detail (module drill via router).
  * Matched content and cleartext identity are never stored or rendered.
  *
- * Split (AIM-1186, mirroring the AIM-1181 inbox / AIM-1177 policy /
- * AIM-1172 compliance splits) — the view's concerns live in sibling modules:
+ * Split (mirroring the inbox policy /
+ * compliance splits) — the view's concerns live in sibling modules:
  *   ./cases/state.js   shared view-private casesCtx + status pill
  *   ./cases/nav.js     hash-driven list ↔ detail pane navigation
  *   ./cases/list.js    list pane: filters, summary cards, rows, nav badge

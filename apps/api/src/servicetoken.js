@@ -1,4 +1,4 @@
-// Machine credentials for headless consumers of the AIM API (AIM-165).
+// Machine credentials for headless consumers of the AIM API.
 //
 // Why this exists: D3.1 §5 says the sentinel agent reads alerts through the
 // authenticated API, not through Redis — the API is the only thing on the
@@ -185,7 +185,7 @@ export class ServiceTokens {
         name: matched.name,
         groups: [],
         role: matched.role,
-        // AIM-717: service tokens are pure RBAC (role → permissions); no ABAC
+        // service tokens are pure RBAC (role → permissions); no ABAC
         // attrs unless a future token schema adds them.
         attributes: {},
         permissionGrants: [],

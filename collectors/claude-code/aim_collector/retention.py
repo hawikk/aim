@@ -1,4 +1,4 @@
-"""Retention config for personal mode (AIM-143).
+"""Retention config for personal mode.
 
 Personal mode holds exactly one data class — your own usage events — in a
 local SQLite file. There is no findings or audit store here, so the prune only

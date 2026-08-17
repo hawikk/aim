@@ -1,4 +1,4 @@
-"""Per-team token/cost budget evaluation (AIM-383 / AIM-326).
+"""Per-team token/cost budget evaluation.
 
 Reads ``team_budgets`` + current-period usage from ``events``, and emits
 guardrail findings at warn (default 80%) and critical (default 100%) of each

@@ -1,4 +1,4 @@
-/* AIM-590 — Findings export for SOC handoff (CSV/JSON).
+/* — Findings export for SOC handoff (CSV/JSON).
  *
  * Pure, DOM-free helpers so node:test can lock three contracts:
  *   1. Export query mirrors the visible findings filters (status/severity/rule).
@@ -39,7 +39,7 @@ export const EXPORT_FIELD_KEYS = Object.freeze(EXPORT_COLUMNS.map((c) => c.key))
 /**
  * Keys (and key-name fragments) that must never appear on an export row.
  * Matched case-insensitively against every object key in the payload tree.
- * Intentionally broad: SOC handoff is metadata-only by product policy (AIM-16).
+ * Intentionally broad: SOC handoff is metadata-only by product policy.
  */
 export const FORBIDDEN_KEY_PATTERNS = Object.freeze([
   'prompt',
@@ -67,7 +67,7 @@ export const FORBIDDEN_KEY_PATTERNS = Object.freeze([
 
 /**
  * Map the UI status picker value to the API `status` query param.
- * - `open` → new,acknowledged (AIM-82)
+ * - `open` → new,acknowledged
  * - `all`  → omitted (no status filter)
  * - else   → the status string itself
  */

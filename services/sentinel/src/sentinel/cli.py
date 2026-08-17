@@ -5,7 +5,7 @@
     sentinel digest [--now]        send the medium/low rollup
     sentinel decisions [--incident ID | --alert ID]
                                    the audit trail: what it did and why
-    sentinel incident ID           parent incident + child finding links (AIM-700)
+    sentinel incident ID parent incident + child finding links
     sentinel health                one JSON line, also served on :8091/healthz
 
 ``decisions`` is not a convenience. "Why did it page at 04:12" and "why did it
@@ -121,7 +121,7 @@ def cmd_decisions(args) -> int:
 
 
 def cmd_incident(args) -> int:
-    """AIM-700: dump a parent incident and its child links."""
+    """dump a parent incident and its child links."""
     cfg = load(args.config)
     store = Store(cfg.state_db)
     parent = store.get_parent_incident(args.incident_id)
@@ -170,7 +170,7 @@ def main(argv: list[str] | None = None) -> int:
     decisions.set_defaults(func=cmd_decisions)
 
     incident = sub.add_parser("incident",
-                             help="show a parent incident and its child finding links (AIM-700)")
+                             help="show a parent incident and its child finding links")
     incident.add_argument("incident_id")
     incident.add_argument("--json", action="store_true")
     incident.set_defaults(func=cmd_incident)

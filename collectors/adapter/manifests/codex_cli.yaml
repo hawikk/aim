@@ -1,8 +1,8 @@
-# OpenAI Codex CLI — first-class fleet coverage via sqlite_table surface (AIM-1012).
+# OpenAI Codex CLI — first-class fleet coverage via sqlite_table surface.
 # Real ~/.codex/state_*.sqlite threads table: model, tokens_used, cli_version,
 # model_provider, id. Content columns (first_user_message, preview, title, …)
 # are never SELECTed. schema_tool=other + tool_raw=codex_cli (no schema minor).
-# Default unsanctioned — Security/CEO own approved_tools promotion.
+# Default unsanctioned — Security own approved_tools promotion.
 id: codex_cli
 display_name: Codex CLI
 provider: openai

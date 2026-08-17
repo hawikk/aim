@@ -1,4 +1,4 @@
-// Just-in-time (JIT) user provisioning on first SSO login (AIM-720).
+// Just-in-time (JIT) user provisioning on first SSO login.
 //
 // When SCIM is configured and JIT is enabled, a successful OIDC/SAML login
 // upserts the principal into the SCIM directory so:

@@ -1,10 +1,10 @@
-/* Threshold rule editor interactions (AIM-1147) — pure-moved from rules.js.
+/* Threshold rule editor interactions — pure-moved from rules.js.
  *
- * The AIM-94 inline tuning surface for threshold rules: open/close the
+ * The inline tuning surface for threshold rules: open/close the
  * editor, validate, PATCH /api/guardrail/rules/:id, reset to the policy
  * default. Match rules stay policy-as-code and have no editor.
  *
- * AIM-515 focus management: a successful PATCH re-renders the entire list,
+ * focus management: a successful PATCH re-renders the entire list,
  * which destroys the node the operator was standing on — focus is restored to
  * the same rule's edit button and the result is announced on the shared live
  * region. Cancel moves focus back to the trigger *before* tearing the form
@@ -17,7 +17,7 @@ import { withBusy, showFieldError, clearFieldError } from '../lib/form.js';
 import { editFormHtml, setLabel, renderRules } from './rule-list.js';
 import { rulesState } from './state.js';
 
-/* AIM-515: a successful PATCH re-renders the entire list, which destroys the
+/*: a successful PATCH re-renders the entire list, which destroys the
  * node the operator was standing on and drops focus to <body> — mid-edit,
  * with no announcement that anything happened. Focus is restored to the same
  * rule's edit button (the editor itself is gone, having been saved) and the
@@ -99,7 +99,7 @@ export function bindThresholdEditor() {
       const value = Number(form.querySelector('.re-value').value);
       const winSel = form.querySelector('.re-window').value;
       const windowSeconds = winSel === 'custom' ? Number(form.querySelector('.re-window-custom').value) : Number(winSel);
-      // AIM-515: showFieldError sends focus to the field that failed.
+      // showFieldError sends focus to the field that failed.
       // role="alert" speaks the message, but without this the operator has to
       // hunt for which input it is about.
       if (!Number.isFinite(value) || value < 0) {

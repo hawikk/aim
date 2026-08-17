@@ -1,4 +1,4 @@
-/* AIM-928 / AIM-933 — pure helpers for Install health UI
+/* — pure helpers for Install health UI
  * (cohorts + empty/recovery copy).
  *
  * Keeps enroll → first-evidence presentation consistent:
@@ -7,7 +7,7 @@
  *   - Empty + recovery copy for missing collector, delayed first event,
  *     and zero-touch MDM (Intune / Jamf-ready) paths
  *
- * Admin step-by-step MDM paths live in mdm-enroll-runbook.js (AIM-933).
+ * Admin step-by-step MDM paths live in mdm-enroll-runbook.js.
  * Metadata-only: no tokens, secrets, prompts, or event content.
  *
  * Doc paths are string constants (not components.js imports) so pure unit

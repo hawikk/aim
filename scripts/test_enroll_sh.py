@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIM-1124 — static + behavioural checks for apps/web/public/enroll.sh.
+"""Static + behavioural checks for apps/web/public/enroll.sh.
 
 No live network, no real pipx install. Covers:
   * script is served-path static (exists, executable bit optional, shebang)

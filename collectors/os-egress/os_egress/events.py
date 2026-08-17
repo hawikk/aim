@@ -1,4 +1,4 @@
-"""Build metadata-only ai-usage-event records for OS egress (AIM-321)."""
+"""Build metadata-only ai-usage-event records for OS egress."""
 
 from __future__ import annotations
 

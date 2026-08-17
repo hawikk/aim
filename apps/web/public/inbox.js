@@ -1,4 +1,4 @@
-/* AIM-160 — unified cross-pillar alert inbox (the shell's "Alerts" tab).
+/* — unified cross-pillar alert inbox (the shell's "Alerts" tab).
  *
  * Self-contained module in the findings.js pattern: injects its own nav tab,
  * view section, stylesheet and health-strip polling at runtime, and activates
@@ -19,12 +19,12 @@
  * source_uri refs resolve only through lib/inbox.js's allowlisted
  * resolveEvidenceUrl() (unknown scheme = inert text, never an href).
  *
- * AIM-702: each alert card can show an auto-triage hint (likely disposition
+ * each alert card can show an auto-triage hint (likely disposition
  * + confidence) from historical closed findings keyed by policy_hash + rule.
  * Metadata only — the outcome index never loads content-bearing fields.
  *
- * Split (AIM-1181, mirroring the AIM-1177 policy / AIM-1172 compliance /
- * AIM-1163 activity splits) — the view's concerns live in sibling modules:
+ * Split (mirroring the policy compliance /
+ * activity splits) — the view's concerns live in sibling modules:
  *   ./inbox/state.js    shared view-private inboxCtx + reset
  *   ./inbox/render.js   alert cards, state badges, evidence links, list render
  *   ./inbox/data.js     alert paging, inbox-state fetch, outcome history
@@ -51,7 +51,7 @@ import { startStackHealth } from './inbox/health.js';
  * The inbox sits at the same privacy tier as the findings console (analyst+),
  * so it reuses the findingsConsole capability rather than inventing a
  * parallel one that could drift from the API's gate.
- * Gate helper: lib/form.js (AIM-1113). */
+ * Gate helper: lib/form.js. */
 await requireCapability('findingsConsole', init, 'alert inbox');
 
 async function init(me) {

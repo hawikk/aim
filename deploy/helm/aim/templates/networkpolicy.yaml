@@ -1,5 +1,5 @@
 {{- /*
-NetworkPolicy pack (AIM-769). Default-deny namespace + allowlist for
+NetworkPolicy pack. Default-deny namespace + allowlist for
 ingest/api/guardrail ↔ postgres/minio and public ingress ports.
 
 Requires a CNI that enforces NetworkPolicy (Calico, Cilium, GKE, EKS with

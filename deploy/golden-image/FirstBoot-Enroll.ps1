@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  AIM-745 — first-boot auto-enroll for sealed Windows golden-image clones.
+  first-boot auto-enroll for sealed Windows golden-image clones.
 
 .DESCRIPTION
   Invokes the same cycle path as the "AIM Collector Scan" scheduled task

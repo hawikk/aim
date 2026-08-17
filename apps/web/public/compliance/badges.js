@@ -1,5 +1,5 @@
-/* Badges for the Compliance evidence view (AIM-1172 split) — pure renderers.
- * The audit-chain badge (report cards) and the AIM-694 live pass/fail/unknown
+/* Badges for the Compliance evidence view (split) — pure renderers.
+ * The audit-chain badge (report cards) and the live pass/fail/unknown
  * control badge (control map, framework panels, coverage detail). */
 
 import { esc } from '../lib/dom.js';
@@ -12,7 +12,7 @@ export function chainBadge(chain) {
     : `<span class="cmp-badge tone-bad">AUDIT CHAIN FAILED — ${esc(chain.reason)}</span>`;
 }
 
-/** AIM-694: live continuous-monitoring badge for a single control. */
+/**: live continuous-monitoring badge for a single control. */
 export function controlStatusBadge(status, reason) {
   const s = status || 'unknown';
   const tone = s === 'pass' ? 'tone-good' : s === 'fail' ? 'tone-bad' : 'tone-warn';

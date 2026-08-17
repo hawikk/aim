@@ -1,4 +1,4 @@
--- 010_app_llm_phase1.sql — AIM-103: app-LLM visibility phase 1 (proxy path).
+-- 010_app_llm_phase1.sql — app-LLM visibility phase 1 (proxy path).
 --
 -- Source-class attribution + network volume metadata for provider-API
 -- traffic, carried on schema v1.4 events:

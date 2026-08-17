@@ -1,6 +1,6 @@
-"""Endpoint inline-enforcement policy & decisions (AIM-110 Phase 1).
+"""Endpoint inline-enforcement policy & decisions (Phase 1).
 
-AIM-15 amended 2026-07-22 (board-approved): "observe + endpoint blocking for
+amended 2026-07-22 (approved): "observe + endpoint blocking for
 critical rules". Metadata-only posture is untouched — decisions are computed
 locally from matchers that already run on the endpoint, and the only thing
 that leaves the machine is the audit record (action + rule id + policy hash,
@@ -11,24 +11,24 @@ Phase 1 ships exactly two enforceable rules:
 
   - ``secret-pattern-in-prompt`` (UserPromptSubmit): any ``secret:*`` detector
     firing on the prompt text. Hard block on first submit when enforce is on
-    (AIM-296 phase-1 out of shadow). Break-glass: resubmit the identical
+    (phase-1 out of shadow). Break-glass: resubmit the identical
     prompt within ``secret_override_ttl_seconds`` to override; the override is
     audited as action ``confirmed`` with ``rule_id`` + ``policy_hash`` (schema
-    v1.6). Optional manager gate (AIM-791): when
+    v1.6). Optional manager gate: when
     ``secret_override_requires_manager`` is true (default **false** — do not
-    enable in pilot without CEO/Security sign-off), the first resubmit opens a
+    enable in pilot without Security sign-off), the first resubmit opens a
     local approval request instead of confirming; only a local operator grant
     (ticket id, no content) allows a later resubmit to confirm. Matched content
     and the user-visible reason never leave the endpoint. PII and injection
     detectors stay observe-only by policy — they are not in scope for endpoint
     hard-blocking.
   - ``unapproved-mcp-server`` (PreToolUse): MCP tool calls (``mcp__<server>__*``)
-    to a server outside the approved inventory (from AIM-97). An
+    to a server outside the approved inventory. An
     unparseable/unknown server name counts as unapproved, matching the
     guardrail engine's semantics. Stays shadow until the approved inventory
-    is populated (AIM-296: only secret-pattern flips).
+    is populated (only secret-pattern flips).
 
-Phase 2a (AIM-111) ships shadow-first: the rules below are built and evaluated
+Phase 2a ships shadow-first: the rules below are built and evaluated
 but stay in shadow until the phase-1 telemetry gate is satisfied and an
 operator enables them.
 
@@ -38,7 +38,7 @@ operator enables them.
     configured restricted root. Bash free text is out of scope.
   - ``pii-in-prompt`` (UserPromptSubmit): confirm-prompt, NOT a hard block.
     An enforcement-eligible ``pii:*`` detector firing blocks the first
-    submission with a challenge reason (AIM-128: a bare email is only eligible
+    submission with a challenge reason (a bare email is only eligible
     when it co-occurs with another sensitive signal — see
     ``eligible_pii_flags``); resubmitting the identical prompt within
     ``pii_confirm_ttl_seconds`` is the user's explicit confirmation and is
@@ -46,7 +46,7 @@ operator enables them.
     confirm state is a local content hash in the state dir — nothing new
     leaves the machine.
 
-Inline redaction (AIM-320 — the "redact, not just block" gap closure):
+Inline redaction (— the "redact, not just block" gap closure):
 
   - ``secret-in-tool-input`` (PreToolUse): ``secret:*`` detectors firing on
     any string field of ``tool_input``. Per-rule ``action`` selects the
@@ -63,7 +63,7 @@ Inline redaction (AIM-320 — the "redact, not just block" gap closure):
     UserPromptSubmit has no rewrite primitive in the hook API, so prompts
     stay block/confirm — redaction is a tool-input action only.
 
-Multi-rail orchestration (AIM-792): when more than one of the rules above
+Multi-rail orchestration: when more than one of the rules above
 could fire on a single hook invocation, ``decide_user_prompt_submit`` /
 ``decide_pretool_use`` select exactly one Decision by fixed precedence
 (secret-pattern > pii-confirm on prompts; secret-in-tool-input >
@@ -85,7 +85,7 @@ Linux). Search order mirrors config.py:
    - Windows: ``%ProgramData%\\AI-Monitoring\\collector\\enforcement.json``
    - macOS: ``/Library/Application Support/AI-Monitoring/collector/enforcement.json``
      then ``~/Library/Application Support/AI-Monitoring/collector/enforcement.json``
-     then legacy AIM-743 ``/etc/aim-collector/enforcement.json``
+     then legacy ``/etc/aim-collector/enforcement.json``
    - Linux/WSL: ``/etc/aim-collector/enforcement.json``
 3. ``<state dir>/enforcement.json`` (per-user fallback, dev default)
 
@@ -96,7 +96,7 @@ Policy shape::
       "policy_hash": "<64-hex tag of the signed ruleset, for audit continuity>",
       "mode": "shadow",                 // "shadow" (default) | "enforce"
       "rules": {
-        // AIM-793: optional per-rule cohort canary. Outside the cohort the
+        // optional per-rule cohort canary. Outside the cohort the
         // rule stays shadow even when enforce:true (would_block + local
         // cohort reason). Expand/rollback = percent + policy_hash bump only.
         "secret-pattern-in-prompt": {
@@ -104,12 +104,12 @@ Policy shape::
           "cohort": {"percent": 5, "salt": "secret-canary-2026-08"}
         },
         "unapproved-mcp-server":    {"enforce": false},
-        "secret-pattern-in-prompt": {"enforce": true},   // AIM-296: phase-1 flip
-        "unapproved-mcp-server":    {"enforce": true},   // AIM-547 pilot
-        "restricted-repo-access":   {"enforce": false},  // fleet; pilot overlay AIM-566
+        "secret-pattern-in-prompt": {"enforce": true}, // phase-1 flip
+        "unapproved-mcp-server": {"enforce": true}, // pilot
+        "restricted-repo-access": {"enforce": false}, // fleet; pilot overlay
 
         "pii-in-prompt":            {"enforce": false},
-        "secret-in-tool-input":     {"enforce": false,   // AIM-320
+        "secret-in-tool-input": {"enforce": false, //
                                      "action": "redact"} // "block" (default) | "redact"
       },
       // Optional top-level cohort fallback when a rule has enforce:true but
@@ -132,11 +132,11 @@ Semantics: a decision is *applied* only when the global ``mode`` is
 is inside the rule's cohort (when a cohort is configured) — the global mode
 is the fleet-wide kill switch / bake control, the per-rule flag is
 Security's toggle after the gates (works-council consultation, ruleset
-sign-off) clear, and the cohort is the canary dial (AIM-793). In every other
+sign-off) clear, and the cohort is the canary dial. In every other
 state a firing rule yields ``would_block`` (shadow): the decision is logged
 as an audit event but nothing is interrupted. A missing policy file means
 full observe: not even shadow decisions are computed, so a fleet without a
-delivered bundle behaves exactly as before AIM-110.
+delivered bundle behaves exactly as.
 """
 
 import hashlib
@@ -156,10 +156,10 @@ MANAGED_PATH_DARWIN_USER = "~/Library/Application Support/AI-Monitoring/collecto
 
 RULE_SECRET_IN_PROMPT = "secret-pattern-in-prompt"
 RULE_UNAPPROVED_MCP = "unapproved-mcp-server"
-# AIM-111 Phase 2a (shadow-first; gated on phase-1 telemetry before enablement):
+# Phase 2a (shadow-first; gated on phase-1 telemetry before enablement):
 RULE_RESTRICTED_REPO = "restricted-repo-access"
 RULE_PII_IN_PROMPT = "pii-in-prompt"
-# AIM-320 inline redaction (shadow-first, same enablement gates as 2a):
+# inline redaction (shadow-first, same enablement gates as 2a):
 RULE_SECRET_IN_TOOL_INPUT = "secret-in-tool-input"
 ENFORCEABLE_RULES = (RULE_SECRET_IN_PROMPT, RULE_UNAPPROVED_MCP,
                      RULE_RESTRICTED_REPO, RULE_PII_IN_PROMPT,
@@ -167,7 +167,7 @@ ENFORCEABLE_RULES = (RULE_SECRET_IN_PROMPT, RULE_UNAPPROVED_MCP,
 
 # Per-rule applied actions. "block" is the default and the fail-safe: any
 # missing/unknown action value means block. "redact" is honored only by rules
-# whose surface is rewritable (PreToolUse tool_input, AIM-320) — the hook API
+# whose surface is rewritable (PreToolUse tool_input) — the hook API
 # has no prompt-rewrite primitive, so a prompt rule configured "redact" still
 # blocks (a secret must never egress on a config mistake).
 ACTION_BLOCK = "block"
@@ -184,25 +184,25 @@ _PATH_INPUT_KEYS = ("file_path", "path", "notebook_path")
 PII_CONFIRM_TTL_DEFAULT = 120
 PII_CONFIRM_TTL_MAX = 3600
 
-# AIM-296: secret break-glass window. Same shape as PII confirm — resubmit the
+# secret break-glass window. Same shape as PII confirm — resubmit the
 # identical prompt within the TTL to override a hard block. Default matches
 # pii so the UX is one pattern; Security can retune without a collector release.
 SECRET_OVERRIDE_TTL_DEFAULT = 120
-# AIM-627: MCP unapproved-server break-glass (resubmit same tool within TTL).
+# MCP unapproved-server break-glass (resubmit same tool within TTL).
 MCP_OVERRIDE_TTL_DEFAULT = 120
 MCP_OVERRIDE_TTL_MAX = 3600
 SECRET_OVERRIDE_TTL_MAX = 3600
-# AIM-566: restricted-repo-access break-glass (resubmit same tool+path).
+# restricted-repo-access break-glass (resubmit same tool+path).
 RESTRICTED_REPO_OVERRIDE_TTL_DEFAULT = 120
 RESTRICTED_REPO_OVERRIDE_TTL_MAX = 3600
 
-# AIM-784: when true, local resubmit is not enough — an approved, unexpired
+# when true, local resubmit is not enough — an approved, unexpired
 # grant must be present in the endpoint grants file (synced from the control
-# plane). Default false so pilot break-glass stays one-step. CEO/Security
+# plane). Default false so pilot break-glass stays one-step. Security
 # must sign off before enabling fleet-wide.
 SECRET_OVERRIDE_REQUIRES_MANAGER_DEFAULT = False
-# AIM-791: manager-approval extension for secret break-glass. Default OFF —
-# pilot stays one-step resubmit. When Security/CEO flip
+# manager-approval extension for secret break-glass. Default OFF
+# pilot stays one-step resubmit. When Security flip
 # ``secret_override_requires_manager: true``, a challenge resubmit opens a
 # local pending request and only confirms after an operator grant (ticket id
 # field, no prompt content). Grant TTL is independent so a manager can act
@@ -211,8 +211,8 @@ SECRET_OVERRIDE_REQUIRES_MANAGER_DEFAULT = False
 SECRET_OVERRIDE_MANAGER_GRANT_TTL_DEFAULT = 3600
 SECRET_OVERRIDE_MANAGER_GRANT_TTL_MAX = 86_400
 
-# AIM-128: pii:email is the dominant false-positive source in a coding context.
-# The AIM-117 dogfood backtest fired pii-in-prompt on 251 prompts (~22% of all
+# pii:email is the dominant false-positive source in a coding context.
+# The dogfood backtest fired pii-in-prompt on 251 prompts (~22% of all
 # prompts) and every one was a bare email address in normal engineering content
 # (git authorship, harness/agent addresses, doc examples, test fixtures) — zero
 # were third-party personal data being exfiltrated, and 250 of the 251 carried
@@ -222,21 +222,21 @@ SECRET_OVERRIDE_MANAGER_GRANT_TTL_MAX = 86_400
 # The structured PII detectors (SSN / credit-card / IBAN / national IDs) are
 # high precision and genuinely sensitive, so they stay eligible on their own.
 # Configurable via policy (pii_low_sensitivity_detectors) so Security can retune
-# without a collector release; an empty list restores pre-AIM-128 behavior.
+# without a collector release; an empty list restores earlier behavior.
 PII_LOW_SENSITIVITY_DEFAULT = ("pii:email",)
 
 
 class Decision(NamedTuple):
     rule_id: str
     action: str  # "blocked" (applied) | "would_block" (shadow) | "confirmed" (PII resubmit)
-                 # | "redacted" (applied, AIM-320: spans rewritten, call proceeded)
+                 # | "redacted" (applied,: spans rewritten, call proceeded)
     reason: str  # user-visible; NEVER leaves the endpoint
     hook_event: str  # "UserPromptSubmit" | "PreToolUse"
-    updated_input: dict | None = None  # AIM-320: redacted tool_input for PreToolUse
+    updated_input: dict | None = None # redacted tool_input for PreToolUse
 
 
 class OrchestratedDecision(NamedTuple):
-    """Single actuation with multi-rail attribution (AIM-782).
+    """Single actuation with multi-rail attribution.
 
     ``decision`` is the primary rail that drives the hook deny/block output
     (exactly one actuation per hook invocation). ``rails`` lists every rail
@@ -250,7 +250,7 @@ class OrchestratedDecision(NamedTuple):
 
 
 # ---------------------------------------------------------------------------
-# AIM-782 multi-rail precedence (Decision C rails + held PII observe path)
+# multi-rail precedence (Decision C rails + held PII observe path)
 # ---------------------------------------------------------------------------
 # Higher rank wins. Documented in docs/security/multi-rail-precedence.md.
 # UserPromptSubmit and PreToolUse never share an invocation, so cross-hook
@@ -258,7 +258,7 @@ class OrchestratedDecision(NamedTuple):
 RAIL_PRECEDENCE = {
     # UserPromptSubmit — Decision C secret + held PII (observe/confirm only)
     RULE_SECRET_IN_PROMPT: 100,
-    RULE_PII_IN_PROMPT: 10,  # HOLD per AIM-602 Decision C; still ranked for attribution
+    RULE_PII_IN_PROMPT: 10, # HOLD Decision C; still ranked for attribution
     # PreToolUse — Decision C MCP + restricted-repo
     RULE_UNAPPROVED_MCP: 90,
     RULE_RESTRICTED_REPO: 80,
@@ -266,7 +266,7 @@ RAIL_PRECEDENCE = {
 
 
 def _managed_enforcement_candidates() -> list[Path]:
-    """Platform managed enforcement files; Darwin is first-class (AIM-1170)."""
+    """Platform managed enforcement files; Darwin is first-class."""
     plat = sys.platform
     if plat.startswith("win"):
         base = os.environ.get("ProgramData", r"C:\ProgramData")
@@ -294,14 +294,14 @@ def policy_path() -> Path | None:
 
 
 def default_bundle_path() -> Path:
-    """Packaged AIM-296 enforce bundle shipped next to this module (AIM-440)."""
+    """Packaged enforce bundle shipped next to this module."""
     return Path(__file__).resolve().parent / "default_enforcement.json"
 
 
 def load_policy() -> dict:
     """Parsed policy dict; {} if no file or unreadable/invalid (fail-open).
 
-    AIM-639: when harden mode is active and the integrity package is present,
+    when harden mode is active and the integrity package is present,
     unsigned or signature-invalid enforcement bundles are refused (empty
     policy → observe-only fail-open for *decisions*, but the tamper is
     recorded). This prevents an agent from flipping ``mode: enforce`` to
@@ -348,7 +348,7 @@ def load_policy() -> dict:
 def seed_default_policy(*, dest: Path | None = None, force: bool = False) -> dict:
     """Install the packaged enforce bundle so declared policy matches reality.
 
-    AIM-440: installers and ``aim join`` previously never delivered
+    installers and ``aim join`` previously never delivered
     ``enforcement.json``, so endpoints stayed on an old shadow bake (or no
     bundle) while ``policies/guardrail/v1/core.yaml`` claimed ``mode: enforce``.
     Seeding writes the shipped default to the per-user state dir (or ``dest``)
@@ -433,7 +433,7 @@ def seed_default_policy(*, dest: Path | None = None, force: bool = False) -> dic
 
 
 def cohort_subject() -> str:
-    """Stable subject for canary membership (AIM-793).
+    """Stable subject for canary membership.
 
     Prefer enrollment / managed device id (same resolution order as identity
     attestation). Fall back to the local ``host_id`` UUID so an unenrolled
@@ -466,7 +466,7 @@ def parse_cohort(raw) -> dict | None:
     ``percent`` may be int or whole-number float. Invalid → treat as no cohort
     so a typo cannot accidentally hard-block the whole fleet (fail-open toward
     the non-canary path; when enforce is on without a valid cohort, enforce
-    applies fleet-wide as before AIM-793).
+    applies fleet-wide as).
     """
     if not isinstance(raw, dict):
         return None
@@ -530,7 +530,7 @@ def _rule_enforced(pol: dict, rule_id: str, subject: str | None = None) -> bool:
     """True only when mode is enforce, the rule flag is on, and cohort admits.
 
     Any missing/malformed piece defaults to shadow (fail-open posture).
-    Cohort (AIM-793): hosts outside the canary treat the rule as shadow even
+    Cohort: hosts outside the canary treat the rule as shadow even
     when ``enforce: true`` — expand/rollback is a policy-hash bump only.
     """
     if not _rule_wants_enforce(pol, rule_id):
@@ -607,7 +607,7 @@ def audit_record(pol: dict, decision: Decision,
                  rails: tuple | list | None = None) -> dict:
     """The metadata-only audit record for schema v1.5 `enforcement`.
 
-    When ``rails`` has two or more fired rails (AIM-782 multi-rail), attach
+    When ``rails`` has two or more fired rails (multi-rail), attach
     optional ``rails`` attribution (schema v1.11). Single-rail decisions omit
     the field for back-compat. Never carries content or reason strings.
     """
@@ -635,17 +635,17 @@ def posture_record(
     not. `enforcement` records alone cannot be counted: zero of them is
     equally consistent with "no bundle was ever delivered to this endpoint"
     (a rule physically cannot fire — see the `if not pol: return None` guard
-    on every decide_* function), "this collector predates AIM-110", and "the
+    on every decide_* function), "this collector predates enforcement", and "the
     fleet is clean". The bake gate needs those separated, so posture carries
     the denominator: policy state, kill-switch mode, and whether this hook
     invocation actually ran the rules.
 
-    AIM-790 (v1.10): optional ``enforcement_latency_ms`` is wall time for the
+    (v1.10): optional ``enforcement_latency_ms`` is wall time for the
     local decision path only (metadata). Nested here so latency never needs a
     content-adjacent top-level field. Independent of the fail-open hard
     timeout budget (design: 500 ms).
 
-    AIM-793 (v1.11): when a canary cohort is configured, optional
+    (v1.11): when a canary cohort is configured, optional
     ``cohort_member`` (bool) reports whether this host is inside the active
     canary. Privacy-ok: one boolean about config membership, no host id, no
     salt, no content. Omitted when no cohort is configured.
@@ -687,12 +687,12 @@ def _secret_override_path() -> Path:
 
 
 def _secret_override_pending_path() -> Path:
-    """Local pending manager-approval requests (AIM-791). Metadata only."""
+    """Local pending manager-approval requests. Metadata only."""
     return state.state_dir() / "secret_override_pending.json"
 
 
 def _secret_override_grants_path() -> Path:
-    """Local manager grants for secret break-glass (AIM-791). Written by
+    """Local manager grants for secret break-glass. Written by
     control-plane / ops tooling; never contains prompt content."""
     return state.state_dir() / "secret_override_grants.json"
 
@@ -707,7 +707,7 @@ def _secret_override_ttl(pol: dict) -> int:
 def _secret_override_requires_manager(pol: dict) -> bool:
     """True when policy demands a manager-approved grant for secret override.
 
-    AIM-784. Default false (pilot resubmit path). Explicit true only — any
+    . Default false (pilot resubmit path). Explicit true only — any
     other/missing value is open resubmit so we never silently raise friction.
     """
     return pol.get("secret_override_requires_manager") is True
@@ -793,7 +793,7 @@ def grant_allows_override(pol: dict, *, rule_id: str, user_ref: str = "",
                           now: float | None = None) -> bool:
     """True when an active grant in the local grants file covers this rule.
 
-    Deployment model (AIM-784): control-plane grants are subject-scoped, but
+    Deployment model: control-plane grants are subject-scoped, but
     the file landed on the endpoint is already filtered (MDM / agent pull of
     active-grants for this host/user). Presence of an unexpired grant for
     ``rule_id`` is therefore sufficient. When both ``user_ref`` and
@@ -811,10 +811,10 @@ def grant_allows_override(pol: dict, *, rule_id: str, user_ref: str = "",
             continue
         return True
     return False
-    """Policy-gated manager approval for secret break-glass (AIM-791).
+    """Policy-gated manager approval for secret break-glass.
 
     Default **false** — pilot keeps one-step resubmit. Do not enable without
-    CEO/Security sign-off (no silent policy expansion).
+    Security sign-off (no silent policy expansion).
     """
     raw = pol.get("secret_override_requires_manager")
     if isinstance(raw, bool):
@@ -875,7 +875,7 @@ def _record_challenge(path: Path, session_id: str, prompt: str, ttl: int,
     Expired challenges are dropped silently (no content leaves the endpoint).
     Pilot analytics use durable ``blocked`` / ``confirmed`` audit events —
     an explicit "expiry-not-used" wire event is intentionally not emitted
-    (AIM-791: no content, and not needed for the analyst list surface).
+    (no content, and not needed for the analyst list surface).
     """
     try:
         data = json.loads(path.read_text())
@@ -1028,17 +1028,17 @@ def decide_prompt(prompt_flags: list[str], pol: dict, *,
     Shadow (mode != enforce or per-rule flag off): ``would_block`` — audit
     only, nothing interrupted.
 
-    Enforce (AIM-296): hard block on first submit. Break-glass is one step —
+    Enforce: hard block on first submit. Break-glass is one step
     resubmit the *identical* prompt within ``secret_override_ttl_seconds``;
     the resubmit is audited as ``confirmed`` (schema v1.6 action reused for
     intentional override).
 
-    AIM-791 manager gate (default off): when
+    manager gate (default off): when
     ``secret_override_requires_manager`` is true, a challenge resubmit does
     **not** self-confirm. It opens a local approval request (request id only;
     no content) and stays blocked until ops write a grant via
     ``grant_secret_override`` (ticket id field). Do not enable in pilot
-    without CEO/Security sign-off.
+    without Security sign-off.
 
     Matched content never leaves the machine; only action + rule_id +
     policy_hash ride the audit event. Fail-open: if local override state
@@ -1169,7 +1169,7 @@ def _mcp_override_ttl(pol: dict) -> int:
 
 def _tool_matrix_allows(pol: dict, server: str | None, tool: str | None) -> bool:
     """True when tool-level matrix is empty (no restriction) or pair is listed.
-    AIM-627: approved_mcp_tools entries are 'server/tool' strings."""
+    approved_mcp_tools entries are 'server/tool' strings."""
     raw = pol.get("approved_mcp_tools")
     if not isinstance(raw, list) or not raw:
         return True
@@ -1188,7 +1188,7 @@ def decide_pretool(payload: dict, pol: dict, *,
                    session_id: str = "",
                    now: float | None = None) -> Decision | None:
     """PreToolUse: deny MCP calls to servers outside the approved inventory,
-    and (AIM-627) tools outside approved_mcp_tools when that matrix is set.
+    and tools outside approved_mcp_tools when that matrix is set.
 
     Unknown/malformed server names count as unapproved (engine semantics).
     Runtime override (analyst-visible via enforcement.action=confirmed):
@@ -1229,7 +1229,7 @@ def decide_pretool(payload: dict, pol: dict, *,
         reason = (f"AI Monitoring: {reason_core}. Would block if enforce were on.")
         return Decision(rule_id, "would_block", reason, "PreToolUse")
 
-    # Enforce path with optional break-glass (AIM-627).
+    # Enforce path with optional break-glass.
     sid = session_id or (payload.get("session_id") if isinstance(payload.get("session_id"), str) else "") or ""
     ttl = _mcp_override_ttl(pol)
     now = time.time() if now is None else now
@@ -1269,7 +1269,7 @@ def decide_pretool(payload: dict, pol: dict, *,
         reason = (f"AI Monitoring: {reason_core}. Would block if enforce were on.")
         return Decision(rule_id, "would_block", reason, "PreToolUse")
 
-    # Enforce path with optional break-glass (AIM-627).
+    # Enforce path with optional break-glass.
     sid = session_id or (payload.get("session_id") if isinstance(payload.get("session_id"), str) else "") or ""
     ttl = _mcp_override_ttl(pol)
     now = time.time() if now is None else now
@@ -1311,13 +1311,13 @@ def deny_output(decision: Decision) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# AIM-320: inline redaction — secret-in-tool-input (PreToolUse updatedInput)
+# inline redaction — secret-in-tool-input (PreToolUse updatedInput)
 # ---------------------------------------------------------------------------
 
 
 def _redact_prefixes(pol: dict) -> tuple[str, ...]:
     """Detector prefixes redaction may rewrite. Default is secret-only — the
-    high-precision rules that passed the AIM-296 corpus gate. Structured PII
+    high-precision rules that passed the corpus gate. Structured PII
     is opt-in via policy; injection prose patterns are never redactable."""
     raw = pol.get("redact_prefixes")
     if isinstance(raw, list):
@@ -1342,7 +1342,7 @@ def _redact_value(value, prefixes: tuple[str, ...], detectors: set[str]):
 
 def decide_redact_tool_input(payload: dict, pol: dict) -> Decision | None:
     """PreToolUse: replace secret literals in tool_input so the call proceeds
-    without the secret ever leaving the host (AIM-320).
+    without the secret ever leaving the host.
 
     Shadow: ``would_block`` — audit only, input untouched. Enforce +
     ``action: "redact"``: ``redacted`` with the rewritten input attached —
@@ -1417,7 +1417,7 @@ def redact_output(decision: Decision) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# AIM-111 Phase 2a: restricted-repo-access + pii-in-prompt (confirm-prompt)
+# Phase 2a: restricted-repo-access + pii-in-prompt (confirm-prompt)
 # ---------------------------------------------------------------------------
 
 
@@ -1465,11 +1465,11 @@ def decide_restricted_repo(payload: dict, pol: dict, *,
     restricted root. Tools without a path input (incl. Bash free text) are
     out of scope and never fire here.
 
-    AIM-782: MCP tools that carry a path key are evaluated here too — they
+    MCP tools that carry a path key are evaluated here too — they
     may co-fire with ``unapproved-mcp-server``. The multi-rail orchestrator
     picks a single primary; both rails are attributed on the audit event.
 
-    AIM-566: when enforce is on, resubmitting the identical tool+path inside
+    when enforce is on, resubmitting the identical tool+path inside
     ``restricted_repo_override_ttl_seconds`` is the audited break-glass
     (action ``confirmed``). Challenge state is local-only. ``dry_run=True``
     returns the first-hit decision without writing challenge state — used
@@ -1560,7 +1560,7 @@ def eligible_pii_flags(prompt_flags: list[str], pol: dict) -> list[str]:
     High-sensitivity structured PII is always eligible. Low-sensitivity PII
     (email, by default) is eligible only when it co-occurs with another
     sensitive signal (structured PII or a secret) — a bare email in a coding
-    context is normal content, not exfiltration (AIM-128). Returns sorted flags;
+    context is normal content, not exfiltration. Returns sorted flags;
     an empty result means no confirm-prompt decision is computed at all."""
     low = _pii_low_sensitivity(pol)
     pii = [f for f in prompt_flags if f.startswith("pii:")]
@@ -1636,7 +1636,7 @@ def decide_pii_confirm(prompt, prompt_flags: list[str], pol: dict,
     local challenge state cannot be read/written, no decision is computed
     (a confirm the user can never complete would be a hard block by accident).
 
-    ``dry_run=True`` (AIM-782 multi-rail attribution): return what this rail
+    ``dry_run=True`` (multi-rail attribution): return what this rail
     would decide without recording a challenge. Used when a higher-precedence
     rail already won so PII challenge state is never written on a dual-rail
     secret+PII prompt.
@@ -1736,7 +1736,7 @@ def orchestrate_pretool(payload: dict, pol: dict, *,
 def orchestrate(payload: dict, pol: dict, *,
                 prompt_flags: list[str] | None = None,
                 now: float | None = None) -> OrchestratedDecision | None:
-    """Hook-level multi-rail orchestrator (AIM-782).
+    """Hook-level multi-rail orchestrator.
 
     Returns a single OrchestratedDecision or None. Fail-open: callers wrap
     this; any exception degrades to observe. Never emits more than one
@@ -1759,7 +1759,7 @@ def orchestrate(payload: dict, pol: dict, *,
         return orchestrate_pretool(payload, pol, now=now)
     return None
 # ---------------------------------------------------------------------------
-# AIM-792: multi-rail orchestration (single decision per hook invocation)
+# multi-rail orchestration (single decision per hook invocation)
 # ---------------------------------------------------------------------------
 #
 # When more than one rail *could* fire on the same UserPromptSubmit /
@@ -1787,7 +1787,7 @@ def orchestrate(payload: dict, pol: dict, *,
 def decide_user_prompt_submit(prompt, prompt_flags: list[str], pol: dict,
                               session_id: str,
                               now: float | None = None) -> Decision | None:
-    """Single entry for UserPromptSubmit multi-rail selection (AIM-792).
+    """Single entry for UserPromptSubmit multi-rail selection.
 
     Precedence: secret-pattern-in-prompt > pii-in-prompt. Returns at most
     one Decision. ``None`` means no rail fired (or no policy).
@@ -1808,7 +1808,7 @@ def decide_user_prompt_submit(prompt, prompt_flags: list[str], pol: dict,
 
 def decide_pretool_use(payload: dict, pol: dict, *,
                       now: float | None = None) -> Decision | None:
-    """Single entry for PreToolUse multi-rail selection (AIM-792).
+    """Single entry for PreToolUse multi-rail selection.
 
     Precedence: secret-in-tool-input (redact/block) > unapproved-mcp-server
     > restricted-repo-access. Returns at most one Decision. ``None`` means

@@ -161,7 +161,7 @@ def extension_version() -> str | None:
 
 
 def cli_db_paths() -> list[Path]:
-    """Existing standalone Kilo CLI ``kilo.db`` paths (AIM-647 dual surface)."""
+    """Existing standalone Kilo CLI ``kilo.db`` paths (dual surface)."""
     override = os.environ.get(ENV_CLI_DB)
     if override:
         p = Path(override).expanduser()

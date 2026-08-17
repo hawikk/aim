@@ -16,7 +16,7 @@ commands:
                           options: --run-id ID --model MODEL --workspace PATH
                                    --tokens-in N --tokens-out N --force
   scan-once [--dry-run]   emit Paperclip run presence + tail Grok usage log
-                          for per-session token deltas (AIM-470); then flush
+                          for per-session token deltas; then flush
   scan                    alias for scan-once
   flush                   drain local spool to ingestion API
 """

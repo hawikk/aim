@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIM-763 — Win / WSL / Linux install + enroll continuous proof matrix.
+"""Win / WSL / Linux install + enroll continuous proof matrix.
 
 Living contract: ``docs/deployment/os-install-enroll-matrix.yaml``.
 
@@ -53,7 +53,7 @@ MATRIX_PATH = ROOT / "docs" / "deployment" / "os-install-enroll-matrix.yaml"
 RENDER_PATH = ROOT / "docs" / "deployment" / "os-install-enroll-matrix.md"
 REQUIRED_OSES = ("linux", "wsl", "windows")
 ISSUE_MARKER = "<!-- aim-763-os-install-enroll-matrix -->"
-DEFAULT_STICKY_TITLE = "[AIM-763] OS install/enroll matrix FAILED"
+DEFAULT_STICKY_TITLE = "OS install/enroll matrix FAILED"
 
 
 # ---------------------------------------------------------------------------
@@ -75,7 +75,6 @@ class Report:
     ok: bool
     generated_at: str
     matrix_path: str
-    issue: str
     owner: str
     cells: list[dict[str, Any]] = field(default_factory=list)
     checks: list[dict[str, Any]] = field(default_factory=list)
@@ -472,7 +471,6 @@ def build_report(matrix: dict[str, Any], results: list[CheckResult]) -> Report:
         ok=all_ok,
         generated_at=_utc_now(),
         matrix_path=str(MATRIX_PATH.relative_to(ROOT)),
-        issue=str(matrix.get("issue") or "AIM-763"),
         owner=str(matrix.get("owner") or "founding-engineer"),
         cells=cell_summaries,
         checks=[asdict(r) for r in results],
@@ -772,7 +770,7 @@ def close_sticky_if_open(
 def failure_markdown(report: Report, *, run_url: str | None = None) -> str:
     failed = [c for c in report.checks if not c["ok"]]
     lines = [
-        f"# OS install/enroll matrix FAILED ({report.issue})",
+        "# OS install/enroll matrix FAILED",
         "",
         f"**Generated:** {report.generated_at}",
         f"**Owner:** @{report.owner} — please investigate and restore the matrix.",
@@ -808,7 +806,7 @@ def failure_markdown(report: Report, *, run_url: str | None = None) -> str:
         "python3 scripts/check_os_install_enroll_matrix.py --self-test",
         "```",
         "",
-        "_Opened by `.github/workflows/os-install-enroll-matrix.yml` (AIM-763)._",
+        "_Opened by `.github/workflows/os-install-enroll-matrix.yml`._",
     ]
     return "\n".join(lines) + "\n"
 
@@ -820,10 +818,9 @@ def failure_markdown(report: Report, *, run_url: str | None = None) -> str:
 
 def render_markdown(matrix: dict[str, Any], report: Report | None = None) -> str:
     lines = [
-        "# OS install / enroll continuous matrix (AIM-763)",
+        "# OS install / enroll continuous matrix",
         "",
-        f"**Parent:** {matrix.get('parent', 'AIM-641')} · "
-        f"**Issue:** {matrix.get('issue', 'AIM-763')}",
+        f"**Status:** {matrix.get('status', 'shipped')}",
         f"**Owner:** `{matrix.get('owner', 'founding-engineer')}` · "
         f"**Page on failure:** `{matrix.get('page_on_failure', True)}`",
         "",

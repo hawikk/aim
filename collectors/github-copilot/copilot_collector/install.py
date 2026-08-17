@@ -1,4 +1,4 @@
-"""One-line install UX (AIM-80).
+"""One-line install UX.
 
 GitHub Copilot has no hook API we can register. Install writes managed
 config, enrolls the device, and verifies connectivity. Collection runs

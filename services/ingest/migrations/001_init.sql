@@ -1,6 +1,6 @@
 -- 001_init.sql — initial events storage for the AI Monitoring ingest service.
 --
--- Columns mirror the AIM-18 event schema v1
+-- Columns mirror the event schema v1
 -- (packages/schema/schema/v1/ai-usage-event.schema.json), the metadata-only
 -- contract collectors emit.
 --

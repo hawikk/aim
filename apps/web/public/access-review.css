@@ -1,4 +1,4 @@
-/* AIM-718 — Access review / attestation workflow. Reuses app-wide panel/card
+/* — Access review / attestation workflow. Reuses app-wide panel/card
  * tokens; only access-review-specific bits live here. */
 
 .ar-status {

@@ -1,5 +1,5 @@
 /**
- * AIM-703 — SOC runbook catalog for every alert class.
+ * SOC runbook catalog for every alert class.
  *
  * Source of truth for in-app deep links (`#/runbooks/<slug>`). Slugs match
  * packages/alerting/src/severity.ts so Sentinel/webhook `RunbookUrl` values
@@ -172,7 +172,7 @@ export const RUNBOOKS = {
     relatedRules: [],
     relatedFindingTypes: ['telemetry_gap'],
   },
-  // AIM-575 / taxonomy: first-ever proxy provider-API call from a host_ref.
+  // / taxonomy: first-ever proxy provider-API call from a host_ref.
   'rb-app-llm-new-source': {
     title: 'New application-LLM source',
     summary:
@@ -190,7 +190,7 @@ export const RUNBOOKS = {
     relatedRules: [],
     relatedFindingTypes: ['app_llm_new_source'],
   },
-  // AIM-738: provider/model catalogue completeness (taxonomy app_llm_new_provider / app_llm_new_model).
+  // provider/model catalogue completeness (taxonomy app_llm_new_provider / app_llm_new_model).
   'rb-app-llm-catalogue-drift': {
     title: 'Application-LLM catalogue drift',
     summary:

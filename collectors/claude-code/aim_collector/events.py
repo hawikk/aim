@@ -1,20 +1,20 @@
 """Canonical event construction, conforming to the ratified schema:
-packages/schema/schema/v1/ai-usage-event.schema.json (AIM-18).
+packages/schema/schema/v1/ai-usage-event.schema.json.
 
-Content policy (locked, AIM-16): no prompt text, tool input/output, file
+Content policy (locked): no prompt text, tool input/output, file
 contents, or code on an event. Ingest rejects out-of-schema fields whole,
 so everything emitted here must validate against the schema.
 
 Schema v1.1 (landed, additive): `event_type` ("usage" | "tool_use") and
-`tool_calls` aggregates (AIM-86) — tool names, MCP server ids, action
+`tool_calls` aggregates — tool names, MCP server ids, action
 classes, counts, durations; NEVER arguments, file paths, command lines,
 or tool output.
 
-Schema v1.2 (AIM-97 / AIM-570): `event_type="inventory"` with
+Schema v1.2: `event_type="inventory"` with
 `configured_mcp_servers[]` — MCP server name + scope only, never commands,
 args, URLs, or env values. Emitted only when the configured set changes.
 
-Known schema gaps (raised on AIM-18):
+Known schema gaps (raised):
 - no cache-token split (folded: cache_read counts as input)
 - cost is computed platform-side from the price table, NOT sent by collectors
 """
@@ -28,18 +28,18 @@ import unicodedata
 import uuid
 from datetime import datetime, timezone
 
-SCHEMA_VERSION = "1.10"  # AIM-627 chain + handoff fields
+SCHEMA_VERSION = "1.10" # chain + handoff fields
 SCHEMA_VERSION = "1.2"
 TOOL_NAME = "claude_code"
 PROVIDER = "anthropic"
 
-# tool_calls entry contract (schema v1.1, AIM-86)
+# tool_calls entry contract (schema v1.1)
 ACTION_CLASSES = ("fs_read", "fs_write", "shell", "network", "mcp_call", "other")
 _TOOL_CALL_KEYS = {
     "tool_name", "mcp_server", "action_class", "count", "duration_ms",
-    "call_id", "parent_call_id", "result_status", "seq",  # chain fields AIM-665/AIM-799
+    "call_id", "parent_call_id", "result_status", "seq", # chain fields
 }
-# configured_mcp_servers entry contract (schema v1.2, AIM-97)
+# configured_mcp_servers entry contract (schema v1.2)
 _MCP_SERVER_KEYS = {"name", "scope"}
 _MCP_SCOPES = ("user", "project")
 
@@ -55,7 +55,7 @@ def _now_iso() -> str:
 
 def _coerce_iso(ts: str) -> str | None:
     """Normalize an arbitrary RFC3339 string to second-precision Z form, or
-    None if unparseable. Lets personal mode (AIM-67) date events by the real
+    None if unparseable. Lets personal mode date events by the real
     transcript activity time instead of emission time."""
     if not isinstance(ts, str):
         return None
@@ -76,7 +76,7 @@ def _salt() -> bytes:
     read from AIM_HASH_SALT env or the managed config file (`hash_salt`
     key — the Intune-deployable distribution channel); if neither is set,
     fall back to a per-install random salt in the state dir (stable per
-    device, not company-wide). Tracked as an integration item for AIM-23
+    device, not company-wide). Tracked as an integration item for
     (enrollment must distribute the real salt or move pseudonymization
     ingest-side).
     """
@@ -119,20 +119,20 @@ def session_id(raw_id: str, day: str | None = None) -> str:
     long-lived (a resumed session keeps its id across days), so passing them
     through verbatim would let events be profiled across days. `day` is
     injectable for tests; default is the current UTC date. Mirrors the
-    cursor collector (AIM-61)."""
+    cursor collector."""
     if day is None:
         day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     return _hmac64(f"{day}|{raw_id}")
 
 
-# Categories whose matches get a redacted fingerprint (AIM-225). Injection
+# Categories whose matches get a redacted fingerprint. Injection
 # detectors are prose patterns — fingerprinting phrasings adds no dedupe
 # value, so they stay name-only.
 _FP_CATEGORIES = ("secret", "pii")
 
 
 def _fingerprint(detector: str, matched: str) -> str:
-    """Redacted per-occurrence fingerprint (AIM-225): keyed, truncated HMAC of
+    """Redacted per-occurrence fingerprint: keyed, truncated HMAC of
     the NFKC-folded, whitespace-stripped match, domain-separated ("fp1") from
     the pseudonym HMACs so a fingerprint can never be cross-correlated with a
     host_ref/repo_ref of the same string. Stable while the company salt is
@@ -148,7 +148,7 @@ def make_flags(flags: list) -> list[dict]:
 
     Accepts detector-name strings (enforcement path, tests) or
     matchers.Match occurrences. A Match from a secret/pii detector also
-    carries fingerprint + offset + surface (schema v1.8, AIM-225) — enough to
+    carries fingerprint + offset + surface (schema v1.8) — enough to
     prove and dedupe the finding without storing the matched content.
     Pre-built entry dicts (personal-mode checkpoint deltas) pass through.
     Duplicates collapse on (detector, fingerprint)."""
@@ -193,11 +193,11 @@ ENFORCEMENT_ACTIONS = ("blocked", "would_block", "confirmed", "redacted")
 
 
 def check_enforcement(rec: dict) -> None:
-    """Local guard for the enforcement audit record (schema v1.5, AIM-110;
-    v1.6 added 'confirmed' for the AIM-111 PII confirm-prompt and AIM-296
-    secret break-glass override; v1.9 added 'redacted' for the AIM-320
-    secret break-glass override; v1.10 added 'redacted' for the AIM-320
-    inline-redaction guardrail; v1.11 AIM-782 added optional multi-rail
+    """Local guard for the enforcement audit record (schema v1.5;
+    v1.6 added 'confirmed' PII confirm-prompt and
+    secret break-glass override; v1.9 added 'redacted' for the
+    secret break-glass override; v1.10 added 'redacted' for the
+    inline-redaction guardrail; v1.11 added optional multi-rail
     attribution via ``rails``).
     Rejects anything beyond action/rule_id/policy_hash/rails loudly, so the
     blocked payload or the user-visible reason string can never ride on an
@@ -238,14 +238,14 @@ def check_enforcement(rec: dict) -> None:
 
 
 def check_enforcement_posture(rec: dict) -> None:
-    """Local guard for the enforcement coverage marker (schema v1.7, AIM-110).
+    """Local guard for the enforcement coverage marker (schema v1.7).
     Posture is the bake's denominator, so a malformed one is worse than none:
     it would be counted as coverage the fleet does not actually have.
 
-    AIM-790 (v1.10): optional ``enforcement_latency_ms`` is decision-path
+    (v1.10): optional ``enforcement_latency_ms`` is decision-path
     wall time only — integer ms, never content.
 
-    AIM-793 (v1.11): optional ``cohort_member`` bool reports canary membership
+    (v1.11): optional ``cohort_member`` bool reports canary membership
     when a cohort is configured — config metadata only, never a host id.
     """
     allowed = {
@@ -310,7 +310,7 @@ def new_event(
         # transcript activity time so historical usage lands on its real day.
         "ts": (ts and _coerce_iso(ts)) or _now_iso(),
         "host_ref": host_ref(),
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": model,
@@ -346,7 +346,7 @@ def new_tool_use_event(
     ts: str | None = None,
     agent_handoffs: list[dict] | None = None,
 ) -> dict:
-    """event_type='tool_use' (schema v1.1 AIM-86; chain/handoffs v1.10 AIM-627).
+    """event_type='tool_use' (schema v1.1; chain/handoffs v1.10).
 
     Per-session tool-call aggregates or discrete call_id rows for one flush
     window. Metadata-only: names, classes, counts, durations, opaque chain
@@ -361,7 +361,7 @@ def new_tool_use_event(
         "event_id": str(uuid.uuid4()),
         "ts": (ts and _coerce_iso(ts)) or _now_iso(),
         "host_ref": host_ref(),
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": model,
@@ -414,7 +414,7 @@ def new_inventory_event(
     configured_mcp_servers: list[dict],
     tool_version: str | None = None,
 ) -> dict:
-    """event_type='inventory' (schema v1.2, AIM-97/AIM-570): MCP servers
+    """event_type='inventory' (schema v1.2): MCP servers
     present in Claude Code config files. Emitted only when the configured
     set changes (change detection lives in mcp_inventory). No model/
     provider/tokens — this is not LLM traffic. Metadata-only: server name
@@ -427,7 +427,7 @@ def new_inventory_event(
         "event_id": str(uuid.uuid4()),
         "ts": _now_iso(),
         "host_ref": host,
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": None,
@@ -504,7 +504,7 @@ def _check_tool_calls(tool_calls: list) -> None:
         if dur is not None and (not isinstance(dur, int) or dur < 0):
             raise ValueError("duration_ms must be an int >= 0 or null")
 
-        # AIM-627 / schema v1.10 chain metadata (optional; never arguments/results).
+        # / schema v1.10 chain metadata (optional; never arguments/results).
         for _ck, _mx in (("call_id", 64), ("parent_call_id", 64)):
             _cv = tc.get(_ck)
             if _cv is not None and (not isinstance(_cv, str) or len(_cv) > _mx):

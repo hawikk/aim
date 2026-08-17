@@ -25,12 +25,12 @@ def scan_once() -> int:
                 continue  # a malformed task dir must not stall the scan
             task_states[key] = new_state
             emitted.extend(new_events)
-    # CLI surface (AIM-647): standalone kilo binary sessions in kilo.db
+    # CLI surface: standalone kilo binary sessions in kilo.db
     try:
         emitted.extend(cli_sessions.collect(cp))
     except Exception:
         pass  # CLI path must not stall IDE collection
-    # MCP server config inventory (AIM-97): one event, only when the
+    # MCP server config inventory: one event, only when the
     # configured (name, scope) set changed. Workspace paths come from the
     # per-task checkpoint fragments (never emitted themselves).
     workspaces = [st["workspace"] for st in task_states.values()

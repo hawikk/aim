@@ -1,5 +1,5 @@
-/* Alerts inbox data loading (AIM-1181 split): alert paging behind the
- * severity/pillar filters, shell-state fetch, and the AIM-702 closed-finding
+/* Alerts inbox data loading (split): alert paging behind the
+ * severity/pillar filters, shell-state fetch, and the closed-finding
  * outcome history. Rendering lives in ./render.js. */
 
 import { api } from '../lib/api.js';
@@ -9,12 +9,12 @@ import { inboxCtx } from './state.js';
 import { render, renderDropped } from './render.js';
 
 const PAGE_LIMIT = 100;
-/* Closed-finding history page size for AIM-702. Analyst+ already has this
+/* Closed-finding history page size. Analyst+ already has this
  * endpoint; we only pull terminal dispositions (resolved / false_positive). */
 const HISTORY_PAGE = 200;
 const HISTORY_MAX_PAGES = 3;
 
-/* AIM-702: load historical closed-finding dispositions once per inbox
+/*: load historical closed-finding dispositions once per inbox
  * session. Failures are non-fatal — cards simply omit the hint pill. */
 export async function loadOutcomeHistory() {
   const { state } = inboxCtx;

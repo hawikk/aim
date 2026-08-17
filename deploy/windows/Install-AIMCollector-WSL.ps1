@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
   Bridge: after the Windows Intune app is on the host, enroll each WSL distro
-  with the Linux collector path (AIM-28).
+  with the Linux collector path.
 
 .DESCRIPTION
   Invoked as an Intune remediation / dependency script (SYSTEM). For every

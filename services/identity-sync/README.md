@@ -1,7 +1,7 @@
 # identity-sync
 
 Google Workspace directory sync, endpoint-identity resolution, and pseudonymization
-for the AI Monitoring platform (issue AIM-24).
+for the AI Monitoring platform (issue).
 
 ## What it does
 
@@ -9,7 +9,7 @@ for the AI Monitoring platform (issue AIM-24).
    Directory API on a schedule (hourly in prod) into reference tables. Leavers are
    marked `suspended`, never deleted, so historical event joins keep resolving.
    When `IDENTITY_SYNC_AIM_API_URL` + `IDENTITY_SYNC_SESSION_REVOKE_TOKEN` are set
-   (AIM-714), newly suspended/missing users also trigger platform session revoke
+   , newly suspended/missing users also trigger platform session revoke
    so live AIM SSO cookies die before `AIM_SESSION_TTL_HOURS`.
 2. **Identity resolution** — the ingestion pipeline sends endpoint identity
    (`device_id`, `os_user`) per event; the service returns a **pseudonym + team**
@@ -28,7 +28,7 @@ for the AI Monitoring platform (issue AIM-24).
 ```
 src/identity_sync/
   config.py            env-driven settings (IDENTITY_SYNC_* prefix)
-  auth.py              verified-JWT caller authentication for the gated endpoints (AIM-306)
+  auth.py verified-JWT caller authentication for the gated endpoints
   db.py                SQLAlchemy models: dir_users, dir_org_units, device_mappings, audit_log
   directory_source.py  FixtureDirectorySource (dev) + GoogleDirectorySource (Admin SDK)
   sync.py              full-upsert sync, team derivation from OU path
@@ -38,10 +38,10 @@ src/identity_sync/
   __main__.py          CLI: identity-sync sync | serve
 fixtures/              dev directory snapshot (Admin SDK field shapes)
 fixtures/service_host_residual/
-                       AIM-1117 residual wire-shape scenarios (dogfood companion)
+                       residual wire-shape scenarios (dogfood companion)
 tests/                 pytest suite
 tests/test_service_host_principal_kind_harness.py
-                       AIM-1117 service-host principal_kind regression harness
+                       service-host principal_kind regression harness
 ```
 
 ## Dev quickstart
@@ -54,7 +54,7 @@ To run it standalone instead:
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/pytest                                        # run tests
-# AIM-1117 residual harness only (package-level target; also runs in CI):
+# residual harness only (package-level target; also runs in CI):
 .venv/bin/pytest tests/test_service_host_principal_kind_harness.py -q
 IDENTITY_SYNC_DATABASE_URL=sqlite:///./dev.db .venv/bin/identity-sync sync
 IDENTITY_SYNC_DATABASE_URL=sqlite:///./dev.db .venv/bin/identity-sync serve
@@ -66,7 +66,7 @@ Try it:
 # resolve endpoint identity -> pseudonym (what the ingest pipeline calls)
 curl -s localhost:8080/resolve -H 'content-type: application/json' -d '{"os_user":"rpatel"}'
 
-# reveal — gated by a verified bearer JWT (AIM-306); every attempt is audited
+# reveal — gated by a verified bearer JWT; every attempt is audited
 TOKEN=$(python3 -c 'import jwt,time; now=int(time.time()); print(jwt.encode(
   {"sub":"rpatel@example.com","email":"rpatel@example.com","groups":["ai-monitoring-revealers"],
    "iat":now,"exp":now+3600}, "localdev-only-not-a-secret", algorithm="HS256"))')
@@ -85,7 +85,7 @@ curl -s localhost:8080/reveal -H 'content-type: application/json' \
   pseudonyms — a deliberate, documented event (see design doc).
 - Scheduling: hourly Cloud Scheduler -> this service's `/sync` (or a CronJob running
   `identity-sync sync`).
-- Authn (AIM-306): the gated endpoints (`/reveal`, `POST /service-identities`)
+- Authn: the gated endpoints (`/reveal`, `POST /service-identities`)
   verify a caller-supplied bearer JWT themselves — either against the platform
   IdP's JWKS (`IDENTITY_SYNC_JWT_JWKS_URL`, prod) or an HS256 shared secret
   (`IDENTITY_SYNC_JWT_HS256_SECRET`, in-network service callers / dev). Client

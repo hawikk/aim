@@ -1,4 +1,4 @@
-/* Repos view (AIM-78) — pure-moved from app.js (AIM-527). */
+/* Repos view — pure-moved from app.js. */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, fmtUsd } from '../lib/format.js';
 import { state, hashFor, api } from '../lib/runtime.js';
@@ -6,7 +6,7 @@ import { EMPTY, table, card } from '../lib/components.js';
 import { lineChart, chartSummary, ACCENT, GOOD } from '../lib/charts.js';
 import { hideEntityDetail, entityDetailError, entityDetailShell } from '../lib/entity-detail.js';
 
-/* ---------- Repos view (AIM-78) ---------- */
+/* ---------- Repos view ---------- */
 export const fmtRepoRef = (r) => (r.label ? r.label : `${String(r.repo).slice(0, 12)}…`);
 
 export async function loadRepos() {
@@ -39,7 +39,7 @@ export function renderRepoTable(d) {
 }
 
 // Drill-down panel for a single repo: aggregate cards, per-tool breakdown,
-// daily trend, and flag hits by detector — from /api/repos/:repoRef (AIM-78).
+// daily trend, and flag hits by detector — from /api/repos/:repoRef.
 export async function renderRepoDetail() {
   const box = $('#repo-detail');
   if (!state.entity) {

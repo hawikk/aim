@@ -1,4 +1,4 @@
-// CSV export helpers (AIM-82). One shared serializer so every endpoint exports
+// CSV export helpers. One shared serializer so every endpoint exports
 // exactly the rows its JSON response carries — the export can't drift from the
 // on-screen numbers.
 //

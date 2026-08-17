@@ -1,4 +1,4 @@
-# OS egress collector (AIM-321)
+# OS egress collector
 
 On-device capture surface for **non-IDE AI SaaS usage** (ChatGPT web, Claude.ai
 web, and other catalogue domains). Decision record:
@@ -11,7 +11,7 @@ acked before capture): `../../docs/privacy/aim-321-os-egress-consent-notice.md`.
    hostname only; never URL paths, query strings, or bodies.
 2. Matches hostnames against the AI domain catalogue
    (`../proxy/endpoints.json`, optionally merged with a shadow-AI catalogue
-   JSON). Catalogue growth from [AIM-300](/AIM/issues/AIM-300) expands coverage
+   JSON). Catalogue growth expands coverage
    **without a code change**.
 3. Emits canonical v1.9+ `ai-usage-event` records with `source: "os_egress"`.
 4. **Refuses to capture** until the notice acknowledgment gate is satisfied
@@ -51,11 +51,11 @@ python3 -m pytest collectors/os-egress/tests -q
 
 Platform agents (Windows ETW DNS, macOS NE, Linux eBPF/resolved) should
 normalize into this shape. The collector core is deliberately adapter-thin so
-AIM-304-style surface plugins can feed it later.
+style surface plugins can feed it later.
 
 ## Privacy
 
-- Metadata only (AIM-16).
+- Metadata only.
 - Allowlist match only — non-catalogue destinations produce **zero** events.
 - Notice gate: see consent doc §5.
 - Process **command lines** and full URLs are stripped if a buggy adapter

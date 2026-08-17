@@ -1,4 +1,4 @@
-"""AIM tool adapter runtime (AIM-304).
+"""AIM tool adapter runtime.
 
 A new AI tool with an existing surface type is configuration (a manifest),
 not a code fork. See docs/adapter-contract.md.

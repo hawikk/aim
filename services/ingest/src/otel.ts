@@ -3,7 +3,7 @@ import type { UsageEventV1 } from "./schema";
 
 /**
  * OTLP/HTTP (JSON) receiver for OpenTelemetry GenAI semantic-convention spans
- * (AIM-105, approved AIM-101 proposal phase 2).
+ * (approved proposal phase 2).
  *
  * PRIVACY-CRITICAL: the attribute allowlist below is the enforcement point
  * for "no prompt/response text can ever land in our store". Only allowlisted
@@ -225,7 +225,7 @@ export function mapOtlpTraceRequest(body: unknown, hostSalt: string): OtlpMapRes
           ts: toSecondPrecisionIso(endMs),
           host_ref: createHmac("sha256", hostSalt).update(`otel:${serviceName}`).digest("hex"),
           user_ref: null,
-          // AIM-1168: Claude Code OTel is a coding-tool feed, not first-party
+          // Claude Code OTel is a coding-tool feed, not first-party
           // app APM. tool=claude_code keeps it on Tools/Overview and off Apps.
           tool: claudeCode ? "claude_code" : "genai_app",
           model: typeof model === "string" && model.length > 0 ? model : null,

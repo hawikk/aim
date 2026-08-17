@@ -1,4 +1,4 @@
-# Palo Alto URL-filtering / traffic CSV — synthetic subset (AIM-1094).
+# Palo Alto URL-filtering / traffic CSV — synthetic subset.
 # Sanitized RFC1918 sources, fake domain users, no real customer data.
 # Columns (fixed order when header is absent): receive_time,src,srcuser,dst,url,
 # category,action,bytes_sent,bytes_received,http_method,response_code,elapsed_sec

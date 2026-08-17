@@ -10,7 +10,7 @@ COPY services/shadow-ai/fixtures ./fixtures
 RUN pip install --no-cache-dir . \
     && pip uninstall -y pip setuptools
 # After pip install, package code lives under site-packages — not next to
-# /app/catalogue and /app/fixtures (AIM-1032). Pin absolute defaults so the
+# /app/catalogue and /app/fixtures. Pin absolute defaults so the
 # image boots without compose overrides or dogfood env patches.
 ENV SHADOW_AI_CATALOGUE_PATH=/app/catalogue/ai-tools.json \
     SHADOW_AI_GRANT_FIXTURE_PATH=/app/fixtures/oauth_grants.json \

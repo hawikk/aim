@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# AIM-1123 / AIM-1124 / AIM-1126 / AIM-1127 / AIM-1136
 # Private-network pilot control-plane one-shot.
 #
 # Collapses the LEAA multi-day pilot install into a single product entrypoint:
@@ -7,10 +6,10 @@
 #   git clone … && cd ai-monitoring
 #   ./scripts/install-pilot.sh
 #   # → ingest /healthz + dashboard /api/health = 200
-#   # → prints enroll.sh one-liner (install + join + doctor; AIM-1124)
+# # → prints enroll.sh one-liner (install + join + doctor)
 #
 # Prefer prebuilt GHCR (or pin-file) images so a clean host skips the 10–20 min
-# cold `compose build` (AIM-1126). Fall back to source build for contributors
+# cold `compose build`. Fall back to source build for contributors
 # or when images are unavailable.
 #
 # Pilot defaults:
@@ -70,7 +69,7 @@ PIN_FILE="${AIM_IMAGE_PIN_FILE:-$ROOT/deploy/compose/images.pin.env}"
 
 usage() {
   cat <<'EOF'
-AIM pilot control-plane one-shot (AIM-1123/1124/1126/1127/1136).
+AIM pilot control-plane one-shot.
 
 Happy path: clone → ./scripts/install-pilot.sh → health green → enroll.sh one-liner
 
@@ -447,7 +446,7 @@ do_nobuild_up() {
     docker compose "${COMPOSE_ARGS[@]}" up -d
 }
 
-# --- onboarding mint + enroll.sh one-liner (AIM-1124) ------------------------
+# --- onboarding mint + enroll.sh one-liner ------------------------
 print_manual_mint_path() {
   local dash="$1"
   local ingest_public="$2"
@@ -466,7 +465,7 @@ print_manual_mint_path() {
       -H 'Content-Type: application/json' \\
       -d '{"name":"pilot","maxEnrollments":50,"expiresInDays":14}'
     # Response field "secret" is the cleartext enroll token (once).
-    # Then on each engineer device (preferred one-shot — AIM-1124):
+    # Then on each engineer device (preferred one-shot —):
     #   ${enroll_placeholder}
     # Or if aim is already installed:
     #   aim join ${ingest_public} --token <secret>

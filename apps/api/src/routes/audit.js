@@ -1,4 +1,4 @@
-// Audit trail read API (AIM-95) + CSV export (AIM-385): lets auditors (and
+// Audit trail read API + CSV export: lets auditors (and
 // admins) query the immutable, hash-chained audit log without shell access
 // to the host. Reads the JSONL path configured for the writer side
 // (AUDIT_LOG_PATH); when the trail is not configured the endpoint answers an
@@ -9,7 +9,7 @@
 // excluded: the audit trail names actors). Every read is itself recorded by
 // the global dashboard.view audit hook in server.js.
 //
-// ?format=csv (AIM-385) exports the same rows the JSON response carries, so
+// ?format=csv exports the same rows the JSON response carries, so
 // an auditor can hand Legal the trail without jq. The seal column rides
 // along so the export stays verifiable against the chain.
 import { AuditLog } from '../../../../packages/audit/src/audit-log.ts';

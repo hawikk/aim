@@ -1,4 +1,4 @@
-"""Per-user auto-start registration for the `aim watch` loop (AIM-139).
+"""Per-user auto-start registration for the `aim watch` loop.
 
 The single security-relevant promise here: the watcher survives a reboot
 *without ever touching a system/root scope*. Every mechanism below registers

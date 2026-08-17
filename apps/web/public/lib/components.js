@@ -1,12 +1,12 @@
-/* The shared component vocabulary (AIM-526).
+/* The shared component vocabulary.
  *
- * AIM-527 pure-moved table/card/emptyState out of app.js so views/*.js could
+ * pure-moved table/card/emptyState out of app.js so views/*.js could
  * import them. That stopped the *structural* trapping; this file is the
  * *contract* that stops the drift those copies introduced:
  *
  *  - emptyState is a first-class API that distinguishes no-data / no-collector /
  *    filtered / error / loading. A security analyst must not read a coverage gap
- *    as a clean result (AIM-475 / AIM-476 class of bug).
+ * as a clean result (class of bug).
  *  - table carries the a11y contract by construction: caption, scoped headers,
  *    keyboard-reachable sort, drill-down rows with role/tabindex/name.
  *  - card is one tile with tone + optional href; clones that drop tone are how
@@ -16,13 +16,13 @@
  * built. If a view can't say something through this API, extend the API.
  *
  * Import path uses `../lib/dom.js` (even though we live under lib/) so the
- * AIM-523 import guard, which matches the substring `lib/dom.js`, still passes.
+ * import guard, which matches the substring `lib/dom.js`, still passes.
  */
 import { esc, $ } from '../lib/dom.js';
 import { installEmpty, installBannerCopy } from './install-state.js';
 import { t } from './i18n.js';
 
-/** Canonical setup-doc paths (AIM-591). Repo-relative so empty states and
+/** Canonical setup-doc paths. Repo-relative so empty states and
  * install-state rewrites cannot drift. Operators open them from the deployment
  * checkout or internal docs host — the console never fetches them itself. */
 export const SETUP_DOCS = {
@@ -114,7 +114,7 @@ export const EMPTY = {
   toolTrend: { needsEvents: true, title: 'No usage in this range', body: 'Daily usage for this tool will appear here once events arrive.' },
   flags: { needsEvents: true, title: 'No guardrail matches', body: 'Nothing triggered the policy detectors in this range — that is the good outcome.' },
   flagsTrend: { needsEvents: true, title: 'No detection volume', body: 'Guardrail matches per day will appear here when detectors fire in this range.' },
-  /* AIM-588: endpoint enforcement dispositions (blocked / would-block / override). */
+  /*: endpoint enforcement dispositions (blocked / would-block / override). */
   blocksTrend: {
     needsEvents: true,
     title: 'No enforce-block history',
@@ -135,7 +135,7 @@ export const EMPTY = {
     href: '#/onboarding',
     linkLabel: 'Open Onboarding',
   },
-  /* AIM-588: daily healthy-% / gaps; snapshot bar above still answers "right now". */
+  /*: daily healthy-% / gaps; snapshot bar above still answers "right now". */
   fleetCoverageTrend: {
     title: 'No coverage history yet',
     body: 'Daily healthy percentage and coverage-gap counts appear once fleet history is rolled up. The snapshot bar above is the current truth.',
@@ -297,7 +297,7 @@ export const skeletonCards = (n = 6) => Array.from({ length: n }, () => '<div cl
 /* ----------------------------------------------------------------- table ----
  *
  * Caption is mandatory (degrades to a generated one rather than throw — a
- * thrown exception here blanks the view, which is AIM-475). Headers get
+ * thrown exception here blanks the view, which is). Headers get
  * scope="col"; first non-numeric cell is scope="row". Sortable columns use a
  * real <button>. Drill-down via opts.drilldown sets role/tabindex/aria-label.
  *
@@ -385,7 +385,7 @@ function wireSort(el, opts) {
   });
 }
 
-/* Underscore aliases for views/* pre-rename imports (AIM-527 → AIM-782). */
+/* Underscore aliases for views/* pre-rename imports (→). */
 export {
   card as _card,
   emptyState as _emptyState,
@@ -404,7 +404,7 @@ export function installBanner(st) {
   const detail = document.createElement('span');
   detail.textContent = copy.detail;
   el.append(strong, detail);
-  // AIM-591: same setup vocabulary as empty panels — doc path + in-app CTA.
+  // same setup vocabulary as empty panels — doc path + in-app CTA.
   const doc = safeDocPath(copy.doc);
   if (doc) {
     const docEl = document.createElement('div');

@@ -1,14 +1,14 @@
-/* AIM-584 / AIM-987 — multi-destination alert routing helpers.
+/* — multi-destination alert routing helpers.
  *
  * Guardrail findings fan out to every enabled destination whose severity floor
  * is at or below the finding. Destinations are configured globally on the Rules
  * view (GET/PUT /api/guardrail/alerts); this module is the pure shape used by
  * the UI for validation, empty states, and "where does this rule go?" chips.
  *
- * AIM-987: PagerDuty is always a first-class card (routing key env-only).
+ * PagerDuty is always a first-class card (routing key env-only).
  * Slack is feature-flagged (features.slack / ALERT_SLACK_ENABLED) — the card
  * only appears when the flag is on. Escalation ladders live in
- * lib/escalation-policies.js (AIM-990 dashboard-editable ladders).
+ * lib/escalation-policies.js (dashboard-editable ladders).
  *
  * No secrets live here — only presence booleans from the API.
  */
@@ -79,7 +79,7 @@ export function destMeta(id) {
 
 /**
  * Destinations that should render cards for this payload.
- * Slack is omitted unless features.slack is true (AIM-583 / AIM-987).
+ * Slack is omitted unless features.slack is true.
  *
  * @param {{ features?: object } | null | undefined} payload
  */
@@ -155,7 +155,7 @@ export function destinationRows(payload) {
     },
   ];
 
-  // AIM-583 / AIM-987: Slack card only when SOC opted in via ALERT_SLACK_ENABLED.
+  // Slack card only when SOC opted in via ALERT_SLACK_ENABLED.
   if (features.slack === true) {
     rows.push({
       id: 'slack',
@@ -318,7 +318,7 @@ export function validateEmail({ enabled, to, minSeverity } = {}) {
   return { ok: true };
 }
 
-/** AIM-699 / AIM-987: enable + floor only; routing key is env-only. */
+/**: enable + floor only; routing key is env-only. */
 export function validatePagerDuty({ enabled, minSeverity } = {}) {
   if (typeof enabled !== 'boolean') {
     return { ok: false, field: 'ac-enabled', message: 'Enabled must be on or off.' };
@@ -329,7 +329,7 @@ export function validatePagerDuty({ enabled, minSeverity } = {}) {
   return { ok: true };
 }
 
-/** AIM-583 / AIM-987: enable + floor only; webhook URL is env-only. */
+/**: enable + floor only; webhook URL is env-only. */
 export function validateSlack({ enabled, minSeverity } = {}) {
   if (typeof enabled !== 'boolean') {
     return { ok: false, field: 'ac-enabled', message: 'Enabled must be on or off.' };

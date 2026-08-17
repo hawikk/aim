@@ -1,4 +1,4 @@
-"""Endpoint identity attestation (AIM-58). Same contract as other collectors."""
+"""Endpoint identity attestation. Same contract as other collectors."""
 
 from __future__ import annotations
 

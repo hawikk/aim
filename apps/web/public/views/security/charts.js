@@ -1,5 +1,5 @@
-/* Security view charts (AIM-1135 split): severity mix (AIM-524), flags trend,
- * detection volume + enforce blocks (AIM-588). Pure renderers — the
+/* Security view charts (split): severity mix, flags trend,
+ * detection volume + enforce blocks. Pure renderers — the
  * orchestrator fetches and passes payloads in. */
 import { fmtInt, fmtDay } from '../../lib/format.js';
 import { EMPTY } from '../../lib/components.js';
@@ -7,7 +7,7 @@ import { lineChart, setChartState, chartSummary, PALETTE, barChart, detectionVol
 import { SEVERITY_BANDS, severityBand } from '../../lib/ui.js';
 
 /* "Where is the risk concentrated?" — detector matches banded by severity.
- * Bars coloured from the same --sev-* tokens the pills read (AIM-524). */
+ * Bars coloured from the same --sev-* tokens the pills read. */
 export function renderSecSeverityMix(detectors) {
   const byBand = new Map();
   for (const d of detectors ?? []) {
@@ -52,7 +52,7 @@ export function renderFlagsTrendChart(flags) {
   lineChart('#flags-trend', days, flagSeries, chartSummary('Line', days, flagSeries));
 }
 
-/** AIM-588: detection volume chart from /api/flags.trend. */
+/**: detection volume chart from /api/flags.trend. */
 export function renderDetectionVolumeChart(flags) {
   const trend = flags?.trend ?? [];
   if (trend.length === 0) {
@@ -64,7 +64,7 @@ export function renderDetectionVolumeChart(flags) {
 }
 
 /**
- * AIM-588: enforce blocks from GET /api/enforcement?days=N.
+ * enforce blocks from GET /api/enforcement?days=N.
  * Soft-fail when the endpoint is absent (404/network) so Security still loads;
  * empty state is honest about missing history rather than inventing zeros.
  */

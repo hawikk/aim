@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Intune custom detection script for the AIM Collector Win32 app (AIM-28).
+  Intune custom detection script for the AIM Collector Win32 app.
 
   Exit 0 + write output  => detected (installed)
   Exit 0 + no output     => not detected

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — collector uninstaller for macOS (AIM-743 / Jamf).
+# AI Monitoring — collector uninstaller for macOS (Jamf).
 # Idempotent. Removes launchd jobs, hooks, payload, and config; then verifies
 # no residue remains and exits non-zero if anything is left behind.
 #

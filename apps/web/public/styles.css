@@ -1,11 +1,11 @@
 /* ==========================================================================
-   AI Monitoring design system (AIM-68 redesign, extracted in AIM-69)
+   AI Monitoring design system (redesign, extracted)
    Layer order: tokens → base → layout → components → utilities → media.
    Documented in docs/frontend-design-system.md — keep the two in sync.
    ========================================================================== */
 
 /* ---------- 1. Design tokens ----------
-   AIM-151 retoken. Rules this layer enforces, so components never re-decide:
+   retoken. Rules this layer enforces, so components never re-decide:
    - Near-black neutral surfaces; 1px hairline borders instead of shadows.
      Shadows exist ONLY on dropdowns, popovers and modals.
    - ONE accent (desaturated teal) for primary actions and active nav.
@@ -79,14 +79,14 @@
      informational (the inbox's severity_id 1, below "low").
      Consume these tokens; never re-pick severity colors per tab, and never
      borrow one for a categorical chart series — status colours are reserved.
-     AIM-524: pill text clears AA on its own tint in both modes (dark 4.63–5.84,
+     pill text clears AA on its own tint in both modes (dark 4.63–5.84,
      light 4.85–5.96); the ramp does NOT clear the CVD floor, which is why
      lib/severity.js also ships a shape and always renders the band name. */
   --sev-critical: var(--red-400);
   --sev-critical-text: var(--red-400);
   --sev-critical-soft: rgba(248, 81, 73, 0.14);
   --sev-critical-border: rgba(248, 81, 73, 0.45);
-  --sev-critical-glow: none;       /* AIM-151: glows are gone; the border carries it */
+  --sev-critical-glow: none; /*: glows are gone; the border carries it */
   --sev-high: var(--orange-400);
   --sev-high-soft: rgba(219, 109, 40, 0.14);
   --sev-high-border: rgba(219, 109, 40, 0.36);
@@ -168,7 +168,7 @@
   --z-toast: 110;
 }
 
-/* Light theme — opt-in via <html data-theme="light"> (decision: AIM-69, see docs).
+/* Light theme — opt-in via <html data-theme="light"> (decision:, see docs).
    Overrides semantic tokens only; primitives and component rules are shared. */
 [data-theme="light"] {
   color-scheme: light;
@@ -217,7 +217,7 @@
   --sev-critical-soft: rgba(192, 38, 38, 0.1);
   --sev-critical-border: rgba(192, 38, 38, 0.34);
   --sev-critical-glow: none;
-  /* AIM-524 retune, from the dataviz validator rather than by eye. The old
+  /* retune, from the dataviz validator rather than by eye. The old
      light steps were #b4530f high / warn-token #9a6206 medium, and they failed
      twice: the pair sat at CVD ΔE 2.3 under deuteranopia (indistinguishable),
      and medium's pill text was 4.29:1 on its own tint — under AA. Deepening
@@ -256,7 +256,7 @@
 /* The UA rule for [hidden] loses to any author `display` on a class
    (.btn-control, .find-view-form, …), which left hidden-by-attribute controls
    visible — e.g. inbox "Load more" over an exhausted cursor and the findings
-   "Save view" bar on load (AIM-250). The attribute must always win. */
+   "Save view" bar on load. The attribute must always win. */
 [hidden] { display: none !important; }
 
 html { scrollbar-color: var(--scrollbar) var(--bg); }
@@ -297,7 +297,7 @@ body {
 .ref-open:hover { color: var(--accent); }
 .faint { color: var(--faint); }
 
-/* ---------- 3. App shell (AIM-151): sidebar + top bar ---------- */
+/* ---------- 3. App shell: sidebar + top bar ---------- */
 .shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
@@ -370,7 +370,7 @@ nav button.active {
   padding: var(--space-3) var(--space-3) var(--space-1);
 }
 
-/* AIM-1070: collapsible nav groups — utilities stay addressable, not permanent tabs */
+/*: collapsible nav groups — utilities stay addressable, not permanent tabs */
 .nav-slot {
   display: flex;
   flex-direction: column;
@@ -453,7 +453,7 @@ nav button.active {
 .sign-out:hover { color: var(--text); text-decoration: underline; }
 .updated { color: var(--faint); font-size: var(--text-xs); }
 
-/* Locale picker (AIM-917) — compact top-bar control next to theme toggle.
+/* Locale picker — compact top-bar control next to theme toggle.
    Lists only registered catalogs; never shows awaiting-Security tags. */
 .locale-picker {
   display: inline-flex;
@@ -489,7 +489,7 @@ nav button.active {
   outline-offset: 1px;
 }
 
-/* Theme toggle (AIM-514) — same hairline chrome as the role badge, sized to
+/* Theme toggle — same hairline chrome as the role badge, sized to
    the 24px control height the top bar already uses. Neutral, never accent:
    the theme is a preference, not a status, and the accent is reserved for
    primary action and active nav. The icon shows the theme the click switches
@@ -532,7 +532,7 @@ nav button.active {
 .role-badge .ico { width: 12px; height: 12px; }
 .role-badge[data-role="admin"] { color: var(--accent); border-color: var(--accent-border); }
 
-/* AIM-707: home persona picker — same segmented chrome as the range control,
+/*: home persona picker — same segmented chrome as the range control,
  * denser so three labels fit the top bar without crowding pipeline health. */
 .home-role {
   flex-shrink: 0;
@@ -547,7 +547,7 @@ nav button.active {
   margin-bottom: var(--space-3);
 }
 
-/* Pipeline liveness (AIM-148): compact ingest-health indicator in the top bar.
+/* Pipeline liveness: compact ingest-health indicator in the top bar.
  * Colors come from the shared semantic tokens. The idle (alert) state is a
  * filled red label so a stalled pipeline is unmissable — it no longer pulses,
  * because motion for its own sake is noise on a console you stare at all day. */
@@ -640,7 +640,7 @@ main { position: relative; z-index: 1; padding: var(--space-6); max-width: 1440p
 /* Small secondary controls. .btn-export is for things that actually download
    (it stamps a download glyph); .btn-control is the same chrome for actions
    that do not — pause, refresh, paginate, retry. They were the same class
-   until AIM-151, which is why a Pause button used to render a download arrow. */
+   until, which is why a Pause button used to render a download arrow. */
 .btn-export,
 .btn-control {
   display: inline-block;
@@ -682,7 +682,7 @@ select:hover { border-color: var(--border-strong); }
 .field-hint { font-size: var(--text-xs); color: var(--faint); }
 .picker { color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
 
-/* KPI strip (AIM-151). Flat bordered tiles, no hover lift, no top-edge
+/* KPI strip. Flat bordered tiles, no hover lift, no top-edge
    gradient. The value is mono because it is data; the delta sits beneath it
    and is colored by direction only where direction has meaning. */
 .cards {
@@ -700,7 +700,7 @@ select:hover { border-color: var(--border-strong); }
   transition: border-color var(--dur-fast) var(--ease);
 }
 .card:hover { border-color: var(--border-strong); }
-/* AIM-481: clickable KPI tiles deep-link into the view that backs the number. */
+/*: clickable KPI tiles deep-link into the view that backs the number. */
 a.card-link {
   display: block;
   color: inherit;
@@ -728,7 +728,7 @@ a.card-link:focus-visible {
 .card .value.tone-good { color: var(--good); }
 .card .value.tone-bad { color: var(--bad); }
 
-/* AIM-481 Overview front page: sparkline, alerts strip, tool-status split. */
+/* Overview front page: sparkline, alerts strip, tool-status split. */
 .panel-spark h2,
 .ov-tool-split .panel h2 { flex-wrap: wrap; }
 .panel-link {
@@ -827,7 +827,7 @@ a.ov-alert:focus-visible {
 }
 .hint { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--faint); font-size: var(--text-xs); }
 
-/* AIM-482: clickable Security table rows + detail panel. */
+/*: clickable Security table rows + detail panel. */
 table tbody tr.is-clickable { cursor: pointer; }
 table tbody tr.is-clickable:hover { background: var(--panel-hover, rgba(148, 163, 255, 0.06)); }
 table tbody tr.is-clickable:focus-visible {
@@ -870,7 +870,7 @@ table tbody tr.is-clickable:focus-visible {
   margin: 0 0 var(--space-3);
 }
 
-/* AIM-1023: severity pill inside a findings hop — keep pill chrome, make
+/*: severity pill inside a findings hop — keep pill chrome, make
  * the whole badge the click target without looking like plain text. */
 a.sec-sev-link {
   color: inherit;
@@ -887,7 +887,7 @@ a.sec-sev-link:focus-visible {
 .chart-box { position: relative; height: 240px; }
 .chart-box canvas { max-height: 100%; }
 
-/* AIM-588: side-by-side trend charts with a fixed box height so Chart.js
+/*: side-by-side trend charts with a fixed box height so Chart.js
  * cannot reflow the page when data arrives (no layout thrash). */
 .charts-grid {
   display: grid;
@@ -918,7 +918,7 @@ th {
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
-/* Row headers (AIM-515). `<th scope="row">` is what binds the rest of a row to
+/* Row headers. `<th scope="row">` is what binds the rest of a row to
  * the thing the row is about, so a screen reader reads "ring0 pilot, Status,
  * active" instead of a bare "active". The `th` rule above is written for sticky
  * *column* headers, so a row header has to opt back out of all of it — without
@@ -967,7 +967,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
 /* Severity pills — shared band language (see --sev-* tokens). Every one of
    these is emitted by lib/severity.js `severityBadge()`; nothing hand-writes
-   the markup any more (AIM-524), so a "critical" is identical on Overview,
+   the markup any more, so a "critical" is identical on Overview,
    Security, Findings, Rules, Compliance and the Alerts inbox by construction. */
 .pill.sev-critical {
   background: var(--sev-critical-soft);
@@ -979,7 +979,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .pill.sev-low { background: var(--sev-low-soft); color: var(--sev-low); border-color: var(--sev-low-border); }
 .pill.sev-informational { background: var(--sev-informational-soft); color: var(--sev-informational); border-color: var(--sev-informational-border); }
 
-/* The shape channel (AIM-524). The severity ramp is red→orange→amber→gray and
+/* The shape channel. The severity ramp is red→orange→amber→gray and
    it does NOT clear the CVD ΔE floor — worst pair ΔE 9.7 dark / 4.9 light under
    deuteranopia (dataviz validator, numbers in lib/severity.js). So the band is
    carried by three channels, of which colour is only the third: the band NAME
@@ -1075,7 +1075,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .controls-row { margin-bottom: 18px; }
 .err { color: var(--bad); padding: 14px 4px; font-size: 13px; }
 
-/* AIM-989 — JIT first-login / SLA status on Audit tab */
+/* — JIT first-login / SLA status on Audit tab */
 .jit-status-panel {
   margin-bottom: var(--space-3, 18px);
 }
@@ -1110,7 +1110,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   .jit-status-grid { grid-template-columns: 1fr; }
 }
 
-/* Accessibility helpers (AIM-72) */
+/* Accessibility helpers */
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
@@ -1137,7 +1137,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 [data-theme="light"] .skip-link { background: #0f766e; color: #ffffff; }
 .view:focus { outline: none; }
 
-/* Empty states (AIM-72) — per-view designed copy lives in app.js EMPTY */
+/* Empty states — per-view designed copy lives in app.js EMPTY */
 .empty-state { text-align: center; padding: var(--space-6) var(--space-4); color: var(--muted); }
 .empty-title { color: var(--text); font-weight: 600; font-size: var(--text-base); margin-bottom: var(--space-1); }
 .empty-body { font-size: var(--text-sm); max-width: 460px; margin: 0 auto; line-height: 1.5; color: var(--faint); }
@@ -1152,7 +1152,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 }
 td > .empty-state { padding: 28px 12px; }
 
-/* AIM-526: empty-state reasons — loud vs quiet. A missing collector or a failed
+/*: empty-state reasons — loud vs quiet. A missing collector or a failed
  * fetch must not read as the same calm "all clear" as a quiet day. */
 .empty-state.empty-no-collector,
 .empty-state.empty-error {
@@ -1182,7 +1182,7 @@ td > .empty-state { padding: 28px 12px; }
   border-radius: 3px;
 }
 
-/* AIM-591: setup-doc pointer + in-app CTA on empty panels and the install banner. */
+/*: setup-doc pointer + in-app CTA on empty panels and the install banner. */
 .empty-doc {
   margin-top: var(--space-2);
   font-size: var(--text-xs);
@@ -1248,10 +1248,10 @@ td > .empty-state { padding: 28px 12px; }
 .th-sort.is-sorted .th-sort-caret { color: var(--accent); }
 
 
-/* Team × tool matrix (AIM-94) — muted dash for team/tool combos with no usage */
+/* Team × tool matrix — muted dash for team/tool combos with no usage */
 .mtx-empty { color: var(--faint, #5c6580); }
 
-/* Error surfaces (AIM-72) — inline banner with retry, announced via role="alert" */
+/* Error surfaces — inline banner with retry, announced via role="alert" */
 .error-banner {
   display: flex;
   align-items: center;
@@ -1322,7 +1322,7 @@ tr.act-skel td:nth-child(even) .skel-line { width: 46%; }
   .skel-line { animation: none; opacity: 0.5; }
 }
 
-/* ---------- 6b. Live activity trail (AIM-144, retoken AIM-151) ----------
+/* ---------- 6b. Live activity trail (retoken) ----------
    The per-event security score is a restrained tick, not a gauge: a 2px
    colored rule and a mono numeral. It reads at a glance in a scrolling
    stream without turning the table into a dashboard of dials. Prior styling
@@ -1403,7 +1403,7 @@ tr.act-skel td:nth-child(even) .skel-line { width: 46%; }
 @keyframes act-fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .act-row.act-new { animation: none; } }
 
-/* ---------- 6c. Fleet coverage (AIM-151) ----------
+/* ---------- 6c. Fleet coverage ----------
    One stacked bar answering "how much of the fleet is actually reporting".
    Segment colors are the semantic status ramp, not a new palette: green
    healthy, amber stale, red dead, neutral never-seen. */
@@ -1439,7 +1439,7 @@ tr.act-skel td:nth-child(even) .skel-line { width: 46%; }
 .cov-n { color: var(--text); }
 .cov-pct { color: var(--faint); }
 
-/* ---------- 6d. Security enforce coverage (AIM-796 / AIM-789) ----------
+/* ---------- 6d. Security enforce coverage ----------
    Install-path bar reuses .cov-* segments. Honor alert + NO COVERAGE must be
    loud — same doctrine as fleet coverage gaps (never a green zero). */
 .sec-enforce-statement {
@@ -1495,7 +1495,7 @@ tr.act-skel td:nth-child(even) .skel-line { width: 46%; }
 
 .act-pager { padding: var(--space-3) 0 var(--space-1); text-align: center; }
 
-/* AIM-867: Users/Fleet inventory pagination (≤100 rows/page). */
+/*: Users/Fleet inventory pagination (≤100 rows/page). */
 .list-pager-host { margin-top: var(--space-3); }
 .list-pager {
   display: flex;
@@ -1546,7 +1546,7 @@ tr.act-skel td:nth-child(even) .skel-line { width: 46%; }
   .me, .sign-out, .updated, #env-tag { display: none; }
 }
 
-/* ---------- AIM-452: last-verified stamp next to coverage claims ---------- */
+/* ---------- last-verified stamp next to coverage claims ---------- */
 .verified-stamp {
   display: inline-block;
   margin-left: 0.5rem;
@@ -1570,7 +1570,7 @@ h2 .verified-stamp,
   margin: 0 0 0.5rem;
 }
 
-/* AIM-483 — team identity management form */
+/* — team identity management form */
 .team-manage {
   margin: var(--space-4) 0;
   padding: var(--space-4);
@@ -1590,7 +1590,7 @@ h2 .verified-stamp,
 #view-tools .panel.detail h2 { margin-top: var(--space-4); }
 
 
-/* ---------- Saved views on Activity (AIM-587) — mirrors findings.css ---------- */
+/* ---------- Saved views on Activity — mirrors findings.css ---------- */
 #view-activity .find-views { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 #view-activity .find-view-form {
   display: flex;
@@ -1611,7 +1611,7 @@ h2 .verified-stamp,
 #act-view-name:focus { border-color: var(--accent, #2dd4a8); outline: none; }
 #view-activity .find-form-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
 
-/* ---------- AIM-710 guided playbooks (findings detail + rules cards) ---------- */
+/* ---------- guided playbooks (findings detail + rules cards) ---------- */
 .pb-panel {
   border: 1px solid var(--border);
   border-radius: var(--radius-md, var(--radius));

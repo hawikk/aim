@@ -1,6 +1,6 @@
-"""Repo coverage ledger (AIM-332) — gated vs dark, truthfully.
+"""Repo coverage ledger — gated vs dark, truthfully.
 
-The Coverage & Trust screen (AIM-278) already answers "what are we NOT
+The Coverage & Trust screen already answers "what are we NOT
 seeing?" for AI tools and cloud accounts. Repos were partial: known from
 events that phoned home, covered/dark unknown. This module is the missing
 denominator for CI gates:
@@ -17,12 +17,12 @@ denominator for CI gates:
 Dark reasons (stable ids the UI can pill on):
 
   not_onboarded     in org inventory, not on any installation
-  policy_excluded   matched an explicit exclusion list (AIM-331 forward)
+  policy_excluded matched an explicit exclusion list (forward)
   never_scanned     installed, no gate_run ever recorded
   runner_offline    installed + has history, but last run older than threshold
   forge_error       forge enumeration failed for this installation (partial)
 
-Honesty rules match AIM-278 / AIM-276: missing forge credentials yield an
+Honesty rules match: missing forge credentials yield an
 explicit `not_wired` shape rather than an empty green ledger.
 """
 
@@ -194,7 +194,7 @@ def build_ledger(
     forge_errors: dict[str, str] | None = None,
     installations: list[dict] | None = None,
 ) -> dict:
-    """Compose the AIM-332 contract body from already-fetched inputs."""
+    """Compose the contract body from already-fetched inputs."""
     now = now if now is not None else int(time.time())
     excluded_set = {e.strip() for e in (excluded or []) if e and e.strip()}
     forge_by_name: dict[str, dict] = {}

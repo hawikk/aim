@@ -1,4 +1,4 @@
-/* Shared view-private state for the Findings console (AIM-1140 split).
+/* Shared view-private state for the Findings console (split).
  * fctx is view-private: zero cross-view surface. The orchestrator
  * (public/findings.js) populates it during init() and every sibling module
  * imports it — never re-create it locally. resetFindingsCtx() runs at the top
@@ -21,23 +21,23 @@ export function resetFindingsCtx() {
     toast: null,
     loadFindings: null,
     pollCritical: null,
-    // ruleId/days have no picker yet, but round-trip through saved views (AIM-94).
+    // ruleId/days have no picker yet, but round-trip through saved views.
     state: { fstatus: 'open', fsev: 'all', ruleId: null, days: 30, activeViewId: null },
-    /** AIM-702: historical closed outcomes (policy_hash + rule → disposition counts). */
+    /**: historical closed outcomes (policy_hash + rule → disposition counts). */
     outcomeIndex: new Map(),
     // Bulk selection: ids of the currently loaded list the user has ticked.
     selected: new Set(),
     currentIds: [],
-    // AIM-541: optional fixture fingerprint allowlist index (null = hints off).
+    // optional fixture fingerprint allowlist index (null = hints off).
     fixtureIndex: null,
-    // AIM-925: rule → control index from compliance report (lazy, once per page).
+    // rule → control index from compliance report (lazy, once per page).
     evidenceIndex: null,
     evidenceIndexPromise: null,
   });
   rulesCache = null;
 }
 
-/* ---------- Rule conditions (AIM-81): human-readable "why it fired" ----------
+/* ---------- Rule conditions: human-readable "why it fired" ----------
  * Lazy-loaded once from /api/guardrail/rules (same security gate). Findings
  * written under an older policy revision may reference rules no longer in
  * the file — those simply render without the extra block. */
@@ -51,7 +51,7 @@ export function ruleMap() {
   return rulesCache;
 }
 
-/* AIM-925: hydrate the rule→control index from the compliance report, once per
+/*: hydrate the rule→control index from the compliance report, once per
  * page. Failure is non-fatal — high-sev findings simply render without the
  * evidence links. */
 export function ensureEvidenceIndex() {

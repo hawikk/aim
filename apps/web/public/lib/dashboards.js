@@ -1,6 +1,6 @@
-/* AIM-708 — custom dashboard builder model (pure, DOM-free).
+/* — custom dashboard builder model (pure, DOM-free).
  *
- * Saved views (AIM-94) persist *filter presets* for one console. This module
+ * Saved views persist *filter presets* for one console. This module
  * is the next step: named dashboards that compose widgets (KPI tiles, charts,
  * tables) drawn from existing read APIs.
  *

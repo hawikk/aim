@@ -1,11 +1,11 @@
-"""Canonical event construction for GitHub Copilot (AIM-1167).
+"""Canonical event construction for GitHub Copilot.
 
 Conforms to packages/schema/schema/v1/ai-usage-event.schema.json.
 
 Identity (locked): tool='other' + tool_raw='github_copilot'. No first-class
 enum — reversible if Security later wants a schema minor.
 
-Content policy (AIM-16): no prompt, completion, chat text, file path, or
+Content policy: no prompt, completion, chat text, file path, or
 code. additionalProperties is false at ingest; this module also rejects
 out-of-schema keys locally.
 

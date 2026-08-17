@@ -49,7 +49,7 @@ class FakeArchive implements BatchArchive {
   }
 }
 
-describe("raw-batch archival (AIM-83)", () => {
+describe("raw-batch archival", () => {
   let pool: PoolLike;
   let archive: FakeArchive;
   let app: Awaited<ReturnType<typeof buildServer>>;
@@ -135,7 +135,7 @@ describe("raw-batch archival (AIM-83)", () => {
 
     const lines = body.trimEnd().split("\n").map((l: string) => JSON.parse(l));
     expect(lines[0]._batch_meta.rejected_count).toBe(1);
-    // Key names survive for audit — the AIM-650 posture is "we can prove what
+    // Key names survive for audit — the posture is "we can prove what
     // shape arrived", not "we keep it".
     expect(lines[1]._rejected.payload_keys).toContain("prompt_text");
     expect(lines[1]._rejected.payload_keys).toContain("code_snippet");
@@ -264,7 +264,7 @@ describe("archive key + NDJSON helpers", () => {
   });
 });
 
-describe("object store config (AIM-83)", () => {
+describe("object store config", () => {
   const base = { DATABASE_URL: "postgres://x", INGEST_TOKENS: "t" };
 
   test("disabled when endpoint and bucket are both unset", () => {

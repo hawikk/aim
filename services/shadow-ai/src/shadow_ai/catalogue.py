@@ -2,7 +2,7 @@
 
 Loading and matching only — the catalogue file (catalogue/ai-tools.json) is the
 source of truth. Adding a newly-discovered AI SaaS is a catalogue entry, never
-a code change (AIM-300 acceptance criterion 4).
+a code change (acceptance criterion 4).
 """
 
 from __future__ import annotations

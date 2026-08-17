@@ -1,4 +1,4 @@
-/* Model/provider allowlist panel for the Policy editor view (AIM-1177 split).
+/* Model/provider allowlist panel for the Policy editor view (split).
  * Owns the add-entry form (admin only), the allowlist table render, and the
  * load + add/flip/delete mutations against
  * GET/POST/DELETE /api/governance/model-allowlist. */
@@ -207,7 +207,7 @@ export function bindModelHandlers() {
       const id = Number(delBtn.dataset.deleteAllow);
       const entry = polCtx.lastAllowlist.find((row) => Number(row.id) === id);
       const label = entry ? allowlistLabel(entry) : String(id);
-      // AIM-151: no confirm() — reason prompt is the deliberate second step.
+      // no confirm() — reason prompt is the deliberate second step.
       const reason = window.prompt(
         `Remove allowlist entry "${label}"?\n\nReason (required — audit trail):`,
         '',

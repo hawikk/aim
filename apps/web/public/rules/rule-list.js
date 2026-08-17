@@ -1,4 +1,4 @@
-/* Rules list rendering (AIM-1147) — pure-moved from rules.js.
+/* Rules list rendering — pure-moved from rules.js.
  *
  * Everything that paints the "Policy settings" dl and the "Active rules"
  * list: settings rows, posture chips, per-rule route chips, rule cards, and
@@ -34,7 +34,7 @@ export function settingsHtml(settings) {
     const cells = Object.entries(settings.approved_providers)
       .map(([tool, provs]) => `<tr><th scope="row"><code>${esc(tool)}</code></th><td>${(provs ?? []).map((p) => esc(p)).join(', ')}</td></tr>`)
       .join('');
-    // AIM-515: a headerless grid of tool → providers announces as bare cells.
+    // a headerless grid of tool → providers announces as bare cells.
     // The caption names the table; row headers bind each provider list to its tool.
     rows.push(`<div><dt>Approved providers</dt><dd><table class="mini-table">
       <caption class="sr-only">Approved providers per tool</caption>
@@ -77,7 +77,7 @@ function postureChip(rule) {
   return `<span class="chip posture-active" title="${esc(title)}">Active</span>`;
 }
 
-/* AIM-584: derived fan-out for one rule. Destinations are global; a rule of
+/*: derived fan-out for one rule. Destinations are global; a rule of
  * severity S routes to every enabled destination whose floor is ≤ S. */
 function ruleRoutesHtml(rule) {
   const lastAlerts = rulesState.lastAlerts;
@@ -125,8 +125,8 @@ function ruleHtml(rule) {
         <span>${rule.threshold.gt !== null ? `&gt; ${esc(fmtInt(rule.threshold.gt))}` : `≥ ${esc(fmtInt(rule.threshold.gte))}`}</span>
       </div>`
     : '';
-  // AIM-94: threshold rules are tunable inline; match rules stay policy-as-code.
-  // AIM-515: the edit button is a disclosure — aria-expanded/aria-controls are
+  // threshold rules are tunable inline; match rules stay policy-as-code.
+  // the edit button is a disclosure — aria-expanded/aria-controls are
   // the only signal that the editor is open. A label that flips between "Edit
   // thresholds" and "Close editor" otherwise reads as two unrelated buttons.
   const formId = `rule-edit-${esc(rule.id)}`;
@@ -175,7 +175,7 @@ export function setLabel(button, text, ruleTitle) {
   button.innerHTML = `${esc(text)}<span class="sr-only"> for ${esc(ruleTitle)}</span>`;
 }
 
-// Inline tuning form for a threshold rule (AIM-94). gt vs gte is fixed by the
+// Inline tuning form for a threshold rule. gt vs gte is fixed by the
 // rule — the operator is not editable, only its value, window and severity.
 export function editFormHtml(rule) {
   const th = rule.threshold;

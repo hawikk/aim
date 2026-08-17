@@ -1,4 +1,4 @@
-"""FP-budget decisions + gate_modes.json writer (AIM-334).
+"""FP-budget decisions + gate_modes.json writer.
 
 Runtime mode loading lives in ``gatehouse.modes`` (shipped in the image).
 This module is the harness-side half: given measured per-gate metrics and the
@@ -118,7 +118,7 @@ def write_modes(
         "description": (
             "Runtime mode per gate. enforce = findings may fail the check; "
             "observe = report only. Auto-written by the precision harness when "
-            "a gate exceeds its FP budget (AIM-334)."
+            "a gate exceeds its FP budget."
         ),
         "updated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source_report": source_report,

@@ -1,9 +1,9 @@
-/* Break-glass panels (AIM-1135 split of views/security.js):
- *  - AIM-567: analyst surface for secret break-glass (and other confirmed
+/* Break-glass panels (split of views/security.js):
+ *: analyst surface for secret break-glass (and other confirmed
  *    overrides) in the selected pilot window. Metadata only — no prompt or
  *    secret content. Failures must not blank the rest of Security — the panel
  *    degrades to an error empty state.
- *  - AIM-784: break-glass grants (request → manager approve/deny → revoke),
+ *: break-glass grants (request → manager approve/deny → revoke),
  *    admin-gated via canMutateSanctioned(). */
 import { $, esc } from '../../lib/dom.js';
 import { fmtInt, fmtTs } from '../../lib/format.js';
@@ -89,7 +89,7 @@ export async function loadBreakGlass() {
   }
 }
 
-/* ---------- AIM-784: break-glass grants (manager approval + expiry) ---------- */
+/* ---------- break-glass grants (manager approval + expiry) ---------- */
 
 const GRANT_STATUS_CLASS = {
   pending: 'warn',
@@ -211,7 +211,7 @@ async function requestGrant() {
     return;
   }
   const ticket = window.prompt('Optional ticket ref (e.g. SEC-1234):', '') ?? '';
-  // AIM-151: no window.confirm(). Leave pending for manager approval; admins
+  // no window.confirm(). Leave pending for manager approval; admins
   // use the grant-table Approve action for immediate approval.
   const auto = false;
   try {

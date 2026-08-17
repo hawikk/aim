@@ -1,4 +1,4 @@
-/* Attribution pill label (AIM-149).
+/* Attribution pill label.
  *
  * Two numbers, one pill, and the second one exists to stop the first from
  * lying. "Unattributed %" is the share of events we cannot pin to any
@@ -27,7 +27,7 @@ export function attributionLabel(att) {
   return machine > 0 ? `${base} · ${machine}% machine` : base;
 }
 
-/** Compact "verified <time>" stamp for coverage claims (AIM-452). */
+/** Compact "verified <time>" stamp for coverage claims. */
 export function verifiedStamp(iso) {
   if (!iso) return '';
   const t = new Date(iso);

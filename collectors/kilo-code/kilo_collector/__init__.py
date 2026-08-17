@@ -1,3 +1,3 @@
-"""Kilo Code endpoint collector (AIM-22). Metadata-only."""
+"""Kilo Code endpoint collector. Metadata-only."""
 
 __version__ = "0.1.0"

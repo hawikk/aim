@@ -1,4 +1,4 @@
-/* Coverage & Trust (AIM-278) — three known/covered/dark columns.
+/* Coverage & Trust — three known/covered/dark columns.
    Uses the shell's design tokens only; no new primitives. */
 
 .cov-grid {
@@ -88,7 +88,7 @@
   margin-top: 4px;
 }
 
-/* AIM-332: stale ledger rows + toggle spacing */
+/*: stale ledger rows + toggle spacing */
 .cov-row-stale td {
   background: color-mix(in srgb, var(--bad, #c0392b) 8%, transparent);
 }

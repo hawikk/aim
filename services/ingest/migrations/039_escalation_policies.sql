@@ -1,4 +1,4 @@
--- 039_escalation_policies.sql — AIM-699: multi-stage escalation routing +
+-- 039_escalation_policies.sql — multi-stage escalation routing +
 -- PagerDuty as a first-class finding_deliveries destination.
 --
 -- Wave-1 destinations (webhook / Sentinel / Google Chat / Slack / SIEM) fan

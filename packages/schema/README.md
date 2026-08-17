@@ -4,7 +4,7 @@ This package is the single source of truth for what the AI Monitoring platform
 collects. It contains:
 
 - `schema/v1/ai-usage-event.schema.json` — the canonical JSON Schema
-  (draft 2020-12) for the AI usage event (AIM-18/AIM-34).
+  (draft 2020-12) for the AI usage event.
 - `VERSIONING.md` — compatibility policy (additive-only within major v1).
 - `FIELDS.md` — field-by-field privacy justification (feeds the DPIA pack).
 - `CANONICAL.md` — which schema is authoritative and which drafts were
@@ -13,17 +13,17 @@ collects. It contains:
   os-egress + enforcement) and content-rejection cases
   (`invalid-contains-prompt-text`, `invalid-response-body`,
   `invalid-message-content`, `invalid-tool-call-arguments`), exercised by
-  `validate.py` and the AIM-650 no-content-egress harness.
+  `validate.py` and the no-content-egress harness.
 - `validate.py` — validates every example against the canonical schema;
   exit 0 when all `valid-*` pass and all `invalid-*` are rejected.
-- Continuous proof (AIM-650): `python3 scripts/no_content_egress.py --check`
+- Continuous proof: `python3 scripts/no_content_egress.py --check`
   asserts closed objects, forbids content property names, injects every
   banned key into sample payloads, and runs the adapter emit strip harness.
   See `docs/security/no-content-egress.md`.
 
 ## security.alert/v1 — pick the right schema for your role
 
-The cross-pillar alert contract (D3.1, AIM-157) ships in two forms. Which one
+The cross-pillar alert contract (D3.1) ships in two forms. Which one
 you validate against depends on whether you publish or consume, and getting it
 wrong fails silently:
 
@@ -32,7 +32,7 @@ wrong fails silently:
 | **publisher** (Cloud Sentry, AIM guardrail, PR scanner) | `schema/v1/security-alert.schema.json` | Strict. A typo'd field name is a publisher bug and must fail loudly at publish time, nearest the code that caused it. |
 | **consumer** (inbox API, sentinel, UI) | `schema/v1/security-alert.consumer.schema.json` | The derived consumer profile (§6.1). Tolerates unknown fields and unknown open-vocabulary enum members, so an additive minor bump stays consumable. |
 
-**A consumer that vendors the strict schema is the AIM-174 defect.** §6 makes
+**A consumer that vendors the strict schema is the defect.** §6 makes
 minor versions additive-only and §7.4 tells consumers to keep alerts carrying
 unknown fields or enum members — but the strict schema rejects exactly those,
 and §7.10 then drops them. The first minor bump silently empties the inbox,

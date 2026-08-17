@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "AIM-1118 multi-vendor proxy fixture matrix. CI runs scripts/check_proxy_fixture_matrix.py",
+    "Multi-vendor proxy fixture matrix. CI runs scripts/check_proxy_fixture_matrix.py",
     "against this file on every PR. Adding a vendor: see docs/proxy-ci-matrix.md."
   ],
   "policy": {

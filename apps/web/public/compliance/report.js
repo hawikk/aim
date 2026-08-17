@@ -1,4 +1,4 @@
-/* Report load + render for the Compliance evidence view (AIM-1172 split).
+/* Report load + render for the Compliance evidence view (split).
  * load() fetches the live report for the selected period and refreshes the
  * export links; render() paints any report object — live or a stored snapshot
  * (snap banners the view as history). */
@@ -38,7 +38,7 @@ export function render(d, snap) {
 
   const totalFindings = d.rules.reduce((n, r) => n + r.findings.total, 0);
   const openFindings = d.rules.reduce((n, r) => n + r.findings.open, 0);
-  // Prefer server rollup (AIM-694); fall back for older stored snapshots.
+  // Prefer server rollup; fall back for older stored snapshots.
   const cs = d.controlStatus ?? rollupControlStatus(d.frameworks);
   section.querySelector('#cmp-cards').innerHTML = [
     card({ label: 'Audit chain', valueHtml: chainBadge(d.auditChain) }),
@@ -61,11 +61,11 @@ export function render(d, snap) {
   section.querySelector('#cmp-frameworks').innerHTML = d.frameworks.map(fwHtml).join('');
   section.querySelector('#cmp-coverage').innerHTML = coverageHtml(d);
   wireDrillthrough(d);
-  // AIM-696: honour control deep-link from a high-sev finding chip.
+  // honour control deep-link from a high-sev finding chip.
   focusControlFromHash();
 }
 
-/** Client-side rollup for pre-AIM-694 snapshots that lack controlStatus. */
+/** Client-side rollup for earlier snapshots that lack controlStatus. */
 function rollupControlStatus(frameworks) {
   const out = { pass: 0, fail: 0, unknown: 0, total: 0 };
   for (const fw of frameworks ?? []) {

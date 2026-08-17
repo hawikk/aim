@@ -2,9 +2,9 @@ import { randomUUID } from "node:crypto";
 import type { PoolLike } from "./migrate";
 
 /**
- * Retention enforcement (AIM-143).
+ * Retention enforcement.
  *
- * Data minimization is a launch constraint (AIM-16): every event past its
+ * Data minimization is a launch constraint: every event past its
  * justified window is liability, not asset. The privacy doc proposed 90-day
  * event retention; this module is the enforcement. It purges the server-mode
  * Postgres store on a schedule, per data class, and leaves a metadata-only
@@ -152,7 +152,7 @@ const CLASS_SPECS: Record<keyof RetentionWindows, ClassSpec> = {
     table: "findings",
     tsColumn: "detected_at",
     idColumn: "finding_id",
-    // finding_transitions (AIM-223 / AIM-432 F3) ages out with the finding it
+    // finding_transitions (F3) ages out with the finding it
     // describes — a disposition log that outlives its subject has no value,
     // and the FK would otherwise block findings DELETE. Order: deliveries and
     // transitions first, then findings.
@@ -210,7 +210,7 @@ export class RetentionPurger {
     for (const dataClass of ["events", "findings", "audit"] as (keyof RetentionWindows)[]) {
       classes.push(await this.purgeClass(dataClass, runId, now));
     }
-    // AIM-1168: vendor admin daily rollups share the events window.
+    // vendor admin daily rollups share the events window.
     try {
       await this.purgeVendorAdminDaily(now);
     } catch {

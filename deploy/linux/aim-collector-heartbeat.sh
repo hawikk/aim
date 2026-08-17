@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — device enrollment + heartbeat (AIM-28).
+# AI Monitoring — device enrollment + heartbeat.
 #
 # Runs as root on the device schedule (systemd timer / cron), once per cycle,
 # independent of per-user transcript scans. On first run it enrolls the device

@@ -1,4 +1,4 @@
-/* Tools view (AIM-483/484) — pure-moved from app.js (AIM-527).
+/* Tools view — pure-moved from app.js.
  * Cross-view: writes state.tools for the tool-picker; Overview also writes it.
  * See docs/frontend-app-js-split-map.md Group D. */
 import { $, esc } from '../lib/dom.js';
@@ -9,7 +9,7 @@ import { mergeVendorTools, renderVendorFeedBanner, vendorFeedEmpty } from '../li
 import { lineChart, setChartState, chartSummary, ACCENT, GOOD } from '../lib/charts.js';
 
 export async function loadTools() {
-  // AIM-483: inventory table first so every tool is a clickable row, then the
+  // inventory table first so every tool is a clickable row, then the
   // selected tool's drill-down (picker + cards + models + versions + trend).
   const [list, vendorFeeds] = await Promise.all([
     api(`/api/tools?days=${state.days}`),
@@ -69,7 +69,7 @@ export async function loadTools() {
     card('First seen', fmtDaySafe(d.firstSeen)),
     card('Last seen', fmtDaySafe(d.lastSeen)),
   ].join('');
-  // AIM-484: admin Sanction / Unsanction on the Tools drill-down.
+  // admin Sanction / Unsanction on the Tools drill-down.
   const actions = $('#tool-sanction-actions');
   if (actions) {
     if (canMutateSanctioned() && d.sanctioned) {
@@ -77,7 +77,7 @@ export async function loadTools() {
       actions.innerHTML = `<button type="button" class="btn btn-sm btn-danger" id="tool-unsanction-btn" data-tool="${esc(tool)}">Unsanction</button>`;
       const btn = actions.querySelector('#tool-unsanction-btn');
       btn?.addEventListener('click', async () => {
-        // AIM-151: no modal dialogs — reason prompt is the confirm step.
+        // no modal dialogs — reason prompt is the confirm step.
         const reason = promptReason('Unsanction', tool);
         if (!reason) return;
         btn.disabled = true;
@@ -97,7 +97,7 @@ export async function loadTools() {
       actions.innerHTML = `<button type="button" class="btn btn-sm btn-primary" id="tool-sanction-btn" data-tool="${esc(tool)}">Sanction</button>`;
       const btn = actions.querySelector('#tool-sanction-btn');
       btn?.addEventListener('click', async () => {
-        // AIM-151: no modal dialogs — reason prompt is the confirm step.
+        // no modal dialogs — reason prompt is the confirm step.
         const reason = promptReason('Sanction', tool);
         if (!reason) return;
         btn.disabled = true;

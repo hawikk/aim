@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * End-to-end demo for AIM-27:
+ * End-to-end demo:
  *   guardrail finding -> SentinelForwarder -> mock Log Analytics endpoint
  *   + immutable audit trail records (finding lifecycle + alert forwarded)
  *   + chain verification + audit queries.

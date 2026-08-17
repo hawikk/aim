@@ -1,4 +1,4 @@
-/* AIM-998 — Audit trail deep-link helpers.
+/* — Audit trail deep-link helpers.
  *
  * Destination config writes audit as `guardrail.alerts_update`. Rules links
  * here with `#/audit?action=guardrail.alerts_update` so an admin can see who

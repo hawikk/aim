@@ -1,4 +1,4 @@
-// AIM-719 — Break-glass admin with dual control / hardware-key (WebAuthn).
+// — Break-glass admin with dual control / hardware-key (WebAuthn).
 //
 // Emergency admin path that does NOT require flipping AIM_REQUIRE_SSO or
 // AIM_AUTH_DEV. Fully audited via audit() + break_glass_admin_events.
@@ -39,7 +39,7 @@ import {
 function featureOff(reply) {
   return reply.code(503).send({
     error: 'break_glass_admin_disabled',
-    detail: 'Set AIM_BREAK_GLASS_ADMIN=1 to enable the emergency admin path (AIM-719).',
+    detail: 'Set AIM_BREAK_GLASS_ADMIN=1 to enable the emergency admin path.',
   });
 }
 
@@ -134,7 +134,7 @@ export async function breakGlassAdminRoutes(fastify, opts = {}) {
         audited: true,
       },
       note:
-        'Emergency admin path (AIM-719). Prefer dual control when two admins are available; use WebAuthn when IdP is down.',
+        'Emergency admin path. Prefer dual control when two admins are available; use WebAuthn when IdP is down.',
     };
   });
 

@@ -1,4 +1,4 @@
--- 040_vendor_admin_daily.sql — AIM-1168: first-party vendor admin rollups.
+-- 040_vendor_admin_daily.sql — first-party vendor admin rollups.
 --
 -- Cursor Analytics and GitHub Copilot Metrics APIs are org-daily aggregates.
 -- They are NOT written into `events` (that would invent users or collide with

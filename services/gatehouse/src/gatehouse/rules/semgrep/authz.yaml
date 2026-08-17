@@ -1,4 +1,4 @@
-# Vendored semgrep pack — authorization / access-control (AIM-328).
+# Vendored semgrep pack — authorization / access-control.
 rules:
   - id: python-jwt-signature-not-verified
     languages: [python]

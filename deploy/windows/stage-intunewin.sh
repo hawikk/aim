@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Stage the Intune Win32 package layout for AIM Collector (AIM-28 / AIM-742).
+# Stage the Intune Win32 package layout for AIM Collector.
 #
 # Builds the directory tree that IntuneWinAppUtil.exe wraps. Pulls the
-# production collector payload from collectors/claude-code (AIM-20) so the
+# production collector payload from collectors/claude-code so the
 # package is never a stub.
 #
 # Usage:
@@ -15,7 +15,7 @@
 #   Invoke-AIMCollectorCycle.ps1
 #   Install-AIMCollector-WSL.ps1
 #   payload/aim_collector/     # from collectors/claude-code
-#   enforcement/               # enforce-mode endpoint bundle (AIM-440)
+# enforcement/ # enforce-mode endpoint bundle
 #   wsl-linux/                 # linux install path for WSL bridge
 #   runtime/                   # optional; copy embeddable Python here yourself
 #   STAGING_MANIFEST.txt
@@ -30,7 +30,7 @@ LINUX="$ROOT/deploy/linux"
 ENFORCE_SRC="$ROOT/deploy/enforcement/enforcement.enforce.json"
 VERSION="${AIM_COLLECTOR_VERSION:-0.1.0}"
 
-[ -d "$PKG_SRC" ] || { echo "collector payload missing at $PKG_SRC (AIM-20)" >&2; exit 1; }
+[ -d "$PKG_SRC" ] || { echo "collector payload missing at $PKG_SRC" >&2; exit 1; }
 
 rm -rf "$OUT"
 mkdir -p "$OUT/payload" "$OUT/wsl-linux" "$OUT/enforcement"
@@ -81,7 +81,7 @@ SHA_PAYLOAD="$(
 )"
 
 cat > "$OUT/STAGING_MANIFEST.txt" <<EOF
-AIM Collector Intune staging (AIM-742)
+AIM Collector Intune staging
 built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 collector_src=collectors/claude-code/aim_collector
 version=${VERSION}

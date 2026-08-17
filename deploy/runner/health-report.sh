@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-297: write a CI runner health snapshot for the D2 status screen.
+# write a CI runner health snapshot for the D2 status screen.
 #
 # Output (default /var/lib/aim/ci-runner-status.json) is consumed by
 # GET /api/system/status via AIM_CI_RUNNER_STATUS_FILE.
@@ -72,7 +72,7 @@ for safe in safes:
             (l.get("name") if isinstance(l, dict) else l)
             for l in (r.get("labels") or [])
         ]
-        # AIM-454: PR capacity tile counts only aim-ci. Including aim-ops
+        # PR capacity tile counts only aim-ci. Including aim-ops
         # made a blackout look healthy while gates still queued forever.
         if "aim-ci" not in labels:
             continue
@@ -104,7 +104,7 @@ payload = {
 with open(out, "w", encoding="utf-8") as f:
     json.dump(payload, f, indent=2)
     f.write("\n")
-# AIM-454: loud blackout signal next to the status file (not a queued job).
+# loud blackout signal next to the status file (not a queued job).
 alert_path = out + ".blackout"
 if online_n == 0:
     alert = {

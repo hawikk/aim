@@ -40,7 +40,7 @@ CHECK_NAME = os.environ.get("GATEHOUSE_CHECK_NAME", "gatehouse")
 
 
 def default_publisher() -> bus.Publisher | None:
-    """Publisher for the webhook path (AIM-299).
+    """Publisher for the webhook path.
 
     The historical bug: `serve()` constructed `Service()` with `publisher=None`,
     so every real PR scan produced check-run annotations and never touched
@@ -74,7 +74,7 @@ class Service:
         # after a slow-but-successful scan would clone and scan the same commit
         # a second time for no new information.
         #
-        # AIM-297: durable claim via Store (SQLite) so a process restart does
+        # durable claim via Store (SQLite) so a process restart does
         # not forget a completed delivery. In-memory remains a fast path for
         # concurrent threads inside one process; the store is the authority.
         self._seen: dict[str, float] = {}
@@ -125,7 +125,7 @@ class Service:
             log({"event": "gatehouse.github.auth_failed", "repo": repo,
                  "pr": target.pr_number, "error": str(exc)[:300]})
             # Still record the attempt so coverage can distinguish "never
-            # installed" from "installed but auth is broken" (AIM-332).
+            # installed" from "installed but auth is broken".
             self._record_gate_run(
                 repo, pr=target.pr_number, head_sha=target.head_sha,
                 conclusion="neutral", mode="enforce", fail_on="",
@@ -148,7 +148,7 @@ class Service:
             self._report_failure(repo, check_run_id, token, exc, target=target)
             return
         finally:
-            # AIM-736: flush GenAI spans after each PR scan (no-op when unset).
+            # flush GenAI spans after each PR scan (no-op when unset).
             try:
                 telemetry.flush()
             except Exception as flush_exc:  # noqa: BLE001
@@ -203,7 +203,7 @@ class Service:
             log({"event": "gatehouse.check.update_failed", "repo": repo,
                  "error": str(exc)[:300]})
 
-        # AIM-332: every completed scan lands in the coverage ledger so a
+        # every completed scan lands in the coverage ledger so a
         # quiet gated repo can alarm as runner_offline rather than looking
         # green from absence.
         self._record_gate_run(
@@ -233,7 +233,7 @@ class Service:
             log({"event": "gatehouse.comment.failed", "repo": repo,
                  "error": str(exc)[:300]})
 
-        # AIM-328: inline PR review comments on the exact diff line (message +
+        # inline PR review comments on the exact diff line (message +
         # fix hint). Check-run annotations already cover the same lines; leaders
         # still expect a conversation-thread annotation on Files changed, not
         # status-check-only noise. Failures here must not undo the check.
@@ -266,7 +266,7 @@ class Service:
                 log({"event": "gatehouse.inline.failed", "repo": repo,
                      "error": str(exc)[:300]})
 
-        # AIM-234: advisory review with ```suggestion blocks. Failures here
+        # advisory review with ```suggestion blocks. Failures here
         # must not undo a successful check — the summary already names the fixes.
         if suggest_comments:
             try:
@@ -327,7 +327,7 @@ def make_handler(service: Service):
             if path == "/healthz":
                 self._send(200, {"ok": True})
             elif path == "/coverage/repos":
-                # AIM-332: forge-enumerated gated-vs-dark ledger. Hits GitHub
+                # forge-enumerated gated-vs-dark ledger. Hits GitHub
                 # App APIs; keep the timeout budget honest by doing the work
                 # inline (aim-api already times out at 5s and surfaces error).
                 try:

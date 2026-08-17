@@ -1,4 +1,4 @@
-"""Emit ``unknown_ai_coding_tool`` findings for uncatalogued coding signals (AIM-644).
+"""Emit ``unknown_ai_coding_tool`` findings for uncatalogued coding signals.
 
 Discovery only (decision=observe). Catalogued tools never emit here — they are
 already named. Known-non-AI apps are suppressed. Analyst disposition lives on

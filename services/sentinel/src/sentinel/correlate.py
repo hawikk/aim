@@ -13,7 +13,7 @@ product:
    many dedupe keys, one root cause. These collapse onto a *correlation key*
    — by default (pillar, finding_type, account) — inside a burst window, and
    the parent incident keeps **child links** for every attached finding so the
-   SOC can still open each tool/user/resource (AIM-700). The default key does
+   SOC can still open each tool/user/resource. The default key does
    **not** include tool or user: correlating across tools and users is the
    product requirement; operators who want per-tool or per-user paging add
    ``labels.tool`` or ``subject_ref.user_ref`` to ``correlate_on``.

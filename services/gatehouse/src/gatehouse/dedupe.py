@@ -3,7 +3,7 @@
 Two different collapses happen here, and conflating them loses findings:
 
 * **Identity** (`dedupe_key`) — the stable name of a finding across re-pushes
-  *and across PRs of the same repo* (AIM-299 AC#3). Line numbers are excluded
+  *and across PRs of the same repo* (AC#3). Line numbers are excluded
   on purpose: adding an import at the top of a file shifts every line below
   it, and a key built on line numbers would re-alert the whole file as new.
   Identity is (pillar, finding_type, repo, path, rule, snippet digest) —
@@ -45,7 +45,7 @@ def dedupe_key(finding: Finding, identity_ref: str) -> str:
 
     `identity_ref` is the *repo* scope (`github:owner/name`), not a PR ref.
     The same secret on five open PRs is one `dedupe_key` with five occurrences
-    (AIM-299), so a consumer keyed on `alert_id`/`dedupe_key` cannot fan out
+    , so a consumer keyed on `alert_id`/`dedupe_key` cannot fan out
     into five inbox rows for one problem.
 
     Prose is excluded deliberately — deriving a key from a title rotates every

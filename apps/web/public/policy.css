@@ -1,4 +1,4 @@
-/* AIM-689 — Analyst-facing policy editor (safe subset). Injected by policy.js.
+/* — Analyst-facing policy editor (safe subset). Injected by policy.js.
    Reuses tokens, .panel, .banner, .pill, .btn from styles.css. */
 
 #view-policy .pol-grid {

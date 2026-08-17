@@ -30,7 +30,7 @@ from . import events, mcp_inventory, paths, pricing, spool, state
 _GLOBAL_KEYS = ("aiService.generations", "aiService.prompts")
 _WORKSPACE_KEYS = ("composer.composerData",)
 
-# Tool-call note (AIM-86): none of these keys reliably expose agent tool
+# Tool-call note: none of these keys reliably expose agent tool
 # invocations as structured records. aiService.generations/prompts are
 # request/response entries (model, tokens, text); composer.composerData
 # holds conversation metadata, while bubble-level tool records (tool name
@@ -213,7 +213,7 @@ def scan_once() -> int:
         dbs[str(db_path)] = seen
         out.extend(evs)
 
-    # MCP server config inventory (AIM-97/AIM-570): one event when the
+    # MCP server config inventory: one event when the
     # configured (name, scope) set changed. Workspace paths come from
     # workspaceStorage (never re-emitted).
     try:

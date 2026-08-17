@@ -1,5 +1,5 @@
 /* Toolbar + catalog + mutation controls for the custom dashboards builder
- * (AIM-1162 split). Owns the dashboard picker, two-step delete (AIM-151),
+ * (split). Owns the dashboard picker, two-step delete,
  * edit-layout toggle, widget catalog, and canvas chrome event handlers. */
 import { announce } from '../lib/a11y.js';
 import {
@@ -69,7 +69,7 @@ export function bindDashboardControls() {
     announce(`Renamed dashboard to ${String(name || '').trim() || 'dashboard'}`);
   });
 
-  // Two-step delete (AIM-151): no native confirm() — second click is the deliberate action.
+  // Two-step delete: no native confirm() — second click is the deliberate action.
   section.querySelector('#db-delete').addEventListener('click', () => {
     showErr('');
     if (!getActive(dctx.store)) return;

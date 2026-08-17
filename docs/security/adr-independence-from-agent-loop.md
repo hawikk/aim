@@ -2,8 +2,8 @@
 
 **Status:** Accepted  
 **Date:** 2026-08-01  
-**Owner:** Founding Engineer (mechanisms) · Security/CEO (policy residual)  
-**Related:** AIM-639 · AIM-749 · AIM-750 · AIM-751 · AIM-752 · AIM-753 · AIM-502 scorecard Dimension 16 · AIM-456 failure-domain split
+**Owner:** engineering (mechanisms) · Security (policy residual)
+scorecard Dimension 16 · failure-domain split
 
 ## Context
 
@@ -52,7 +52,7 @@ Bare unsigned JSON remains valid only for local development when harden is off.
 | Spoof user-local health file | does **not** satisfy OOB path (stale remains stale) |
 
 Every detect path that yields a `TamperEvent` also produces a metadata-only
-alert finding via `detect_and_alert` / `tamper_to_alert_finding` (AIM-750).
+alert finding via `detect_and_alert` / `tamper_to_alert_finding`.
 
 CI runs this suite on every PR (collector job).
 
@@ -135,7 +135,7 @@ Dimension 16 moves **9 → 10** when all of the following are true:
 4. OOB health unit + script present under `deploy/linux/`, **and** `install.sh` enables the root timer + optional `AIM_CONFIG_PUBKEY_FILE` / `AIM_HARDEN`.
 5. `python3 scripts/independence_attestation.py` exits 0.
 6. Path-to-10 evidence: `docs/aim-639-independence-path-to-10.md`.
-7. AIM-753 records the re-score with evidence links.
+7. records the re-score with evidence links.
 
 ## Alternatives considered
 

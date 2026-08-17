@@ -2,7 +2,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { PoolLike } from "./migrate";
 
 /**
- * Collector enrollment + heartbeat registry (AIM-28).
+ * Collector enrollment + heartbeat registry.
  *
  * Contract: docs/deployment/enrollment-and-heartbeat.md. Backs POST /v1/enroll
  * (installer registers a device, gets a per-device token) and POST /v1/heartbeat
@@ -22,8 +22,8 @@ export interface EnrollRequest {
    * When true and a live device already exists for host_id, rotate the
    * per-device token and return the new value once. Requires a valid enroll
    * bearer (same privilege as first enroll). Used when the local
-   * `device_token` file is gone but the host is still registered (AIM-166
-   * dogfood: post-reboot collector freeze).
+   * `device_token` file is gone but the host is still registered
+   * (observed in dogfood: post-reboot collector freeze).
    */
   reissue?: boolean;
 }
@@ -47,7 +47,7 @@ export interface HeartbeatRequest {
 export interface HeartbeatResult {
   status: "ok";
   /**
-   * Enrollment id for this device token (AIM-1114). Collectors that lost the
+   * Enrollment id for this device token. Collectors that lost the
    * local `device_id` file can re-persist it on a healthy heartbeat so event
    * batches keep attesting the join key identity-sync needs for service hosts.
    */
@@ -91,7 +91,7 @@ export interface DeviceStore {
   /** Returns null when the token matches no live (non-revoked) device. */
   heartbeat(token: string, req: HeartbeatRequest): Promise<HeartbeatResult | null>;
   /**
-   * Auth-only lookup for event delivery (AIM-217 / AIM-307 / AIM-319). Returns
+   * Auth-only lookup for event delivery. Returns
    * the device when the bearer is a live per-device token; does not mutate
    * heartbeat state. Enrollment-issued device tokens are first-class
    * /v1/events credentials so `aim join` alone produces a collector that can
@@ -157,7 +157,7 @@ export class PostgresDeviceStore implements DeviceStore {
     }
 
     // Host was revoked earlier: UNIQUE(host_id) still holds the row, so a
-    // plain INSERT 500s (AIM-166 dogfood). Revive the row with a fresh token.
+    // plain INSERT 500s (dogfood). Revive the row with a fresh token.
     const revoked = await this.pool.query(
       `SELECT device_id, heartbeat_interval_sec FROM devices
         WHERE host_id = $1 AND revoked_at IS NOT NULL

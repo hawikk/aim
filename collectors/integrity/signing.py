@@ -1,4 +1,4 @@
-"""Ed25519 signed bundles for collector config and enforcement policy (AIM-639).
+"""Ed25519 signed bundles for collector config and enforcement policy.
 
 Envelope shape (version 1)::
 

@@ -1,21 +1,21 @@
-// Coverage & Trust (AIM-278) — the "what are we NOT seeing?" endpoint.
+// Coverage & Trust — the "what are we NOT seeing?" endpoint.
 //
 // One aggregate per column of the Coverage & Trust screen, each built on the
 // same known vs covered vs dark idea:
 //
-//   aiTools       known = sanctioned catalog (AIM-16) ∪ tools ever observed in
+// aiTools known = sanctioned catalog ∪ tools ever observed in
 //                 events; covered = emitting into the stack in the last 24h;
 //                 dark = known but silent. All derivable today from the events
 //                 table + the sanctioned catalog — no new collection.
 //   cloudAccounts known/scanned/dark from the CNAPP pillar's
-//                 GET /accounts/coverage (AIM-276 contract — its docstring
+// GET /accounts/coverage (contract — its docstring
 //                 names this issue as the consumer). Fetched server-side via
 //                 CNAPP_COVERAGE_URL + CNAPP_API_KEY so the cross-pillar
 //                 credential never reaches the browser. Unconfigured or
 //                 unreachable renders as an explicit not-wired/error state —
 //                 never an invented number.
 //   repos         known = every org/installation repo from the forge API
-//                 (gatehouse GET /coverage/repos, AIM-332) — not just repos
+// (gatehouse GET /coverage/repos) — not just repos
 //                 that phoned home. covered = recent gate run within the
 //                 staleness window; dark carries an explicit reason
 //                 (not_onboarded / never_scanned / runner_offline /
@@ -44,13 +44,13 @@ import { listSanctionedToolNames } from '../sanctioned.js';
 import { idleThresholdSeconds } from './pipeline.js';
 
 const COVERAGE_WINDOW_SECONDS = 24 * 60 * 60; // "emitting in the last 24h"
-/** Sustained-coverage window (AIM-443 AC): hosts + active days over 3d. */
+/** Sustained-coverage window (AC): hosts + active days over 3d. */
 const SUSTAINED_WINDOW_SECONDS = 3 * 24 * 60 * 60;
-/** Acceptance thresholds for "sustained" sanctioned-tool coverage (AIM-443). */
+/** Acceptance thresholds for "sustained" sanctioned-tool coverage. */
 const SUSTAINED_MIN_HOSTS = 3;
 const SUSTAINED_MIN_DAYS = 3;
 /**
- * AIM-596 precision defaults (env-overridable):
+ * precision defaults (env-overridable):
  *  - silence grace: dark after 24h, but pageable "stopped reporting" only after
  *    this many seconds of silence (default 48h) — cuts weekend / intermittent FP.
  *  - never-seen fleet gate: critical "never reported" only when the enrolled
@@ -58,8 +58,8 @@ const SUSTAINED_MIN_DAYS = 3;
  *    fleets (1-host dogfood) stay dark in the ledger without banner fatigue.
  */
 const DEFAULT_ALERT_SILENCE_SECONDS = 48 * 60 * 60;
-// AIM-596: never-seen critical only when fleet is ready (default = sustained host floor).
-// Override with COVERAGE_ALERT_NEVER_SEEN_MIN_HEALTHY_HOSTS=0 for raw AIM-443 fire-on-dark.
+// never-seen critical only when fleet is ready (default = sustained host floor).
+// Override with COVERAGE_ALERT_NEVER_SEEN_MIN_HEALTHY_HOSTS=0 for raw fire-on-dark.
 const DEFAULT_NEVER_SEEN_MIN_HEALTHY_HOSTS = SUSTAINED_MIN_HOSTS;
 const CLOUD_TIMEOUT_MS = 5000;
 
@@ -94,7 +94,7 @@ const NOTE =
 // What will provide each unwired source, named so the UI can point at it.
 const CLOUD_NOT_WIRED = {
   endpoint: 'GET /accounts/coverage (CNAPP backend)',
-  awaiting: 'AIM-276',
+  awaiting: 'CNAPP coverage backend',
   detail:
     'Cloud account discovery + scan-set coverage is the CNAPP pillar\u2019s /accounts/coverage contract. ' +
     'Set CNAPP_COVERAGE_URL and CNAPP_API_KEY on aim-api to wire it; until then this column shows nothing ' +
@@ -104,7 +104,7 @@ const REPO_GATE_NOT_WIRED = {
   endpoint: 'GET /coverage/repos (gatehouse)',
   awaiting: 'GATEHOUSE_COVERAGE_URL + gatehouse GitHub App credentials',
   detail:
-    'Repo coverage is the gatehouse forge ledger (AIM-332): every installation repo from the GitHub App API, ' +
+    'Repo coverage is the gatehouse forge ledger: every installation repo from the GitHub App API, ' +
     'joined to last gate run. Set GATEHOUSE_COVERAGE_URL on aim-api (compose default: http://gatehouse:8090/coverage/repos). ' +
     'Until then this column shows nothing rather than inventing a number.',
 };
@@ -124,7 +124,7 @@ function freshness(lastEventAt, ageSeconds, thresholdSeconds) {
 }
 
 /**
- * Pure: classify a sanctioned tool's coverage alert (AIM-443 + AIM-596).
+ * Pure: classify a sanctioned tool's coverage alert.
  *
  * Dark tools always stay on the ledger. Pageable / banner alerts fire only
  * when precision gates pass:
@@ -238,7 +238,7 @@ export function classifySanctionedToolCoverage(item, opts = {}) {
 }
 
 /**
- * Pure: fireable coverage alert only (AIM-443 / AIM-596).
+ * Pure: fireable coverage alert only.
  * Dark sanctioned tools raise an alert so silence is never read as "no usage",
  * subject to precision gates — see classifySanctionedToolCoverage.
  */
@@ -247,7 +247,7 @@ export function sanctionedToolCoverageAlert(item, opts = {}) {
 }
 
 /**
- * Pure: whether a tool meets AIM-443 sustained-coverage thresholds
+ * Pure: whether a tool meets sustained-coverage thresholds
  * (≥3 distinct hosts and ≥3 active UTC days in the 3-day window).
  */
 export function meetsSustainedCoverage(item, {
@@ -258,7 +258,7 @@ export function meetsSustainedCoverage(item, {
 }
 
 /**
- * Fleet size for AIM-596 never-seen gate. Mirrors fleet.js health: healthy =
+ * Fleet size never-seen gate. Mirrors fleet.js health: healthy =
  * last heartbeat within 1× the device's own heartbeat_interval_sec.
  * Fail soft: missing devices table / empty fleet → 0 healthy (suppress never-seen).
  */
@@ -283,7 +283,7 @@ async function fleetHostStats(db) {
 }
 
 async function aiToolsColumn(db, thresholdSeconds, alertOpts = {}) {
-  // AIM-484: live allow-list so coverage recomputes without a restart.
+  // live allow-list so coverage recomputes without a restart.
   const sanctionedTools = await listSanctionedToolNames(db);
   const sanctionedSet = new Set(sanctionedTools);
   const precision = coverageAlertPrecisionConfig();
@@ -426,7 +426,7 @@ async function aiToolsColumn(db, thresholdSeconds, alertOpts = {}) {
       ]),
     ),
     note:
-      'Pageable sanctioned-tool coverage alerts (AIM-596) require precision gates: ' +
+      'Pageable sanctioned-tool coverage alerts require precision gates: ' +
       `never-seen critical only when healthy hosts ≥ ${precision.neverSeenMinHealthyHosts} ` +
       `(or COVERAGE_ALERT_NEVER_SEEN_FORCE=1); stopped-reporting high only after ` +
       `${precision.silenceThresholdSeconds / 3600}h silence. Dark ledger is unchanged — ` +
@@ -459,11 +459,11 @@ async function aiToolsColumn(db, thresholdSeconds, alertOpts = {}) {
       },
     },
     note:
-      'Known = sanctioned catalog (AIM-16) plus every tool observed in events. ' +
+      'Known = sanctioned catalog plus every tool observed in events. ' +
       `Covered = at least one event received in the last ${COVERAGE_WINDOW_SECONDS / 3600}h. ` +
-      `Sustained (AIM-443) = ≥${SUSTAINED_MIN_HOSTS} hosts and ≥${SUSTAINED_MIN_DAYS} active UTC days in the last ` +
+      `Sustained = ≥${SUSTAINED_MIN_HOSTS} hosts and ≥${SUSTAINED_MIN_DAYS} active UTC days in the last ` +
       `${SUSTAINED_WINDOW_SECONDS / 86400}d (measured on event ts). ` +
-      'Dark sanctioned tools stay on the ledger; pageable coverage alerts fire only after AIM-596 precision gates. ' +
+      'Dark sanctioned tools stay on the ledger; pageable coverage alerts fire only precision gates. ' +
       'lastVerifiedEndToEnd is the server-side received_at of the newest event for that tool. ' +
       'Freshness is the whole ingest feed — if it is stale, every number on this column is old.',
   };
@@ -520,17 +520,17 @@ async function cloudAccountsColumn(fetchImpl, config) {
       detail: 'Discovered but not in the enabled scan set',
     })),
     definitions: d.definitions ?? null,
-    source: { endpoint: 'GET /accounts/coverage (CNAPP backend, AIM-276 contract)' },
+    source: { endpoint: 'GET /accounts/coverage (CNAPP backend, contract)' },
     note: 'Known/scanned/dark per the CNAPP pillar\u2019s discovery inventory, billing-ranked. Fetched server-side; the API key never leaves aim-api.',
   };
 }
 
 /**
- * AIM-332: forge-enumerated repo ledger via gatehouse.
+ * forge-enumerated repo ledger via gatehouse.
  *
  * When GATEHOUSE_COVERAGE_URL is unset → not_wired (counts null).
  * When gatehouse answers state not_wired/error → pass that through, still
- * null counts. When ok/partial → map the AIM-332 contract into the same
+ * null counts. When ok/partial → map the contract into the same
  * known/covered/dark column shape the UI already understands, plus the
  * per-repo ledger (last gate run, mode, conclusion, dark reason).
  */
@@ -642,7 +642,7 @@ async function reposColumn(fetchImpl, config, thresholdSeconds, req) {
     items,
     definitions: d.definitions || null,
     staleThresholdSeconds: staleThreshold,
-    source: d.source || { endpoint: 'GET /coverage/repos (gatehouse, AIM-332)' },
+    source: d.source || { endpoint: 'GET /coverage/repos (gatehouse)' },
     note:
       'Known = every repo the forge App reports (plus optional org inventory), not only ones that phoned home. ' +
       'Covered = onboarded, not policy-excluded, last gate run within the staleness window. ' +
@@ -683,7 +683,7 @@ export async function coverageRoutes(fastify, opts) {
       sustainedWindowSeconds: SUSTAINED_WINDOW_SECONDS,
       staleThresholdSeconds: thresholdSeconds,
       columns: { aiTools, cloudAccounts, repos },
-      // Fireable only (AIM-596 precision). Dark tools still in columns.aiTools.darkItems.
+      // Fireable only (precision). Dark tools still in columns.aiTools.darkItems.
       coverageAlerts: aiTools.alerts ?? [],
       coverageAlertsSuppressed: aiTools.suppressedAlerts ?? [],
       coverageAlertPrecision: aiTools.alertPrecision ?? null,

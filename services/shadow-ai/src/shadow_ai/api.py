@@ -2,7 +2,7 @@
 
 The dashboard (apps/api) reads shadow tables from Postgres directly; these
 endpoints are for operations (triggering syncs) and for local/dev inspection.
-AIM-626 adds discovery-queue + disposition endpoints on this service too.
+adds discovery-queue + disposition endpoints on this service too.
 """
 
 from __future__ import annotations
@@ -224,7 +224,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/v1/shadow-ai/idp-summary")
     def idp_summary(session: Session = Depends(get_session)):
-        """Multi-IdP grant inventory counts (AIM-626 / AIM-777)."""
+        """Multi-IdP grant inventory counts."""
         rows = session.execute(
             select(
                 OAuthGrant.idp_source,

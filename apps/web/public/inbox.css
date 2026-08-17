@@ -1,4 +1,4 @@
-/* AIM-160 — unified alert inbox + stack health strip. Loaded by inbox.js at
+/* — unified alert inbox + stack health strip. Loaded by inbox.js at
  * runtime. Reuses the design tokens from styles.css :root (with fallbacks so
  * a token rename degrades gracefully), same contract as findings.css. */
 
@@ -81,7 +81,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* AIM-482: AI-native field chips (tool / session / rule / exposure / user / repo). */
+/*: AI-native field chips (tool / session / rule / exposure / user / repo). */
 .a-fields {
   display: flex;
   flex-wrap: wrap;
@@ -165,7 +165,7 @@
 .inbox-empty { color: var(--muted); padding: 18px 4px; font-size: var(--text-sm, 12.5px); }
 .inbox-pager { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 
-/* ---------- AIM-702 auto-triage hint pills ---------- */
+/* ---------- auto-triage hint pills ---------- */
 .a-triage-hint {
   display: block;
   margin-top: 5px;

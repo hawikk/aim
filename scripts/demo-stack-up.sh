@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-1035 — External-ready one-command self-host / demo stack path.
+# — External-ready one-command self-host / demo stack path.
 #
 # Happy path for an external engineer or small team:
 #   clone → (optional minimal .env) → ./scripts/demo-stack-up.sh → dashboard
@@ -45,7 +45,7 @@ DETACH=1
 
 usage() {
   cat <<'EOF'
-AIM-1035 — External-ready one-command self-host / demo stack path.
+External-ready one-command self-host / demo stack path.
 
 Happy path: clone → (optional minimal .env) → ./scripts/demo-stack-up.sh → dashboard
 

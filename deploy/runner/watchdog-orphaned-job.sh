@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# AIM-406: auto-heal aim-ci-gce when it holds an orphaned job lease.
+# auto-heal aim-ci-gce when it holds an orphaned job lease.
 #
-# Detects the AIM-401 failure mode: runner reports busy=true while the repo
+# Detects the failure mode: runner reports busy=true while the repo
 # has zero *jobs* in_progress for this runner for longer than ORPHAN_THRESHOLD_SEC.
 # GitHub then stops dispatching and the queue piles up until a service restart.
 #
 # Important: do NOT rely only on runs?status=in_progress. GitHub often keeps a
 # multi-job workflow_run status as "queued" while individual jobs are already
-# in_progress on the runner (observed live during AIM-406). We also scan recent
+# in_progress on the runner (observed live during). We also scan recent
 # queued runs' jobs for status=in_progress assigned to RUNNER_NAME.
 #
 # Install path: deploy/runner/install-runner.sh (or install-watchdog.sh).

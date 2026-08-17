@@ -10,7 +10,7 @@ from . import enroll, mcp_inventory, paths, spool, state, wire
 def scan_once(dry_run: bool = False) -> list[dict]:
     """One pass over all discovered wire.jsonl files. Returns events emitted.
 
-    Also takes the MCP server config inventory (AIM-97): one
+    Also takes the MCP server config inventory: one
     ``event_type="inventory"`` event when the configured server set changed.
 
     With ``dry_run=True`` nothing is persisted: the checkpoint and spool are

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIM-732 offline prompt-injection / social fleet pack runner.
+"""Offline prompt-injection / social fleet pack runner.
 
 Executes synthetic FLT scenarios against:
   1. Unified endpoint matchers (collectors/matcher-ruleset)
@@ -322,7 +322,6 @@ def run_all() -> dict:
     failed = [r["id"] for r in results if not r["pass"]]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
-        "issue": "AIM-732",
         "fixture": str(FIXTURE.relative_to(ROOT)),
         "total": len(results),
         "passed": passed,
@@ -350,7 +349,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.quiet:
         status = "PASS" if not report["failed"] else "FAIL"
-        print(f"AIM-732 fleet pack: {status} ({report['passed']}/{report['total']})")
+        print(f"Fleet pack: {status} ({report['passed']}/{report['total']})")
         for r in report["results"]:
             mark = "ok" if r["pass"] else "FAIL"
             rules = ",".join(r.get("engine_rules") or []) or "-"

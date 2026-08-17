@@ -1,7 +1,7 @@
 """Identity resolution: map endpoint/collector identity to a directory user.
 
 Join-key decision (see docs/identity-mapping-design.md, ADR-001):
-  0. device_id / os_user -> service_identities (AIM-149, non-human hosts)
+  0. device_id / os_user -> service_identities (non-human hosts)
   1. device_id  -> device_mappings (Intune enrollment, authoritative)
   2. os_user    -> device_mappings (collector-reported hint)
   3. os_user@primary_email_domain -> dir_users (bare-username heuristic)
@@ -64,7 +64,7 @@ def lookup_service(
     """Return the matching service_identity row, or None.
 
     Public so the /resolve HTTP layer can re-check after an unresolved result
-    (AIM-1114 repair + metric path) without re-implementing join rules.
+    (repair + metric path) without re-implementing join rules.
     """
     clauses = []
     if device_id:

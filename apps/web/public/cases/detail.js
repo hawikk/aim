@@ -1,4 +1,4 @@
-/* Case detail pane (AIM-1186 split): header, status transitions, evidence
+/* Case detail pane (split): header, status transitions, evidence
  * attach/detach, notes, and the event timeline. Matched content and cleartext
  * identity are never rendered — attachments are refs only. The back button
  * returns to the list via nav.js goList(). */

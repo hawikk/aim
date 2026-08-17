@@ -1,7 +1,7 @@
 """Risk scoring: deterministic, explainable, no ML.
 
 Every point is attributable to a named component so a security lead can see
-WHY a tool scores what it does (AIM-300 acceptance criterion 2). Components:
+WHY a tool scores what it does (acceptance criterion 2). Components:
 
 - scope_breadth:    max weight across granted OAuth scope classes (does it
                     read our repos or our mail?). 0 for proxy-only tools.

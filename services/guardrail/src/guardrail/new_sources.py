@@ -1,13 +1,13 @@
-"""App-LLM new-source signal → guardrail finding (AIM-575).
+"""App-LLM new-source signal → guardrail finding.
 
-Phase-1 App-LLM visibility (AIM-103) surfaces ``newSources`` on the dashboard:
+Phase-1 App-LLM visibility surfaces ``newSources`` on the dashboard:
 a ``(host_ref, provider)`` pair whose *first-ever* proxy provider-API call falls
 inside a lookback window — the shadow-AI-in-built-software signal.
 
 Until this module, that signal was view-only. SOC never got paged. This
 evaluator runs after each evaluate-db event pass (same lifecycle as the
 team-budget evaluator), inserts an observe-only finding per new pair, and
-relies on the existing AIM-76 notifier path (webhook / Sentinel / Google Chat)
+relies on the existing notifier path (webhook / Sentinel / Google Chat)
 so a configured SOC channel receives a real alert.
 
 Edge-trigger: finding ``UNIQUE (rule_id, event_id)`` uses the first event's
@@ -43,7 +43,7 @@ RULE_TITLE = "New source calling a provider API (first ever)"
 DEFAULT_PROVIDERS: tuple[str, ...] = (
     # Mirrors collectors/proxy/endpoints.json category=provider-api and
     # apps/api PROVIDER_API_PROVIDERS. CI:
-    # scripts/check_provider_catalogue_drift.py (AIM-576 / AIM-738).
+    # scripts/check_provider_catalogue_drift.py.
     "anthropic",
     "openai",
     "azure_openai",

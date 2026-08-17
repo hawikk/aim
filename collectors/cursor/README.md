@@ -1,4 +1,4 @@
-# cursor-collector — Cursor endpoint collector (AIM-21)
+# cursor-collector — Cursor endpoint collector
 
 Metadata-only usage collector for Cursor on Windows / WSL / Linux.
 Pure Python 3.9+ stdlib. No third-party dependencies — deliberate, so the
@@ -6,16 +6,15 @@ endpoint package stays trivially auditable and easy to ship via Intune.
 
 ## What it collects (and what it never collects)
 
-Collects **metadata only**, per the locked content policy (AIM-16) and the
-ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`,
-AIM-18):
+Collects **metadata only**, per the locked content policy and the
+ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`):
 
 - model (when observable), token usage (`tokens_in`/`tokens_out`) when the
   surface carries counts, pseudonymized repo/host refs (HMAC-SHA256), tool
   version, timestamps
 - tool-call metadata (`event_type: "tool_use"`, schema v1.1): tool name,
   coarse action class, count, duration, MCP server id — see
-  "Tool-call capture (AIM-86)" below
+  "Tool-call capture" below
 - `match_flags` set by local secret/PII pattern matchers
 - `cost_estimate_usd` only when token counts AND a known model are
   observable (price table in `pricing.py`)
@@ -35,7 +34,7 @@ Pseudonymization details:
   re-hashed per UTC day — `HMAC(utc-date || raw_id)` — as the schema
   requires. Events cannot be profiled across days.
 - `user_ref` is always `null` (identity mapping is a separate service,
-  AIM-24/AIM-38).
+  ).
 
 ## How it works
 
@@ -60,7 +59,7 @@ Two collection paths, both feeding one local spool:
    mutated. Missing dbs/keys emit nothing and exit 0; unparseable values
    are skipped, never fatal.
 
-## Tool-call capture (AIM-86)
+## Tool-call capture
 
 Schema v1.1 added optional `event_type` / `tool_calls` fields. The
 collector emits `event_type: "tool_use"` events from the **`postToolUse`
@@ -107,7 +106,7 @@ What is NOT captured (documented limits):
   (`mcp__server__tool`); un-namespaced MCP tool names classify as
   `other` with `mcp_server: null` rather than a guess.
 
-## MCP config inventory (AIM-97 / AIM-570)
+## MCP config inventory
 
 On each `scan-once` / `watch` pass the collector also reads Cursor MCP
 config and emits one `event_type="inventory"` event (schema v1.2) when
@@ -149,12 +148,12 @@ vars override it. Search order: `AIM_CONFIG_FILE` env →
 `%ProgramData%\AI-Monitoring\collector\config.json` (Windows) /
 `/Library/Application Support/AI-Monitoring/collector/config.json` then
 `~/Library/Application Support/AI-Monitoring/collector/config.json` (macOS;
-`/etc/aim-collector` is AIM-743 legacy only) /
+`/etc/aim-collector` is legacy only) /
 `/etc/aim-collector/config.json` (Linux) → `<state dir>/config.json`.
 
 Keys: `ingest_url`, `token_file` (preferred), `token` (dev only),
 `hash_salt`, `device_id` (Intune device id, dropped by endpoint tooling —
-see "Endpoint identity attestation (AIM-58)" in
+see "Endpoint identity attestation" in
 `collectors/claude-code/README.md`).
 
 | Var | Default | Purpose |
@@ -174,7 +173,7 @@ The state dir deliberately differs from the claude-code collector's
 (`~/.aim-collector`) so spool/checkpoint never interleave when both
 collectors run on one machine.
 
-## Packaging / deployment (handoff to AIM-28 / AIM-42)
+## Packaging / deployment (handoff)
 
 - v1: Intune package wraps a pinned CPython embeddable distro + this
   source, or PyInstaller single binary per OS. Version-pinned; update path
@@ -215,7 +214,7 @@ collectors run on one machine.
 python3 -m unittest discover -s tests -v
 ```
 
-Schema conformance of emitted events against the canonical AIM-18 schema,
+Schema conformance of emitted events against the canonical schema,
 using the same AJV setup as the ingest service:
 
 ```

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Generate the detector evasion capability statement (AIM-90, updated AIM-91,
-extended AIM-102 into a standing adversarial program gate).
+"""Generate the detector evasion capability statement (updated,
+extended into a standing adversarial program gate).
 
 Runs every fixture in the adversarial corpus — the base fixtures
 collectors/matcher-fixtures/evasion.json plus every file in
@@ -10,7 +10,7 @@ collectors/matcher-ruleset/matchers.py — this also exercises that the copies
 are in sync), verifies that the pinned expectations still hold, and writes
 docs/security/detector-evasion-capability.md.
 
-Additionally (AIM-102):
+Additionally:
   * --check also enforces the evasion-rate baseline
     (collectors/matcher-fixtures/evasion-baseline.json): CI fails if the
     per-rule caught/total evasion rate drops below the pinned baseline, even
@@ -19,7 +19,7 @@ Additionally (AIM-102):
   * --json-report PATH writes a machine-readable report for CI artifacts /
     per-release publication.
 
-Additionally (AIM-96):
+Additionally:
   * Measured rates (baseline/evasion/FP-guard pass rates over the whole
     labeled corpus) are printed on every run — including --check, so CI logs
     publish them — and rendered into the doc with the attack-class × tool
@@ -128,7 +128,7 @@ def evasion_stats(results):
 
 
 def corpus_metrics(results):
-    """Measured rates over the whole labeled corpus, per ruleset (AIM-96).
+    """Measured rates over the whole labeled corpus, per ruleset.
 
     The corpus IS the labeled sample: baseline pass rate (recall on
     unobfuscated positives), evasion catch rate (recall under obfuscation),
@@ -201,11 +201,11 @@ def write_baseline(stats):
     payload = {
         "version": 1,
         "description": (
-            "Pinned evasion catch-rate baseline (AIM-102). CI fails when a rule's "
+            "Pinned evasion catch-rate baseline. CI fails when a rule's "
             "caught/total evasion rate drops below these numbers. Regenerate ONLY as a "
             "deliberate, reviewed act: python3 scripts/matcher_evasion_report.py "
             "--update-baseline — a rate-lowering baseline update means accepted weaker "
-            "detection and needs CEO/Security sign-off, like any detector change."
+            "detection and needs Security sign-off, like any detector change."
         ),
         "generated": datetime.date.today().isoformat(),
         "corpus": [str(p.relative_to(ROOT)) for p in corpus_paths()],
@@ -247,14 +247,14 @@ def render(data, results, metrics):
         "edit the fixtures and re-run the script. Behavior shown here is enforced in CI by",
         "`collectors/*/tests/test_matcher_evasion.py`, by this script's `--check` mode, and",
         "by the evasion-rate baseline `collectors/matcher-fixtures/evasion-baseline.json`",
-        "(AIM-102: CI fails if a rule's evasion catch rate drops below the pinned baseline).",
+        "(CI fails if a rule's evasion catch rate drops below the pinned baseline).",
         "Program doc: `docs/security/adversarial-program.md`.",
         "",
         "This documents what the endpoint secret/PII/injection matchers actually catch",
         "and miss against common obfuscations, so the \"secret-in-prompt\" and",
         "\"injection-attempt\" controls' strength is stated honestly rather than assumed.",
         "",
-        "Since AIM-91 all four collectors run one unified ruleset (canonical source:",
+        "Since all four collectors run one unified ruleset (canonical source:",
         "`collectors/matcher-ruleset/matchers.py`, synced into each collector package by",
         "`scripts/sync_matcher_ruleset.py` and verified in CI), so the per-ruleset tables",
         "below are identical by construction — they are rendered separately to prove the",
@@ -278,7 +278,7 @@ def render(data, results, metrics):
         )
     lines.append("")
 
-    # Coverage matrix: attack class × tool (AIM-96 acceptance criterion).
+    # Coverage matrix: attack class × tool (acceptance criterion).
     lines += [
         "## Coverage matrix (attack class × tool)",
         "",
@@ -346,9 +346,9 @@ def render(data, results, metrics):
         "  dash/quote/Cyrillic lookalikes, quote/backtick equivalence, `[at]`/`[dot]`",
         "  folding); a whitespace-deleted pass restricted to token-style detectors;",
         "  and a bounded base64 decode-and-rescan. The split/insertion, case-change,",
-        "  Unicode-lookalike, and base64-wrap evasion classes measured in AIM-90 are",
+        " Unicode-lookalike, and base64-wrap evasion classes measured are",
         "  now caught — see the per-rule tables above.",
-        "- AIM-96 added the third detector category: `injection:*` (prompt-injection",
+        "- added the third detector category: `injection:*` (prompt-injection",
         "  and jailbreak phrasings — instruction-override, persona/system-prompt",
         "  override, system-prompt extraction, jailbreak personas, chat-template",
         "  delimiter injection) in EN/DE/FR/ES; EU national-ID PII detectors (ES",
@@ -365,11 +365,11 @@ def render(data, results, metrics):
         "  repeated-char placeholder suppression for API tokens (`ghp_xxxx…`,",
         "  `sk-xxxx…` no longer flag).",
         "- Retained misses (listed above, when present) are explicit and justified.",
-        "  The AIM-102 adversarial corpus added encoding-depth misses (hex, double",
+        " The adversarial corpus added encoding-depth misses (hex, double",
         "  base64, MIME-wrapped base64, zero-width-space insertion, raw JSON `\\uXXXX`",
         "  escapes) and separator-substitution misses (dot-separated SSN, `(at)`/`(dot)`",
         "  email) — each is triaged in `docs/security/guardrail-adversarial-findings.md`",
-        "  and closing any of them is a detector change needing CEO/Security sign-off.",
+        " and closing any of them is a detector change needing Security sign-off.",
         "- Accepted known false positives (listed above, when present) — currently:",
         "  any structurally valid bare 9-digit run flags as SSN, which is the price",
         "  of catching separator-less SSN evasion. Tune downstream if noisy.",
@@ -383,8 +383,8 @@ def render(data, results, metrics):
         "4. If the evasion catch rate changed intentionally, regenerate the baseline with",
         "   `--update-baseline` and get the same sign-off as a detector change.",
         "",
-        "Detector behavior changes are security-relevant and need CEO/Security",
-        "sign-off before implementation (the AIM-91 proposal was ratified on the",
+        "Detector behavior changes are security-relevant and need Security",
+        "sign-off before implementation (the proposal was ratified on the",
         "issue thread). Refresh cadence for the corpus: `docs/security/adversarial-program.md`.",
         "",
     ]
@@ -417,7 +417,7 @@ def main():
         return 1
 
     # Deliberate re-pin must work even when the new rates are lower than the
-    # previous baseline (honest residual expansion, e.g. AIM-730 monthly close).
+    # previous baseline (honest residual expansion, e.g. monthly close).
     # Drift above still blocks: we never pin a baseline that disagrees with
     # fixture expect values.
     if args.update_baseline:
@@ -446,10 +446,10 @@ def main():
               f"baseline {_rate(m['baseline'])}, evasion caught {_rate(m['evasion'])}, "
               f"FP guards {_rate(m['fp_guards'])}, known FPs {m['known_fps']}")
 
-    # AIM-579: overall corpus floors (in addition to per-rule baseline).
+    # overall corpus floors (in addition to per-rule baseline).
     OVERALL_FLOORS = {
         "baseline": 1.0,   # 100%
-        "evasion": 0.90,   # AIM-578 target / AIM-579 floor
+        "evasion": 0.90, # target floor
         "fp_guards": 1.0,  # 100%
     }
     floor_failures = []
@@ -463,7 +463,7 @@ def main():
                     f"{ruleset}: {key} {hits}/{total} ({rate:.1%}) < floor {floor:.0%}"
                 )
     if floor_failures:
-        print("OVERALL CORPUS FLOOR FAILURE (AIM-579):")
+        print("OVERALL CORPUS FLOOR FAILURE:")
         for line in floor_failures:
             print(f"  {line}")
         return 1

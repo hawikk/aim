@@ -1,7 +1,7 @@
-/* Runtime theme control (AIM-514).
+/* Runtime theme control.
  *
  * Dark is the product default and light is an opt-in override block in
- * styles.css keyed on `<html data-theme="light">` (decision: AIM-69, see
+ * styles.css keyed on `<html data-theme="light">` (decision:, see
  * docs/frontend-design-system.md). This module owns the *runtime* half of that
  * decision: read the operator's stored choice, put it on the root element, and
  * tell the rest of the app that the tokens moved.

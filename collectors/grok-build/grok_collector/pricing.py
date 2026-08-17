@@ -1,4 +1,4 @@
-"""xAI list-price cost estimates for Grok Build events (AIM-539).
+"""xAI list-price cost estimates for Grok Build events.
 
 Public short-context rates from docs.x.ai/developers/pricing. Used only for
 ``cost_estimate_usd`` — a list-price proxy, not subscription credits or

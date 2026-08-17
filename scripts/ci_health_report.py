@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI health rates for security-gate workflows (AIM-444).
+"""CI health rates for security-gate workflows.
 
 Why this exists
 ---------------
@@ -52,7 +52,7 @@ from typing import Any
 DEFAULT_WORKFLOW = "ci.yml"
 DEFAULT_LIMIT = 50
 DEFAULT_MAX_CANCELLED = 0.10
-STICKY_TITLE = "[CI Health] trailing run rates (AIM-444)"
+STICKY_TITLE = "[CI Health] trailing run rates"
 ISSUE_MARKER = "<!-- aim-ci-health-report -->"
 
 
@@ -127,7 +127,6 @@ def summarize_runs(
             "cancelledRate": completed_cancelled_rate,
         },
         "source": "ci_health_report.py",
-        "aim": "AIM-444",
     }
 
 
@@ -180,7 +179,7 @@ def format_markdown(report: dict[str, Any], *, max_cancelled: float) -> str:
         "## Control",
         "",
         "- Security-gate workflow (`ci.yml`) must **not** use workflow-level "
-        "`concurrency` with cancel-in-progress (AIM-444 / AIM-411).",
+        "`concurrency` with cancel-in-progress.",
         "- `release-images.yml` may keep cancel-in-progress (redundant builds).",
         "- Re-run: `python3 scripts/ci_health_report.py --repo "
         f"{report['repo']} --limit {n}`",
@@ -579,7 +578,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"::error title=CI cancelled-rate regression::"
             f"cancelled rate {cancelled_rate:.1%} exceeds max {args.max_cancelled:.0%} "
-            f"over trailing {report['limit']} {args.workflow} runs (AIM-444)",
+            f"over trailing {report['limit']} {args.workflow} runs",
             file=sys.stderr,
         )
         return 2

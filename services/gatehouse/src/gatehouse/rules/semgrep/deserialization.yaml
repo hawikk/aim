@@ -1,4 +1,4 @@
-# Vendored semgrep pack — unsafe deserialization (AIM-328).
+# Vendored semgrep pack — unsafe deserialization.
 rules:
   - id: python-unsafe-deserialization
     languages: [python]

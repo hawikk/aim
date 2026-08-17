@@ -107,10 +107,10 @@ describe("validateEvent", () => {
     expect(validateEvent(42).valid).toBe(false);
   });
 
-  // AIM-104: model + token fields are top-level operational metadata in the
+  // model + token fields are top-level operational metadata in the
   // canonical schema (since v1.0); ingest must accept v1.x events carrying
   // them and reject malformed token values outright.
-  describe("model/token fields (AIM-104)", () => {
+  describe("model/token fields", () => {
     test.each(["1.0", "1.1", "1.2"])("accepts schema_version %s with model + tokens", (v) => {
       const event = { ...loadExample("valid-cursor.json"), schema_version: v };
       const result = validateEvent(event);
@@ -158,10 +158,10 @@ describe("validateEvent", () => {
     });
   });
 
-  // AIM-103 (schema v1.4): proxy-path source-class attribution and network
+  // (schema v1.4): proxy-path source-class attribution and network
   // volume metadata. traffic_class is a fixed 3-value enum — anything else
   // (e.g. a raw subnet name) must be rejected, not stored.
-  describe("source-class attribution (AIM-103)", () => {
+  describe("source-class attribution", () => {
     test("accepts the v1.4 proxy app-LLM example", () => {
       const result = validateEvent(loadExample("valid-proxy-app-llm.json"));
       expect(result.errors).toEqual([]);

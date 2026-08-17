@@ -1,7 +1,7 @@
--- 017_alert_inbox_state.sql — AIM-160: shell-side ack/snooze state for the
+-- 017_alert_inbox_state.sql — shell-side ack/snooze state for the
 -- unified cross-pillar alert inbox.
 --
--- The inbox (apps/web/public/inbox.js over GET /api/alerts, AIM-158) is a
+-- The inbox (apps/web/public/inbox.js over GET /api/alerts) is a
 -- shell over alerts that live in the pillars' own stores. Acknowledgement is
 -- shell state, deliberately NOT written back into any pillar (D1: the shell
 -- reads the bus, it does not mutate the pillars) — so it needs a home of its

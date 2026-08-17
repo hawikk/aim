@@ -1,4 +1,4 @@
-/* AIM-710 — guided investigation playbooks for common detections.
+/* — guided investigation playbooks for common detections.
  *
  * Pure content + HTML helpers (DOM-free except optional esc). findings.js and
  * rules.js import this; node:test covers catalog completeness without a browser.
@@ -10,7 +10,7 @@
  *  - Steps are numbered, checkable, and self-contained: title + what to do +
  *    where to look. Disposition hints sit after the steps, not instead of them.
  *  - External wiki runbook slugs (rb-*) align with packages/alerting taxonomy
- *    so AIM-703 deep-links and in-product playbooks stay consistent.
+ * so deep-links and in-product playbooks stay consistent.
  */
 
 import { esc } from '../lib/dom.js';

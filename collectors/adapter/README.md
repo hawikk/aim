@@ -1,4 +1,4 @@
-# Tool adapter runtime (AIM-304)
+# Tool adapter runtime
 
 **A new AI tool is configuration, not a code fork.**
 
@@ -38,11 +38,11 @@ python3 -m pytest tests/ -q
 ## Tools added through the contract
 
 - **github_copilot** — adapter `proxy_domain` + extension inventory (presence);
-  depth in `collectors/github-copilot` (AIM-1167, metadata-only)
+  depth in `collectors/github-copilot` (metadata-only)
 - **gemini_cli** — `local_session_logs` JSONL; config-only
-- **codex_cli** — `local_session_logs` **`sqlite_table`** on `~/.codex/state_*.sqlite` (AIM-1012); required the reusable SQLite format on the existing surface (not a new surface type)
-- **windsurf** / **cline** (incl. Roo) / **amazon_q** — AIM-1169 high-prevalence pack. Cline has depth via `json_session` + `records_key=taskHistory`; Windsurf and Amazon Q are presence-only after inspecting local state.
-- **continue** / **cody** / **jetbrains_ai** — AIM-1176 pack 2. Continue has depth via `sqlite_table` on `tokens_generated`; Cody and JetBrains AI are presence-only after inspecting local state.
-- **tabnine** / **augment** / **supermaven** — AIM-1185 pack 3. All three are presence-only after inspecting local state (Tabnine config/token, Augment chat/MCP, Supermaven binary cache). Residual: no metadata-only usage table.
+- **codex_cli** — `local_session_logs` **`sqlite_table`** on `~/.codex/state_*.sqlite`; required the reusable SQLite format on the existing surface (not a new surface type)
+- **windsurf** / **cline** (incl. Roo) / **amazon_q** — high-prevalence pack. Cline has depth via `json_session` + `records_key=taskHistory`; Windsurf and Amazon Q are presence-only after inspecting local state.
+- **continue** / **cody** / **jetbrains_ai** — pack 2. Continue has depth via `sqlite_table` on `tokens_generated`; Cody and JetBrains AI are presence-only after inspecting local state.
+- **tabnine** / **augment** / **supermaven** — pack 3. All three are presence-only after inspecting local state (Tabnine config/token, Augment chat/MCP, Supermaven binary cache). Residual: no metadata-only usage table.
 
 See manifests, `docs/adapter-contract.md` §4, `docs/aim-1012-codex-cli-coverage.md`, `docs/aim-1169-high-prevalence-adapter-pack.md`, `docs/aim-1176-adapter-pack-2.md`, and `docs/aim-1185-adapter-pack-3.md`.

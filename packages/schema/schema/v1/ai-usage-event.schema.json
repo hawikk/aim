@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aimonitoring.dev/schemas/v1/ai-usage-event.schema.json",
   "title": "AI Usage Event (metadata-only)",
-  "description": "Canonical schema for AI coding tool usage telemetry. Metadata-only per locked decision (AIM-16): NO prompt/response text, NO file contents, NO code. additionalProperties is false so any attempt to attach content fields fails validation at ingest.",
+  "description": "Canonical schema for AI coding tool usage telemetry. Metadata-only per locked decision: NO prompt/response text, NO file contents, NO code. additionalProperties is false so any attempt to attach content fields fails validation at ingest.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -43,7 +43,7 @@
     },
     "tool_calls": {
       "type": "array",
-      "description": "Agent tool-call aggregates for event_type='tool_use' (AIM-86; chain fields AIM-627 / schema v1.10). One entry per (tool, MCP server) per session per flush window \u2014 or per discrete call when call_id is present. Metadata-only by the same contract as match_flags: tool name, action class, count, duration, optional chain ids/result status \u2014 NEVER arguments, file paths, command lines, or tool output. additionalProperties:false on entries makes any attempt to attach arguments fail ingest validation.",
+      "description": "Agent tool-call aggregates for event_type='tool_use' (chain fields / schema v1.10). One entry per (tool, MCP server) per session per flush window \u2014 or per discrete call when call_id is present. Metadata-only by the same contract as match_flags: tool name, action class, count, duration, optional chain ids/result status \u2014 NEVER arguments, file paths, command lines, or tool output. additionalProperties:false on entries makes any attempt to attach arguments fail ingest validation.",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -94,7 +94,7 @@
           "call_id": {
             "type": "string",
             "maxLength": 64,
-            "description": "Optional opaque call id for MCP/session chain tracing (schema v1.10, AIM-627). Ephemeral, collector-generated or tool-provided random id re-hashed per UTC day with session_id so it cannot profile across days. NEVER contains argument content."
+            "description": "Optional opaque call id for MCP/session chain tracing (schema v1.10). Ephemeral, collector-generated or tool-provided random id re-hashed per UTC day with session_id so it cannot profile across days. NEVER contains argument content."
           },
           "parent_call_id": {
             "type": [
@@ -102,7 +102,7 @@
               "null"
             ],
             "maxLength": 64,
-            "description": "Optional parent call_id when this invocation was nested under another tool call in the same session (schema v1.10, AIM-627). Null when top-level. Enables request\u2192tool\u2192result chain reconstruction without content."
+            "description": "Optional parent call_id when this invocation was nested under another tool call in the same session (schema v1.10). Null when top-level. Enables request\u2192tool\u2192result chain reconstruction without content."
           },
           "result_status": {
             "type": "string",
@@ -112,19 +112,19 @@
               "denied",
               "unknown"
             ],
-            "description": "Optional coarse outcome of the tool call (schema v1.10, AIM-627). ok=succeeded, error=tool/runtime failure, denied=endpoint or policy denied the call, unknown=source did not report. NEVER includes error messages, stdout, or result bodies."
+            "description": "Optional coarse outcome of the tool call (schema v1.10). ok=succeeded, error=tool/runtime failure, denied=endpoint or policy denied the call, unknown=source did not report. NEVER includes error messages, stdout, or result bodies."
           },
           "seq": {
             "type": "integer",
             "minimum": 0,
-            "description": "Optional monotonic sequence within the session flush window (schema v1.10, AIM-627). Used with call_id/parent_call_id to order chain edges when timestamps share second precision."
+            "description": "Optional monotonic sequence within the session flush window (schema v1.10). Used with call_id/parent_call_id to order chain edges when timestamps share second precision."
           }
         }
       }
     },
     "configured_mcp_servers": {
       "type": "array",
-      "description": "MCP servers present in the tool's configuration files for event_type='inventory' (AIM-97). Emitted only when the set changes (collector checkpoints a hash of the sorted list). Metadata-only: the server name as the user named it in their own tool config plus the config scope \u2014 NEVER command lines, args, URLs, or env values (env may hold secrets). additionalProperties:false on entries makes any attempt to attach config detail fail ingest validation.",
+      "description": "MCP servers present in the tool's configuration files for event_type='inventory'. Emitted only when the set changes (collector checkpoints a hash of the sorted list). Metadata-only: the server name as the user named it in their own tool config plus the config scope \u2014 NEVER command lines, args, URLs, or env values (env may hold secrets). additionalProperties:false on entries makes any attempt to attach config detail fail ingest validation.",
       "maxItems": 200,
       "items": {
         "type": "object",
@@ -161,7 +161,7 @@
         "null"
       ],
       "pattern": "^[0-9a-f]{64}$",
-      "description": "Pseudonymized user: HMAC-SHA256(corporate identity, company salt). May be null for proxy-sourced events until identity mapping (AIM-24/AIM-38) lands. Identity mapping table is stored separately under stricter access control."
+      "description": "Pseudonymized user: HMAC-SHA256(corporate identity, company salt). May be null for proxy-sourced events until identity mapping lands. Identity mapping table is stored separately under stricter access control."
     },
     "tool": {
       "type": "string",
@@ -174,7 +174,7 @@
         "other",
         "genai_app"
       ],
-      "description": "First-class tool enum (not the same as the policy allowlist). 'other' = unapproved/unknown tool (detection target, not blocking \u2014 observe-only posture v1). 'genai_app' (v1.3, AIM-105) = first-party company application calling an LLM API directly, observed via OTel GenAI instrumentation \u2014 NOT an employee coding tool; consumers must exclude it from sanctioned/unapproved tool reporting. 'grok_build' (v1.8, AIM-271) = Grok Build / Paperclip grok_local agent adapter (xAI-backed); first-class so fleet dashboards can name it without collapsing to other \u2014 inclusion in approved_tools remains a Security/CEO decision."
+      "description": "First-class tool enum (not the same as the policy allowlist). 'other' = unapproved/unknown tool (detection target, not blocking \u2014 observe-only posture v1). 'genai_app' (v1.3) = first-party company application calling an LLM API directly, observed via OTel GenAI instrumentation \u2014 NOT an employee coding tool; consumers must exclude it from sanctioned/unapproved tool reporting. 'grok_build' (v1.8) = Grok Build / Paperclip grok_local agent adapter (xAI-backed); first-class so fleet dashboards can name it without collapsing to other \u2014 inclusion in approved_tools remains a Security decision."
     },
     "tool_raw": {
       "type": "string",
@@ -225,12 +225,12 @@
     "service_name": {
       "type": "string",
       "maxLength": 128,
-      "description": "Application/service identity for source='otel' events (v1.3, AIM-105): the OpenTelemetry resource attribute service.name of the instrumented app. Cleartext by design: it names company infrastructure (same class as mcp_server), never user data. Required when source='otel'."
+      "description": "Application/service identity for source='otel' events (v1.3): the OpenTelemetry resource attribute service.name of the instrumented app. Cleartext by design: it names company infrastructure (same class as mcp_server), never user data. Required when source='otel'."
     },
     "duration_ms": {
       "type": "integer",
       "minimum": 0,
-      "description": "Wall time of the LLM call in milliseconds (v1.3, AIM-105). Latency signal for per-app operational views; derived from OTel span start/end. Optional \u2014 endpoint/proxy sources may omit it."
+      "description": "Wall time of the LLM call in milliseconds (v1.3). Latency signal for per-app operational views; derived from OTel span start/end. Optional \u2014 endpoint/proxy sources may omit it."
     },
     "status": {
       "type": "string",
@@ -238,7 +238,7 @@
         "ok",
         "error"
       ],
-      "description": "Outcome of the LLM call (v1.3, AIM-105), from the OTel span status. 'error' = the call failed (provider error, timeout); carries NO error message or body \u2014 those are content and are dropped at the receiver."
+      "description": "Outcome of the LLM call (v1.3), from the OTel span status. 'error' = the call failed (provider error, timeout); carries NO error message or body \u2014 those are content and are dropped at the receiver."
     },
     "traffic_class": {
       "type": "string",
@@ -247,7 +247,7 @@
         "employee",
         "unknown"
       ],
-      "description": "Source-class attribution of the event's origin (v1.4, AIM-103): 'application' = server/DC subnet or CI runner (company-built software), 'employee' = endpoint subnet, 'unknown' = no subnet-inventory match. Classified at the collector from src_ip BEFORE pseudonymization \u2014 only the label crosses the wire, never the IP. Proxy events only; absent on endpoint/otel events."
+      "description": "Source-class attribution of the event's origin (v1.4): 'application' = server/DC subnet or CI runner (company-built software), 'employee' = endpoint subnet, 'unknown' = no subnet-inventory match. Classified at the collector from src_ip BEFORE pseudonymization \u2014 only the label crosses the wire, never the IP. Proxy events only; absent on endpoint/otel events."
     },
     "bytes_up": {
       "type": [
@@ -255,7 +255,7 @@
         "null"
       ],
       "minimum": 0,
-      "description": "Request bytes toward the destination (v1.4, AIM-103). Network volume metadata, not content. Null when the source cannot observe it (Squid access.log carries reply size only)."
+      "description": "Request bytes toward the destination (v1.4). Network volume metadata, not content. Null when the source cannot observe it (Squid access.log carries reply size only)."
     },
     "bytes_down": {
       "type": [
@@ -263,14 +263,14 @@
         "null"
       ],
       "minimum": 0,
-      "description": "Response bytes from the destination (v1.4, AIM-103). Volume/cost-proxy metering for provider-API traffic. Network volume metadata, not content."
+      "description": "Response bytes from the destination (v1.4). Volume/cost-proxy metering for provider-API traffic. Network volume metadata, not content."
     },
     "http_status": {
       "type": [
         "integer",
         "null"
       ],
-      "description": "HTTP status code of the transaction when the network source reports it (v1.4, AIM-103). Drives the status-mix view for provider-API traffic; complements 'status' (ok|error) which carries the OTel span outcome."
+      "description": "HTTP status code of the transaction when the network source reports it (v1.4). Drives the status-mix view for provider-API traffic; complements 'status' (ok|error) which carries the OTel span outcome."
     },
     "repo_ref": {
       "type": [
@@ -304,7 +304,7 @@
               "injection",
               "policy"
             ],
-            "description": "Detection category. 'injection' is an additive enum extension (AIM-96): prompt-injection / jailbreak phrasing detectors."
+            "description": "Detection category. 'injection' is an additive enum extension: prompt-injection / jailbreak phrasing detectors."
           },
           "severity": {
             "type": "string",
@@ -318,12 +318,12 @@
           "fingerprint": {
             "type": "string",
             "pattern": "^[0-9a-f]{16}$",
-            "description": "Redacted per-occurrence fingerprint (v1.8, AIM-225), present only for secret/pii detectors: truncated (64-bit) HMAC-SHA256 of the NFKC-folded, whitespace-stripped MATCHED TEXT, keyed with the company KMS salt and domain-separated ('fp1') from the pseudonym HMACs so it cannot be cross-correlated with host_ref/user_ref/repo_ref of the same string. Proves a specific secret instance fired and dedupes repeat sightings of the same secret across events and sessions \u2014 WITHOUT storing the secret. NOT reversible: verifying a match requires authorized endpoint access plus the KMS salt (re-hash the suspected value and compare). Stable only while the salt is unchanged (same caveat as repo_ref); salt rotation restarts dedupe continuity. Never a plain/unsalted hash \u2014 low-entropy PII (emails, national ids) would be dictionary-invertible."
+            "description": "Redacted per-occurrence fingerprint (v1.8), present only for secret/pii detectors: truncated (64-bit) HMAC-SHA256 of the NFKC-folded, whitespace-stripped MATCHED TEXT, keyed with the company KMS salt and domain-separated ('fp1') from the pseudonym HMACs so it cannot be cross-correlated with host_ref/user_ref/repo_ref of the same string. Proves a specific secret instance fired and dedupes repeat sightings of the same secret across events and sessions \u2014 WITHOUT storing the secret. NOT reversible: verifying a match requires authorized endpoint access plus the KMS salt (re-hash the suspected value and compare). Stable only while the salt is unchanged (same caveat as repo_ref); salt rotation restarts dedupe continuity. Never a plain/unsalted hash \u2014 low-entropy PII (emails, national ids) would be dictionary-invertible."
           },
           "offset": {
             "type": "integer",
             "minimum": 0,
-            "description": "Character offset of the match within the scanned surface (v1.8, AIM-225). Position metadata only \u2014 helps an authorized analyst locate the match when re-running the detector on the endpoint; carries no content. Present iff fingerprint is."
+            "description": "Character offset of the match within the scanned surface (v1.8). Position metadata only \u2014 helps an authorized analyst locate the match when re-running the detector on the endpoint; carries no content. Present iff fingerprint is."
           },
           "surface": {
             "type": "string",
@@ -333,7 +333,7 @@
               "squashed",
               "base64"
             ],
-            "description": "Which matcher scan pass produced the match (v1.8, AIM-225): 'raw' = original text, 'normalized' = NFKC/confusable-folded, 'squashed' = whitespace-deleted, 'base64' = inside a decoded base64 blob. Tells the verifying analyst which surface 'offset' refers to. Present iff fingerprint is."
+            "description": "Which matcher scan pass produced the match (v1.8): 'raw' = original text, 'normalized' = NFKC/confusable-folded, 'squashed' = whitespace-deleted, 'base64' = inside a decoded base64 blob. Tells the verifying analyst which surface 'offset' refers to. Present iff fingerprint is."
           }
         }
       },
@@ -346,7 +346,7 @@
         "action",
         "rule_id"
       ],
-      "description": "Endpoint inline-enforcement audit record (v1.5, AIM-110; AIM-15 amended 2026-07-22 to 'observe + endpoint blocking for critical rules', board-approved). Present only on events where an endpoint hook computed an enforcement decision: 'blocked' = the prompt/tool call was actually denied; 'would_block' = shadow mode, the decision was computed and logged but NOT applied; 'confirmed' (v1.6, AIM-111; AIM-296) = a confirm/break-glass rule challenged the first submission and the user explicitly overrode by resubmitting the identical prompt within the challenge window \u2014 the content was allowed through. Used by pii-in-prompt (confirm) and secret-pattern-in-prompt (break-glass override). 'redacted' (v1.10, AIM-320/AIM-629) = the secret-in-tool-input rule rewrote the matched secret spans in a PreToolUse tool_input to [REDACTED:<detector>] markers and the tool call PROCEEDED with the redacted input \u2014 the secret never left the endpoint. Metadata-only by the same contract as match_flags: rule id + action + policy hash \u2014 never the matched content, the blocked payload, the redacted/original input, or the user-visible reason string.",
+      "description": "Endpoint inline-enforcement audit record (v1.5 amended 2026-07-22 to 'observe + endpoint blocking for critical rules', approved). Present only on events where an endpoint hook computed an enforcement decision: 'blocked' = the prompt/tool call was actually denied; 'would_block' = shadow mode, the decision was computed and logged but NOT applied; 'confirmed' (v1.6) = a confirm/break-glass rule challenged the first submission and the user explicitly overrode by resubmitting the identical prompt within the challenge window \u2014 the content was allowed through. Used by pii-in-prompt (confirm) and secret-pattern-in-prompt (break-glass override). 'redacted' (v1.10) = the secret-in-tool-input rule rewrote the matched secret spans in a PreToolUse tool_input to [REDACTED:<detector>] markers and the tool call PROCEEDED with the redacted input \u2014 the secret never left the endpoint. Metadata-only by the same contract as match_flags: rule id + action + policy hash \u2014 never the matched content, the blocked payload, the redacted/original input, or the user-visible reason string.",
       "properties": {
         "action": {
           "type": "string",
@@ -356,7 +356,7 @@
             "confirmed",
             "redacted"
           ],
-          "description": "'blocked' = enforcement applied (prompt blocked / tool call denied). 'would_block' = shadow mode: the rule would have fired, nothing was interrupted. The shadow/enforce distinction is what makes the pre-rollout bake measurable. 'confirmed' (v1.6, AIM-111; AIM-296) = user resubmitted identical prompt to confirm (PII) or break-glass override a secret block; the prompt proceeded. Confirms/overrides are the audit trail for intentional sends. 'redacted' (v1.10, AIM-320/AIM-629) = the tool call proceeded after the endpoint rewrote matched secret spans to [REDACTED:<detector>] markers; redactions are the audit trail for secrets stopped without stopping the work."
+          "description": "'blocked' = enforcement applied (prompt blocked / tool call denied). 'would_block' = shadow mode: the rule would have fired, nothing was interrupted. The shadow/enforce distinction is what makes the pre-rollout bake measurable. 'confirmed' (v1.6) = user resubmitted identical prompt to confirm (PII) or break-glass override a secret block; the prompt proceeded. Confirms/overrides are the audit trail for intentional sends. 'redacted' (v1.10) = the tool call proceeded after the endpoint rewrote matched secret spans to [REDACTED:<detector>] markers; redactions are the audit trail for secrets stopped without stopping the work."
         },
         "rule_id": {
           "type": "string",
@@ -370,19 +370,19 @@
         },
         "cohort_member": {
           "type": "boolean",
-          "description": "Whether this endpoint is inside the active enforce canary cohort for the loaded bundle (v1.11, AIM-793). Present only when the policy engine exposes cohort membership."
+          "description": "Whether this endpoint is inside the active enforce canary cohort for the loaded bundle (v1.11). Present only when the policy engine exposes cohort membership."
         },
         "decision_latency_ms": {
           "type": "integer",
           "minimum": 0,
           "maximum": 60000,
-          "description": "Wall-clock milliseconds spent on the endpoint enforcement decision path for this hook invocation (v1.10, AIM-790). Measured around local rule evaluation only \u2014 never includes network I/O to the control plane."
+          "description": "Wall-clock milliseconds spent on the endpoint enforcement decision path for this hook invocation (v1.10). Measured around local rule evaluation only \u2014 never includes network I/O to the control plane."
         },
         "rails": {
           "type": "array",
           "minItems": 2,
           "maxItems": 8,
-          "description": "Multi-rail attribution when two or more rails fired (schema v1.11, AIM-782). First entry matches primary action/rule_id.",
+          "description": "Multi-rail attribution when two or more rails fired (schema v1.11). First entry matches primary action/rule_id.",
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -416,7 +416,7 @@
         "policy",
         "evaluated"
       ],
-      "description": "Endpoint enforcement COVERAGE marker (v1.7, AIM-110). Emitted by every enforcement-aware endpoint hook on every event it produces, whether or not a rule fired \u2014 this is the denominator that makes `enforcement` counts readable. Without it, zero `enforcement` records is ambiguous between three very different states: the endpoint runs a pre-AIM-110 collector, the endpoint runs a current collector but no policy bundle was ever delivered to it, or the endpoint is genuinely clean. Only the last one is a safe basis for flipping a rule to enforce, so the shadow-bake report treats a missing denominator as NO COVERAGE rather than as a clean result. Pure posture metadata: no content, no counts of user activity beyond the event that carries it.",
+      "description": "Endpoint enforcement COVERAGE marker (v1.7). Emitted by every enforcement-aware endpoint hook on every event it produces, whether or not a rule fired \u2014 this is the denominator that makes `enforcement` counts readable. Without it, zero `enforcement` records is ambiguous between three very different states: the endpoint runs a earlier collector, the endpoint runs a current collector but no policy bundle was ever delivered to it, or the endpoint is genuinely clean. Only the last one is a safe basis for flipping a rule to enforce, so the shadow-bake report treats a missing denominator as NO COVERAGE rather than as a clean result. Pure posture metadata: no content, no counts of user activity beyond the event that carries it.",
       "properties": {
         "policy": {
           "type": "string",
@@ -447,11 +447,11 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 60000,
-          "description": "Wall-clock ms for local enforcement decision path (v1.10, AIM-790)."
+          "description": "Wall-clock ms for local enforcement decision path (v1.10)."
         },
         "cohort_member": {
           "type": "boolean",
-          "description": "Whether endpoint is in active enforce canary cohort (v1.11, AIM-793)."
+          "description": "Whether endpoint is in active enforce canary cohort (v1.11)."
         }
       },
       "allOf": [
@@ -494,11 +494,11 @@
         "otel",
         "os_egress"
       ],
-      "description": "Collection point. 'endpoint' = tool hook collector on the device (depth); 'proxy' = network/proxy log ingestion (breadth); 'otel' (v1.3, AIM-105) = OTLP receiver accepting OpenTelemetry GenAI semantic-convention spans from instrumented first-party applications (APM-class service telemetry, not employee monitoring); 'os_egress' (v1.9, AIM-321) = on-device OS egress / DNS / flow metadata for AI SaaS domains (browser and desktop clients) \u2014 hostname-level presence only, no URL paths or bodies. Determines which fields can be null."
+      "description": "Collection point. 'endpoint' = tool hook collector on the device (depth); 'proxy' = network/proxy log ingestion (breadth); 'otel' (v1.3) = OTLP receiver accepting OpenTelemetry GenAI semantic-convention spans from instrumented first-party applications (APM-class service telemetry, not employee monitoring); 'os_egress' (v1.9) = on-device OS egress / DNS / flow metadata for AI SaaS domains (browser and desktop clients) \u2014 hostname-level presence only, no URL paths or bodies. Determines which fields can be null."
     },
     "agent_handoffs": {
       "type": "array",
-      "description": "A2A / multi-agent handoff visibility (schema v1.10, AIM-627). Emitted when a coding tool spawns a sub-agent, Task tool, or peer agent. Metadata only: session linkage + kind + status \u2014 NEVER prompts, plans, or tool results from the child agent. additionalProperties:false on entries.",
+      "description": "A2A / multi-agent handoff visibility (schema v1.10). Emitted when a coding tool spawns a sub-agent, Task tool, or peer agent. Metadata only: session linkage + kind + status \u2014 NEVER prompts, plans, or tool results from the child agent. additionalProperties:false on entries.",
       "maxItems": 100,
       "items": {
         "type": "object",

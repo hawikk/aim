@@ -1,4 +1,4 @@
-/* Shell helpers for the custom dashboards builder (AIM-1162 split).
+/* Shell helpers for the custom dashboards builder (split).
  * Shared by canvas paint and toolbar controls without a circular import:
  * select fill, error banner, two-step delete arming, catalog, edit mode. */
 import { esc } from '../lib/dom.js';

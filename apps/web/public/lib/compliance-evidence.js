@@ -1,5 +1,5 @@
 /**
- * AIM-925 / AIM-696 — Compliance control evidence links for high-severity findings.
+ * Compliance control evidence links for high-severity findings.
  *
  * High/critical findings should surface the framework controls they evidence
  * (EU AI Act, OWASP LLM, NIST AI RMF, ISO 42001) so an analyst can jump from
@@ -12,7 +12,7 @@
  * Metadata / control ids only — never prompt or matched content.
  */
 
-// XSS boundary: import even when callers pass their own esc (AIM-523 guard).
+// XSS boundary: import even when callers pass their own esc (guard).
 import { esc as defaultEsc } from './dom.js';
 
 /** Severities that always get the compliance evidence block when links exist. */

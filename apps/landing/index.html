@@ -19,7 +19,7 @@
 <meta name="twitter:image" content="https://getaimonitoring.com/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='white'/%3E%3C/svg%3E">
 <style>
-  /* No external font endpoints (AIM-353 standing rule): Inter / JetBrains Mono
+  /* No external font endpoints (standing rule): Inter / JetBrains Mono
      are used when installed locally and degrade to the system stacks. */
   :root {
     --sans: "Inter", -apple-system, "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
@@ -496,7 +496,7 @@
   'use strict';
   // Screen-space WebGL particle band: a comet-tail arc sweeping upper-left →
   // lower-right across the whole viewport. Vanilla WebGL1, zero dependencies
-  // (AIM-353 rule). The curve lives in normalized viewport coordinates and is
+  // (rule). The curve lives in normalized viewport coordinates and is
   // evaluated in the vertex shader, so resize costs nothing.
   //
   // The field is deliberately almost still: mouse parallax and a slow crawl,

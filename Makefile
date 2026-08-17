@@ -9,13 +9,13 @@ setup: ## One-time dev setup: install deps + git hooks
 	@$(MAKE) ensure-dev-env
 	@echo "Git hooks path set to .githooks"
 
-# AIM-437: mint stack-owned secrets into gitignored .env (dogfood `stack init`
+# mint stack-owned secrets into gitignored .env (dogfood `stack init`
 # parity). Compose already interpolates ${GATEHOUSE_WEBHOOK_SECRET:-}; without
 # a value gatehouse fails closed and crash-loops. Never hardcode the secret.
 ensure-dev-env: ## Mint missing local-dev secrets into .env (gitignored, 0600)
 	python3 scripts/ensure_dev_env.py
 
-# AIM-1035: external-ready one-command self-host / demo path
+# external-ready one-command self-host / demo path
 # (preflight + mint env + compose up + health + optional seed).
 demo-stack: ## Self-host demo: one-command stack up + health + seed
 	./scripts/demo-stack-up.sh
@@ -23,7 +23,7 @@ demo-stack: ## Self-host demo: one-command stack up + health + seed
 demo-stack-preflight: ## Self-host demo preflight only (Docker / ports / env)
 	./scripts/demo-stack-up.sh --preflight-only
 
-# AIM-1126: pilot control plane — prefer prebuilt GHCR images (see docs/deployment/prebuilt-images.md)
+# pilot control plane — prefer prebuilt GHCR images (see docs/deployment/prebuilt-images.md)
 install-pilot: ## Pilot install (prefer-pull; falls back to source build)
 	./scripts/install-pilot.sh
 
@@ -54,7 +54,7 @@ typecheck: ## Typecheck all workspaces
 test: ## Run unit tests
 	pnpm test
 
-decision-latency: ## Endpoint enforce-decision latency SLO (AIM-785, p95 < 200ms)
+decision-latency: ## Endpoint enforce-decision latency SLO (p95 < 200ms)
 	python3 scripts/endpoint_decision_latency.py --check --markdown
 
 build: ## Build all workspaces

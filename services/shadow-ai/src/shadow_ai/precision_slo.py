@@ -1,4 +1,4 @@
-"""Dark-tool / coverage alert false-positive precision SLO (AIM-626 / AIM-779).
+"""Dark-tool / coverage alert false-positive precision SLO.
 
 Scope: **pageable** dark-tool alerts only (not the coverage ledger itself).
 Ledger always shows dark tools; precision gates suppress noisy banners.
@@ -111,6 +111,6 @@ def measure_dark_tool_precision(
         slo_met=rate <= target_fp_rate,
         notes=(
             f"SLO target pageable_fp_rate ≤ {target_fp_rate:.0%} over {window_days}d. "
-            "Suppressed candidates are precision gates (AIM-596), not ledger removals."
+            "Suppressed candidates are precision gates, not ledger removals."
         ),
     )

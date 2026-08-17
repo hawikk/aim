@@ -1,4 +1,4 @@
--- 005_finding_deliveries.sql — AIM-76: alert delivery audit for findings.
+-- 005_finding_deliveries.sql — alert delivery audit for findings.
 --
 -- The guardrail evaluator (services/guardrail dbrunner) forwards every newly
 -- inserted finding to the configured alert destinations (generic webhook /

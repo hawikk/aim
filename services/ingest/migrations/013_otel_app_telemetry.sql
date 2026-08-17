@@ -1,4 +1,4 @@
--- 009_otel_app_telemetry.sql — application-LLM telemetry columns (AIM-105).
+-- 009_otel_app_telemetry.sql — application-LLM telemetry columns.
 --
 -- Mirrors schema v1.3 additions (packages/schema/schema/v1/ai-usage-event.schema.json):
 --   service_name  — OTel service.name of the instrumented first-party app

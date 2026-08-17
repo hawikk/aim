@@ -103,7 +103,7 @@ def _detect_cursor(tool) -> bool:
 
 
 def _detect_kilo(tool) -> bool:
-    # IDE globalStorage and/or standalone CLI (AIM-647 dual surface)
+    # IDE globalStorage and/or standalone CLI (dual surface)
     paths = tool.module("paths")
     if hasattr(paths, "any_surface_present"):
         return bool(paths.any_surface_present())

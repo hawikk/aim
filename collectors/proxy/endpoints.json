@@ -1,7 +1,7 @@
 {
   "version": 6,
   "updated": "2026-08-13",
-  "notes": "AI coding-tool + GenAI-SaaS endpoint detection database (AIM-19; AIM-271 xAI/Grok; AIM-576 provider-api expansion; AIM-595 SaaS refresh; AIM-738 catalogue ownership + drift repair). Domain matching is suffix-based: host == domain or host endswith '.<domain>'. Policy-approved tools (CEO AIM-16): Claude Code, Cursor, Kilo Code. Categories: api (model/tool backend), web (browser product), telemetry, gateway, provider-api (direct LLM provider APIs usable by employee tools AND company-built apps \u2014 AIM-103: application-classified sources do not inherit the employee-tool unapproved verdict). provider-api is the App-LLM metering set (mirrored by apps/api PROVIDER_API_PROVIDERS and guardrail new_sources DEFAULT_PROVIDERS). Ownership: Engineering owns structure/CI drift guards; Security/CEO owns sanctioned flags and policy promotion. Changes via PR; CI fails on JSON or mirror drift.",
+  "notes": "AI coding-tool + GenAI-SaaS endpoint detection database (xAI/Grok; provider-api expansion; SaaS refresh; catalogue ownership + drift repair). Domain matching is suffix-based: host == domain or host endswith '.<domain>'. Policy-approved tools (Security): Claude Code, Cursor, Kilo Code. Categories: api (model/tool backend), web (browser product), telemetry, gateway, provider-api (direct LLM provider APIs usable by employee tools AND company-built apps \u2014: application-classified sources do not inherit the employee-tool unapproved verdict). provider-api is the App-LLM metering set (mirrored by apps/api PROVIDER_API_PROVIDERS and guardrail new_sources DEFAULT_PROVIDERS). Ownership: Engineering owns structure/CI drift guards; Security owns sanctioned flags and policy promotion. Changes via PR; CI fails on JSON or mirror drift.",
   "rules": [
     {
       "id": "anthropic-api",
@@ -13,7 +13,7 @@
         "api.anthropic.com",
         "api.claude.ai"
       ],
-      "notes": "API backends only. Browser product claude.ai is a separate web rule (AIM-321) so SaaS chat is not mis-attributed as Claude Code."
+      "notes": "API backends only. Browser product claude.ai is a separate web rule so SaaS chat is not mis-attributed as Claude Code."
     },
     {
       "id": "anthropic-web",
@@ -24,7 +24,7 @@
       "domains": [
         "claude.ai"
       ],
-      "notes": "Claude.ai browser/SaaS product (AIM-321). Not Claude Code; not on the AIM-16 sanctioned list. Detection-only: blocklist_export=false because suffix-blocking claude.ai would also match sanctioned api.claude.ai (containment invariant). api.claude.ai stays on anthropic-api (longest-suffix wins for event attribution).",
+      "notes": "Claude.ai browser/SaaS product. Not Claude Code; not on the sanctioned list. Detection-only: blocklist_export=false because suffix-blocking claude.ai would also match sanctioned api.claude.ai (containment invariant). api.claude.ai stays on anthropic-api (longest-suffix wins for event attribution).",
       "blocklist_export": false
     },
     {
@@ -47,7 +47,7 @@
         "api.openai.com",
         "openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net"
       ],
-      "notes": "Direct OpenAI API use is unapproved; used by many third-party tools, so tool attribution is unknown at network level. Azure-hosted OpenAI is a separate azure-openai-api rule (AIM-576)."
+      "notes": "Direct OpenAI API use is unapproved; used by many third-party tools, so tool attribution is unknown at network level. Azure-hosted OpenAI is a separate azure-openai-api rule."
     },
     {
       "id": "azure-openai-api",
@@ -58,7 +58,7 @@
       "domains": [
         "openai.azure.com"
       ],
-      "notes": "Azure OpenAI resource hosts ({resource}.openai.azure.com). Suffix match covers custom resource names; common first-party stack (AIM-576). Distinct provider so App-LLM does not mix Azure with direct openai.com."
+      "notes": "Azure OpenAI resource hosts ({resource}.openai.azure.com). Suffix match covers custom resource names; common first-party stack. Distinct provider so App-LLM does not mix Azure with direct openai.com."
     },
     {
       "id": "openai-web",
@@ -115,7 +115,7 @@
         "telemetry.enterprise.githubcopilot.com",
         "copilot-telemetry.githubusercontent.com"
       ],
-      "notes": "GitHub Copilot IDE/extension backends (individual, business, enterprise). Enterprise telemetry host added AIM-595."
+      "notes": "GitHub Copilot IDE/extension backends (individual, business, enterprise). Enterprise telemetry host added."
     },
     {
       "id": "codeium-windsurf",
@@ -178,7 +178,7 @@
         "cline.bot",
         "roocode.com"
       ],
-      "notes": "Cline + Roo Code product hosts (AIM-1169). id/tool=cline so proxy tool_raw joins the adapter manifest. BYOK to Anthropic/OpenAI stays on those provider-api rules — not named Cline at the network."
+      "notes": "Cline + Roo Code product hosts. id/tool=cline so proxy tool_raw joins the adapter manifest. BYOK to Anthropic/OpenAI stays on those provider-api rules — not named Cline at the network."
     },
     {
       "id": "aws-bedrock",
@@ -217,7 +217,7 @@
         "bedrock-agent-runtime.ap-southeast-1.amazonaws.com",
         "bedrock-agent-runtime.ap-southeast-2.amazonaws.com"
       ],
-      "notes": "AWS Bedrock InvokeModel / agent runtime hosts (AIM-576). Regional endpoints listed explicitly \\u2014 suffix match cannot safely use a shared *.amazonaws.com parent without colliding with unrelated AWS APIs. Distinct provider aws_bedrock so App-LLM metering does not mix Amazon Q employee-tool traffic."
+      "notes": "AWS Bedrock InvokeModel / agent runtime hosts. Regional endpoints listed explicitly \\u2014 suffix match cannot safely use a shared *.amazonaws.com parent without colliding with unrelated AWS APIs. Distinct provider aws_bedrock so App-LLM metering does not mix Amazon Q employee-tool traffic."
     },
     {
       "id": "google-gemini-api",
@@ -229,7 +229,7 @@
         "generativelanguage.googleapis.com",
         "aiplatform.googleapis.com"
       ],
-      "notes": "Gemini Developer API + Vertex AI prediction endpoints (AIM-576). First-party apps commonly call these; application traffic does not inherit the employee unapproved-tool verdict. tool=null \\u2192 tool_raw=google at proxy."
+      "notes": "Gemini Developer API + Vertex AI prediction endpoints. First-party apps commonly call these; application traffic does not inherit the employee unapproved-tool verdict. tool=null \\u2192 tool_raw=google at proxy."
     },
     {
       "id": "google-gemini-web",
@@ -241,7 +241,7 @@
         "gemini.google.com",
         "bard.google.com"
       ],
-      "notes": "Consumer Gemini web UI (AIM-576 split from former google-gemini blob). Employee-tool surface, not a first-party app API."
+      "notes": "Consumer Gemini web UI (split from former google-gemini blob). Employee-tool surface, not a first-party app API."
     },
     {
       "id": "google-cloud-code",
@@ -254,7 +254,7 @@
         "cloudcode-pa.googleapis.com",
         "cloudcode-pa.clients6.google.com"
       ],
-      "notes": "Gemini Code Assist / Cloud Code companion hosts (cloudcode-pa). Employee coding companion \u2014 category api, not provider-api. API hosts live on google-gemini-api (AIM-576 split)."
+      "notes": "Gemini Code Assist / Cloud Code companion hosts (cloudcode-pa). Employee coding companion \u2014 category api, not provider-api. API hosts live on google-gemini-api (split)."
     },
     {
       "id": "sourcegraph-cody",
@@ -338,7 +338,7 @@
         "api.mistral.ai",
         "codestral.mistral.ai"
       ],
-      "notes": "Mistral / Codestral APIs used by first-party apps and coding agents (AIM-576 promotion to provider-api)."
+      "notes": "Mistral / Codestral APIs used by first-party apps and coding agents (promotion to provider-api)."
     },
     {
       "id": "cohere-api",
@@ -350,7 +350,7 @@
         "api.cohere.ai",
         "api.cohere.com"
       ],
-      "notes": "Cohere Chat/Embed APIs \\u2014 common first-party RAG stack (AIM-576 promotion to provider-api)."
+      "notes": "Cohere Chat/Embed APIs \\u2014 common first-party RAG stack (promotion to provider-api)."
     },
     {
       "id": "groq-api",
@@ -361,7 +361,7 @@
       "domains": [
         "api.groq.com"
       ],
-      "notes": "Groq inference API used by first-party apps and coding agents (AIM-576 promotion to provider-api). Bare groq.com is marketing and excluded."
+      "notes": "Groq inference API used by first-party apps and coding agents (promotion to provider-api). Bare groq.com is marketing and excluded."
     },
     {
       "id": "xai-api",
@@ -373,7 +373,7 @@
         "api.x.ai",
         "api.xai.com"
       ],
-      "notes": "xAI provider API (Grok models). Used by Grok Build / Paperclip grok_local and any direct Grok API client. First-class tool=grok_build (schema v1.8, AIM-271); not policy-approved yet \\u2014 unapproved-tool flag still fires for employee traffic until Security promotes grok_build into approved_tools."
+      "notes": "xAI provider API (Grok models). Used by Grok Build / Paperclip grok_local and any direct Grok API client. First-class tool=grok_build (schema v1.8); not policy-approved yet \\u2014 unapproved-tool flag still fires for employee traffic until Security promotes grok_build into approved_tools."
     },
     {
       "id": "xai-web",
@@ -411,7 +411,7 @@
       "domains": [
         "openrouter.ai"
       ],
-      "notes": "Multi-model gateway commonly used by Kilo Code/Cline/Roo when not using a direct provider key. Sanctioned tools using OpenRouter still surface here; endpoint collectors (AIM-20/21/22) disambiguate."
+      "notes": "Multi-model gateway commonly used by Kilo Code/Cline/Roo when not using a direct provider key. Sanctioned tools using OpenRouter still surface here; endpoint collectors disambiguate."
     },
     {
       "id": "huggingface",
@@ -458,7 +458,7 @@
       "domains": [
         "notion.so"
       ],
-      "notes": "AIM-552 GenAI-in-SaaS. Shared origin with Notion docs \\u2014 detection-only, no blocklist export. Weak signal; IdP OAuth is stronger."
+      "notes": "GenAI-in-SaaS. Shared origin with Notion docs \\u2014 detection-only, no blocklist export. Weak signal; IdP OAuth is stronger."
     },
     {
       "id": "grammarly",
@@ -609,7 +609,7 @@
         "kimi.moonshot.cn",
         "kimi.com"
       ],
-      "notes": "Moonshot / Kimi API hosts used by first-party apps and Kimi Code (AIM-738 catalogue completeness). Consumer marketing hosts retained for suffix coverage; App-LLM meters provider=moonshot."
+      "notes": "Moonshot / Kimi API hosts used by first-party apps and Kimi Code (catalogue completeness). Consumer marketing hosts retained for suffix coverage; App-LLM meters provider=moonshot."
     },
     {
       "id": "qodo",
@@ -777,7 +777,7 @@
         "api.together.ai",
         "together.ai"
       ],
-      "notes": "Together AI inference API \u2014 common first-party / agent stack (AIM-738 catalogue completeness; provider-api for App-LLM metering)."
+      "notes": "Together AI inference API \u2014 common first-party / agent stack (catalogue completeness; provider-api for App-LLM metering)."
     },
     {
       "id": "fireworks-ai",
@@ -789,7 +789,7 @@
         "api.fireworks.ai",
         "fireworks.ai"
       ],
-      "notes": "Fireworks AI inference API \u2014 common first-party / agent stack (AIM-738 catalogue completeness; provider-api for App-LLM metering)."
+      "notes": "Fireworks AI inference API \u2014 common first-party / agent stack (catalogue completeness; provider-api for App-LLM metering)."
     },
     {
       "id": "microsoft-copilot-web",
@@ -801,7 +801,7 @@
         "copilot.microsoft.com",
         "edgeservices.bing.com"
       ],
-      "notes": "AIM-552: M365 Copilot web surface (was only in shadow catalogue). Bare bing.com intentionally omitted."
+      "notes": "M365 Copilot web surface (was only in shadow catalogue). Bare bing.com intentionally omitted."
     },
     {
       "id": "perplexity",

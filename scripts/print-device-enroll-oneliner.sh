@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-1124 / AIM-1123 — shared device-enroll one-liner printer.
+# — shared device-enroll one-liner printer.
 #
 # Sourced or executed by install-pilot (control-plane bootstrap) after the
 # stack is healthy, so operators get a copy-paste command for engineer laptops
@@ -81,7 +81,7 @@ print_device_enroll_oneliner() {
   cmd="$(device_enroll_command --host "$_AIM_ENROLL_HOST" --token "$tok")"
 
   cat <<EOF
-# Device enroll (engineer laptop / workstation) — AIM-1124
+# Device enroll (engineer laptop / workstation)
 # 1) Mint a scoped token in the dashboard Onboarding view (or API), unless
 #    install-pilot already substituted one below.
 # 2) Run on the device (Python 3.11+, pipx preferred):

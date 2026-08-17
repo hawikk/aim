@@ -1,10 +1,10 @@
-# Reviewed one-click fixes for PR findings (AIM-234).
+# Reviewed one-click fixes for PR findings.
 #
 # Same rule as sentinel's remediation catalogue: a model may select an entry
 # and fill nothing here — every `patch:` is a human-written transformation.
 # Gatehouse applies these in the ephemeral workspace, self-scans the result
 # with the same scanner that raised the finding, and only then posts a GitHub
-# ```suggestion block (small) or a draft-PR note (large, AIM-185 opt-in).
+# ```suggestion block (small) or a draft-PR note (large, opt-in).
 #
 # Keep entries in lockstep with the matching `patch:` blocks in
 # services/sentinel/src/sentinel/catalogue/remediation.yml. A drift between

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — out-of-band host health signal for macOS (AIM-743 / AIM-639).
+# AI Monitoring — out-of-band host health signal for macOS.
 # Runs as root via LaunchDaemon. POSTs /v1/heartbeat with source=oob_launchd.
 set -uo pipefail
 

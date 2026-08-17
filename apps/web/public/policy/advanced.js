@@ -1,4 +1,4 @@
-/* Advanced (admins) panel for the Policy editor view (AIM-1177 split).
+/* Advanced (admins) panel for the Policy editor view (split).
  * Read-only summary of the per-rule enforcement flags from the loaded
  * guardrail policy settings — YAML-managed, edited via policy PR or the
  * Rules view thresholds, never here. */

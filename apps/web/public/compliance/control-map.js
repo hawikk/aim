@@ -1,5 +1,4 @@
-/* AIM-695: active control → framework map + mapping gaps panel (AIM-1172
- * split). Pure renderers over a report object; the only DOM touch is the
+/* Active control → framework map + mapping gaps panel. Pure renderers over a report object; the only DOM touch is the
  * gaps-hint line, reached through cmpCtx. */
 
 import { esc } from '../lib/dom.js';
@@ -14,7 +13,7 @@ import {
 import { controlStatusBadge } from './badges.js';
 import { cmpCtx } from './state.js';
 
-/** AIM-695: active control → framework control IDs with live status. */
+/**: active control → framework control IDs with live status. */
 export function controlMapHtml(d) {
   const frameworks = d.frameworks ?? [];
   const rows = buildControlMapRows(d);
@@ -61,7 +60,7 @@ export function controlMapHtml(d) {
     + `</tr></thead><tbody>${body}</tbody>`;
 }
 
-/** AIM-695: explicit gaps list for rule mappings + unmonitored framework controls. */
+/**: explicit gaps list for rule mappings + unmonitored framework controls. */
 export function gapsHtml(d) {
   const gaps = listMappingGaps(d);
   const hint = cmpCtx.section.querySelector('#cmp-gaps-hint');

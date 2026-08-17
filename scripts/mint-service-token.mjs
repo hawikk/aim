@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Mint a service token for a headless consumer of the AIM API (AIM-165).
+// Mint a service token for a headless consumer of the AIM API.
 //
 //   node scripts/mint-service-token.mjs sentinel --role analyst
 //

@@ -1,4 +1,4 @@
--- 002_identity_enrichment.sql — AIM-49: identity resolution enrichment.
+-- 002_identity_enrichment.sql — identity resolution enrichment.
 --
 -- The ingest pipeline resolves the batch's endpoint identity (device_id/os_user,
 -- sent by the collector in the batch envelope) via the identity-sync service's

@@ -1,4 +1,4 @@
-/* AIM-215 — what "nothing on screen" actually means.
+/* — what "nothing on screen" actually means.
  *
  * A first-run operator cannot tell an empty dashboard from a broken pipeline,
  * and the dashboard's own copy pushed them toward the wrong reading: every

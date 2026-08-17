@@ -1,4 +1,4 @@
-/* AIM-989 — JIT first-login failure + SLA status helpers (pure, no DOM).
+/* — JIT first-login failure + SLA status helpers (pure, no DOM).
  *
  * Operators should see identity.jit_provision_failed and identity.jit_sla_breach
  * without digging raw audit JSONL. Data still comes from GET /api/audit/events.

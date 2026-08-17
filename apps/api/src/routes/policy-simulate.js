@@ -1,4 +1,4 @@
-// Policy simulation API (AIM-686).
+// Policy simulation API.
 //
 //   POST /api/policy/simulate
 //     Body (all optional except at least one candidate source OR empty body

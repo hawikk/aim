@@ -1,4 +1,4 @@
-// Application-LLM telemetry read API (AIM-105 / AIM-574 / AIM-737, schema v1.3).
+// Application-LLM telemetry read API (schema v1.3).
 // Per-app view for first-party services instrumented with OTel GenAI semantic
 // conventions and ingested via the OTLP receiver (source='otel', tool='genai_app'):
 //   - model inventory per app (which models/providers each service calls)
@@ -38,7 +38,7 @@ const APPS_CSV_COLS = [
   { key: 'lastSeen', label: 'last_seen' },
 ];
 
-// AIM-737: model distribution export (fleet-wide OTel sources).
+// model distribution export (fleet-wide OTel sources).
 const MODELS_CSV_COLS = [
   { key: 'model', label: 'model' },
   { key: 'provider', label: 'provider' },
@@ -57,7 +57,7 @@ export async function appsRoutes(fastify, opts) {
   const anyRole = requireRoles('admin', 'analyst', 'auditor', 'viewer');
 
   // ---- per-app rollup: services, volume, tokens, cost, error/latency ----
-  // AIM-737: ?breakdown=models&format=csv exports the fleet model rollup.
+  // ?breakdown=models&format=csv exports the fleet model rollup.
   fastify.get('/api/apps/llm', async (req, reply) => {
     if (!anyRole(req, reply)) return reply;
     if (!checkFormat(req, reply)) return reply;
@@ -92,10 +92,10 @@ export async function appsRoutes(fastify, opts) {
     );
 
     // Model inventory per service (which models each app actually calls).
-    // AIM-574: tokens_in / tokens_out split so analysts can answer "how many
+    // tokens_in / tokens_out split so analysts can answer "how many
     // tokens" without aggregating client-side; `tokens` kept as the sum for
     // existing consumers (detail charts, fixtures).
-    // AIM-737: cost_usd on every model row so estimated cost is first-class.
+    // cost_usd on every model row so estimated cost is first-class.
     const models = await db.query(
       `SELECT
          e.service_name AS service,
@@ -114,7 +114,7 @@ export async function appsRoutes(fastify, opts) {
       [days],
     );
 
-    // Fleet-wide model distribution across all OTel apps (AIM-574 list view).
+    // Fleet-wide model distribution across all OTel apps (list view).
     // One row per model — answers "which models / tokens / cost" without drill-down.
     const modelRollup = await db.query(
       `SELECT
@@ -220,8 +220,8 @@ export async function appsRoutes(fastify, opts) {
       rangeDays: days,
       services: rows.length,
       providersSeen: providers.rows.map((r) => r.provider),
-      // AIM-574 / AIM-737: fleet-wide model distribution (metadata only).
-      // AIM-574: fleet-wide model distribution (metadata only — model/provider/tokens).
+      // fleet-wide model distribution (metadata only).
+      // fleet-wide model distribution (metadata only — model/provider/tokens).
       models: modelsFleet,
       apps: rows,
     };

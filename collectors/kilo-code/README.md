@@ -1,4 +1,4 @@
-# kilo-collector — Kilo Code endpoint collector (AIM-22)
+# kilo-collector — Kilo Code endpoint collector
 
 Metadata-only usage collector for Kilo Code (VS Code extension, Roo
 Code/Cline lineage) on Windows / WSL / Linux. Pure Python 3 stdlib — no
@@ -7,20 +7,19 @@ endpoint package stays trivially auditable and Intune-shippable.
 
 ## What it collects (and what it never collects)
 
-Collects **metadata only**, per the locked content policy (AIM-16) and the
-ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`,
-AIM-18):
+Collects **metadata only**, per the locked content policy and the
+ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`):
 
 - model (best effort, see gap report below), derived provider, token usage
   (`tokens_in`/`tokens_out`; cache-read folds into `tokens_in` per v1),
   provider-reported `cost_estimate_usd`, pseudonymized host/workspace refs
   (HMAC-SHA256), tool version, timestamps
 - `match_flags` set by local secret/PII pattern matchers (unified ruleset,
-  canonical source `collectors/matcher-ruleset/matchers.py`, AIM-91)
+  canonical source `collectors/matcher-ruleset/matchers.py`)
 - one event per completed API request (delta-emitted, so dashboards can sum)
 - per-task tool-call aggregates as `event_type="tool_use"` events and MCP
   server config inventory as `event_type="inventory"` events (schema v1.2,
-  AIM-97 — see below)
+  see below)
 
 Unlike Claude Code, Kilo Code records the **provider-reported cost** per
 request, which a platform-side static price table cannot reproduce across
@@ -33,9 +32,9 @@ secret/PII patterns, and discarded — only detector names leave the machine.
 Ingest rejects out-of-schema fields whole, so a content leak would fail
 closed.
 
-## Tool-call capture & MCP inventory (AIM-97)
+## Tool-call capture & MCP inventory
 
-Mirrors the Claude Code collector's AIM-86 pattern, adapted to Kilo's
+Mirrors the Claude Code collector's pattern, adapted to Kilo's
 on-disk formats (schema v1.2 events).
 
 **Tool calls.** Tool activity in `ui_messages.json` is counted per task
@@ -95,7 +94,7 @@ is not LLM traffic.
 ## How it works
 
 Kilo Code has no hook/callback API for third parties, so the collector
-**polls on-disk telemetry from both product surfaces** (AIM-647):
+**polls on-disk telemetry from both product surfaces**:
 
 ### IDE surface (VS Code / Cursor extension)
 
@@ -151,7 +150,7 @@ python -m kilo_collector flush       # drain local spool to ingestion API
 Spool/flush semantics, managed config file, env vars
 (`AIM_INGEST_URL`, `AIM_COLLECTOR_TOKEN`, `AIM_STATE_DIR`,
 `AIM_CONFIG_FILE`, `AIM_HASH_SALT`), and batch-envelope identity attestation
-(`device_id` config key / `AIM_DEVICE_ID` env / `dsregcmd`, AIM-58) are
+(`device_id` config key / `AIM_DEVICE_ID` env / `dsregcmd`) are
 identical to the Claude Code collector — see
 `collectors/claude-code/README.md`. Deployment: Windows
 scheduled task or Linux cron/systemd user timer running `scan-once`.
@@ -170,14 +169,14 @@ Local telemetry is **sufficient for the v1 event contract**, with caveats:
    provider. Good enough for spend/usage views; provider-accurate
    attribution would need the API config (extension secrets — not
    readable without Kilo's own APIs).
-3. **CLI tool_use depth (AIM-647 residual).** The CLI SQLite path emits
+3. **CLI tool_use depth (residual).** The CLI SQLite path emits
    usage (tokens/cost/model) only. Tool-call aggregates from CLI `part`
    frames are not classified yet — the IDE path remains the deep
    tool_use source for extension tasks.
 
 Everything else the issue asks for (tokens, cost, task/request counts,
 repo, flags, **both IDE and CLI surfaces**) is available from local
-telemetry. Dual-surface proof: `python3 scripts/aim-647-dual-surface-proof.py`
+telemetry. Dual-surface proof: `python3 scripts/dual-surface-proof.py`
 and `tests/test_cli_sessions.py`.
 
 ## Tests

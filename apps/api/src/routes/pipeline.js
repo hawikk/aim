@@ -1,4 +1,4 @@
-// Pipeline liveness + attribution health + coverage gaps (AIM-148/149/452).
+// Pipeline liveness + attribution health + coverage gaps.
 //
 // A monitoring product that silently stops monitoring is a governance failure:
 // if collectors are enrolled but ingest has accepted no events for a while,
@@ -11,7 +11,7 @@
 //   ingest has accepted no event for > PIPELINE_IDLE_THRESHOLD_SECONDS
 //   (default 7200 = 2h) AND at least one non-revoked device has EVER
 //   heartbeated.
-// The "ever heartbeated" gate is AIM-149. It used to be mere enrollment, which
+// The "ever heartbeated" gate is. It used to be mere enrollment, which
 // let a device that never once reported in hold the guard open — an enrollment
 // row created by an e2e run is not evidence that telemetry is expected. A
 // device that heartbeated once and then died still counts (that IS evidence),
@@ -23,16 +23,16 @@
 // client ts: it answers "is the PIPELINE accepting data", independent of any
 // backdated or clock-skewed event timestamp.
 //
-// Attribution (AIM-149/AIM-452): share of events in a trailing window stored
+// Attribution: share of events in a trailing window stored
 // with user_pseudonym NULL. docs/identity-mapping-design.md §3 sets the target
 // at <5% unresolved; anything above that is directory/mapping coverage debt
 // and must be visible rather than silent (unresolved events are stored, not
-// dropped, precisely so they can be counted). AIM-452 makes the rate a
+// dropped, precisely so they can be counted). makes the rate a
 // first-class, alertable metric: Overview trend + by-tool/by-host splits,
 // last-verified stamp, and an alert-bus candidate when the threshold is
 // breached (status "degraded" alone is not enough).
 //
-// Device-silent coverage gap (AIM-452 AC4 / AIM-293): an enrolled device that
+// Device-silent coverage gap (AC4 /): an enrolled device that
 // has heartbeated at least once and then goes quiet for longer than its own
 // `heartbeat_interval_sec` is a first-class gap. Aggregate pipeline "ok" can
 // hide a single laptop that stopped reporting — silence looks exactly like
@@ -94,7 +94,7 @@ function humanizeSeconds(s) {
   return `${(n / 3600).toFixed(1)} h`;
 }
 
-/** ISO stamp for "last verified end-to-end" claims (AIM-452 AC3). */
+/** ISO stamp for "last verified end-to-end" claims (AC3). */
 export function nowVerifiedAt(now = new Date()) {
   return now instanceof Date ? now.toISOString() : new Date(now).toISOString();
 }
@@ -169,7 +169,7 @@ export function evaluateLiveness({
 // the trailing window; unattributedPct is null when the window is empty (no
 // data is neither 0% nor 100% — claiming either would be a lie).
 //
-// `service` is the machine-principal share of `attributed` (AIM-149): declared
+// `service` is the machine-principal share of `attributed`: declared
 // agent hosts and CI runners. It is real attribution — we know exactly what
 // produced those events — but it is NOT per-engineer coverage, and folding the
 // two together would let a single enrolled agent host read as a fully
@@ -242,7 +242,7 @@ export function evaluateAttribution({ total, attributed, service, windowSeconds,
 }
 
 /**
- * Unattributed-rate alert candidate (AIM-452 AC2).
+ * Unattributed-rate alert candidate (AC2).
  *
  * Status "degraded" on a dashboard tile is not enough for a monitoring
  * product — blindness must page someone. This pure helper builds the same
@@ -285,7 +285,7 @@ export function unattributedRateAlertCandidate(attribution, { now = new Date() }
 }
 
 /**
- * Device-silent coverage gap (AIM-452 AC4).
+ * Device-silent coverage gap (AC4).
  *
  * Inputs are already-fetched device rows (non-revoked, ever-heartbeated). A
  * device is silent when age(last_heartbeat_at) > its own heartbeat_interval_sec
@@ -338,7 +338,7 @@ export function evaluateDeviceSilence({ devices, nowMs = Date.now() }) {
 }
 
 /**
- * Pure rate helper used by Overview / breakdowns (AIM-452).
+ * Pure rate helper used by Overview / breakdowns.
  * Same floor rule as evaluateAttribution: nonzero unattributed never rounds
  * to 0%. Returns null unattributedPct when total is 0.
  */
@@ -394,9 +394,9 @@ export function attributionTrendPoints(rows) {
 }
 
 // ---------------------------------------------------------------------------
-// AIM-1007 / AIM-487 / AIM-868 — live attribution health (Epic A gate shape)
+// — live attribution health (Epic A gate shape)
 //
-// Gate SQL (docs + re-measure on AIM-487/AIM-868) uses event `ts` and treats
+// Gate SQL (docs + re-measure) uses event `ts` and treats
 // an event as OK when:
 //   user_pseudonym IS NOT NULL OR principal_kind = 'service'
 // That is deliberately broader than the unattributed-rate tile (which is
@@ -420,7 +420,7 @@ export const ATTRIBUTION_HEALTH_WINDOWS = Object.freeze({
 
 /**
  * Pure: pct_ok for one window from raw counts.
- * Two-decimal rounding matches AIM-868 re-measure tables (`round(..., 2)`).
+ * Two-decimal rounding matches re-measure tables (`round(..., 2)`).
  * Empty window → pctOk null (not 0 — silence is not failure).
  */
 export function pctOkFromCounts({ n, ok, service } = {}) {
@@ -576,7 +576,7 @@ export async function pipelineRoutes(fastify, opts) {
           WHERE received_at >= now() - ($1 || ' seconds')::interval`,
         [windowSeconds]
       ),
-      // Per-device silence (AIM-452): ever-heartbeated, non-revoked devices.
+      // Per-device silence: ever-heartbeated, non-revoked devices.
       db.query(
         `SELECT device_id, host_id, hostname, last_heartbeat_at, heartbeat_interval_sec
            FROM devices
@@ -619,7 +619,7 @@ export async function pipelineRoutes(fastify, opts) {
   });
 
   /**
-   * AIM-452: first-class attribution metric for Overview.
+   * first-class attribution metric for Overview.
    * Current rate + daily trend + by-tool / by-host splits + last-verified
    * stamp + alert candidate when the unattributed rate exceeds the target.
    */
@@ -699,9 +699,9 @@ export async function pipelineRoutes(fastify, opts) {
   });
 
   /**
-   * AIM-1007: multi-window Epic A attribution health for Overview / Fleet.
+   * multi-window Epic A attribution health for Overview / Fleet.
    *
-   * Matches the re-measure queries on AIM-487 / AIM-868:
+   * Matches the re-measure queries on:
    *   pct_ok = share of events where
    *     user_pseudonym IS NOT NULL OR principal_kind = 'service'
    * over trailing 1h / 24h / 7d on event `ts` (not received_at).

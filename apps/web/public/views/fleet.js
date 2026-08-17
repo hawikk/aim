@@ -1,6 +1,6 @@
-/* Fleet view — pure-moved from app.js (AIM-527).
- * AIM-867: page enrolled devices at ≤100 rows; summary cards stay fleet-wide.
- * AIM-1007: live Attribution health panel (Epic A gate) for fleet operators. */
+/* Fleet view — pure-moved from app.js.
+ * page enrolled devices at ≤100 rows; summary cards stay fleet-wide.
+ * live Attribution health panel (Epic A gate) for fleet operators. */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtDay, relTime } from '../lib/format.js';
 import { api, showError } from '../lib/runtime.js';
@@ -19,7 +19,7 @@ export const FLEET_HEALTH_LABEL = { healthy: 'healthy', stale: 'stale', dead: 'd
 
 /* Devices needing attention sort first. A fleet table ordered by hostname
  * hides exactly the rows the view exists to surface: the ones that stopped
- * reporting. Active droppers first (AIM-439), then dead, never-seen, stale,
+ * reporting. Active droppers first, then dead, never-seen, stale,
  * healthy. Lifetime drop counters alone do not reorder — only drop_active. */
 export const FLEET_ATTENTION = { dead: 0, never_seen: 1, stale: 2, healthy: 3 };
 export function fleetAttentionRank(d) {
@@ -32,7 +32,7 @@ export function fleetAttentionRank(d) {
  * gap is literally the non-green part. Counts stay in the legend because a
  * proportion alone is not actionable.
  *
- * AIM-645: headline prefers coverageSlo (SLO-healthy / in-scope with 24h grace)
+ * headline prefers coverageSlo (SLO-healthy / in-scope with 24h grace)
  * and tones bad below the 99% target. */
 export function coverageBar(d) {
   const total = Number(d.deployed) || 0;
@@ -47,7 +47,7 @@ export function coverageBar(d) {
   ].filter((s) => s.n > 0);
   const pct = (n) => (n / total) * 100;
   const reporting = pct(Number(d.healthy) || 0);
-  // AIM-645: first-class SLO rollup when the API provides it.
+  // first-class SLO rollup when the API provides it.
   const slo = d.coverageSlo && typeof d.coverageSlo === 'object' ? d.coverageSlo : null;
   const sloTarget = Number(slo?.targetPct) > 0 ? Number(slo.targetPct) : 99;
   const sloPct = slo?.healthyPct != null && Number.isFinite(Number(slo.healthyPct))
@@ -57,7 +57,7 @@ export function coverageBar(d) {
   const sloBreached = slo
     ? Boolean(slo.alert) || (slo.status === 'breach')
     : sloPct < sloTarget;
-  // AIM-452: silent + never_seen are coverage gaps, not vanishing devices.
+  // silent + never_seen are coverage gaps, not vanishing devices.
   const gaps = Number(d.coverageGaps != null
     ? d.coverageGaps
     : (Number(d.stale) || 0) + (Number(d.dead) || 0) + (Number(d.never_seen) || 0));
@@ -122,7 +122,7 @@ export function fleetDropCell(r) {
     + '</span>';
 }
 
-/** AIM-588: daily coverage trend when /api/fleet.trend is present. */
+/**: daily coverage trend when /api/fleet.trend is present. */
 function renderFleetCoverageTrend(d) {
   const trend = d?.trend ?? [];
   if (trend.length === 0) {
@@ -144,7 +144,7 @@ function renderFleetCoverageTrend(d) {
 
 export async function loadFleet() {
   $('#fleet-cards').innerHTML = skeletonCards(6);
-  // AIM-1007: paint Epic A attribution health even if fleet list is slow/403.
+  // paint Epic A attribution health even if fleet list is slow/403.
   void loadAttributionHealthPanel('#fleet-attr-health', '#fleet-attr-health-verified');
   try {
     const req = pageRequest({ page: fleetListPage, pageSize: DEFAULT_PAGE_SIZE });
@@ -159,15 +159,15 @@ export async function loadFleet() {
     $('#fleet-cards').innerHTML = [
       card('Deployed', fmtInt(d.deployed)),
       card('Healthy', fmtInt(d.healthy), d.healthy > 0 ? 'good' : undefined),
-      // AIM-645: ≥99% enrolled coverage SLO (grace-adjusted, version + event + errors).
+      // ≥99% enrolled coverage SLO (grace-adjusted, version + event + errors).
       card(`Coverage SLO (≥${fmtInt(slo?.targetPct ?? 99)}%)`, sloPct, sloTone),
-      // AIM-452: silent hosts are the coverage gap (past 1x heartbeat interval).
+      // silent hosts are the coverage gap (past 1x heartbeat interval).
       card('Coverage gaps', fmtInt(gaps), gaps > 0 ? 'bad' : 'good'),
       card('Silent (missed heartbeat)', fmtInt(silentN), silentN > 0 ? 'bad' : undefined),
       card('Stale', fmtInt(d.stale), d.stale > 0 ? 'warn' : undefined),
       card('Dead', fmtInt(d.dead), d.dead > 0 ? 'bad' : undefined),
       card('Never seen', fmtInt(d.never_seen)),
-      // AIM-439: client-side loss was previously invisible on this view.
+      // client-side loss was previously invisible on this view.
       card('Dropping', fmtInt(d.dropping ?? 0), (d.dropping ?? 0) > 0 ? 'bad' : undefined),
     ].join('');
     $('#fleet-coverage').innerHTML = coverageBar(d);
@@ -189,7 +189,7 @@ export async function loadFleet() {
     fleetListPage = page.page;
 
     // Attention sort applies within the current page. Global attention order
-    // is a server concern once AIM-866 paginates (ORDER BY health/drop_active).
+    // is a server concern once paginates (ORDER BY health/drop_active).
     const devices = [...page.rows].sort(
       (a, b) => fleetAttentionRank(a) - fleetAttentionRank(b),
     );
@@ -260,7 +260,7 @@ export async function loadFleet() {
   }
 }
 
-/* ---- AIM-781 fleet enforce coverage --------------------------------------
+/* ---- fleet enforce coverage --------------------------------------
  * Install-path coverage + honor rate + fail-open inventory. SOC answers
  * "who can enforce today?" without SQL. Data: GET /api/enforcement/fleet-coverage.
  */
@@ -270,7 +270,7 @@ export const FAIL_OPEN_REASON_LABEL = {
   shadow_mode: 'shadow mode',
   stale_shadow_bake: 'stale shadow bake',
   stale_bundle: 'stale hash',
-  pre_aim110: 'pre-AIM-110',
+  pre_aim110: 'earlier',
 };
 
 function shortRef(ref) {
@@ -382,7 +382,7 @@ async function loadEnforceCoverage() {
       caption: 'Hosts with loaded enforce enforcement.json — can block today',
       empty: {
         title: 'No hosts can enforce',
-        body: 'No reporting host has a loaded enforce bundle in this window. Zero blocks means no coverage, not a clean fleet. Deliver enforcement.json (AIM-440) and confirm with aim doctor --fix.',
+        body: 'No reporting host has a loaded enforce bundle in this window. Zero blocks means no coverage, not a clean fleet. Deliver enforcement.json and confirm with aim doctor --fix.',
       },
     });
     table($('#fleet-enforce-failopen-table'), [

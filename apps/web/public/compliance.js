@@ -1,4 +1,4 @@
-/* AIM-87 / AIM-99 / AIM-693 / AIM-694 / AIM-695 — Compliance evidence + control map.
+/* — Compliance evidence + control map.
  *
  * Self-contained module, same pattern as rules.js / findings.js: injects its
  * own nav tab, view section and stylesheet at runtime, activates on
@@ -6,34 +6,34 @@
  *
  * Renders findings grouped by compliance framework control (EU AI Act
  * articles, OWASP LLM Top 10, NIST AI RMF, ISO/IEC 42001) with live
- * pass/fail/unknown status (AIM-694), counts, and drill-through to the
+ * pass/fail/unknown status, counts, and drill-through to the
  * underlying findings, plus the regulator-ready exports (CSV/JSON/signed
  * evidence bundle) carrying the audit-chain verification result and policy_hash.
  *
- * AIM-99: posture history — weekly + on-demand snapshots stored server-side
+ * posture history — weekly + on-demand snapshots stored server-side
  * (GET/POST /api/compliance/snapshots); any snapshot renders the exact
  * report captured at that time (including control statuses).
  *
- * AIM-693: self-serve offline pack for non-engineer auditors — one ZIP with
+ * self-serve offline pack for non-engineer auditors — one ZIP with
  * SUMMARY, report JSON/CSV, signed evidence bundle, SHA256SUMS, README.
  * Built client-side from the existing report APIs (no new backend formats).
  *
- * AIM-695: every active guardrail control → framework control IDs with live
+ * every active guardrail control → framework control IDs with live
  * status, plus an explicit gaps list (missing mappings + unmonitored controls).
- * AIM-696: `#/compliance?framework=&control=` deep-links from high-sev
+ * `#/compliance?framework=&control=` deep-links from high-sev
  * finding control chips scroll/highlight the matching control row.
  *
- * Split (AIM-1172, mirroring the AIM-1140 findings / AIM-1147 rules /
- * AIM-1157 mcp / AIM-1163 activity splits) — the panels live in sibling
+ * Split (mirroring the findings rules /
+ * mcp activity splits) — the panels live in sibling
  * modules with clear ownership:
  *   ./compliance/state.js         shared view-private cmpCtx + period/error helpers
  *   ./compliance/badges.js        audit-chain + live control status badges (pure)
- *   ./compliance/offline-pack.js  AIM-693 auditor offline pack (ZIP) export
- *   ./compliance/control-map.js   AIM-695 control → framework map + gaps panel
+ * ./compliance/offline-pack.js auditor offline pack (ZIP) export
+ * ./compliance/control-map.js control → framework map + gaps panel
  *   ./compliance/frameworks.js    per-framework panels + rule coverage detail
  *   ./compliance/report.js        report load + render (live or snapshot)
- *   ./compliance/snapshots.js     AIM-99 posture history panel
- *   ./compliance/drillthrough.js  control/rule drill-through + AIM-696 deep-links
+ * ./compliance/snapshots.js posture history panel
+ * ./compliance/drillthrough.js control/rule drill-through + deep-links
  *
  * This file wires the tab, the view section, the controls, and the panels in
  * order. Keep it thin — new panel code goes in a sibling module.
@@ -146,7 +146,7 @@ function init() {
   toEl.value = now.toISOString().slice(0, 10);
   fromEl.value = new Date(now.getTime() - 30 * 86400_000).toISOString().slice(0, 10);
 
-  // AIM-153: `#/compliance` is a real route — the tab is an ordinary data-view
+  // `#/compliance` is a real route — the tab is an ordinary data-view
   // button handled by app.js, and route() calls this to render.
   registerModuleView('compliance', { onActivate: () => load().catch(showErr) });
   section.querySelector('#cmp-apply').addEventListener('click', () => load().catch(showErr));

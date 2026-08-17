@@ -1,4 +1,4 @@
-// SCIM 2.0 directory store (AIM-713).
+// SCIM 2.0 directory store.
 //
 // In-process Map is the request-path source of truth (sync, no DB round-trip
 // per auth check). Optional Postgres write-through survives restarts; tests

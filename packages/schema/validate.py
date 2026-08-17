@@ -4,14 +4,14 @@
 Usage: python3 validate.py
 Exit 0 if every check passes.
 
-Two schemas live here (AIM-158 added the second):
-  ai-usage-event  — the collector -> ingest event contract (AIM-18)
-  security-alert  — the cross-pillar unified alert contract (D3.1, AIM-157)
+Two schemas live here (added the second):
+  ai-usage-event — the collector -> ingest event contract
+  security-alert — the cross-pillar unified alert contract (D3.1)
 
 Both use Draft 2020-12 and the same valid-/invalid- example convention, so
 adding a schema is a row in SCHEMAS, not a second script.
 
-security-alert ships in TWO forms and picking the wrong one is the AIM-174
+security-alert ships in TWO forms and picking the wrong one is the
 defect (D3.1 §6.1). Cloud Sentry and gatehouse vendor from here — one schema,
 one home — but they must vendor the form that matches their role:
 
@@ -232,7 +232,7 @@ def derivation_diff(strict: dict, profile: dict) -> tuple:
       * a *strict* enum with no profile counterpart in OPEN_VOCABULARY is the
         same bug from the other end: the field stays closed for consumers, so
         the first minor version that adds a member to it gets dropped by every
-        consumer built before it — the AIM-174 defect, one field at a time.
+        consumer built before it — the defect, one field at a time.
 
     Cheap to check, and it is the only check here that fails on code a reviewer
     would otherwise have to catch by eye.
@@ -334,7 +334,7 @@ def check_alert_contract(schema_path: pathlib.Path, examples: pathlib.Path) -> i
     # that opens the root and leaves `resource`, `evidence`, `producer` and
     # `subject_ref` closed -- and the whole corpus passes with it, because no
     # corpus line carries its unknown field inside a nested object. That is
-    # AIM-174 scoped to a subobject: a v1.2 alert adding one optional field
+    # scoped to a subobject: a v1.2 alert adding one optional field
     # under `resource` is rejected by the profile and dropped in silence.
     # Corpus line 23 is the missing line; this is the assertion that does not
     # depend on someone having written it.

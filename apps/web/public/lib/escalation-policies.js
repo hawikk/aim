@@ -1,4 +1,4 @@
-/* AIM-987 / AIM-990 — multi-stage escalation policy helpers.
+/* — multi-stage escalation policy helpers.
  *
  * GET/PUT /api/guardrail/alerts surfaces ladders as alerts.escalationPolicies.
  * Stages use engine destination ids (slack, pagerduty, google_chat, …).

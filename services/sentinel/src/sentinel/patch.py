@@ -17,7 +17,7 @@ Two transformation kinds exist:
   encloses the flagged line (IaC one-liners).
 * ``bump_dep_version`` — replace a package's declared version in a manifest
   (``package.json``, ``requirements*.txt``, ``pyproject.toml``) with the
-  scanner's fixed version (AIM-330 dep-bump autofix).
+  scanner's fixed version (dep-bump autofix).
 
 Everything else — lockfile regeneration, multi-file rewrites, appending
 blocks, rewriting expressions — is left to a human, because a wrong answer

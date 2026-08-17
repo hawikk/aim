@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PR-time dependency review + lockfile tamper gate (AIM-333).
+"""PR-time dependency review + lockfile tamper gate.
 
 Diffs every tracked npm lockfile against a base ref and enforces two rules:
 
@@ -383,7 +383,7 @@ def default_fetch_packument(name: str, registry: str = DEFAULT_REGISTRY) -> dict
         url,
         headers={
             "Accept": "application/json",
-            "User-Agent": "aim-dependency-review/1.0 (AIM-333)",
+            "User-Agent": "aim-dependency-review/1.0",
         },
         method="GET",
     )
@@ -717,7 +717,7 @@ def write_step_summary(
     *,
     allowlist_notes: list[str] | None = None,
 ) -> None:
-    stream.write("## Dependency review (AIM-333)\n\n")
+    stream.write("## Dependency review\n\n")
     stream.write(f"Lockfiles scanned: {', '.join(report.lockfiles) or '(none)'}\n\n")
     if report.tampers:
         stream.write("### Lockfile tamper (block)\n\n")

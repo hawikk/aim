@@ -1,4 +1,4 @@
-// Minimal dependency-free text-to-PDF renderer (AIM-325).
+// Minimal dependency-free text-to-PDF renderer.
 //
 // The executive governance report must be exportable as a PDF without adding
 // a rendering dependency (no headless browser in the image). The report's

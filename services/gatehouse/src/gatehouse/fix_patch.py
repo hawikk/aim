@@ -1,6 +1,6 @@
 """Apply a reviewed catalogue patch to file content for one-click suggestions.
 
-Port of the security-critical path in sentinel's `patch.py` (AIM-185). Gatehouse
+Port of the security-critical path in sentinel's `patch.py`. Gatehouse
 and sentinel deliberately do not share a package — they run in separate
 containers with different blast radii — so the transformation logic is mirrored
 here and kept intentionally small.

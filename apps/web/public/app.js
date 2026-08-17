@@ -1,8 +1,8 @@
-/* AIM-25 dashboard, AIM-68 premium redesign. Plain ES modules against the read API; Chart.js vendored.
- * AIM-71: hash-based routing — every view/entity selection is a shareable URL
+/* dashboard, premium redesign. Plain ES modules against the read API; Chart.js vendored.
+ * hash-based routing — every view/entity selection is a shareable URL
  * (`#/view[/entity]?days=N&source=...`), with browser back/forward support.
- * AIM-72: designed empty states, retryable error banners, keyboard tabs, SR tables/charts.
- * AIM-527: view loaders live under views/*.js; this file is bootstrap + router wiring. */
+ * designed empty states, retryable error banners, keyboard tabs, SR tables/charts.
+ * view loaders live under views/*.js; this file is bootstrap + router wiring. */
 import { parseHash, setHash, moduleView, onModuleViewRegistered, isKnownView } from './lib/router.js';
 import { attributionLabel, verifiedStamp, verifiedTitle } from './lib/attribution-label.js';
 import { fmtTs } from './lib/format.js';
@@ -13,7 +13,7 @@ import { setInstallState, installBanner } from './lib/components.js';
 import { bindRefClipboard } from './lib/ui.js';
 import { initHomeRolePicker, resolveLandingView, HOME_EVENT } from './lib/home-role.js';
 import { initNavIa, revealViewInNav, refreshAllGroupVisibility } from './lib/nav-ia.js';
-import { initCharts } from './lib/charts.js'; // AIM-514: theme toggle + chart retheme side-effects
+import { initCharts } from './lib/charts.js'; // theme toggle + chart retheme side-effects
 import { loadOverview } from './views/overview.js';
 import { loadProviders } from './views/providers.js';
 import { loadAppLlm } from './views/app-llm.js';
@@ -33,7 +33,7 @@ import { fr } from './locales/fr.js';
 import { nl } from './locales/nl.js';
 import { initLocalePicker } from './lib/locale-picker.js';
 
-// AIM-761 / AIM-917: register Security-named catalogs, resolve locale, stamp
+// register Security-named catalogs, resolve locale, stamp
 // <html lang> before module views paint. English remains fail-closed fallback.
 initI18n({ catalogs: { en, de, fr, nl } });
 // Locale picker lists registered tags only (never LOCALES_AWAITING_SECURITY).
@@ -54,16 +54,16 @@ initLocalePicker({
 });
 
 bindRefClipboard();
-// Per-boot (not module-load): harness cache-busts app.js but shares lib/* (AIM-551).
+// Per-boot (not module-load): harness cache-busts app.js but shares lib/*.
 initCharts();
 
-/* AIM-95: set at bootstrap when /api/me returns role null — routing stays inert
+/*: set at bootstrap when /api/me returns role null — routing stays inert
  * because every view is capability-gated and there is nothing to render. */
 let noAccess = false;
 
 /* Returns true when the hash changed — the hashchange listener will call
  * route(). False means the URL already named this state, so nothing will fire
- * and the caller must re-render itself if it needs one (AIM-152). */
+ * and the caller must re-render itself if it needs one. */
 function navigate() {
   return setHash(location, hashFor(state.view, state.entity));
 }
@@ -79,7 +79,7 @@ function route() {
   refresh();
 }
 
-/* AIM-153: feature modules become routable only once their capability fetch
+/*: feature modules become routable only once their capability fetch
  * settles, so a shared `#/findings` link resolves to Overview on the first
  * route and has to be picked up when the module arrives. Subscribed here,
  * synchronously and before this script's first await, because module scripts
@@ -104,7 +104,7 @@ function syncControls() {
   });
 }
 
-/* ---------- CSV export links (AIM-82) ---------- */
+/* ---------- CSV export links ---------- */
 function updateExports() {
   const src = state.source === 'all' ? '' : `&source=${state.source}`;
   const set = (id, href) => { const el = $(id); if (el) el.href = href; };
@@ -187,7 +187,7 @@ async function loadPipelineHealth() {
 }
 
 async function doRefresh() {
-  // AIM-1070: only role=tab buttons carry data-view; group toggles must not
+  // only role=tab buttons carry data-view; group toggles must not
   // receive aria-selected. Reveal the active utility group so the selected
   // tab is not trapped inside a collapsed section.
   revealViewInNav(state.view);
@@ -243,7 +243,7 @@ $('#sign-out').addEventListener('click', (e) => {
 });
 $('#tabs').addEventListener('keydown', (e) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
-  // AIM-1070: rove only visible data-view tabs (skip group toggles + collapsed).
+  // rove only visible data-view tabs (skip group toggles + collapsed).
   const tabs = [...$('#tabs').querySelectorAll('button[data-view]:not([hidden])')]
     .filter((b) => b.offsetParent !== null || b.getClientRects().length > 0);
   const i = tabs.indexOf(document.activeElement);
@@ -278,7 +278,7 @@ try {
     if (state.me.capabilities?.fleet) $('#tab-fleet').hidden = false;
     if (state.me.capabilities?.auditTrail) $('#tab-audit').hidden = false;
 
-    // AIM-1070: collapse utilities into groups; Home is the permanent main page.
+    // collapse utilities into groups; Home is the permanent main page.
     initNavIa({ getActiveView: () => state.view });
     refreshAllGroupVisibility();
 
@@ -286,7 +286,7 @@ try {
     setInstallState(install);
     installBanner(install);
 
-    // AIM-707: persona picker + bare-arrival landing. Onboarding first-run
+    // persona picker + bare-arrival landing. Onboarding first-run
     // still wins later via landedWithoutView() (INITIAL_HASH), not live hash.
     // Preference only — do not yank the operator off an explicit view.
     initHomeRolePicker(state.me);
@@ -333,7 +333,7 @@ bootstrapped = true;
 if (location.hash) {
   route();
 } else if (!noAccess && state.me?.role) {
-  // AIM-707: bare arrival lands on the persona home (findings / security /
+  // bare arrival lands on the persona home (findings / security /
   // overview). Explicit destinations and first-run onboarding are untouched.
   const landing = resolveLandingView(state.me, { isKnownView });
   location.replace(hashFor(landing));

@@ -5,8 +5,8 @@ description = "Guardrail engine v1 — policy-as-code evaluation over the AI usa
 requires-python = ">=3.11"
 dependencies = [
     "PyYAML>=6.0",
-    "psycopg[binary]>=3.1",  # evaluate-db runner (AIM-32)
-    # Alert bus publisher (AIM-158). Both are runtime deps, not dev ones:
+    "psycopg[binary]>=3.1", # evaluate-db runner
+    # Alert bus publisher. Both are runtime deps, not dev ones:
     # `redis` is the transport, and `jsonschema` is what makes "a malformed
     # publish is rejected and logged" true in production and not only in CI.
     # bus.py degrades gracefully when either is missing so a bare checkout

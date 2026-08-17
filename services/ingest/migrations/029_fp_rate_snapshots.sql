@@ -1,4 +1,4 @@
--- 029_fp_rate_snapshots.sql — AIM-672: weekly live-pilot FP rate for
+-- 029_fp_rate_snapshots.sql — weekly live-pilot FP rate for
 -- secret/PII detectors, stored so history is retained and the SLO can be
 -- audited without re-deriving every week from a moving findings triage
 -- state.

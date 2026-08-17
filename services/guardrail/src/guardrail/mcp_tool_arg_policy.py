@@ -1,4 +1,4 @@
-"""MCP tool-argument policy: schema load, shape extraction, evaluation (AIM-664).
+"""MCP tool-argument policy: schema load, shape extraction, evaluation.
 
 Policy can express allow / deny / confirm on (tool name + argument *shape*).
 Shape is metadata-only:
@@ -11,7 +11,7 @@ strings. Endpoint code may pass a local ``tool_input`` dict into
 :func:`shape_from_tool_input`; only the derived shape is used for matching.
 
 This module is the pure evaluation core. Wiring into PreToolUse / guardrail
-match rules is a follow-on; AIM-664 acceptance is schema + fixtures + unit tests.
+match rules is a follow-on; acceptance is schema + fixtures + unit tests.
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 """Inventory: correlate IdP grants + proxy observations + catalogue.
 
-Output rows answer the AIM-300 acceptance criteria directly:
+Output rows answer the acceptance criteria directly:
 - tool, discovery source(s), first/last seen, identity count, OAuth scopes;
 - risk score with per-component explanation;
 - attribution stated honestly per source (proxy = unattributed by contract);

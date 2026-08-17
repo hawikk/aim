@@ -1,4 +1,4 @@
-/* Shared view-private state for the Alerts inbox view (AIM-1181 split).
+/* Shared view-private state for the Alerts inbox view (split).
  * inboxCtx is view-private: zero cross-view surface. The orchestrator
  * (public/inbox.js) calls resetInboxCtx() at the top of init() and every
  * sibling module imports inboxCtx — never re-create it locally. */
@@ -26,7 +26,7 @@ export function resetInboxCtx({ section, me, toast }) {
       nextCursor: null,    // cursor to resume from; null until first page
       exhausted: false,
       busProblem: null,    // 503/502 message; a quiet inbox is never "no alerts"
-      /** AIM-702: outcome index Map, or null until first load attempt finishes. */
+      /**: outcome index Map, or null until first load attempt finishes. */
       outcomeIndex: null,
     },
   });

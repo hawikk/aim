@@ -1,4 +1,4 @@
-// Fleet enforce coverage (AIM-781 / AIM-629 residual C / AIM-789).
+// Fleet enforce coverage (residual C /).
 //
 // Answers the SOC question "who can enforce today?" without SQL:
 //   * install-path coverage — hosts with a loaded enforcement.json bundle
@@ -10,7 +10,7 @@
 //     / stale hash)
 //   * pilot SLO alerts when coverage or honor rate drop below thresholds
 //
-// Denominator doctrine (AIM-110): zero blocks is only a clean number when
+// Denominator doctrine: zero blocks is only a clean number when
 // endpoints actually ran a loaded policy. Absence of posture is coverage-
 // absent, not a clean fleet.
 //
@@ -135,7 +135,7 @@ export function classifyHostPosture(posture, desired = {}) {
       canEnforce: false,
       current: false,
       reason: 'pre_aim110',
-      label: 'No posture marker (pre-AIM-110 collector or non-endpoint source)',
+      label: 'No posture marker (earlier collector or non-endpoint source)',
     };
   }
   if (policy !== 'loaded') {
@@ -159,7 +159,7 @@ export function classifyHostPosture(posture, desired = {}) {
       canEnforce: false,
       current: false,
       reason: 'stale_shadow_bake',
-      label: 'Stale AIM-117 shadow bake still installed',
+      label: 'Stale shadow bake still installed',
     };
   }
   if (desiredHash && hash !== desiredHash) {

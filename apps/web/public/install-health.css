@@ -1,4 +1,4 @@
-/* AIM-746 — install health / first-evidence SLO screen */
+/* — install health / first-evidence SLO screen */
 
 .ih-head {
   display: flex;
@@ -188,7 +188,7 @@
   width: 100%;
 }
 
-/* AIM-933 — health callout + MDM admin runbook */
+/* — health callout + MDM admin runbook */
 
 .ih-health-callout {
   margin: 0 0 1rem;
@@ -335,7 +335,7 @@
   line-height: 1.4;
 }
 
-/* AIM-928 — OS cohort parity + recovery panel + RAG latency tones */
+/* — OS cohort parity + recovery panel + RAG latency tones */
 
 .ih-cohort-panel {
   margin-bottom: 0.75rem;

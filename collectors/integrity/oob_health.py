@@ -1,4 +1,4 @@
-"""Out-of-band health signal independent of the agent process (AIM-639 / AIM-752).
+"""Out-of-band health signal independent of the agent process.
 
 The coding agent (and even the per-user collector hook process) must not be
 able to silence liveness by killing their own tree. The OOB signal is a

@@ -1,11 +1,11 @@
-# Guardrail ruleset v1 — observe-only posture (CEO decision, AIM-15 2026-07-21),
-# AMENDED 2026-07-22 (board verdict on AIM-110): "observe + endpoint blocking
+# Guardrail ruleset v1 — observe-only posture (policy decision, 2026-07-21),
+# AMENDED 2026-07-22 (later amendment): "observe + endpoint blocking
 # for critical rules". The platform-side engine below remains detect-and-alert
 # only; the amendment authorizes ENDPOINT blocking for the critical ruleset
 # via the `enforcement:` section, delivered to collectors as a managed
 # enforcement.json bundle. Metadata-only posture is unchanged in both halves.
 #
-# COMPLIANCE NOTE (AIM-440): findings always have decision: "observe". That is
+# COMPLIANCE NOTE: findings always have decision: "observe". That is
 # the platform engine. Do NOT treat 100% observe findings as proof that
 # endpoint enforcement is off — check usage events for
 # enforcement.action ∈ {blocked, would_block, confirmed} and
@@ -13,8 +13,8 @@
 # fail-opens and will show zero blocks even when this file says mode: enforce.
 #
 # POLICY CONTENT IS A PROPOSAL. The engine and rule mechanism are owned by
-# engineering (AIM-26); the rules below — thresholds, allowlists, severities —
-# must be approved by Security/CEO before they are treated as enforced policy.
+# engineering; the rules below — thresholds, allowlists, severities
+# must be approved by Security before they are treated as enforced policy.
 # Changes to anything under policies/ go through PR review (policy-as-code).
 #
 # Rules evaluate the canonical AI usage event (packages/schema, v1). Event
@@ -37,38 +37,38 @@
 # lt, lte, not_in_approved_providers_for, in_off_hours, in_restricted_repos,
 # mcp_call_to_unapproved_server, tool_call_action_class_in,
 # tool_call_name_matches, configured_mcp_server_unapproved,
-# mcp_call_to_unapproved_tool (AIM-627).
+# mcp_call_to_unapproved_tool.
 # Conditions combine with `all:` / `any:` (one level of nesting supported).
 #
-# AIM-441: rules may carry `inert_until:` (list of machine-readable keys).
+# rules may carry `inert_until:` (list of machine-readable keys).
 # The dashboard / GET /api/guardrail/rules labels rules inert when those
 # prerequisites are unmet — never ship a permanently silent control without
 # a visible inert label.
 version: 1
 
 settings:
-  # Sanctioned tool allowlist (locked CEO decision AIM-16). First-class schema
+  # Sanctioned tool allowlist (locked policy decision). First-class schema
   # tools outside this list (kimi_code, grok_build) are still reportable by
-  # name but score as unapproved until Security/CEO promotes them.
-  # PROPOSAL (AIM-271): consider adding grok_build once dogfood + works-council
+  # name but score as unapproved until Security promotes them.
+  # PROPOSAL: consider adding grok_build once dogfood + works-council
   # posture is reviewed — do NOT treat this comment as approval.
-  # AIM-441: unapproved-tool now matches tool not_in this list (not only
+  # unapproved-tool now matches tool not_in this list (not only
   # tool==other), so first-class-but-unapproved tools fire findings.
   approved_tools: [claude_code, cursor, kilo_code]
   # Approved provider per sanctioned tool. Tool absent from this map = no
   # provider restriction. Proposal — Security to confirm the matrix.
-  # PROPOSAL (AIM-271): if grok_build is approved, add:
+  # PROPOSAL: if grok_build is approved, add:
   #   grok_build: [xai]
   approved_providers:
     claude_code: [anthropic]
     cursor: [anthropic, openai, google]
     kilo_code: [anthropic, openai, google, openrouter]
-  # Approved models per sanctioned tool (AIM-383 / AIM-326). Empty map = no
+  # Approved models per sanctioned tool. Empty map = no
   # model restriction (degrade open until Security populates). When a tool
   # has a non-empty list, models outside it fire model-provider-not-permitted.
   # Optional team overrides: team_approved_models.<team>.<tool> = [models…].
   # PROPOSAL — Security to confirm before any enforce rollout.
-  # AIM-441: model-provider-not-permitted is labelled inert-by-design for the
+  # model-provider-not-permitted is labelled inert-by-design for the
   # model-allowlist half until this map is non-empty; provider-matrix half
   # still fires for tools with approved_providers entries.
   approved_models: {}
@@ -78,7 +78,7 @@ settings:
   # 07:00 exclusive. Proposal — confirm against works-council guidance.
   off_hours_start: 20
   off_hours_end: 7
-  # Restricted repositories (AIM-78 / AIM-441 / AIM-535): cleartext repo
+  # Restricted repositories: cleartext repo
   # identifiers as collectors see them (working-directory paths; normalization
   # matches the collectors: normpath + lowercase + backslash->slash). The
   # engine HMACs each entry with the same AIM_HASH_SALT the collectors use
@@ -86,7 +86,7 @@ settings:
   # INERT until the list is non-empty AND AIM_HASH_SALT is set on the
   # guardrail service (dashboard labels them inert_until_configured).
   #
-  # AIM-535 Security/CEO sign-off (dogfood host, 2026-08-01): populate with
+  # Security sign-off (dogfood host, 2026-08-01): populate with
   # genuine sensitive working-directory roots. Exact-match against event cwd
   # (platform rules); endpoint file-path prefix match uses
   # enforcement.restricted_repo_paths below. Multi-host fleets must extend
@@ -108,27 +108,27 @@ settings:
     - /home/vaque/security-stack/secrets/gcp
     # Host IAM / CI credential store (AWS shared credentials + config)
     - /home/vaque/.aws
-  # Approved MCP servers (AIM-86 / AIM-441 / AIM-547 / AIM-568): server
+  # Approved MCP servers: server
   # identifiers as they appear in tool_calls[].mcp_server on tool_use events.
   # Exact string match only (no wildcards). Grow via policy PR or
   # PUT /api/mcp-allowlist.
   #
-  # mcp_allowlist_mode is deny_unlisted (AIM-441 closed discovery). A null
+  # mcp_allowlist_mode is deny_unlisted (closed discovery). A null
   # mcp_server (unknown server) always counts as unapproved.
   #
   # Pilot seed (2026-08-01): first-party Claude connector ids already present
-  # on the endpoint enforcement bundle since AIM-117
+  # on the endpoint enforcement bundle since
   # (deploy/enforcement/*.json, collectors/.../default_enforcement.json).
   # Live pilot inventory still shows 0 named MCP servers; this is platform↔
   # endpoint reconciliation so enforce is not empty-deny-all. Analysts can
   # grow/shrink via PUT /api/mcp-allowlist (machine-owned mcp-allowlist.yaml).
   # See docs/aim-547-mcp-control-proof.md.
-  mcp_allowlist_mode: deny_unlisted   # was: discovery (AIM-441 closed)
+  mcp_allowlist_mode: deny_unlisted # was: discovery (closed)
   approved_mcp_servers:
     - ide
     - claude_ai_Gmail
     - claude_ai_Google_Calendar
-  # AIM-627: per-(server, tool) allowlist on top of server allowlist.
+  # per-(server, tool) allowlist on top of server allowlist.
   # Empty = no tool-level restriction (server allowlist alone applies).
   # When non-empty, entries are "server/tool_name" exact strings (or
   # {server, tool_name} objects). MCP calls whose pair is absent fire
@@ -136,7 +136,7 @@ settings:
   # Full matrix shape: policies/mcp/tool-argument-policy.schema.json
   # (metadata constraints only; content inspection remains privacy-blocked).
   approved_mcp_tools: []
-  # Credential-shaped tool-name needles (AIM-441 / AIM-572). Matched
+  # Credential-shaped tool-name needles. Matched
   # segment-aware (camelCase + snake_case) against tool_calls[].tool_name —
   # metadata only, never args. Bare "token" suppresses usage/pagination/
   # tokenizer names (count_tokens, get_next_page_token) unless a credential
@@ -156,8 +156,8 @@ settings:
     - aws_access
     - ".env"
 
-  # Endpoint inline enforcement (AIM-110 Phase 1; AIM-15 amended 2026-07-22,
-  # board-approved). This section is the policy-as-code SOURCE OF TRUTH for
+  # Endpoint inline enforcement (Phase 1; amended 2026-07-22,
+  # approved). This section is the policy-as-code SOURCE OF TRUTH for
   # the enforcement.json bundle endpoint tooling delivers to collectors
   # (managed file, same channel as the collector config). The collector reads
   # only this shape; it never parses this YAML.
@@ -168,31 +168,31 @@ settings:
   # rule's cohort canary. The global mode is the fleet-wide kill switch
   # (rollback to shadow is a one-field flip — see docs/aim-296-secret-enforce-rollout.md).
   # The per-rule flag is Security's toggle after the gates clear.
-  # AIM-793: optional per-rule `cohort: {percent: 0-100, salt: "…"}` (or
+  # optional per-rule `cohort: {percent: 0-100, salt: "…"}` (or
   # top-level `cohort`) ramps enforce without fleet blast radius — outside
   # hosts stay would_block; expand/rollback is a policy_hash bump only.
   # Ladder + bundles: docs/aim-793-cohort-canary-rollout.md.
   #
-  # AIM-296 (2026-07-29): phase-1 secret-pattern-in-prompt flipped to enforce
-  # after AIM-117 shadow bake + AIM-128 detector tuning. Evidence:
+  # (2026-07-29): phase-1 secret-pattern-in-prompt flipped to enforce
+  # shadow bake + detector tuning. Evidence:
   # docs/aim-296-secret-enforce-evidence.md. Measured FP rate on the labeled
   # corpus is 0% (precision 1.00 / recall 1.00); dogfood window after tuning
   # produced 0 secret would-blocks.
   #
-  # AIM-547 / AIM-602 decision C (2026-08-01): unapproved-mcp-server flipped
-  # to enforce after non-empty pilot allowlist + break-glass doc. AIM-566
+  # decision C (2026-08-01): unapproved-mcp-server flipped
+  # to enforce after non-empty pilot allowlist + break-glass doc.
   # (2026-08-14) flips restricted-repo on the *pilot overlay only*
-  # (enforcement.pilot.json) after AIM-563 quiet-gate certification. Fleet
-  # YAML and enforcement.enforce.json stay false until a CEO expand
-  # decision. PII fleet default stays observe (pilot overlay: AIM-992).
+  # (enforcement.pilot.json) quiet-gate certification. Fleet
+  # YAML and enforcement.enforce.json stay false until a policy expansion
+  # decision. PII fleet default stays observe (pilot overlay).
   #
   # Fail-open is contractual: missing/malformed bundle or any hook error =
   # observe. PII and injection detectors are NOT hard-blockable at the endpoint
-  # in phase 1 — secret patterns only. Phase 2a (AIM-111, below) adds
+  # in phase 1 — secret patterns only. Phase 2a (below) adds
   # restricted-repo deny and the pii-in-prompt CONFIRM-PROMPT (a challenge the
   # user confirms by resubmitting — not a hard block). ADDITIONAL GATE for the
   # phase-2a rules: phase 1 shipped AND 2 weeks of quiet block-rate telemetry
-  # reviewed (board verdict 2026-07-22).
+  # reviewed (later amendment 2026-07-22).
   enforcement:
     mode: enforce
     rules:
@@ -201,45 +201,45 @@ settings:
       # (audited as action 'confirmed' with rule_id + policy_hash).
       secret-pattern-in-prompt:
         enforce: true
-      # AIM-383: model/provider allowlist — observe until Security approves
+      # model/provider allowlist — observe until Security approves
       # the matrix and an enforce bake. Endpoint collectors ignore this flag
       # until a phase-N hook lands; platform findings fire in observe today.
       model-provider-not-permitted:
         enforce: false
       # PreToolUse: deny MCP calls to servers outside approved_mcp_servers.
-      # AIM-547: pilot enforce ON after non-empty allowlist (see above).
+      # pilot enforce ON after non-empty allowlist (see above).
       # Kill-switch: set false or global mode: shadow. Fail-open on missing
       # bundle. Break-glass: docs/aim-547-mcp-control-proof.md.
-      # AIM-568: platform allowlist is non-empty (endpoint-reconciled seed).
-      # Enforce flip is AIM-564 — keep false until post-load observe bake +
+      # platform allowlist is non-empty (endpoint-reconciled seed).
+      # Enforce flip is — keep false until post-load observe bake +
       # break-glass doc are complete. Kill-switch remains this flag or global
       # mode: shadow. Fail-open on missing/malformed bundle.
       unapproved-mcp-server:
         enforce: true
-      # AIM-111 Phase 2a. PreToolUse: deny file-touching tool calls
+      # Phase 2a. PreToolUse: deny file-touching tool calls
       # (file_path/path/notebook_path) under a restricted root. Bash free
-      # text is out of scope at the endpoint. AIM-566 flipped the *pilot
+      # text is out of scope at the endpoint. flipped the *pilot
       # overlay* to enforce; this fleet default stays false. Break-glass:
       # docs/aim-566-restricted-repo-pilot-enforce.md.
       restricted-repo-access:
         enforce: false
-      # AIM-111 Phase 2a (gated). UserPromptSubmit: confirm-prompt when any
+      # Phase 2a (gated). UserPromptSubmit: confirm-prompt when any
       # pii:* detector fires — first submission is challenged, resubmitting
       # the identical prompt within pii_confirm_ttl_seconds confirms and
       # proceeds (audited as action 'confirmed', schema v1.6).
       pii-in-prompt:
         enforce: false
-    # Mirrors settings.approved_mcp_servers for the endpoint bundle (AIM-547).
-    # Mirrors settings.approved_mcp_servers for the endpoint bundle (AIM-568).
+    # Mirrors settings.approved_mcp_servers for the endpoint bundle.
+    # Mirrors settings.approved_mcp_servers for the endpoint bundle.
     # Must stay in sync with settings.approved_mcp_servers above.
     approved_mcp_servers:
       - ide
       - claude_ai_Gmail
       - claude_ai_Google_Calendar
-    # AIM-111 / AIM-535: endpoint-local absolute paths of restricted roots
+    # endpoint-local absolute paths of restricted roots
     # (boundary-safe prefix match on tool file_path/path/notebook_path).
     # Mirrors the sensitive absolute roots from settings.restricted_repos.
-    # Fleet restricted-repo-access.enforce stays false (AIM-566 is
+    # Fleet restricted-repo-access.enforce stays false (is
     # pilot-overlay only). Populating this list de-inerts shadow/observe
     # evaluation on fleet hosts.
     restricted_repo_paths:
@@ -250,19 +250,19 @@ settings:
       - /home/vaque/dogfood/security-stack/secrets/gcp
       - /home/vaque/security-stack/secrets/gcp
       - /home/vaque/.aws
-    # AIM-111: seconds a PII confirm challenge stays valid (1..3600).
+    # seconds a PII confirm challenge stays valid (1..3600).
     pii_confirm_ttl_seconds: 120
-    # AIM-296: seconds a secret break-glass override stays valid (1..3600).
+    # seconds a secret break-glass override stays valid (1..3600).
     secret_override_ttl_seconds: 120
-    # AIM-627: seconds an MCP deny break-glass (identical tool resubmit) stays valid.
+    # seconds an MCP deny break-glass (identical tool resubmit) stays valid.
     mcp_override_ttl_seconds: 120
-    # AIM-566: seconds a restricted-repo deny break-glass (identical tool+path)
+    # seconds a restricted-repo deny break-glass (identical tool+path)
     # stays valid. Endpoint-only; unused while fleet enforce stays false.
     restricted_repo_override_ttl_seconds: 120
-    # AIM-784 / AIM-791: when true, local resubmit alone never overrides a secret
+    # when true, local resubmit alone never overrides a secret
     # block — an approved, unexpired control-plane grant must be present on the
     # endpoint (synced via GET /api/enforcement/break-glass/active-grants).
-    # DEFAULT false (pilot one-step break-glass). Enabling requires CEO/Security
+    # DEFAULT false (pilot one-step break-glass). Enabling requires Security
     # sign-off (no silent policy expansion). When true, first resubmit opens a
     # local approval request; confirm only after an operator grant + ticket id.
     secret_override_requires_manager: false
@@ -275,7 +275,7 @@ rules:
     severity: high
     title: Unapproved AI coding tool in use
     description: >-
-      Tool is outside settings.approved_tools (AIM-16 sanctioned set). AIM-441
+      Tool is outside settings.approved_tools (sanctioned set).
       fixed a coverage hole: the rule previously matched only tool=="other",
       so first-class-but-unapproved schema tools (kimi_code, grok_build) never
       produced findings despite being outside the allowlist. Now matches any
@@ -307,7 +307,7 @@ rules:
         - field: provider
           not_in_approved_providers_for: tool
 
-  # AIM-383: scoped model/provider allowlist. Provider-matrix half is active
+  # scoped model/provider allowlist. Provider-matrix half is active
   # for tools with approved_providers entries. Model-allowlist half degrades
   # open while approved_models is empty — inert_until labels that half.
   - id: model-provider-not-permitted
@@ -336,9 +336,9 @@ rules:
       The event's pseudonymized repo_ref matches Security's restricted list
       (settings.restricted_repos — secrets-heavy, regulated, or customer-data
       repos). The engine re-derives the HMAC pseudonyms itself from the
-      configured list (AIM-78); requires AIM_HASH_SALT on the guardrail
+      configured list; requires AIM_HASH_SALT on the guardrail
       service. Findings carry only the pseudonym, never the repo name.
-      AIM-441: labelled inert_until_configured while the list is empty or
+      labelled inert_until_configured while the list is empty or
       salt is unset — not a silent "always green" control.
     inert_until:
       - restricted_repos_populated
@@ -363,16 +363,16 @@ rules:
 
   - id: pii-in-prompt
     type: match
-    # AIM-81 asked for "warning" severity. The platform scale is
+    # asked for "warning" severity. The platform scale is
     # low/medium/high/critical, so this ships as "low" (the warning tier);
-    # the approved Sentinel taxonomy (AIM-27) maps pii_pattern_detected to
+    # the approved Sentinel taxonomy maps pii_pattern_detected to
     # Medium on the Sentinel side. A distinct "warning" level would be a
     # taxonomy change — needs Security approval.
     severity: low
     title: PII-like pattern detected in AI tool traffic
     description: >-
       A pii:* detector fired at the collection point (category "pii":
-      pii:email, pii:credit-card, pii:us-ssn, pii:iban; AIM-96 added EU
+      pii:email, pii:credit-card, pii:us-ssn, pii:iban; added EU
       national IDs — pii:es-dni-nie, pii:fr-nir, pii:de-steuerid,
       pii:it-codice-fiscale). Only the detector name is stored — never the
       matched content. Surfaces PII exposure in the findings console instead
@@ -384,7 +384,7 @@ rules:
 
   - id: injection-attempt-in-prompt
     type: match
-    # POLICY PROPOSAL (AIM-96) — needs Security/CEO approval before it is
+    # POLICY PROPOSAL — needs Security approval before it is
     # treated as enforced policy, like every v1 rule. Medium severity on
     # purpose: injection:* detectors are prose-class and fire on defensive
     # discussion of injection attacks too (measured and documented in
@@ -393,7 +393,7 @@ rules:
     severity: medium
     title: Prompt-injection / jailbreak phrasing in AI tool traffic
     description: >-
-      An injection:* detector fired at the collection point (AIM-96:
+      An injection:* detector fired at the collection point (
       ignore-instructions, system-prompt-override, prompt-extraction,
       jailbreak-persona, delimiter-override; EN/DE/FR/ES). Detects engineers
       attempting to override or jailbreak a sanctioned tool's guardrails, or
@@ -411,21 +411,21 @@ rules:
     severity: high
     title: MCP call to unapproved server
     description: >-
-      First rule of the tool-call rail (AIM-86 / AIM-441). A tool_calls[]
+      First rule of the tool-call rail. A tool_calls[]
       entry on a tool_use event is an MCP call (action_class "mcp_call") to a
       server outside settings.approved_mcp_servers — or to an unknown server
-      (null mcp_server). AIM-441 closed discovery mode after a full-corpus
+      (null mcp_server). closed discovery mode after a full-corpus
       inventory found 0 MCP servers; empty approved_mcp_servers is now a
       formal deny-unlisted allowlist (mcp_allowlist_mode: deny_unlisted).
       Platform findings remain observe-only (engine v1); endpoint PreToolUse
       deny is gated by enforcement.rules.unapproved-mcp-server.enforce
-      (AIM-547 pilot: true). Finding evidence carries the offending server
+      (pilot: true). Finding evidence carries the offending server
       id + tool name only — never tool arguments, counts, or durations.
-      (null mcp_server). AIM-441 closed discovery mode; AIM-568 seeded a
+      (null mcp_server). closed discovery mode; seeded a
       non-empty deny-unlisted allowlist (mcp_allowlist_mode: deny_unlisted).
       Platform findings remain observe-only (engine v1); endpoint PreToolUse
       deny is gated by enforcement.rules.unapproved-mcp-server.enforce
-      (still false until AIM-564). Finding evidence carries the offending
+      (still false). Finding evidence carries the offending
       server id + tool name only — never tool arguments, counts, or durations.
     when:
       all:
@@ -438,7 +438,7 @@ rules:
     severity: high
     title: MCP tool call outside approved tool matrix
     description: >-
-      AIM-627 tool-argument / tool-level governance. Fires on tool_use events
+      tool-argument / tool-level governance. Fires on tool_use events
       when settings.approved_mcp_tools is non-empty and a tool_calls[] entry
       is action_class "mcp_call" whose (mcp_server, tool_name) pair is not on
       the matrix. Empty approved_mcp_tools = rule inert (server allowlist alone).
@@ -455,12 +455,12 @@ rules:
     severity: high
     title: Shell/command tool used against a restricted repository
     description: >-
-      Per-tool-call rail (AIM-97). A tool_calls[] entry with action_class
+      Per-tool-call rail. A tool_calls[] entry with action_class
       "shell" (command execution) fired while the event's repo_ref matches
       Security's restricted list — autonomous command execution inside a
       secrets-heavy or regulated repo is the highest-risk tool action there.
       Same HMAC matching as restricted-repo-access (requires AIM_HASH_SALT).
-      AIM-441: labelled inert_until_configured while restricted_repos is
+      labelled inert_until_configured while restricted_repos is
       empty or salt unset. Finding evidence carries tool name + action class
       only — never command lines, counts, or durations.
     inert_until:
@@ -478,7 +478,7 @@ rules:
     severity: medium
     title: Network-egress tool used against a restricted repository
     description: >-
-      Per-tool-call rail (AIM-97). A tool_calls[] entry with action_class
+      Per-tool-call rail. A tool_calls[] entry with action_class
       "network" (web fetch/search) fired against a restricted repo — possible
       data movement out of a regulated codebase, lower confidence than shell
       execution, hence medium. Same HMAC matching and inert-until posture as
@@ -499,16 +499,16 @@ rules:
     severity: medium
     title: Unapproved MCP server configured in an AI tool
     description: >-
-      Per-tool-call rail (AIM-97 / AIM-441), the new-MCP-server detection
+      Per-tool-call rail, the new-MCP-server detection
       alert. Fires on inventory events (schema v1.2): a
       configured_mcp_servers[] entry names a server outside
       settings.approved_mcp_servers. Empty list = deny-unlisted (discovery
-      closed after AIM-441 inventory found 0 configured servers). Medium:
+      closed inventory found 0 configured servers). Medium:
       presence in config is intent-to-use, not observed traffic. Platform
       findings observe-only; endpoint inventory is not an interrupt surface.
       Finding evidence names the unapproved server(s) only (name + scope) —
       never commands, args, URLs, or env values.
-      settings.approved_mcp_servers. AIM-568 seeded a non-empty deny-unlisted
+      settings.approved_mcp_servers. seeded a non-empty deny-unlisted
       allowlist; servers not on the list (and unknown/null) stay unapproved.
       Medium: presence in config is intent-to-use, not observed traffic.
       Platform findings observe-only; endpoint inventory is not an interrupt
@@ -519,11 +519,11 @@ rules:
         - field: configured_mcp_servers
           configured_mcp_server_unapproved: true
 
-  # AIM-441 / AIM-572: credential-shaped tool names on tool_calls[] (metadata
+  # credential-shaped tool names on tool_calls[] (metadata
   # only). Catches secret-manager / vault / token tooling invoked through AI
   # agents (including MCP tools after collector name-split) without inspecting
   # arguments. Needle list is settings-driven; matcher is segment-aware with
-  # token FP suppression (AIM-572 precision review). Observe-only — not an
+  # token FP suppression (precision review). Observe-only — not an
   # enforce candidate until Security promotes it under block-mode gates.
   - id: credential-shaped-tool-call
     type: match
@@ -542,7 +542,7 @@ rules:
         - field: tool_calls
           tool_call_name_matches: credential_tool_name_substrings
 
-  # AIM-441: high-volume network tool use against one repo (egress signal).
+  # high-volume network tool use against one repo (egress signal).
   # Tuned on the 28k-event pilot corpus: network action_class max was 6
   # events/repo/hour; gt:5 flags the rare top of that distribution. Observe.
   - id: high-volume-repo-egress
@@ -563,7 +563,7 @@ rules:
     metric: count
     gt: 5
 
-  # AIM-441: bulk autonomous shell activity per user. Corpus p90≈228, p99≈631
+  # bulk autonomous shell activity per user. Corpus p90≈228, p99≈631
   # shell events/user/hour; gt:250 flags roughly the top decile. Observe.
   - id: bulk-shell-hourly
     type: threshold
@@ -582,7 +582,7 @@ rules:
     metric: count
     gt: 250
 
-  # AIM-441: high token volume per repository (codebase-scale exfil/ingest).
+  # high token volume per repository (codebase-scale exfil/ingest).
   # Complements user-scoped anomalous-volume-hourly. Corpus p90≈37M
   # tokens/repo/hour; gt:50M is above typical pilot noise.
   - id: high-volume-repo-tokens
@@ -630,7 +630,7 @@ rules:
     metric: count
     gt: 100
 
-  # AIM-383 note: per-team budgets with 80/100% alerts are evaluated by the
+  # note: per-team budgets with 80/100% alerts are evaluated by the
   # budget module against team_budgets (migration 019), not as fixed YAML
   # thresholds — each team has its own limit. The rules below are the
   # finding rule_ids / severity classes the budget evaluator emits so they

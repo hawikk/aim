@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Published false-positive budgets per gate (AIM-334). A gate whose measured clean-control FP rate exceeds max_fp_rate auto-reverts to observe mode; a gate whose recall falls below min_recall fails its own release CI.",
+  "description": "Published false-positive budgets per gate. A gate whose measured clean-control FP rate exceeds max_fp_rate auto-reverts to observe mode; a gate whose recall falls below min_recall fails its own release CI.",
   "gates": {
     "gitleaks": {
       "class": "secret",

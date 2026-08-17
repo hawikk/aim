@@ -1,10 +1,10 @@
-# ABAC-style policy conditions (AIM-690)
+# ABAC-style policy conditions
 
 Status: **implemented** in `services/guardrail` (engine feature). Policy
-*content* that uses these dimensions remains a Security/CEO proposal — this
+*content* that uses these dimensions remains a Security proposal — this
 doc is the mechanism.
 
-Parent epic: AIM-630 (Policy engine 8→10).
+Parent epic: (Policy engine 8→10).
 
 ## What shipped
 
@@ -89,11 +89,11 @@ the pseudonymized/class tokens that matched.
 
 ## Deliberate limits
 
-- Dimensions are exactly the four named in AIM-690. Adding one is a small
+- Dimensions are exactly the four named. Adding one is a small
   change to `KNOWN_ATTRS` + resolver + tests.
 - Attribute conditions do **not** change the platform action posture
   (still observe-only on the engine path). Scoping *actions* per
-  team/repo/tool remains AIM-322 scoped policies if
+  team/repo/tool remains scoped policies if
   revived; this ticket is the condition language only.
 - Group membership from live IdP on every event is optional enrichment;
   `settings.group_members` and `event.team` cover the pilot path without a

@@ -1,4 +1,4 @@
-"""Health endpoints for the poll-mode service (AIM-98).
+"""Health endpoints for the poll-mode service.
 
 The poller is a long-lived process with no other HTTP surface, so k8s
 liveness/readiness probes need this minimal stdlib server. Semantics mirror
@@ -9,7 +9,7 @@ the ingest service (`services/ingest/src/server.ts`):
   max(2x interval, 60s), else 503 {"status":"unavailable"}. Before the first
   successful tick it reports unavailable (fail-closed, same posture as the
   restricted-repo rule).
-- `GET /lagz` — AIM-324: 200 {"status":"ok","destinations":[...]} with the
+- `GET /lagz` — 200 {"status":"ok","destinations":[...]} with the
   per-destination delivery-lag report (pending/dead counts, oldest pending
   age) when a lag provider is wired (poll mode always wires one); 503 when
   the report cannot be computed, 404 when no provider is wired.
@@ -76,7 +76,7 @@ def make_handler(state: HealthState, lag_provider: Callable[[], list] | None = N
     """Build a request handler class bound to `state` (factored out so tests
     can exercise it without standing up a real socket).
 
-    `lag_provider` (AIM-324) backs `GET /lagz`: a callable returning the
+    `lag_provider` backs `GET /lagz`: a callable returning the
     per-destination delivery-lag report (see dbrunner.delivery_lag). Absent,
     /lagz answers 404 like any unknown path; a provider error answers 503 —
     a lag endpoint that cannot reach the database must look down, not stale."""

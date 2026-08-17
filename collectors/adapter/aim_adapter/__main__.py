@@ -114,7 +114,7 @@ def cmd_proof(args: argparse.Namespace) -> int:
             valid += 1
 
     counts = result.fleet_counts()
-    print("=== AIM-304 adapter proof ===")
+    print("=== adapter proof ===")
     print(f"events_total={len(result.events)} valid={valid} invalid={invalid} dropped={result.dropped}")
     print(f"failures={len(result.failures)}")
     print("fleet_by_tool (COALESCE tool_raw, tool):")
@@ -122,7 +122,7 @@ def cmd_proof(args: argparse.Namespace) -> int:
         print(f"  {tool}: {n}")
     print(f"alert_stubs_from_match_flags={len(result.alert_stubs)}")
 
-    # Acceptance: AIM-304 pair + AIM-1169 pack + AIM-1176 pack + AIM-1185 pack
+    # Acceptance: pair + pack + pack + pack
     need = {
         "github_copilot",
         "gemini_cli",

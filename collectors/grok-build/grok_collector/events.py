@@ -1,8 +1,8 @@
-"""Canonical event construction for Grok Build / Paperclip grok_local (AIM-271).
+"""Canonical event construction for Grok Build / Paperclip grok_local.
 
 Conforms to packages/schema/schema/v1/ai-usage-event.schema.json (v1.8+).
 
-Content policy (locked, AIM-16): no prompt text, conversation content, or
+Content policy (locked): no prompt text, conversation content, or
 file contents on an event. Paperclip run metadata and adapter config carry
 model/session identity only — never the prompt or tool payloads. Ingest
 rejects out-of-schema fields whole.

@@ -1,4 +1,4 @@
-# OTel GenAI integration guide — pilot app teams (AIM-105)
+# OTel GenAI integration guide — pilot app teams
 
 **Audience:** a first-party app team integrating with the AI Monitoring OTLP receiver.
 **Time:** ~½ day. Config-only if you already emit OpenTelemetry traces; a thin SDK wrapper otherwise.
@@ -49,7 +49,7 @@ OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer <app-team token>
 
 Use your language's OTel SDK and instrument only the LLM call site. You need exactly four span attributes plus the service name — that is the entire contract.
 
-> **Python caveat (found during the AIM-115 dogfood pilot):** the Python OTel SDK's HTTP exporter (`opentelemetry-exporter-otlp-proto-http`) is protobuf-only — it ignores `OTEL_EXPORTER_OTLP_PROTOCOL=http/json` and the receiver will answer `415`. Python services should either export through a local OTel Collector (§2a, which translates to JSON) or use a thin stdlib OTLP/HTTP-JSON wrapper — see `services/guardrail/src/guardrail/telemetry.py` (~150 lines, dependency-free) for the reference implementation we run in production. The JS SDK is unaffected: `@opentelemetry/exporter-trace-otlp-http` speaks HTTP/JSON natively.
+> **Python caveat (found during the dogfood pilot):** the Python OTel SDK's HTTP exporter (`opentelemetry-exporter-otlp-proto-http`) is protobuf-only — it ignores `OTEL_EXPORTER_OTLP_PROTOCOL=http/json` and the receiver will answer `415`. Python services should either export through a local OTel Collector (§2a, which translates to JSON) or use a thin stdlib OTLP/HTTP-JSON wrapper — see `services/guardrail/src/guardrail/telemetry.py` (~150 lines, dependency-free) for the reference implementation we run in production. The JS SDK is unaffected: `@opentelemetry/exporter-trace-otlp-http` speaks HTTP/JSON natively.
 
 ```python
 # Python example — via a local OTel Collector (see §2a) translating to HTTP/JSON:

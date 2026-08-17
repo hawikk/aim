@@ -1,4 +1,4 @@
-"""Continuous catalogue ops: discovery queue for uncatalogued IdP grants (AIM-776).
+"""Continuous catalogue ops: discovery queue for uncatalogued IdP grants.
 
 On every ``shadow-ai sync``:
 - active (authorize) grants that do not match a catalogue tool and are not
@@ -74,7 +74,7 @@ def draft_catalogue_entry(
     *,
     client_ids: list[str] | None = None,
 ) -> dict:
-    """Draft catalogue JSON fragment for PR review (AIM-776).
+    """Draft catalogue JSON fragment for PR review.
 
     Shape mirrors ``catalogue/ai-tools.json`` tool entries. Fields that need a
     human (vendor, domains, sanctioned) stay conservative defaults.
@@ -89,7 +89,7 @@ def draft_catalogue_entry(
     idps = sorted({s for s in (idp_sources or []) if s})
     scope_sample = ", ".join(sorted(set(scopes or []))[:8])
     notes = (
-        f"AUTO-DRAFT from shadow-ai discovery queue (AIM-776). "
+        f"AUTO-DRAFT from shadow-ai discovery queue. "
         f"IdP sources: {', '.join(idps) if idps else 'unknown'}. "
         f"Requires PR review before merge into catalogue."
     )
@@ -118,7 +118,7 @@ def draft_proposed_entry(
     idp_sources: list[str] | None = None,
     client_id: str | None = None,
 ) -> dict:
-    """Draft entry using the list-oriented client_ids arg (AIM-776 tests)."""
+    """Draft entry using the list-oriented client_ids arg (tests)."""
     return draft_catalogue_entry(
         app_name,
         client_id=client_id if client_id is not None else client_ids,

@@ -1,11 +1,11 @@
-# Jamf Pro packaging — AIM Collector (macOS) · AIM-743
+# Jamf Pro packaging — AIM Collector (macOS)
 
 Package the macOS collector for deployment through Jamf Pro: a signed `.pkg`
 plus an optional configuration profile, with secrets supplied at install time
 (not baked into the package).
 
 **Prerequisite (external):** Jamf Pro tenant with package upload + policy rights
-and a ring-0 pilot smart/static group — owner: CEO/IT.
+and a ring-0 pilot smart/static group — owner: IT.
 
 ## Layout
 
@@ -49,7 +49,7 @@ AIM_PKG_SIGN_IDENTITY="Developer ID Installer: Example Corp (TEAMID)" \
 
 On Linux CI the script still **stages** the package root and validates structure
 (plists, postinstall, payload) without producing a `.pkg` — that stage is what
-`scripts/aim-743-jamf-pilot-proof.sh` exercises.
+`scripts/jamf-pilot-proof.sh` exercises.
 
 ## Jamf Pro policy configuration
 
@@ -117,7 +117,7 @@ channel stays with Jamf change control (same posture as Windows Intune).
 ## Pilot proof (CI / agent host)
 
 ```sh
-./scripts/aim-743-jamf-pilot-proof.sh
+./scripts/jamf-pilot-proof.sh
 ```
 
 Stages the package, runs `install.sh` under `AIM_ROOT`, asserts layout +

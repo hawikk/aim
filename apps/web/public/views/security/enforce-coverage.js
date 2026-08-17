@@ -1,7 +1,7 @@
-/* AIM-796: fleet enforce coverage panel against GET /api/enforcement/coverage
- * (AIM-789). Analyst+ via capabilities.coverage || capabilities.fleet.
+/*: fleet enforce coverage panel against GET /api/enforcement/coverage
+ *. Analyst+ via capabilities.coverage || capabilities.fleet.
  * Pure render helpers live in lib/enforce-coverage.js; this module owns the
- * fetch, capability gate, and failure/unknown states (AIM-1135 split). */
+ * fetch, capability gate, and failure/unknown states (split). */
 import { $ } from '../../lib/dom.js';
 import { state, api } from '../../lib/runtime.js';
 import { skeletonCards, emptyState } from '../../lib/components.js';
@@ -52,7 +52,7 @@ export async function loadEnforceCoverage() {
       body.innerHTML = '';
       return;
     }
-    // 404 = API not deployed yet (AIM-789 still landing) — unknown, not clean.
+    // 404 = API not deployed yet (still landing) — unknown, not clean.
     body.innerHTML = emptyState({
       reason: 'error',
       title: err.status === 404 ? 'Enforce coverage API not available' : 'Could not load enforce coverage',

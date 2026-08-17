@@ -1,9 +1,7 @@
 {
-  "$schema_note": "Pinned tool-version compatibility matrix (AIM-648). CI exercises collectors against these recorded fixtures so version-shaped event emission and discovery cannot silently regress.",
+  "$schema_note": "Pinned tool-version compatibility matrix. CI exercises collectors against these recorded fixtures so version-shaped event emission and discovery cannot silently regress.",
   "version": 1,
   "updated": "2026-08-01",
-  "issue": "AIM-648",
-  "parent_issue": "AIM-624",
   "strategy": "recorded_fixtures",
   "pin_policy": {
     "min_versions_per_tool": 2,

@@ -1,4 +1,4 @@
-/* French (fr) catalog — critical admin/analyst surface (AIM-917).
+/* French (fr) catalog — critical admin/analyst surface.
  *
  * Key tree mirrors locales/en.js. Severity / exposure / findings / inbox /
  * enforcement wording requires Security review before merge.
@@ -78,7 +78,7 @@ export const fr = Object.freeze({
     },
   },
 
-  /* Exposure is reach, not risk — different words on purpose (AIM-524). */
+  /* Exposure is reach, not risk — different words on purpose. */
   exposure: {
     wide: 'large',
     moderate: 'modérée',
@@ -87,7 +87,7 @@ export const fr = Object.freeze({
     rule: 'Dérivée de la portée observée, non d’une note de risque : '
       + 'large = 10+ utilisateurs ou 3+ équipes, modérée = 3+ utilisateurs, contenue = moins.',
     unknownTitle: 'Portée non calculable : aucun événement pour cet outil n’a pu être rattaché à un utilisateur ou une équipe '
-      + '(lacune d’attribution AIM-149). Le volume est réel ; la diffusion n’est pas mesurée.',
+      + '(lacune d’attribution). Le volume est réel; la diffusion n’est pas mesurée.',
   },
 
   empty: {

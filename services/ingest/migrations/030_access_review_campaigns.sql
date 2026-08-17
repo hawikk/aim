@@ -1,4 +1,4 @@
--- AIM-718: access review / attestation campaigns for AIM roles.
+-- access review / attestation campaigns for AIM roles.
 --
 -- Snapshots of who held admin/analyst/auditor/viewer (+ reveal grant) at
 -- review time, plus the attestation seal (who signed, when, statement).

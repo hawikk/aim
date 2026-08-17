@@ -1,4 +1,4 @@
-/* Shared view-private state for the Compliance evidence view (AIM-1172 split).
+/* Shared view-private state for the Compliance evidence view (split).
  * cmpCtx is view-private: zero cross-view surface. The orchestrator
  * (public/compliance.js) calls resetComplianceCtx() at the top of init() and
  * every sibling module imports cmpCtx — never re-create it locally. */

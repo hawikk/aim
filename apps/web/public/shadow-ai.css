@@ -1,4 +1,4 @@
-/* Shadow AI discovery (AIM-300) — summary cards + inventory table.
+/* Shadow AI discovery — summary cards + inventory table.
    Uses the shell's design tokens only; no new primitives. */
 
 /* Uncatalogued tools are the discovery queue: they must not blend in. */
@@ -59,7 +59,7 @@
   color: var(--bad);
 }
 
-/* AIM-592: filter bar mirrors Security #sec-filters (Criticality + status). */
+/*: filter bar mirrors Security #sec-filters (Criticality + status). */
 #view-shadow-ai #sh-filters {
   display: flex;
   flex-wrap: wrap;

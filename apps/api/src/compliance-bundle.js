@@ -1,4 +1,4 @@
-// Signed compliance evidence bundles (AIM-99).
+// Signed compliance evidence bundles.
 //
 // A bundle is the immutable, regulator-ready form of the compliance report:
 //   { kind, version, report, chainAnchor, bundleHash, signature, auditRecord }

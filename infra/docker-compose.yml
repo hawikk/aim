@@ -3,7 +3,7 @@ name: ai-monitoring
 # Minimal stack (Postgres + ingest) used by the ingest test suite and the
 # README's "run the tests" path. Published ports name an interface and default
 # to loopback for the same reason the root docker-compose.yml does — see the
-# AIM-184 note there. Widen deliberately with AIM_BIND_ADDR /
+# note there. Widen deliberately with AIM_BIND_ADDR /
 # AIM_DATASTORE_BIND_ADDR; both fall back to 127.0.0.1 when set empty.
 
 services:

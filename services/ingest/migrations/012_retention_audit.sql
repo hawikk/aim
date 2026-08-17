@@ -1,4 +1,4 @@
--- 012_retention_audit.sql — AIM-143: retention enforcement audit trail.
+-- 012_retention_audit.sql — retention enforcement audit trail.
 --
 -- Every purge run (Postgres event/finding purge, see src/retention.ts) writes
 -- one metadata-only row here per data class it swept. This is the "deletions

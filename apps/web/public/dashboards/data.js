@@ -1,4 +1,4 @@
-/* Widget data loaders for the custom dashboards builder (AIM-1162 split).
+/* Widget data loaders for the custom dashboards builder (split).
  * Each catalog entry has a `source` key; multiple widgets sharing a source
  * (e.g. four overview KPIs) resolve once per canvas paint via dctx.dataCache. */
 import { api } from '../lib/api.js';

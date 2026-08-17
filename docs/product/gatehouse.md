@@ -1,6 +1,6 @@
 # Gatehouse — free PR-security pillar
 
-**Positioning (board-endorsed):** Gatehouse is a **free / open-source PR-security
+**Positioning (deliberate):** Gatehouse is a **free / open-source PR-security
 pillar** of the AI Monitoring stack. It is **not** a CI/CD product and we do not
 sell it as one.
 
@@ -225,6 +225,6 @@ is normal; Gatehouse is not positioned as “rip and replace.”
 | Stack placement (pillars, free vs paid) | [stack-overview.md](./stack-overview.md) |
 | Service layout & local scan | [`services/gatehouse/README.md`](../../services/gatehouse/README.md) |
 
-*Document status: product positioning for AIM-1037. Policy
-thresholds remain Security/Legal/CEO; this page describes mechanism and market
+*Document status: product positioning. Policy
+thresholds remain Security/Legal; this page describes mechanism and market
 framing only.*

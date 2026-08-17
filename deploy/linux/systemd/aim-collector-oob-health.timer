@@ -1,5 +1,5 @@
 [Unit]
-Description=AI Monitoring OOB health every 5 minutes (AIM-639 / AIM-752)
+Description=AI Monitoring OOB health every 5 minutes
 Documentation=file:///usr/share/doc/aim-collector/adr-independence-from-agent-loop.md
 
 [Timer]

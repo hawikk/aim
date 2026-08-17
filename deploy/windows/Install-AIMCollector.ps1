@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  AI Monitoring collector installer for Windows (AIM-28 / AIM-742), packaged
+  AI Monitoring collector installer for Windows, packaged
   as an Intune Win32 app. Runs as SYSTEM. Non-interactive, idempotent.
 
 .PARAMETER IngestUrl
@@ -102,7 +102,7 @@ try {
   [System.IO.File]::WriteAllText((Join-Path $ConfigDir 'config.json'), $config)
   [System.IO.File]::WriteAllText($tokenPath, $Token)
 
-  # Optional scoped enrollment token (AIM-744 parity with Linux AIM_ENROLL_TOKEN).
+  # Optional scoped enrollment token (parity with Linux AIM_ENROLL_TOKEN).
   # Written next to config so the cycle can re-enroll; also used immediately
   # below for a one-shot enroll so Fleet sees the device now.
   if ($EnrollToken) {
@@ -110,7 +110,7 @@ try {
     Log "enrollment token written (device will enroll + heartbeat)"
   }
 
-  # Endpoint enforcement bundle (AIM-110 / AIM-296; delivery gap closed in AIM-440).
+  # Endpoint enforcement bundle (delivery gap closed).
   # Without this file the collector fail-opens to observe while policy claims enforce.
   $enforceCandidates = @(
     (Join-Path $Source 'enforcement\enforcement.enforce.json'),
@@ -171,7 +171,7 @@ try {
   }
 
   # --- scheduled cycle task (SYSTEM, every 5 min) ------------------------------
-  # AIM-624 / AIM-643 / AIM-742: per-user scan+flush + machine enroll/heartbeat
+  # per-user scan+flush + machine enroll/heartbeat
   # so enrolled Windows devices appear in fleet coverage.
   $cycleScript = Join-Path $PayloadDir 'Invoke-AIMCollectorCycle.ps1'
   if (-not (Test-Path $cycleScript)) {

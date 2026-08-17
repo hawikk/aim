@@ -1,4 +1,4 @@
--- 026_shadow_ai.sql — AIM-300/AIM-504: shadow AI discovery + SaaS/OAuth grants.
+-- 026_shadow_ai.sql — shadow AI discovery + SaaS/OAuth grants.
 --
 -- Tables owned by the shadow-ai discovery service (services/shadow-ai), read by
 -- apps/api for the Shadow AI view and the analyst grant inventory:
@@ -11,7 +11,7 @@
 --                         HMAC scheme + key as identity-sync).
 --   shadow_ai_tools     — materialized per-tool discovery inventory with risk
 --                         scoring. Aggregate-only: no per-user fields.
---   shadow_ai_findings  — unapproved_ai_saas_grant rows (AIM-504 account layer).
+-- shadow_ai_findings — unapproved_ai_saas_grant rows (account layer).
 --                         Pseudonym + app + scopes; no emails.
 --
 -- Retention: revoked grants purged SHADOW_AI_REVOKED_RETENTION_DAYS (default 90)

@@ -1,4 +1,4 @@
-// Unified alert inbox read API (AIM-158).
+// Unified alert inbox read API.
 //
 // The replayable consumer surface for the inbox UI and the sentinel agent.
 // Gated to analyst+ like /api/findings: alerts carry pseudonyms and rule
@@ -50,7 +50,7 @@ export async function alertsRoutes(fastify) {
       // same to whoever is reading the inbox.
       return reply.code(400).send({ error: 'invalid cursor' });
     }
-    // Default newest-first so the first page is recent activity (AIM-476).
+    // Default newest-first so the first page is recent activity.
     // `order=oldest` keeps the completeness-scan path for tools that walk the
     // whole retention window.
     const direction = order === 'oldest' ? 'oldest' : 'newest';
@@ -59,11 +59,11 @@ export async function alertsRoutes(fastify) {
     // Severity / pillar filters are applied as we fill the page, not after a
     // single raw page: with newest-first a stream dominated by one pillar would
     // otherwise answer `?pillar=ai_usage` with an empty first page while 728
-    // matching alerts sit further back (AIM-476 class of silent empty inbox).
+    // matching alerts sit further back (class of silent empty inbox).
     const sevWanted = severity
       ? new Set(String(severity).split(',').map((s) => s.trim()).filter(Boolean))
       : null;
-    // Matched on the band as well as the raw label (§7.4 rev 6 / AIM-179).
+    // Matched on the band as well as the raw label (§7.4 rev 6 /).
     const sevBands = sevWanted
       ? new Set([...sevWanted].map(severityBand).filter((b) => b !== undefined))
       : null;

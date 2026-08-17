@@ -1,4 +1,4 @@
--- 008_saved_views.sql — AIM-94: per-user saved dashboard views.
+-- 008_saved_views.sql — per-user saved dashboard views.
 --
 -- Saved views are UI preferences owned by a single user: a named filter set
 -- (status/severity/rule/time-range) for the findings console, persisted so the

@@ -1,4 +1,4 @@
--- 006_repo_labels.sql — AIM-78: optional de-pseudonymization mapping for
+-- 006_repo_labels.sql — optional de-pseudonymization mapping for
 -- repo_ref (salted-HMAC pseudonym, schema v1).
 --
 -- The Repos dashboard view and /api/repos endpoints show pseudonymized repo

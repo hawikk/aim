@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-598 — Automated pilot backup/restore drill with measured RTO / RPO.
+# — Automated pilot backup/restore drill with measured RTO / RPO.
 #
 # Runs a throwaway Postgres source → backup → destroy → clean restore → verify
 # path (same recovery mechanics as scripts/backup-restore-proof.sh) while
@@ -190,7 +190,7 @@ fmt_duration() {
 }
 
 echo "============================================================"
-echo " AIM-598 backup/restore pilot drill"
+echo " backup/restore pilot drill"
 echo " drill_id: $DRILL_ID"
 echo " started:  $DRILL_STARTED_UTC"
 echo " image:    $IMAGE"
@@ -346,7 +346,7 @@ TOTAL_SECONDS=$(( $(date +%s) - PHASE_START[seed] ))
 
 # --- Write durable drill log (markdown + json) ---
 cat > "$LOG_MD" <<MD
-# Backup/restore pilot drill log — AIM-598
+# Backup/restore pilot drill log
 
 | Field | Value |
 | --- | --- |
@@ -447,7 +447,6 @@ out = sys.argv[1]
 env = os.environ
 payload = {
     "drill_id": env["DRILL_ID"],
-    "issue": "AIM-598",
     "result": env["OVERALL"],
     "started_utc": env["DRILL_STARTED_UTC"],
     "ended_utc": env["DRILL_ENDED_UTC"],

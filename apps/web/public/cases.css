@@ -1,4 +1,4 @@
-/* AIM-706 — investigation cases. Tokens from styles.css :root. */
+/* — investigation cases. Tokens from styles.css :root. */
 .cases-view .case-controls { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .case-create h2 { margin: 0 0 12px; font-size: var(--text-md, 15px); }
 .case-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; align-items: start; }

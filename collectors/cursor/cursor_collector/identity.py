@@ -1,7 +1,7 @@
-"""Endpoint identity attestation (AIM-58).
+"""Endpoint identity attestation.
 
 The collector attests its endpoint identity once per batch: ingest resolves
-it to a user_pseudonym + team via identity-sync POST /resolve (AIM-49). The
+it to a user_pseudonym + team via identity-sync POST /resolve. The
 block travels in the batch envelope only — never inside event payloads
 (metadata-only contract).
 
@@ -10,9 +10,9 @@ device_id resolution order (first hit wins):
 1. ``AIM_DEVICE_ID`` env var (dev/test override)
 2. ``device_id`` in the managed config file — the pilot path: the Intune/SCCM
    install drops the enrolled Intune device id alongside config.json
-   (see docs/deployment/enrollment-and-heartbeat.md, AIM-28)
+   (see docs/deployment/enrollment-and-heartbeat.md)
 3. ``device_id`` written into the state dir by ``aim join`` — the platform's own
-   enrollment id (AIM-149). Without this an enrolled Linux/WSL host attests
+   enrollment id. Without this an enrolled Linux/WSL host attests
    only its OS login, so resolution falls through to the weakest rule (the
    bare-username heuristic) even though the device is enrolled and known.
 4. Windows: ``dsregcmd /status`` DeviceId — the Entra/Intune device id of the
@@ -20,9 +20,9 @@ device_id resolution order (first hit wins):
 
 os_user: the OS login name (USER/USERNAME/LOGNAME env, then the password
 database). Covers WSL/Linux where no Intune id exists; identity-sync falls
-back to os_user mapping and the bare-username heuristic (AIM-24 ADR-001).
+back to os_user mapping and the bare-username heuristic (ADR-001).
 
-build (AIM-646): signed package/version/tool identity embedded at release;
+build: signed package/version/tool identity embedded at release;
 see docs/security/collector-build-attestation.md.
 """
 
@@ -41,7 +41,7 @@ _DSREGCMD_DEVICE_ID_RE = re.compile(r"^\s*DeviceId\s*:\s*(\S+)\s*$", re.MULTILIN
 
 
 def _enrolled_device_id() -> str | None:
-    """Device id stored by ``aim join`` (AIM-149). Best-effort file read."""
+    """Device id stored by ``aim join``. Best-effort file read."""
     try:
         return (state.state_dir() / "device_id").read_text().strip() or None
     except OSError:
@@ -87,7 +87,7 @@ def collector_identity() -> dict:
 
     Empty means "omit the block" — ingest rejects an empty collector object.
 
-    Always includes a ``build`` sub-object (AIM-646): signed at release when
+    Always includes a ``build`` sub-object: signed at release when
     ``build_attestation.json`` is present; unsigned package/version/tool in
     source checkouts. Ingest rejects unsigned only when
     ``INGEST_ATTESTATION_MODE=enforce``.

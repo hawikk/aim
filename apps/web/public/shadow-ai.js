@@ -1,4 +1,4 @@
-/* Shadow AI discovery (AIM-300 / AIM-504) — tools + IdP SaaS grant inventory.
+/* Shadow AI discovery — tools + IdP SaaS grant inventory.
  *
  * Self-contained module, same pattern as coverage.js / mcp.js: injects its nav
  * tab, view section and stylesheet at runtime, and activates only on the
@@ -17,7 +17,7 @@
  *     identity-sync /reveal path (audited, separate capability).
  *   * finding_type unapproved_ai_saas_grant marks ChatGPT-class signals.
  *
- * AIM-592: loading skeletons, criticality-style risk filter + status filters
+ * loading skeletons, criticality-style risk filter + status filters
  * consistent with the Security module, shared empty/error states.
  */
 
@@ -182,7 +182,7 @@ export function cardsHtml(summary) {
   const bands = BAND_ORDER.map(
     (b) => `<span class="sh-band">${severityBadge(b)} ${esc(fmtInt(summary.by_band?.[b] ?? 0))}</span>`,
   ).join(' ');
-  // AIM-777: per-IdP grant breakdown (Entra / Okta / Google / …).
+  // per-IdP grant breakdown (Entra / Okta / Google / …).
   const byIdp = summary.grants_by_idp_source || {};
   const idpKeys = Object.keys(byIdp).sort();
   const idpBands = idpKeys.length
@@ -317,7 +317,7 @@ async function init() {
   const grantFindingSel = section.querySelector('#sh-grant-finding');
   const filterHint = section.querySelector('#sh-filter-hint');
 
-  // AIM-153: `#/shadow-ai` is a real route — the tab is an ordinary data-view
+  // `#/shadow-ai` is a real route — the tab is an ordinary data-view
   // button handled by app.js, and route() calls this to render.
   registerModuleView('shadow-ai', {
     onActivate: () => load(),

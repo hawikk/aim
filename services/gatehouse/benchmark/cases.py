@@ -1,4 +1,4 @@
-"""Versioned precision corpus for gatehouse scanners (AIM-334).
+"""Versioned precision corpus for gatehouse scanners.
 
 Each case is a small synthetic tree plus labeled expected findings (or a clean
 control with zero expected). The harness materializes cases into temp repos
@@ -606,7 +606,7 @@ def _clean_cases() -> list[Case]:
             gate_class="clean", gate="semgrep", clean=True,
             # Fixed host only — a caller-supplied `url` param matches
             # python-ssrf-requests-user-url and would falsely score as an FP
-            # against this TLS-verify control (AIM-445 SSRF pack).
+            # against this TLS-verify control (SSRF pack).
             files={"app/client.py": (
                 "import requests\n\n\n"
                 "def get():\n"

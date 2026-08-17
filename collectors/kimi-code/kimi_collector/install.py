@@ -1,4 +1,4 @@
-"""One-line install UX (AIM-80).
+"""One-line install UX.
 
 Kimi Code has no hook API, so there is nothing to register — install
 writes the managed config, enrolls the device with the ingestion service,

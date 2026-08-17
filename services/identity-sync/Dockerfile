@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir . \
 COPY services/identity-sync/fixtures ./fixtures
 # Run as an unprivileged user; the service writes only its SQLite db, which
 # lives under /app/data so compose can mount a named volume there (service
-# identities and the reveal audit log must survive a rebuild — AIM-149).
+# identities and the reveal audit log must survive a rebuild —).
 RUN useradd --create-home app && mkdir -p /app/data && chown -R app:app /app
 USER app
 EXPOSE 8080

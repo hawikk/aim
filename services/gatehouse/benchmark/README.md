@@ -1,7 +1,7 @@
-# Gate precision benchmark (AIM-334)
+# Gate precision benchmark
 
 Measured FP/FN rates on a versioned corpus, per gate. This is the evidence that
-makes [AIM-277](/AIM/issues/AIM-277) / [AIM-298](/AIM/issues/AIM-298) enforcement
+makes enforcement
 defensible — leaders publish detection quality; we assert it.
 
 ## Charter

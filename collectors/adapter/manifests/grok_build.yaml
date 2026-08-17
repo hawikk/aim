@@ -8,7 +8,7 @@ legacy:
   package: collectors/grok-build
   reason: >
     Paperclip grok_local run metadata + usage log parsing lives in
-    collectors/grok-build (AIM-271/AIM-371); registered here for fleet parity.
+    collectors/grok-build; registered here for fleet parity.
 surfaces:
   - type: local_session_logs
     fidelity: depth

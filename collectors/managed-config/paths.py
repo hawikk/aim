@@ -1,4 +1,4 @@
-"""Platform managed-config directories (AIM-36 / AIM-1170).
+"""Platform managed-config directories.
 
 Search order for a managed file (first existing wins), after ``AIM_*_FILE``:
 
@@ -11,7 +11,7 @@ macOS (first-class; Darwin must not fall through to Linux ``/etc`` only)
   2. ``~/Library/Application Support/AI-Monitoring/collector/<name>``
      (per-user managed path written by ``deploy/macos/managed-user/install.sh``)
   3. ``/etc/aim-collector/<name>``
-     (legacy AIM-743 Jamf LaunchDaemon layout — compatibility only)
+     (legacy Jamf LaunchDaemon layout — compatibility only)
 
 Linux / WSL
   ``/etc/aim-collector/<name>``
@@ -50,7 +50,7 @@ def managed_dirs(
         return [
             Path(DARWIN_MANAGED_DIR),
             user_home / "Library" / "Application Support" / "AI-Monitoring" / "collector",
-            Path(LINUX_MANAGED_DIR),  # AIM-743 legacy
+            Path(LINUX_MANAGED_DIR), # legacy
         ]
     return [Path(LINUX_MANAGED_DIR)]
 

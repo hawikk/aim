@@ -1,4 +1,4 @@
-/* AIM-81 — Guardrail rules transparency viewer (injected by rules.js).
+/* — Guardrail rules transparency viewer (injected by rules.js).
    Reuses tokens, .card/.cards, .panel, .banner, .pill (incl. the shared
    .pill.sev-* severity palette) from styles.css. */
 
@@ -79,7 +79,7 @@
 #view-rules .mini-table { border-collapse: collapse; }
 #view-rules .mini-table td { padding: 1px 10px 1px 0; font-size: 12.5px; }
 /* Tool/provider names are identifiers — never wrap them mid-word
-   ("claude_cod e" in the Approved providers cell, AIM-230 audit). */
+   ("claude_cod e" in the Approved providers cell, audit). */
 #view-rules .mini-table td code { white-space: nowrap; }
 
 #view-rules code {
@@ -89,7 +89,7 @@
   font-size: 11.5px;
 }
 
-/* ---------- AIM-94: inline rule tuning ---------- */
+/* ---------- inline rule tuning ---------- */
 #view-rules .chip {
   font-size: 10.5px;
   font-weight: 600;
@@ -100,7 +100,7 @@
   padding: 1px 8px;
 }
 
-/* ---------- AIM-788: endpoint enforcement mode matrix ---------- */
+/* ---------- endpoint enforcement mode matrix ---------- */
 #view-rules .er-meta {
   display: flex;
   flex-wrap: wrap;
@@ -182,7 +182,7 @@
   border-color: rgba(167, 139, 250, 0.35);
 }
 
-/* AIM-441: rule posture labels (active / inert / discovery) */
+/*: rule posture labels (active / inert / discovery) */
 #view-rules .chip.posture-active {
   color: #86efac;
   background: rgba(34, 197, 94, 0.12);
@@ -291,7 +291,7 @@
 #view-rules .re-err, #view-rules .ac-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
 #view-rules .ac-ok { color: var(--good, #45d483); font-size: 12.5px; }
 
-/* ---------- AIM-94 / AIM-584: alert destinations + multi-route summary ---------- */
+/* ---------- alert destinations + multi-route summary ---------- */
 #view-rules .alert-routing-summary {
   margin: 0 0 14px;
   padding: 12px 14px;
@@ -335,7 +335,7 @@
   flex-wrap: wrap;
   margin: 0 0 12px;
 }
-/* AIM-998: Rules → Audit deep-link for destination config changes */
+/*: Rules → Audit deep-link for destination config changes */
 #view-rules .alert-audit-link {
   font-size: 12.5px;
   color: var(--accent, #7aa2ff);
@@ -425,7 +425,7 @@
   max-width: 90ch;
 }
 
-/* Per-rule multi-destination fan-out chips (AIM-584) */
+/* Per-rule multi-destination fan-out chips */
 #view-rules .rule-routes {
   display: flex;
   flex-wrap: wrap;
@@ -466,7 +466,7 @@
   border-color: var(--warn-border, rgba(230, 162, 60, 0.35));
 }
 
-/* ---------- AIM-987: escalation policy stages (read-only) ---------- */
+/* ---------- escalation policy stages (read-only) ---------- */
 #view-rules .escalation-panel {
   margin-top: 18px;
   padding-top: 14px;
@@ -609,7 +609,7 @@
 }
 
 
-/* AIM-990 — escalation policy editor form controls */
+/* — escalation policy editor form controls */
 #view-rules .esc-toolbar {
   display: flex;
   flex-wrap: wrap;

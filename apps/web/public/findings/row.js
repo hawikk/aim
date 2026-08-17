@@ -1,4 +1,4 @@
-/* Findings inbox row rendering (AIM-1140 split of findings.js).
+/* Findings inbox row rendering (split of findings.js).
  * findingRow paints one finding (head + disclosure detail); renderHistory
  * fills the disposition-trail slot on expand. Pure rendering — mutations and
  * disclosure state live in ./triage.js, shared state in ./state.js. */
@@ -16,37 +16,37 @@ import { esc } from '../lib/dom.js';
 import { sevPill, severityBadge, severityRowClass } from '../lib/severity.js';
 import { api } from '../lib/api.js';
 
-// Escapes like app.js's card() (AIM-74): callers pass raw strings, never markup.
+// Escapes like app.js's card(): callers pass raw strings, never markup.
 export function findingRow(f, rules) {
   const { state, outcomeIndex, fixtureIndex, evidenceIndex } = fctx;
   const actions = STATUS_FLOW[f.status] ?? [];
-  // AIM-81: the rule condition that fired, in plain language (from the
+  // the rule condition that fired, in plain language (from the
   // live policy via /api/guardrail-rules) — no YAML reading required.
   const rule = rules?.get(f.ruleId);
   const whyText = rule ? (rule.conditionText ?? rule.thresholdText) : null;
-  // AIM-79 / AIM-589: finding → user / tool / repo / fleet with range preserved.
+  // finding → user / tool / repo / fleet with range preserved.
   // subject.user_ref is the raw HMAC ref; /api/users/:pseudonym resolves
   // COALESCE(user_pseudonym, user_ref). Tool/repo come from evidence.context
   // when present. Never hand-build `#/users/…` — it drops ?days=.
   const entityLinks = findingLinkHtml(f, { days: state.days, esc });
-  // AIM-800: deep-link into MCP session chain when evidence carries session_id
+  // deep-link into MCP session chain when evidence carries session_id
   // (engine context — metadata only; never matched content).
   const sessionId = extractSessionId(f.evidence);
   const sessionLink = sessionId
     ? ` · <a href="${sessionHash(sessionId)}" title="Open MCP session chain for ${esc(sessionId)}">MCP session chain →</a>`
     : '';
-  // AIM-225: redacted per-occurrence fingerprints (schema v1.8) — the proof/
+  // redacted per-occurrence fingerprints (schema v1.8) — the proof/
   // dedupe handle for secret findings. There is no matched content to show;
   // the fingerprint IS the finding's substance.
-  // AIM-541: if fingerprint ∈ fixture registry → suggest cluster A (synthetic).
+  // if fingerprint ∈ fixture registry → suggest cluster A (synthetic).
   const fps = annotateWithFixtureHints(extractFingerprints(f.evidence), fixtureIndex);
   const fixtureHits = fps.filter((p) => p.fixtureHint);
   const clusterAHint = fixtureHits.length
-    ? `<span class="pill cluster-a" title="Fingerprint matches known dead-key fixture registry (AIM-541). Suggest cluster A — synthetic / fixture, not a live secret. Labels: ${esc(
+    ? `<span class="pill cluster-a" title="Fingerprint matches known dead-key fixture registry. Suggest cluster A — synthetic / fixture, not a live secret. Labels: ${esc(
         fixtureHits.map((p) => p.fixtureHint.label).join(', ')
       )}">cluster A · fixture</span>`
     : '';
-  // AIM-702: only hint on open findings — closed rows already have a disposition.
+  // only hint on open findings — closed rows already have a disposition.
   const autoHint = (f.status === 'new' || f.status === 'acknowledged')
     ? hintPillHtml(suggestDisposition(f, outcomeIndex), esc)
     : '';
@@ -66,7 +66,7 @@ export function findingRow(f, rules) {
         })
         .join('<br>')}</dd></div>`
     : '';
-  // AIM-925 / AIM-696: high-sev → compliance control evidence links.
+  // high-sev → compliance control evidence links.
   const cmpLinks = resolveComplianceEvidence(f, evidenceIndex);
   const cmpBlock = evidenceLinksHtml(cmpLinks, { esc });
   // Stable id for the disclosure panel so aria-controls / focus return
@@ -116,7 +116,7 @@ export function findingRow(f, rules) {
       </dl>
       ${cmpBlock}
       ${(() => {
-        // AIM-710: step-by-step investigation playbook for top detections.
+        // step-by-step investigation playbook for top detections.
         const pb = playbookForRule(f.ruleId);
         return pb ? playbookHtml(pb, { scopeId: f.findingId, headingLevel: 3 }) : '';
       })()}
@@ -133,7 +133,7 @@ export function findingRow(f, rules) {
   </div>`;
 }
 
-/* AIM-223: disposition history for one finding, rendered into the detail
+/*: disposition history for one finding, rendered into the detail
  * view's .f-history slot. Fetched on expand (never cached — the whole
  * point is that the trail is current). A fetch failure renders as a note,
  * not a toast storm: the triage controls below still work. */

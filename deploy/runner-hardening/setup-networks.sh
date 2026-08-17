@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-308 / D-C2: create the CI job networks used by isolated PR jobs.
+# / D-C2: create the CI job networks used by isolated PR jobs.
 # Safe to re-run. Does not require root.
 set -euo pipefail
 
@@ -11,9 +11,9 @@ create_net() {
     return 0
   fi
   if [[ "$internal" == "true" ]]; then
-    docker network create --internal --label aim.role=ci-isolated --label aim.ticket=AIM-308 "$name"
+    docker network create --internal --label aim.role=ci-isolated "$name"
   else
-    docker network create --label aim.role=ci-jobs --label aim.ticket=AIM-308 "$name"
+    docker network create --label aim.role=ci-jobs "$name"
   fi
   echo "created $name (internal=$internal)"
 }

@@ -1,4 +1,4 @@
-/* Cases list pane (AIM-1186 split): status/severity filters, summary cards,
+/* Cases list pane (split): status/severity filters, summary cards,
  * the case list itself, and the nav-tab badge of active investigations.
  * List rows drill into the detail pane via nav.js goCase(). */
 

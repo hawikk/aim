@@ -104,7 +104,7 @@ def _prune(args: argparse.Namespace) -> int:
 
 
 def _evidence(args: argparse.Namespace) -> int:
-    """AIM-446 — retrieve / prune durable gate verdicts (≥90 day retention)."""
+    """Retrieve / prune durable gate verdicts (≥90 day retention)."""
     from . import evidence as evidence_mod
 
     store = evidence_mod.EvidenceStore(args.db)
@@ -138,7 +138,7 @@ def _evidence(args: argparse.Namespace) -> int:
 
 
 def _check_tokens(args: argparse.Namespace) -> int:
-    """AIM-1090 — non-secret PAT readiness / fail-closed scope self-check."""
+    """Non-secret PAT readiness / fail-closed scope self-check."""
     from . import token_check
 
     repos = list(args.repo or []) or None
@@ -159,7 +159,7 @@ def _check_tokens(args: argparse.Namespace) -> int:
 
 
 def _merge_audit(args: argparse.Namespace) -> int:
-    """Out-of-band merge auditor (AIM-298). Does not share a GH Actions failure domain."""
+    """Out-of-band merge auditor. Does not share a GH Actions failure domain."""
     from . import merge_audit
 
     token = args.token or os.environ.get("GATEHOUSE_GITHUB_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
@@ -213,7 +213,7 @@ def _merge_audit(args: argparse.Namespace) -> int:
 
 
 def _iac_parity(args: argparse.Namespace) -> int:
-    """Report / fail on IaC↔CNAPP rule parity drift (AIM-329)."""
+    """Report / fail on IaC↔CNAPP rule parity drift."""
     from . import cnapp_parity
 
     report = cnapp_parity.check_drift(
@@ -238,7 +238,7 @@ def _iac_parity(args: argparse.Namespace) -> int:
 
 
 def _iac_scan(args: argparse.Namespace) -> int:
-    """Full-tree Terraform + K8s Checkov scan with CNAPP parity labels (AIM-329).
+    """Full-tree Terraform + K8s Checkov scan with CNAPP parity labels.
 
     Diff-scoped PR path stays on `gatehouse scan` (GitHub App). This command is
     the CI job on the self-hosted runner: scan known IaC roots, attach would-be
@@ -355,11 +355,11 @@ def main(argv: list[str] | None = None) -> int:
 
     audit = sub.add_parser(
         "merge-audit",
-        help="out-of-band merge auditor (AIM-298) — detect/attribute/revert bypasses",
+        help="out-of-band merge auditor — detect/attribute/revert bypasses",
     )
     audit.add_argument("--repo", action="append", required=True,
                        help="owner/name[:base-ref]; repeatable — the ref suffix "
-                            "overrides --base-ref for that repo only (AIM-413)")
+                            "overrides --base-ref for that repo only")
     audit.add_argument("--token", default="",
                        help="GitHub token (default: GATEHOUSE_GITHUB_TOKEN / GITHUB_TOKEN)")
     audit.add_argument("--revert-token", default="",
@@ -380,7 +380,7 @@ def main(argv: list[str] | None = None) -> int:
 
     tok = sub.add_parser(
         "check-tokens",
-        help="AIM-1090 — fail-closed PAT readiness check (shape + non-mutating "
+        help="Fail-closed PAT readiness check (shape + non-mutating "
              "capability probes; never prints secret values)",
     )
     tok.add_argument("--repo", action="append", default=[],
@@ -400,7 +400,7 @@ def main(argv: list[str] | None = None) -> int:
 
     evidence = sub.add_parser(
         "evidence",
-        help="AIM-446 — retrieve / prune durable gate verdicts (≥90 days)",
+        help="Retrieve / prune durable gate verdicts (≥90 days)",
     )
     evidence.add_argument(
         "--db",
@@ -427,7 +427,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parity = sub.add_parser(
         "iac-parity",
-        help="check IaC rule ↔ CNAPP posture rule mapping for drift (AIM-329)",
+        help="check IaC rule ↔ CNAPP posture rule mapping for drift",
     )
     parity.add_argument("--mapping", default="", help="override mapping.yml path")
     parity.add_argument("--catalog", default="", help="override posture_catalog.yml path")
@@ -436,7 +436,7 @@ def main(argv: list[str] | None = None) -> int:
 
     iac = sub.add_parser(
         "iac-scan",
-        help="scan Terraform + K8s with Checkov and CNAPP parity labels (AIM-329)",
+        help="scan Terraform + K8s with Checkov and CNAPP parity labels",
     )
     iac.add_argument("--repo-dir", default=".")
     iac.add_argument("--path", action="append",
@@ -446,7 +446,7 @@ def main(argv: list[str] | None = None) -> int:
     iac.add_argument("--changed-only", action="store_true",
                      help="intersect discovered paths with the git diff vs --base")
     iac.add_argument("--fail-on", default=os.environ.get("GATEHOUSE_FAIL_ON", "high"),
-                     help="severity threshold that fails the check (AIM-298 block_on)")
+                     help="severity threshold that fails the check (block_on)")
     iac.add_argument("--parity-check", action="store_true", default=True,
                      help="fail if the IaC↔CNAPP map drifts (default on)")
     iac.add_argument("--no-parity-check", dest="parity_check", action="store_false")

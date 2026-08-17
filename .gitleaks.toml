@@ -31,11 +31,11 @@ paths = [
   '''collectors/matcher-fixtures/.*''',
   '''services/guardrail/.*/tests?/.*''',
   '''services/identity-sync/tests/.*''',
-  # gatehouse acceptance / eval / benchmark fixtures (AIM-161/162/334).
+  # gatehouse acceptance / eval / benchmark fixtures.
   '''services/gatehouse/tests/fixtures/.*''',
   '''services/gatehouse/eval/fixtures/.*''',
   '''services/gatehouse/benchmark/.*''',
-  # AIM-277 throwaway planted secret used only for detector proof docs.
+  # throwaway planted secret used only for detector proof docs.
   '''docs/_aim277_throwaway/.*''',
   # Schema examples + conformance generator: format-valid dead tokens.
   '''packages/schema/examples/.*''',

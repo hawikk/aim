@@ -1,4 +1,4 @@
-// AIM-442: finding lifecycle SLAs + backlog aging + SLA-breach alerts.
+// finding lifecycle SLAs + backlog aging + SLA-breach alerts.
 //
 // Critical findings must be acknowledged within a defined window. An
 // unacknowledged critical past that window is a first-class alert on the
@@ -224,7 +224,7 @@ export function slaBreachAlert(summary, { now = new Date() } = {}) {
     },
     remediation_hint: (
       'Open #/findings filtered to severity=critical&status=new. Acknowledge or disposition each finding with a recorded reason. ' +
-      'A critical nobody acknowledges is indistinguishable from no alert (AIM-442).'
+      'A critical nobody acknowledges is indistinguishable from no alert.'
     ).slice(0, 500),
   };
 }
@@ -329,13 +329,13 @@ export function startFindingSlaAlerter({
 // ---- noise suppression (proven false-positive classes) ------------------
 
 /**
- * Proven noise classes (AIM-128 / AIM-442).
+ * Proven noise classes.
  * Each predicate decides whether a finding row should be auto-closed as
  * false_positive. Reasons are recorded on the transition row.
  *
  * Proven classes (measured live or dogfood):
- * - Bare-email-only `pii-in-prompt` (AIM-128 / AIM-442)
- * - Multi-vendor secret canary fingerprint (AIM-580 live pilot)
+ * - Bare-email-only `pii-in-prompt`
+ * - Multi-vendor secret canary fingerprint (live pilot)
  * - First-class-but-unapproved inventory tools (kimi_code / grok_build) on
  *   `unapproved-tool` — keep in tools inventory; do not flood the findings queue
  * High-sensitivity PII and single-detector secrets stay open.
@@ -346,7 +346,7 @@ export const NOISE_SUPPRESSIONS = [
     id: 'pii-email-only',
     ruleId: 'pii-in-prompt',
     reason:
-      'AIM-442 auto-suppress: bare pii:email only (AIM-128 proven noise — git authorship/test fixtures, not exfil). ' +
+      'Auto-suppress: bare pii:email only (proven noise — git authorship/test fixtures, not exfil). ' +
       'High-sensitivity PII and email co-occurring with secrets remain open.',
     /**
      * @param {{ rule_id: string, evidence: unknown }} row
@@ -358,7 +358,7 @@ export const NOISE_SUPPRESSIONS = [
       return detectors.every((d) => d === 'pii:email');
     },
   },
-  // AIM-580 live pilot: 20/20 stack secret findings co-fired the same multi-vendor
+  // live pilot: 20/20 stack secret findings co-fired the same multi-vendor
   // canary fingerprint (AWS + OpenAI + Slack, usually + credit-card) in one
   // 9-minute kimi_code session. Organic single-secret leaks almost never look
   // like this. Suppress as operational noise; single-detector secrets stay open.
@@ -366,7 +366,7 @@ export const NOISE_SUPPRESSIONS = [
     id: 'secret-multi-canary-bundle',
     ruleId: 'secret-pattern-in-prompt',
     reason:
-      'AIM-580 auto-suppress: multi-vendor synthetic canary fingerprint ' +
+      'Auto-suppress: multi-vendor synthetic canary fingerprint ' +
       '(secret:aws-access-key + secret:openai-key + secret:slack-token co-firing; usually with pii:credit-card). ' +
       'Live pilot 20/20 stack findings were this shape in one dogfood session — not organic single-secret leaks. ' +
       'Single-detector secret findings remain open.',
@@ -384,7 +384,7 @@ export const NOISE_SUPPRESSIONS = [
     },
   },
   // Dogfood / pilot: kimi_code and grok_build are first-class schema tools with
-  // collectors, but still outside approved_tools until Security/CEO promotes them.
+  // collectors, but still outside approved_tools until Security promotes them.
   // Leaving unapproved-tool open for those tools floods the queue (10k+ rows) and
   // hides secrets/PII. Suppress as inventory noise; promote via policy when ready.
   {

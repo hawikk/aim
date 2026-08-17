@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Validate collector-emitted events against the canonical AIM-18 schema
+ * Validate collector-emitted events against the canonical schema
  * (packages/schema/schema/v1/ai-usage-event.schema.json) using the same
  * AJV setup as the ingest service (services/ingest/src/schema.ts).
  *
@@ -31,7 +31,7 @@ const schema = JSON.parse(readFileSync(
   join(repoRoot, "packages", "schema", "schema", "v1", "ai-usage-event.schema.json"),
   "utf8"));
 
-// strictRequired off: the AIM-18 schema uses if/then with cross-subschema
+// strictRequired off: the schema uses if/then with cross-subschema
 // `required`, which strict mode would reject at compile (same as ingest).
 const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: false });
 addFormats(ajv);
@@ -61,7 +61,7 @@ samples += hook.handle_payload("beforeSubmitPrompt", {
     "prompt": "use key AKIAIOSFODNN7EXAMPLE",
 })
 
-# 4. tool_use event (schema v1.1, AIM-86) via the postToolUse hook path,
+# 4. tool_use event (schema v1.1) via the postToolUse hook path,
 #    incl. an MCP-namespaced tool; arguments/output must not survive
 samples += hook.handle_payload("postToolUse", {
     "conversation_id": "conv-4", "model": "gpt-4o",

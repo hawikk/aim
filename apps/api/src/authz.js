@@ -1,4 +1,4 @@
-// Fine-grained RBAC + optional ABAC (AIM-717).
+// Fine-grained RBAC + optional ABAC.
 //
 // Coarse roles (admin / analyst / auditor / viewer) remain the default IdP
 // mapping surface. This module makes *permissions* the unit of authorization:
@@ -146,7 +146,7 @@ const ADMIN_PERMS = Object.freeze([
 /**
  * Default role → permission matrix. Highest-privilege role is admin.
  * Roles are pure bundles; they never grant `reveal.use` (that is a separate
- * grant bit / IdP group, same as AIM-302).
+ * grant bit / IdP group, same as).
  */
 export const ROLE_PERMISSIONS = Object.freeze({
   admin: ADMIN_PERMS,

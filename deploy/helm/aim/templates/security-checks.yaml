@@ -1,5 +1,5 @@
 {{/*
-AIM-601: fail-closed security gates for chart values.
+fail-closed security gates for chart values.
 
 Always enforced (even on the dev shape):
   - Postgres and MinIO Services must stay ClusterIP (no public data-store exposure).
@@ -25,25 +25,25 @@ When security.allowInsecureDefaults is false (values-standard / values-airgapped
 {{- /* --- Always: data stores must not be public -------------------------------- */}}
 {{- $pgType := (.Values.postgres.service.type | default "ClusterIP") }}
 {{- if or (eq $pgType "LoadBalancer") (eq $pgType "NodePort") (eq $pgType "ExternalName") }}
-{{- fail (printf "AIM-601: postgres.service.type=%q is blocked; data stores must use ClusterIP" $pgType) }}
+{{- fail (printf "postgres.service.type=%q is blocked; data stores must use ClusterIP" $pgType) }}
 {{- end }}
 {{- $minioType := (.Values.minio.service.type | default "ClusterIP") }}
 {{- if or (eq $minioType "LoadBalancer") (eq $minioType "NodePort") (eq $minioType "ExternalName") }}
-{{- fail (printf "AIM-601: minio.service.type=%q is blocked; data stores must use ClusterIP" $minioType) }}
+{{- fail (printf "minio.service.type=%q is blocked; data stores must use ClusterIP" $minioType) }}
 {{- end }}
 
 {{- if not $allowInsecure }}
   {{- /* --- authDev ------------------------------------------------------------ */}}
   {{- if .Values.api.authDev }}
-  {{- fail "AIM-601: api.authDev=true is forbidden when security.allowInsecureDefaults=false (dev login endpoints)" }}
+  {{- fail "api.authDev=true is forbidden when security.allowInsecureDefaults=false (dev login endpoints)" }}
   {{- end }}
 
   {{- /* --- OIDC required for shared/prod shapes ------------------------------- */}}
   {{- if not .Values.api.oidc.issuer }}
-  {{- fail "AIM-601: api.oidc.issuer is required when security.allowInsecureDefaults=false (no personal/standalone mode)" }}
+  {{- fail "api.oidc.issuer is required when security.allowInsecureDefaults=false (no personal/standalone mode)" }}
   {{- end }}
   {{- if not .Values.api.oidc.clientId }}
-  {{- fail "AIM-601: api.oidc.clientId is required when security.allowInsecureDefaults=false" }}
+  {{- fail "api.oidc.clientId is required when security.allowInsecureDefaults=false" }}
   {{- end }}
 
   {{- /* --- Secrets: refuse empty / well-known local-only placeholders --------- */}}
@@ -58,25 +58,25 @@ When security.allowInsecureDefaults is false (values-standard / values-airgapped
     {{- $oidcSecret := .Values.secrets.oidcClientSecret | default .Values.api.oidc.clientSecret | default "" | toString }}
 
     {{- if or (eq $pgPass "") (has $pgPass $localOnly) }}
-    {{- fail "AIM-601: secrets.postgresPassword is empty or a documented local-only placeholder; set a real value or secrets.existingSecret" }}
+    {{- fail "secrets.postgresPassword is empty or a documented local-only placeholder; set a real value or secrets.existingSecret" }}
     {{- end }}
     {{- if or (eq $minioPass "") (has $minioPass $localOnly) }}
-    {{- fail "AIM-601: secrets.minioRootPassword is empty or a documented local-only placeholder; set a real value or secrets.existingSecret" }}
+    {{- fail "secrets.minioRootPassword is empty or a documented local-only placeholder; set a real value or secrets.existingSecret" }}
     {{- end }}
     {{- if or (eq $ingest "") (has $ingest $localOnly) }}
-    {{- fail "AIM-601: secrets.ingestTokens is empty or a documented local-only placeholder; set a real value or secrets.existingSecret" }}
+    {{- fail "secrets.ingestTokens is empty or a documented local-only placeholder; set a real value or secrets.existingSecret" }}
     {{- end }}
     {{- if and $enroll (has $enroll $localOnly) }}
-    {{- fail "AIM-601: secrets.enrollTokens uses a documented local-only placeholder; set a real value, clear it to disable enroll, or use secrets.existingSecret" }}
+    {{- fail "secrets.enrollTokens uses a documented local-only placeholder; set a real value, clear it to disable enroll, or use secrets.existingSecret" }}
     {{- end }}
     {{- if eq $hashSalt "" }}
-    {{- fail "AIM-601: secrets.hashSalt is required when security.allowInsecureDefaults=false (pseudonymization must not be inert)" }}
+    {{- fail "secrets.hashSalt is required when security.allowInsecureDefaults=false (pseudonymization must not be inert)" }}
     {{- end }}
     {{- if eq $session "" }}
-    {{- fail "AIM-601: secrets.sessionSecret is required when security.allowInsecureDefaults=false (no ephemeral session keys)" }}
+    {{- fail "secrets.sessionSecret is required when security.allowInsecureDefaults=false (no ephemeral session keys)" }}
     {{- end }}
     {{- if eq $oidcSecret "" }}
-    {{- fail "AIM-601: OIDC client secret is required (secrets.oidcClientSecret or api.oidc.clientSecret, or secrets.existingSecret with AIM_OIDC_CLIENT_SECRET)" }}
+    {{- fail "OIDC client secret is required (secrets.oidcClientSecret or api.oidc.clientSecret, or secrets.existingSecret with AIM_OIDC_CLIENT_SECRET)" }}
     {{- end }}
   {{- end }}
 
@@ -84,21 +84,21 @@ When security.allowInsecureDefaults is false (values-standard / values-airgapped
   {{- if not $allowPublic }}
     {{- $apiType := (.Values.api.service.type | default "ClusterIP") }}
     {{- if or (eq $apiType "LoadBalancer") (eq $apiType "NodePort") }}
-    {{- fail (printf "AIM-601: api.service.type=%q is blocked unless security.allowPublicServices=true (prefer Ingress + TLS)" $apiType) }}
+    {{- fail (printf "api.service.type=%q is blocked unless security.allowPublicServices=true (prefer Ingress + TLS)" $apiType) }}
     {{- end }}
     {{- $ingestType := (.Values.ingest.service.type | default "ClusterIP") }}
     {{- if or (eq $ingestType "LoadBalancer") (eq $ingestType "NodePort") }}
-    {{- fail (printf "AIM-601: ingest.service.type=%q is blocked unless security.allowPublicServices=true" $ingestType) }}
+    {{- fail (printf "ingest.service.type=%q is blocked unless security.allowPublicServices=true" $ingestType) }}
     {{- end }}
   {{- end }}
 
   {{- /* --- Ingress posture ---------------------------------------------------- */}}
   {{- if .Values.ingress.enabled }}
     {{- if not .Values.ingress.host }}
-    {{- fail "AIM-601: ingress.host is required when ingress.enabled=true and security.allowInsecureDefaults=false" }}
+    {{- fail "ingress.host is required when ingress.enabled=true and security.allowInsecureDefaults=false" }}
     {{- end }}
     {{- if not .Values.ingress.tls }}
-    {{- fail "AIM-601: ingress.tls must be true when ingress.enabled=true and security.allowInsecureDefaults=false" }}
+    {{- fail "ingress.tls must be true when ingress.enabled=true and security.allowInsecureDefaults=false" }}
     {{- end }}
   {{- end }}
 {{- end }}

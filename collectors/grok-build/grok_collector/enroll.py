@@ -1,4 +1,4 @@
-"""Fleet enrollment + heartbeat client (AIM-80, event-auth AIM-217).
+"""Fleet enrollment + heartbeat client (event-auth).
 
 One-line install (``python -m <collector> install --ingest-url URL
 --enroll-token TOKEN``) enrolls the device with the ingestion service and
@@ -7,7 +7,7 @@ stores the issued per-device token at ``<state dir>/device_token`` (mode
 to ``/v1/heartbeat`` so the fleet coverage view can tell healthy devices
 from stale ones.
 
-The same per-device token authorizes ``POST /v1/events`` (AIM-217), so
+The same per-device token authorizes ``POST /v1/events``, so
 ``aim join`` / enroll alone is enough for spool flush — a separate shared
 ingest bearer is optional for managed fleets. Join/install verification
 probes event auth, not only heartbeat, so a collector that cannot send
@@ -102,7 +102,7 @@ def unenroll() -> dict:
     """Revoke this device server-side, then clear local enrollment state.
 
     Called by ``aim uninstall`` so a clean exit does not leave a zombie
-    coverage row (AIM-295). Best-effort network: if the endpoint is
+    coverage row. Best-effort network: if the endpoint is
     unreachable we still wipe local state and report the network error —
     the engineer is entitled to a local clean slate even offline. Idempotent
     on the server (unknown/already-revoked tokens return 200).
@@ -138,7 +138,7 @@ def os_string() -> str:
 
 
 def _ca_cert_path() -> str | None:
-    """Path to an extra CA bundle for the ingest endpoint (AIM-238).
+    """Path to an extra CA bundle for the ingest endpoint.
 
     Order: AIM_CA_CERT env, SSL_CERT_FILE (stdlib openssl default), then
     ``ca_cert`` in the managed/user config written by ``aim join --ca-cert``.
@@ -152,7 +152,7 @@ def _ca_cert_path() -> str | None:
 
 
 def _resolve_map() -> dict[str, str]:
-    """Hostname → connect-IP map for split-horizon / no-DNS pilots (AIM-238).
+    """Hostname → connect-IP map for split-horizon / no-DNS pilots.
 
     ``AIM_RESOLVE`` is a comma-separated list of ``host:ip`` or curl-style
     ``host:port:ip`` entries (port is ignored for the map key). Config key
@@ -199,7 +199,7 @@ def _ssl_context(ca_cert: str | None) -> ssl.SSLContext:
 
 
 def _diagnose_network_error(exc: BaseException, url: str) -> str:
-    """Human-readable remedy for a network-layer failure (AIM-295)."""
+    """Human-readable remedy for a network-layer failure."""
     msg = str(exc) or exc.__class__.__name__
     low = msg.lower()
     if isinstance(exc, ssl.SSLError) or "certificate" in low or "ssl" in low:
@@ -231,7 +231,7 @@ def _diagnose_network_error(exc: BaseException, url: str) -> str:
 
 
 def _post(url: str, token: str, path: str, payload: dict) -> tuple[int, dict]:
-    """POST JSON to the ingest endpoint, honouring ca_cert + resolve (AIM-238).
+    """POST JSON to the ingest endpoint, honouring ca_cert + resolve.
 
     ``--resolve`` / config ``resolve`` connects to an alternate IP while keeping
     the original Host header and TLS SNI so a gateway vhost (e.g.
@@ -301,7 +301,7 @@ def enroll(ingest_url: str, enroll_token: str, ring: str | None = None) -> dict:
     Idempotent server-side: a re-enroll (HTTP 200) carries no new token when
     the local device_token is already present. If the local token is missing
     we ask the server to rotate via ``reissue: true`` using the enroll bearer
-    (AIM-166 dogfood recovery path).
+    (dogfood recovery path).
     """
     payload = {
         "host_id": state.host_id(),
@@ -311,7 +311,7 @@ def enroll(ingest_url: str, enroll_token: str, ring: str | None = None) -> dict:
     }
     if ring:
         payload["ring"] = ring
-    # AIM-868: when the local state still knows a previous enrollment id but
+    # when the local state still knows a previous enrollment id but
     # the server mints a new one (devices table recreated, host_id row lost),
     # ingest rebinds identity-sync join keys so service_identity / mapping
     # rows are not left pointing at the obsolete device_id.
@@ -374,7 +374,7 @@ def heartbeat() -> dict:
     })
     if 200 <= status < 300:
         _record_heartbeat()
-        # AIM-1114: heal a missing local device_id from the heartbeat response.
+        # heal a missing local device_id from the heartbeat response.
         # clear_device_token() wipes device_id with the token; if only the token
         # is restored (or the file is lost), batches fall back to os_user-only
         # and device_id-keyed service_identities resolve as principal_kind=unknown.
@@ -399,11 +399,11 @@ def heartbeat() -> dict:
 
 
 def verify_event_auth() -> dict:
-    """Prove the events credential can authorize ``POST /v1/events`` (AIM-217).
+    """Prove the events credential can authorize ``POST /v1/events``.
 
     Heartbeat success only proves the device token works for liveness. Spool
     flush uses ``config.token()`` (shared bearer or device_token fallback) on
-    ``/v1/events``. Before AIM-217 those were different credentials and join
+    ``/v1/events``. Before those were different credentials and join
     reported green while never being able to send an event.
 
     Probes with an empty batch: auth is checked first, then the server returns
@@ -471,7 +471,7 @@ def _counters() -> dict:
         except OSError:
             pass
     c = {"events_spooled": spooled}
-    # Events ingest refused inside a 2xx (AIM-200). Reported on every
+    # Events ingest refused inside a 2xx. Reported on every
     # heartbeat so the fleet view can attribute a rejection spike to this
     # device and build — the server-side `rejected_events` table knows the
     # count but not who lost them.
@@ -551,7 +551,7 @@ def write_config(
     token goes to a 0600 file referenced by ``token_file`` — never plaintext
     in the JSON we write.
 
-    ``ca_cert`` / ``resolve`` (AIM-238) let a single-VM pilot enroll against
+    ``ca_cert`` / ``resolve`` let a single-VM pilot enroll against
     ``ingest.<host>`` without root DNS or system trust store changes; they
     persist so heartbeats and spool flush keep working after join.
     """
@@ -639,7 +639,7 @@ def setup(opts: dict) -> int:
     if not ev.get("ok"):
         print(f"error: enrolled but event delivery auth failed: {ev.get('error')}")
         print("heartbeat works but this collector cannot flush events — "
-              "ingest must accept the device token on /v1/events (AIM-217)")
+              "ingest must accept the device token on /v1/events")
         return 1
     print("connectivity verified: heartbeat + event auth accepted")
     return 0

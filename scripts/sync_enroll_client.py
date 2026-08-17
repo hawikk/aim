@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync the canonical fleet enroll/heartbeat client into each collector (AIM-136).
+"""Sync the canonical fleet enroll/heartbeat client into each collector.
 
 The endpoint collectors ship as standalone packages, so each carries a
 verbatim vendored copy of the shared enroll/heartbeat client. The single

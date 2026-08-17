@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify the Intune Win32 staging layout for AIM Collector (AIM-742).
+# Verify the Intune Win32 staging layout for AIM Collector.
 #
 # Runs stage-intunewin.sh, asserts the package is complete and non-stub, and
 # optionally writes a pilot-proof markdown record.
@@ -103,10 +103,10 @@ echo "  payload_tree_sha256=$PAYLOAD_SHA"
 if [ "$WRITE_PROOF" = "1" ]; then
   mkdir -p "$(dirname "$PROOF_PATH")"
   cat > "$PROOF_PATH" <<EOF
-# Intune package pilot proof (AIM-742)
+# Intune package pilot proof
 
 **Status:** package staging verified in CI/agent environment.
-**Live ring-0 install:** blocked on external Intune tenant rights (CEO/IT).
+**Live ring-0 install:** blocked on external Intune tenant rights (IT).
 
 ## What was proven
 
@@ -118,7 +118,7 @@ if [ "$WRITE_PROOF" = "1" ]; then
 | WSL bridge linux assets staged | pass |
 | Detection registry rule documented | pass (\`HKLM\\SOFTWARE\\AIMonitoring\\Collector\\Version=$VERSION\`) |
 | Secrets not baked into package | pass (tokens via install args / TokenFile only) |
-| Live Intune upload + device install | **pending** CEO/IT |
+| Live Intune upload + device install | **pending** IT |
 
 ## Staging fingerprint
 
@@ -140,7 +140,7 @@ payload_tree_sha256=${PAYLOAD_SHA}
 ./deploy/windows/stage-intunewin.sh
 \`\`\`
 
-## Live pilot steps (CEO/IT)
+## Live pilot steps (IT)
 
 1. Provision Intune Win32-app upload rights + device group \`aim-collector-ring0\`.
 2. On a Windows packaging host: wrap \`deploy/windows/out/staging\` with

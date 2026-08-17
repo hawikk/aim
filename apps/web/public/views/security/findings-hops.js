@@ -1,5 +1,5 @@
-/* Findings-console capability gate + severity-aware hops (AIM-1023), split out
- * of views/security.js (AIM-1135). Owns every Security → Findings link so the
+/* Findings-console capability gate + severity-aware hops, split out
+ * of views/security.js. Owns every Security → Findings link so the
  * severity filter and day window survive the hop. */
 import { $ } from '../../lib/dom.js';
 import { state } from '../../lib/runtime.js';
@@ -11,7 +11,7 @@ export function canOpenFindings() {
 }
 
 /**
- * AIM-1023: shareable Findings hop from Security.
+ * shareable Findings hop from Security.
  * When criticality is filtered (high/critical/…), carry that severity into triage
  * so "look at all the high ones" lands on the matching open findings list.
  */

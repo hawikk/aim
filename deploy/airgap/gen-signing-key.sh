@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generate an Ed25519 keypair for AIM air-gap bundle signing (AIM-747).
+# Generate an Ed25519 keypair for AIM air-gap bundle signing.
 #
 # Usage:
 #   deploy/airgap/gen-signing-key.sh [output-dir]

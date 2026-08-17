@@ -1,7 +1,7 @@
 """AI domain catalogue loader (data, not code).
 
-Primary source: collectors/proxy/endpoints.json (AIM-19 detection DB).
-Optional merge: shadow-AI discovery catalogue (AIM-300 ai-tools.json shape)
+Primary source: collectors/proxy/endpoints.json (detection DB).
+Optional merge: shadow-AI discovery catalogue (ai-tools.json shape)
 so newly discovered tools become coverage without a collector change.
 """
 
@@ -51,7 +51,7 @@ def load_endpoints(path: str | Path) -> list[Rule]:
 
 
 def load_shadow_catalogue(path: str | Path) -> list[Rule]:
-    """AIM-300 catalogue shape: {tools: [{id, domains, sanctioned, vendor, ...}]}."""
+    """Catalogue shape: {tools: [{id, domains, sanctioned, vendor, ...}]}."""
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     rules: list[Rule] = []
     for tool in data.get("tools") or []:

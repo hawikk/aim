@@ -7,7 +7,7 @@
 <meta name="description" content="Security visibility and guardrails for every AI coding tool your engineers use. CNAPP, AI usage monitoring, and CI/CD gates in one stack.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='white'/%3E%3C/svg%3E">
 <style>
-  /* No external font endpoints (AIM-353 standing rule): Inter / JetBrains Mono
+  /* No external font endpoints (standing rule): Inter / JetBrains Mono
      are used when installed locally and degrade to the system stacks. */
   :root {
     --sans: "Inter", -apple-system, "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
@@ -305,33 +305,33 @@
   'use strict';
   // Screen-space WebGL particle band: a comet-tail arc sweeping upper-left →
   // lower-right across the whole viewport. Vanilla WebGL1, zero dependencies
-  // (AIM-353 rule). The curve lives in normalized viewport coordinates and is
+  // (rule). The curve lives in normalized viewport coordinates and is
   // evaluated in the vertex shader, so resize costs nothing.
   //
-  // v5 after board review: system pointer still visible + two white glows
+  // v5 after review: system pointer still visible + two white glows
   // (fixed arc focal + cursor aura) fighting each other. Replace both with a
   // single black-hole cursor (CSS core, particles feed into it). Hide the OS
   // cursor. Click enlarges the event horizon; particles swirl in harder.
   //
-  // v6 board polish: restore the normal OS pointer on buttons/links (Get
+  // v6 polish: restore the normal OS pointer on buttons/links (Get
   // Started, Contact Sales, etc.) and hide the black hole while hovering them
   // so CTAs stay obviously clickable.
   //
-  // v7 board polish: field was effectively static without mouse input. Drive
+  // v7 polish: field was effectively static without mouse input. Drive
   // continuous ambient motion (rightward crawl + slow rotation) even when the
   // pointer is idle, and strip every em dash from page copy.
   //
-  // v8 board polish: "move a little bit more and constant" — raise ambient
+  // v8 polish: "move a little bit more and constant" — raise ambient
   // speeds, keep whole-field rotation + crawl always on (not mouse-gated).
   //
-  // v9 board polish: hole drifted / stuck "up" while scrolling. Canvas is now
+  // v9 polish: hole drifted / stuck "up" while scrolling. Canvas is now
   // viewport-fixed, cursor→shader mapping uses canvas-local coords, and scroll
   // refreshes hit-testing so the hole stays under the pointer at any scrollY.
   //
-  // v13 board fix: drop whole-field rotation / pivot weave / ambient orbit.
+  // v13 fix: drop whole-field rotation / pivot weave / ambient orbit.
   // The wanted look is a slow, almost-still comet tail, not a spinning galaxy.
   //
-  // v14 board fix (Chrome/Windows): v13 looked right on Brave/Mac and
+  // v14 fix (Chrome/Windows): v13 looked right on Brave/Mac and
   // other browsers, but Chrome on a 1x PC was completely still. Two
   // causes: (1) Windows "Animation effects" maps to prefers-reduced-motion
   // and we zeroed uMotion; (2) ANGLE snaps sub-pixel POINTS, so a
@@ -552,7 +552,7 @@
     data[o + 0] = t;
     data[o + 1] = off;
     // Along-curve speed: almost still (~3–8 min lap). v8's 8–22s lap read as
-    // a streaming/spinning galaxy; the board wants a quiet comet tail.
+    // a streaming/spinning galaxy; the intended look is a quiet comet tail.
     data[o + 2] = (0.0022 + 0.0038 * Math.random()) * (0.6 + 0.7 * depth);
     data[o + 3] = depth;
     data[o + 4] = 0.6 + 1.1 * Math.random(); // 0.6-1.7 px at dpr 1

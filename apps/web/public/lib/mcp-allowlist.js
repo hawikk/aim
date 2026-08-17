@@ -1,4 +1,4 @@
-/* AIM-569 — pure helpers for MCP allowlist management (DOM-free for node:test).
+/* — pure helpers for MCP allowlist management (DOM-free for node:test).
  *
  * Mirrors apps/api/src/routes/mcp.js normalizeMcpAllowlist so the UI rejects
  * bad names before the round-trip. Mutations go to PUT /api/mcp-allowlist;
@@ -133,7 +133,7 @@ export function shortHash(hash) {
 
 /**
  * Status line after a successful allowlist write.
- * Surfaces actor + content-hash change for the AIM-569 acceptance check.
+ * Surfaces actor + content-hash change for the acceptance check.
  */
 export function formatSaveStatus({
   actor,

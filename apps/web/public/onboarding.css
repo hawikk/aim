@@ -1,9 +1,9 @@
-/* AIM-131 — onboarding view. Reuses the shared design tokens (panel, card,
+/* — onboarding view. Reuses the shared design tokens (panel, card,
    pill, btn) from styles.css; only view-specific layout lives here. */
 
 /* Loud security warning (insecure default enroll token). styles.css ships
    .banner.info / .banner.warn but no danger variant — add it here from the
-   shared --bad tokens so the AIM-131 warning reads as high-severity. */
+   shared --bad tokens so the warning reads as high-severity. */
 .banner.danger {
   background: var(--bad-soft);
   border: 1px solid var(--bad-border);
@@ -44,7 +44,7 @@
 .ob-err { color: var(--bad); font-size: var(--text-sm); }
 
 /* Armed destructive action: filled, so the committing click is unmistakably
-   different from the arming one. Replaces a native confirm() (AIM-151). */
+   different from the arming one. Replaces a native confirm(). */
 .ob-armed { background: var(--bad); color: #ffffff; border-color: var(--bad); }
 
 .ob-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -66,7 +66,7 @@
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
-/* AIM-744: platform switcher — Linux and Windows are equal, not nested. */
+/*: platform switcher — Linux and Windows are equal, not nested. */
 .ob-platforms {
   display: flex;
   flex-wrap: wrap;
@@ -154,7 +154,7 @@
 
 .ob-firstrun { margin-bottom: 4px; }
 
-/* Nav marker for a live enrollment-token warning (AIM-152). The warning used
+/* Nav marker for a live enrollment-token warning. The warning used
    to announce itself by claiming the main area; this keeps it visible from
    every view without taking the view away from the operator. */
 .ob-badge {

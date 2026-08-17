@@ -5,14 +5,14 @@ Usage:
       --events events.ndjson --findings findings.ndjson --audit audit.ndjson
   cat events.ndjson | python -m guardrail.cli evaluate --rules ... --findings -
   python -m guardrail.cli validate-rules --rules ../../policies/guardrail/v1
-  python -m guardrail.cli evaluate-db --rules ../../policies/guardrail/v1   # AIM-32: Postgres -> findings
-  python -m guardrail.cli poll --rules ../../policies/guardrail/v1          # AIM-65: evaluate-db on an interval
-  python -m guardrail.cli notify-test --email                              # AIM-582: send a synthetic test email
-  python -m guardrail.cli notify-test --pagerduty                          # AIM-586: fire a synthetic PD test page
+  python -m guardrail.cli evaluate-db --rules ../../policies/guardrail/v1 # Postgres -> findings
+  python -m guardrail.cli poll --rules ../../policies/guardrail/v1 # evaluate-db on an interval
+  python -m guardrail.cli notify-test --email # send a synthetic test email
+  python -m guardrail.cli notify-test --pagerduty # fire a synthetic PD test page
 
 In the deployed topology this sits post-ingest on the event stream (queue
 consumer); `--events -` (stdin) is the streaming path used for the pilot and
-for local replay. `poll` is the unattended compose-service form (AIM-65): it
+for local replay. `poll` is the unattended compose-service form: it
 runs evaluate-db every GUARDRAIL_POLL_INTERVAL seconds.
 """
 
@@ -34,7 +34,7 @@ from .rules import RulesetError, load_ruleset
 
 REQUIRED_EVENT_FIELDS = ("schema_version", "event_id", "ts", "host_ref", "tool", "session_id", "source", "match_flags")
 
-# AIM-115 pilot demo set: realistic rule-flagged snippets for the LLM judge.
+# pilot demo set: realistic rule-flagged snippets for the LLM judge.
 # The last one trips the mock provider's failure path so the pilot exercises
 # error spans, not just the happy path.
 LLM_JUDGE_DEMO_SNIPPETS = [
@@ -111,9 +111,9 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
 
 
 def cmd_evaluate_db(args: argparse.Namespace) -> int:
-    """AIM-32: evaluate stored Postgres events, write findings rows.
+    """evaluate stored Postgres events, write findings rows.
 
-    AIM-76/AIM-94: newly inserted findings are also pushed to the alert
+    newly inserted findings are also pushed to the alert
     destinations from the ruleset's settings.alerts (or env when the policy
     defines none; off by default — see notify.py)."""
     started = time.perf_counter()
@@ -131,12 +131,12 @@ def cmd_evaluate_db(args: argparse.Namespace) -> int:
 
 
 def cmd_poll(args: argparse.Namespace) -> int:
-    """AIM-65: run evaluate-db unattended on an interval (compose service).
+    """run evaluate-db unattended on an interval (compose service).
 
-    Alert delivery (AIM-76) rides along: each tick forwards newly inserted
+    Alert delivery rides along: each tick forwards newly inserted
     findings to the env-configured destinations (off by default). Also serves
-    /healthz + /readyz on GUARDRAIL_HEALTH_PORT for k8s probes (AIM-98) and
-    /lagz with the per-destination SIEM delivery-lag report (AIM-324)."""
+    /healthz + /readyz on GUARDRAIL_HEALTH_PORT for k8s probes and
+    /lagz with the per-destination SIEM delivery-lag report."""
     dsn = args.dsn or dbrunner.dsn_from_env()
     interval = args.interval if args.interval is not None else poller.interval_from_env()
 
@@ -144,7 +144,7 @@ def cmd_poll(args: argparse.Namespace) -> int:
     health_state = health.HealthState(interval)
 
     def lag_provider() -> list:
-        """AIM-324: per-destination delivery lag for /lagz. Computed per
+        """per-destination delivery lag for /lagz. Computed per
         request on a fresh connection so a wedged poller or bounced DB shows
         up as 503 rather than a stale-but-200 report. Loads the ruleset per
         call for the same reason a tick does: alert config is policy."""
@@ -172,7 +172,7 @@ def cmd_poll(args: argparse.Namespace) -> int:
 
 
 def cmd_llm_judge(args: argparse.Namespace) -> int:
-    """AIM-115: run the LLM judge over snippets — the guardrail service's
+    """run the LLM judge over snippets — the guardrail service's
     instrumented LLM call site (dogfood pilot for the OTLP receiver).
 
     Telemetry is configured from OTEL_EXPORTER_OTLP_* env (unset = spans are
@@ -220,7 +220,7 @@ def cmd_validate_rules(args: argparse.Namespace) -> int:
 
 
 def cmd_repo_ref(args: argparse.Namespace) -> int:
-    """AIM-78: print the repo_ref pseudonym a collector would emit for a repo
+    """print the repo_ref pseudonym a collector would emit for a repo
     path — for verifying restricted_repos entries and crafting seed events."""
     salt = os.environ.get(REPO_REF_SALT_ENV)
     if not salt:
@@ -230,7 +230,7 @@ def cmd_repo_ref(args: argparse.Namespace) -> int:
 
 
 def cmd_notify_test(args: argparse.Namespace) -> int:
-    """Prove alert delivery with a synthetic test message (AIM-582 / AIM-586).
+    """Prove alert delivery with a synthetic test message.
 
     Builds notifiers from env (and optional policy alerts.yaml when --rules is
     set) and delivers one test payload to the selected destination. Secrets
@@ -264,7 +264,7 @@ def cmd_notify_test(args: argparse.Namespace) -> int:
             )
             chosen = [n]
         elif dest == "pagerduty":
-            # AIM-586: routing key is env-only; policy enable is not required
+            # routing key is env-only; policy enable is not required
             # for the operator test page (SOC-gated live wiring still is).
             routing_key = env.get("ALERT_PAGERDUTY_ROUTING_KEY") or ""
             if not routing_key:
@@ -316,13 +316,13 @@ def main(argv: list[str] | None = None) -> int:
     p_val.add_argument("--rules", required=True)
     p_val.set_defaults(func=cmd_validate_rules)
 
-    p_db = sub.add_parser("evaluate-db", help="evaluate unevaluated Postgres events into the findings table (AIM-32)")
+    p_db = sub.add_parser("evaluate-db", help="evaluate unevaluated Postgres events into the findings table")
     p_db.add_argument("--rules", required=True, help="ruleset directory or YAML file")
     p_db.add_argument("--dsn", default=None, help="Postgres DSN (default: DATABASE_URL env)")
     p_db.add_argument("--batch-size", type=int, default=dbrunner.DEFAULT_BATCH_SIZE)
     p_db.set_defaults(func=cmd_evaluate_db)
 
-    p_poll = sub.add_parser("poll", help="run evaluate-db unattended on an interval (AIM-65 compose service)")
+    p_poll = sub.add_parser("poll", help="run evaluate-db unattended on an interval (compose service)")
     p_poll.add_argument("--rules", required=True, help="ruleset directory or YAML file")
     p_poll.add_argument("--dsn", default=None, help="Postgres DSN (default: DATABASE_URL env)")
     p_poll.add_argument("--interval", type=float, default=None,
@@ -330,11 +330,11 @@ def main(argv: list[str] | None = None) -> int:
     p_poll.add_argument("--batch-size", type=int, default=dbrunner.DEFAULT_BATCH_SIZE)
     p_poll.set_defaults(func=cmd_poll)
 
-    p_ref = sub.add_parser("repo-ref", help="print the HMAC repo_ref a collector would emit for a repo path (AIM-78)")
+    p_ref = sub.add_parser("repo-ref", help="print the HMAC repo_ref a collector would emit for a repo path")
     p_ref.add_argument("repo", help="repo working-directory path as the collector sees it")
     p_ref.set_defaults(func=cmd_repo_ref)
 
-    p_judge = sub.add_parser("llm-judge", help="run the instrumented LLM-judge call site (AIM-115 pilot)")
+    p_judge = sub.add_parser("llm-judge", help="run the instrumented LLM-judge call site (pilot)")
     p_judge.add_argument("snippets", nargs="*", help="snippets to judge (default: built-in demo set)")
     p_judge.add_argument("--count", type=int, default=5, help="total judge calls, cycling the snippet set")
     p_judge.set_defaults(func=cmd_llm_judge)
@@ -342,7 +342,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_ntest = sub.add_parser(
         "notify-test",
-        help="send a synthetic test alert to a destination (AIM-582 / AIM-586)",
+        help="send a synthetic test alert to a destination",
     )
     p_ntest.add_argument("--email", dest="destination", action="store_const", const="email",
                          help="send a test email via SMTP (ALERT_EMAIL_* env)")

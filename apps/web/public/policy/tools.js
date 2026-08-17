@@ -1,4 +1,4 @@
-/* Sanctioned-tools panel for the Policy editor view (AIM-1177 split).
+/* Sanctioned-tools panel for the Policy editor view (split).
  * Owns the add-tool form (admin only), the allowlist table render, and the
  * load + sanction/unsanction mutations against GET/POST /api/sanctioned. */
 

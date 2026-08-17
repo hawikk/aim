@@ -1,4 +1,4 @@
--- 021_model_cost_governance.sql — AIM-383 / AIM-326: per-team token/cost
+-- 021_model_cost_governance.sql — per-team token/cost
 -- budgets and scoped model/provider allowlists.
 --
 -- Charter:
@@ -17,7 +17,7 @@
 --     degrade gracefully (no budget alerts, no model restriction beyond
 --     the policy-as-code approved_providers / approved_models settings).
 --
--- Privacy: team is an org unit name from identity resolution (AIM-49), not
+-- Privacy: team is an org unit name from identity resolution, not
 -- a person. Budget and allowlist rows never store prompt content.
 
 -- ---- team budgets --------------------------------------------------------
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS team_budgets (
 );
 
 COMMENT ON TABLE team_budgets IS
-  'Per-team token/cost budgets (AIM-383). Empty table = no budget alerts.';
+  'Per-team token/cost budgets. Empty table = no budget alerts.';
 
 -- Edge-trigger state so we fire once per (team, metric, threshold, period)
 -- rather than re-paging on every guardrail cycle while still over budget.
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS budget_alert_state (
 );
 
 COMMENT ON TABLE budget_alert_state IS
-  'Dedup state for team budget threshold findings (AIM-383).';
+  'Dedup state for team budget threshold findings.';
 
 -- ---- model / provider allowlist ------------------------------------------
 
@@ -116,4 +116,4 @@ CREATE INDEX IF NOT EXISTS idx_model_provider_allowlist_scope
   WHERE enabled;
 
 COMMENT ON TABLE model_provider_allowlist IS
-  'Scoped model/provider allowlist (AIM-383). Empty = no restriction.';
+  'Scoped model/provider allowlist. Empty = no restriction.';

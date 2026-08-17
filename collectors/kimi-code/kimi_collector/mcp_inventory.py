@@ -1,4 +1,4 @@
-"""MCP server config inventory (AIM-97, schema v1.2).
+"""MCP server config inventory (schema v1.2).
 
 Reads the MCP server section of the Kimi Code user config
 (``~/.kimi-code/config.toml``) and reports the configured server NAMES —

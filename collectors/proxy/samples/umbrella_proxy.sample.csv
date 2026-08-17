@@ -1,4 +1,4 @@
-# Cisco Umbrella proxy CSV — synthetic subset (AIM-1111).
+# Cisco Umbrella proxy CSV — synthetic subset.
 # Sanitized RFC1918 internal IPs, fake identity labels, no real customer data.
 # Field map (CSV):
 #   Timestamp, Identities, Internal IP, External IP, Destination IP,

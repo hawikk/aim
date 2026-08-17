@@ -1,4 +1,4 @@
-/* Cross-module deep-links (AIM-589).
+/* Cross-module deep-links.
  *
  * Analysts chase a finding into the user who triggered it, the tool they used,
  * the repo it touched, and fleet coverage when hosts go silent. Every hop must
@@ -145,7 +145,7 @@ export function findingHrefs(finding, ctx = {}) {
  * @returns {string} space-prefixed fragments ready to append after subject text
  */
 export function findingLinkHtml(finding, opts) {
-  // Bind under a non-`esc` name so the AIM-151 local-esc guard does not trip on
+  // Bind under a non-`esc` name so the local-esc guard does not trip on
   // `const esc = opts.esc` (that pattern is reserved for XSS reimplementation).
   const escapeHtml = opts.esc;
   if (typeof escapeHtml !== 'function') throw new Error('findingLinkHtml requires opts.esc');

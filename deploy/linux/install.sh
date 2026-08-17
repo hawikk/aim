@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — collector installer for Linux / WSL (AIM-28).
+# AI Monitoring — collector installer for Linux / WSL.
 #
 # Idempotent, non-interactive. Run as root:
 #   sudo AIM_INGEST_URL=https://ingest.corp.example \
@@ -28,7 +28,7 @@ ROOT="${AIM_ROOT:-}"
 PAYLOAD_DIR="$ROOT/opt/aim-collector"
 CONFIG_DIR="$ROOT/etc/aim-collector"
 # AIM_PAYLOAD_SRC lets staged Intune WSL bridge packages supply the collector
-# without a monorepo checkout on the target distro (AIM-742).
+# without a monorepo checkout on the target distro.
 if [ -n "${AIM_PAYLOAD_SRC:-}" ]; then
   PKG_SRC="$AIM_PAYLOAD_SRC"
 else
@@ -73,7 +73,7 @@ cat > "$CONFIG_DIR/config.json" <<EOF
 EOF
 chmod 0644 "$CONFIG_DIR/config.json"
 
-# Endpoint enforcement bundle (AIM-110 / AIM-296; delivery gap closed in AIM-440).
+# Endpoint enforcement bundle (delivery gap closed).
 # Source of truth: policies/guardrail/v1/core.yaml → settings.enforcement.
 # Without this file the collector fail-opens to observe and auditors see
 # findings.decision=observe forever even when policy claims mode: enforce.
@@ -103,7 +103,7 @@ fi
 printf '%s' "$TOKEN" > "$CONFIG_DIR/token"
 log "config written to $CONFIG_DIR (token mode 0640 root:$GROUP)"
 
-# Optional per-ring enrollment token (AIM-28). When present, the device
+# Optional per-ring enrollment token. When present, the device
 # heartbeat helper enrolls once for a per-device token and starts heartbeating;
 # without it the pilot falls back to event last-seen coverage.
 if [ -n "${AIM_ENROLL_TOKEN:-}" ]; then
@@ -137,7 +137,7 @@ for u in $(target_users); do
   log "hooks registered for $u"
 done
 
-# --- optional fleet public key for signed config (AIM-639 / AIM-749) --------
+# --- optional fleet public key for signed config --------
 # When AIM_CONFIG_PUBKEY_FILE is set, drop the Ed25519 public key so harden
 # mode can verify managed config/enforcement envelopes. Ops retains the
 # private key offline (scripts/sign_collector_bundle.py).
@@ -168,7 +168,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCAN_WRAPPER="$SCRIPT_DIR/aim-collector-scan.sh"
 install -m 0755 "$SCAN_WRAPPER" "$PAYLOAD_DIR/aim-collector-scan.sh"
 install -m 0755 "$SCRIPT_DIR/aim-collector-heartbeat.sh" "$PAYLOAD_DIR/aim-collector-heartbeat.sh"
-# AIM-639 / AIM-752: OOB host health independent of the agent user process.
+# OOB host health independent of the agent user process.
 install -m 0755 "$SCRIPT_DIR/aim-collector-oob-health.sh" "$PAYLOAD_DIR/aim-collector-oob-health.sh"
 # Integrity package (signed config load path) for root OOB helper + harden.
 if [ -d "$SCRIPT_DIR/../../collectors/integrity" ]; then
@@ -196,7 +196,7 @@ if [ -z "${AIM_NO_SCHEDULER:-}" ]; then
     cat > "$ROOT/etc/cron.d/aim-collector" <<'EOF'
 # AI Monitoring collector: transcript scan + spool flush every 5 minutes.
 */5 * * * * root /opt/aim-collector/aim-collector-scan.sh >/dev/null 2>&1
-# AIM-639 OOB host health (independent of agent user process).
+# OOB host health (independent of agent user process).
 */5 * * * * root /opt/aim-collector/aim-collector-oob-health.sh >/dev/null 2>&1
 EOF
     chmod 0644 "$ROOT/etc/cron.d/aim-collector"

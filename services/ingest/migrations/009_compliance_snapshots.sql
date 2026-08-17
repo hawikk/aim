@@ -1,4 +1,4 @@
--- AIM-99: scheduled compliance posture snapshots.
+-- scheduled compliance posture snapshots.
 --
 -- Stores the full compliance report (same shape as /api/compliance/report
 -- JSON) so posture history is queryable instead of point-in-time only.

@@ -14,7 +14,7 @@ the image at build time (see Dockerfile). A scan that silently degrades to "no
 DB, no findings" is the exact silent-pass failure this service must not have,
 so a missing DB surfaces as a scanner error.
 
-AIM-327: every finding carries CVE, dependency path, fixed version, and an
+every finding carries CVE, dependency path, fixed version, and an
 import-level reachability verdict (`reachable` / `unreachable` / `unknown`)
 with evidence. Unreachable findings are still reported and published to the
 bus; `checkrun.blocks` refuses to let them fail the merge gate.
@@ -91,7 +91,7 @@ def scan(repo_dir: str, paths: list[str], *, config: str | None = None) -> ScanO
 
 
 def _to_finding(repo_dir: str, target: str, vuln: dict) -> Finding | None:
-    """Normalize one trivy vulnerability + attach reachability (AIM-327)."""
+    """Normalize one trivy vulnerability + attach reachability."""
     cve = str(vuln.get("VulnerabilityID") or "").strip() or "CVE-UNKNOWN"
     package = str(vuln.get("PkgName") or "").strip()
     installed = str(vuln.get("InstalledVersion") or "").strip()

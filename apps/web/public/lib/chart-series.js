@@ -1,4 +1,4 @@
-/* Pure trend-series builders (AIM-588).
+/* Pure trend-series builders.
  * Kept free of DOM / Chart.js so unit tests and views share one vocabulary. */
 
 export const ACCENT = '--accent';

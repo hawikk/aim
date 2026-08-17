@@ -1,4 +1,4 @@
-# IaC rule → CNAPP posture rule parity map (AIM-329).
+# IaC rule → CNAPP posture rule parity map.
 #
 # Each entry: an IaC scanner check (primarily Checkov) that, if it fails on a
 # PR, names the cloud-posture finding the same misconfiguration would become

@@ -9,7 +9,7 @@ that matter, restated because they are the ones easy to get wrong:
   (§6.1). The profile tolerates unknown fields and unknown open-vocabulary enum
   members, and still enforces every security constraint. Validating against the
   strict schema here would make the first additive minor bump — one new
-  optional field — vanish from triage as "invalid": AIM-174's defect.
+  optional field — vanish from triage as "invalid": the defect.
 * **Project onto known fields before anything is stored or rendered** (§2).
   Tolerating an unknown field must mean dropping it, not carrying it: nothing
   constrains its contents, so a buggy or compromised publisher could park a
@@ -38,11 +38,11 @@ from typing import Any, Callable, Iterator
 SEVERITY_RANK = {"critical": 5, "high": 4, "medium": 3, "low": 2, "informational": 1}
 DEFAULT_STREAM = "secstack:alerts:v1"
 # Wire field name, owned by packages/schema/conformance/security-alert-wire.json
-# and pinned by tests/test_wire_contract.py. AIM-392: gatehouse and hygiene
+# and pinned by tests/test_wire_contract.py. gatehouse and hygiene
 # published under `payload` while this reader looked for `alert` — every
 # pr_security alert was counted malformed and skipped with all health green.
 WIRE_FIELD = "alert"
-# One-release shim for pre-AIM-392 publishers still writing `payload`.
+# One-release shim for earlier publishers still writing `payload`.
 LEGACY_WIRE_FIELDS = ("payload",)
 
 
@@ -85,7 +85,7 @@ class ReadStats:
     unsupported_version: int = 0
     invalid_samples: list[str] = field(default_factory=list)
     # Field names seen on entries that carried no canonical wire field.
-    # AIM-392 tell: publisher/consumer disagreement shows up here as
+    # tell: publisher/consumer disagreement shows up here as
     # "malformed=N, samples=['payload']" instead of only in a database.
     malformed_samples: list[str] = field(default_factory=list)
 
@@ -157,7 +157,7 @@ def decode_entry(fields: dict, stats: ReadStats) -> dict | None:
     Wire field is ``WIRE_FIELD`` (packages/schema/conformance/security-alert-wire.json).
     Accept legacy ``LEGACY_WIRE_FIELDS`` as a one-release compatibility shim so
     dogfood streams and any un-upgraded publisher still page instead of being
-    counted malformed while health stays green (AIM-392 class of silent failure).
+    counted malformed while health stays green (class of silent failure).
     """
     if not isinstance(fields, dict):
         stats.malformed += 1

@@ -63,7 +63,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "aim.secretName" . }}
                   key: AIM_SESSION_SECRET
-            {{- /* AIM-716: multi-IdP providers take precedence over single issuer */ -}}
+            {{- /*: multi-IdP providers take precedence over single issuer */ -}}
             {{- $providers := .Values.api.oidc.providers | default list }}
             {{- if gt (len $providers) 0 }}
             {{- $ids := list }}
@@ -135,7 +135,7 @@ spec:
             - name: AIM_OIDC_GROUPS_CLAIM
               value: {{ .Values.api.oidc.groupsClaim | quote }}
             {{- end }}
-            {{- /* AIM-715 SAML SP — parallel to OIDC; role groups shared below */ -}}
+            {{- /* SAML SP — parallel to OIDC; role groups shared below */ -}}
             {{- if .Values.api.saml.entryPoint }}
             - name: AIM_SAML_IDP_ENTRY_POINT
               value: {{ .Values.api.saml.entryPoint | quote }}
@@ -176,7 +176,7 @@ spec:
               value: {{ .Values.api.revealGroups | quote }}
             {{- end }}
             {{- if and .Values.api.authDev .Values.api.requireSso }}
-            {{- fail "api.authDev cannot be true when api.requireSso is true (AIM-545 / AIM-557)" }}
+            {{- fail "api.authDev cannot be true when api.requireSso is true" }}
             {{- end }}
             {{- if .Values.api.requireSso }}
             # Pilot/production: refuse personal-mode local-admin if OIDC/SAML is missing.

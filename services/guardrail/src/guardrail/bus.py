@@ -1,8 +1,8 @@
-"""AIM's publisher adapter for the cross-pillar alert bus (AIM-158).
+"""AIM's publisher adapter for the cross-pillar alert bus.
 
 Maps ``guardrail.finding/v1`` rows onto ``security.alert/v1.1`` and writes
 them to the Redis stream ``secstack:alerts:v1``, per decision record D3.1
-(AIM-157). The contract is in ``packages/schema/schema/v1/security-alert.schema.json``;
+. The contract is in ``packages/schema/schema/v1/security-alert.schema.json``;
 this module is the AIM half of "an alert is a pointer, not a copy".
 
 Design points that are normative rather than incidental:
@@ -57,7 +57,7 @@ STREAM_KEY = "secstack:alerts:v1"
 # belt-and-braces cap that keeps a runaway publisher inside `maxmemory`.
 STREAM_MAXLEN = 50_000
 # Wire field name, owned by packages/schema/conformance/security-alert-wire.json
-# and pinned by tests/test_wire_contract.py. AIM-392: publishing under any
+# and pinned by tests/test_wire_contract.py. publishing under any
 # other name is a silent 100% drop — the consumer counts it malformed and every
 # health check stays green.
 WIRE_FIELD = "alert"
@@ -207,7 +207,7 @@ def to_security_alert(finding: dict, *, producer_version: str) -> dict:
     policy_hash = finding.get("policy_hash")
     if policy_hash:
         labels["policy_hash"] = str(policy_hash)[:16]
-    # AIM-700: tool on the wire so sentinel child links can attribute which AI
+    # tool on the wire so sentinel child links can attribute which AI
     # coding tool produced the finding, and so operators can optionally narrow
     # correlate_on with labels.tool. Metadata only — tool id/raw, never content.
     tool_label = context.get("tool") or context.get("tool_raw")

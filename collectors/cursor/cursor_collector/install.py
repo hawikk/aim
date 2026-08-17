@@ -110,7 +110,7 @@ def _write(path: Path, cfg: dict) -> None:
 
 
 def main(args: list) -> int:
-    """One-line install UX (AIM-80): register hooks, then — when
+    """One-line install UX: register hooks, then — when
     --ingest-url/--enroll-token are given — write config, enroll the
     device, and verify connectivity end-to-end."""
     from . import enroll

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report on the continuous adversarial research queue (AIM-636 / AIM-730).
+"""Report on the continuous adversarial research queue.
 
 Unlike scripts/matcher_evasion_report.py, this does NOT gate CI. It measures
 techniques under investigation in collectors/matcher-fixtures/adversarial-research/

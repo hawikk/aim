@@ -1,6 +1,6 @@
--- 035_break_glass_grants.sql — AIM-784: enterprise break-glass control plane.
+-- 035_break_glass_grants.sql — enterprise break-glass control plane.
 --
--- Pilot path (AIM-296 / AIM-567): endpoint resubmit-within-TTL →
+-- Pilot path: endpoint resubmit-within-TTL →
 -- enforcement.action=confirmed. Enterprise path: durable grant records with
 -- optional manager approval, time-boxed expiry, revoke, and exportable audit.
 --
@@ -56,7 +56,7 @@ CREATE INDEX IF NOT EXISTS break_glass_grants_requested_at_idx
   ON break_glass_grants (requested_at DESC);
 
 COMMENT ON TABLE break_glass_grants IS
-  'AIM-784 enterprise break-glass grants: optional manager approval, TTL expiry, revoke.';
+  'Enterprise break-glass grants: optional manager approval, TTL expiry, revoke.';
 
 -- Append-only lifecycle trail for compliance export (who did what when).
 CREATE TABLE IF NOT EXISTS break_glass_grant_events (
@@ -77,4 +77,4 @@ CREATE INDEX IF NOT EXISTS break_glass_grant_events_created_idx
   ON break_glass_grant_events (created_at DESC);
 
 COMMENT ON TABLE break_glass_grant_events IS
-  'Append-only audit of break-glass grant lifecycle (AIM-784 compliance export).';
+  'Append-only audit of break-glass grant lifecycle (compliance export).';

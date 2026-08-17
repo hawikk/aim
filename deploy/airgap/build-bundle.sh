@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the air-gapped install bundle for the AI Monitoring platform (AIM-98).
+# Build the air-gapped install bundle for the AI Monitoring platform.
 #
 # Usage: deploy/airgap/build-bundle.sh [version]
 #   version defaults to `git describe --tags --always --dirty` (fallback: dev).
@@ -81,7 +81,7 @@ cp docs/deployment/air-gapped-install.md "$STAGE/README-airgap.md"
 
 # Generate a compose override that forces pre-built image tags and clears the
 # `build:` keys from docker-compose.yml. Plain `build: null` does NOT work in
-# Compose v2+ — the merge keeps the original build context (AIM-599 drill).
+# Compose v2+ — the merge keeps the original build context (drill).
 # `build: !reset null` is the supported reset. Only the three app services
 # shipped in the bundle are overridden; other compose services still require
 # source/build and are not part of the offline core path.
@@ -145,12 +145,12 @@ tar -czf "${OUT_DIR}/${BUNDLE_NAME}.tar.gz" -C "$(dirname "$STAGE")" "$BUNDLE_NA
 
 BUNDLE_TGZ="${OUT_DIR}/${BUNDLE_NAME}.tar.gz"
 
-# Optional authenticity signature (AIM-747). Private key never enters the stage.
+# Optional authenticity signature. Private key never enters the stage.
 if [[ -n "${AIM_AIRGAP_SIGNING_KEY:-}" ]]; then
   echo "==> Signing bundle with AIM_AIRGAP_SIGNING_KEY (Ed25519)"
   deploy/airgap/sign-bundle.sh "$BUNDLE_TGZ" "$AIM_AIRGAP_SIGNING_KEY"
 else
-  echo "==> Skipping signature (set AIM_AIRGAP_SIGNING_KEY to auto-sign; AIM-747)"
+  echo "==> Skipping signature (set AIM_AIRGAP_SIGNING_KEY to auto-sign)"
   echo "    Manual: deploy/airgap/sign-bundle.sh ${BUNDLE_TGZ}"
 fi
 

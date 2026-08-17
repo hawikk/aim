@@ -1,4 +1,4 @@
-"""Multi-stage escalation policies for alert routing (AIM-699).
+"""Multi-stage escalation policies for alert routing.
 
 Wave-1 destinations fan out simultaneously. Escalation policies add ordered
 stages with timers so SOC can page Slack first and PagerDuty only if the
@@ -22,7 +22,7 @@ Semantics
 * Destinations **not** listed in any stage of the matched policy still fan
   out immediately (bus / SIEM / webhook-as-log stay independent of paging).
 * If no policy matches a finding, every configured notifier fires
-  immediately (pre-AIM-699 behaviour).
+  immediately (earlier behaviour).
 * Later stages are cancelled when the finding leaves ``status='new'``
   (acknowledged / resolved / false_positive).
 * ``after_seconds`` on stage 0 must be 0; later stages count from the

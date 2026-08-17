@@ -149,7 +149,7 @@ export function costFor(model, tokensInput, tokensOutput) {
 // SQL expression computing USD cost per events row, mirroring costFor() above.
 // Used in aggregate queries so Postgres does the math. Generated from
 // PRICE_PER_MTOK, so it cannot drift from the table.
-// Canonical events (AIM-18/AIM-34) may carry a collector-computed cost_estimate_usd;
+// Canonical events may carry a collector-computed cost_estimate_usd;
 // when present it wins, otherwise we estimate from tokens + list prices above.
 //
 // WHEN clauses are longest-key-first so more specific SKUs win. Each key matches

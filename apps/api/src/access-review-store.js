@@ -1,4 +1,4 @@
-// Access review campaign store (AIM-718).
+// Access review campaign store.
 //
 // Compliance operators periodically review who holds AIM roles (admin /
 // analyst / auditor / viewer) and the orthogonal reveal grant, export the

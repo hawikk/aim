@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """Export unapproved AI-tool domains from the endpoint detection database
-(endpoints.json) as a blocklist for the corporate proxy (AIM-113, phase 2b
+(endpoints.json) as a blocklist for the corporate proxy (phase 2b
 of the inline-enforcement design, docs/inline-enforcement-design-2026-07.md).
 
 We do NOT enforce anything ourselves: IT enforces the exported list on the
 existing corporate proxy (Zscaler/Squid) under their acceptable-use
 authority. Our contribution is the detection intelligence — the same
-unapproved-domain knowledge the proxy collector (AIM-19) already uses to
+unapproved-domain knowledge the proxy collector already uses to
 flag traffic — plus the audit trail (would-block reporting, see
 would_block_report.py).
 
-Tiers (per design doc §Phase 2b + AIM-103 caveat):
+Tiers (per design doc §Phase 2b + caveat):
   - enforce : unsanctioned rules in employee-tool categories (api, web,
               telemetry). These domains exist to serve the unapproved tool;
               blocking them is plain AUP enforcement.
   - review  : unsanctioned rules in the provider-api category (direct LLM
               APIs usable by BOTH employee tools and company-built
-              applications, AIM-103). Blocking these at the proxy would also
+              applications). Blocking these at the proxy would also
               cut application traffic, so IT/Security must confirm no
               sanctioned app dependency before enforcement. Exported on
               request (--tier review / --tier all), never by default.
@@ -59,7 +59,7 @@ DEFAULT_DETECTIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 # Unsanctioned rules in these categories are safe to enforce at the proxy:
 # the domains serve the unapproved employee tool itself.
 ENFORCE_CATEGORIES = {"api", "web", "telemetry", "gateway"}
-# Unsanctioned provider-api rules are review-tier (AIM-103: shared with
+# Unsanctioned provider-api rules are review-tier (shared with
 # company-built applications).
 REVIEW_CATEGORIES = {"provider-api"}
 
@@ -78,7 +78,7 @@ def select_rules(db, tier):
     for r in db["rules"]:
         if r.get("sanctioned"):
             continue
-        # Detection-only rules (AIM-321): still match for telemetry, but must
+        # Detection-only rules: still match for telemetry, but must
         # never enter a proxy blocklist export (e.g. parent domain of a
         # sanctioned API host under suffix matching).
         if r.get("blocklist_export") is False:
@@ -161,7 +161,7 @@ def manifest(db, selected, tier):
 def header_lines(db, selected, tier, fmt):
     m = manifest(db, selected, tier)
     return [
-        f"AI Monitoring blocklist export (AIM-113) — tier: {tier}",
+        f"AI Monitoring blocklist export — tier: {tier}",
         f"source: endpoints.json v{m['source']['version']} "
         f"updated {m['source']['updated']}",
         f"rules: {m['rule_count']}  domains: {m['domain_count']}  "
@@ -213,14 +213,14 @@ RENDERERS = {
 def main(argv=None):
     p = argparse.ArgumentParser(
         description="Export unapproved AI-tool domains as a corporate-proxy "
-                    "blocklist (AIM-113)")
+                    "blocklist")
     p.add_argument("--format", required=True, choices=sorted(RENDERERS),
                    help="output format")
     p.add_argument("--tier", default="enforce",
                    choices=["enforce", "review", "all"],
                    help="enforce = employee-tool categories only (default); "
                         "review = provider-api rules needing IT/Security "
-                        "confirmation (AIM-103); all = both")
+                        "confirmation; all = both")
     p.add_argument("--detections", default=DEFAULT_DETECTIONS,
                    help="endpoint detection DB (default: endpoints.json "
                         "next to this script)")

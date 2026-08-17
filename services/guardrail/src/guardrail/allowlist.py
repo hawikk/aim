@@ -1,4 +1,4 @@
-"""Scoped model/provider allowlist helpers (AIM-383 / AIM-326).
+"""Scoped model/provider allowlist helpers.
 
 Two layers, both fail-open when empty:
 

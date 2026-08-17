@@ -1,4 +1,4 @@
-"""Emit metadata-only usage events for Grok Build / Paperclip runs (AIM-271/275/371/470).
+"""Emit metadata-only usage events for Grok Build / Paperclip runs.
 
 Sources of truth:
 
@@ -6,11 +6,11 @@ Sources of truth:
 2. Paperclip heartbeat env: PAPERCLIP_RUN_ID, PAPERCLIP_AGENT_ID,
    PAPERCLIP_WORKSPACE_CWD, GROK_AGENT, adapter model from agent config if
    provided via --model or AIM_GROK_MODEL
-3. **Continuous token path (AIM-470, primary):** ``scan_usage_log`` tails
+3. **Continuous token path (primary):** ``scan_usage_log`` tails
    ``~/.grok/logs/unified.jsonl`` ``shell.turn.inference_done`` lines and
    emits per-session token *deltas*. This covers all local Grok usage, not
    only Paperclip heartbeats.
-4. Optional per-run token resolve (AIM-371): only when
+4. Optional per-run token resolve: only when
    ``AIM_GROK_RUN_TOKEN_RESOLVE=1`` or explicit ``AIM_GROK_TOKENS_IN/OUT`` /
    CLI tokens are set. Disabled by default so continuous tail + run resolve
    do not double-count the same turns. When enabled, re-emits use deltas
@@ -265,7 +265,7 @@ def _run_token_resolve_enabled(
 ) -> bool:
     """Whether emit_run should attach tokens from the local usage log.
 
-    Continuous ``scan_usage_log`` is the default token path (AIM-470). Per-run
+    Continuous ``scan_usage_log`` is the default token path. Per-run
     resolve is opt-in to avoid double-counting the same inference turns.
     Explicit CLI/env token overrides always win and do not need the flag.
     """
@@ -370,7 +370,7 @@ def emit_run(
     Dedupes by run_id inside the local checkpoint so re-invoking emit-run
     for the same heartbeat does not flood ingest (unless force=True).
 
-    Token attachment is opt-in (AIM-470): continuous ``scan_usage_log`` is the
+    Token attachment is opt-in: continuous ``scan_usage_log`` is the
     default token path. When per-run resolve is enabled and a prior emission
     already had tokens, only the *delta* vs the prior cumulative total is
     emitted so dashboard SUM cannot double-count.
@@ -485,7 +485,7 @@ def emit_run(
 
 
 def scan_usage_log(*, dry_run: bool = False) -> list[dict]:
-    """Emit per-session token deltas from the local Grok usage log (AIM-470).
+    """Emit per-session token deltas from the local Grok usage log.
 
     Primary token path for ``aim watch`` / ``scan-once``. Metadata only —
     numeric counters from ``shell.turn.inference_done``. Does not require a
@@ -510,7 +510,7 @@ def scan_usage_log(*, dry_run: bool = False) -> list[dict]:
         sid = events.daily_session_id(d.session_id, epoch_s=d.last_ts_epoch)
         tin = d.tokens_in if d.tokens_in > 0 else None
         tout = d.tokens_out if d.tokens_out > 0 else None
-        # AIM-539: cache-aware list-price estimate (collector cost wins in COST_SQL).
+        # cache-aware list-price estimate (collector cost wins in COST_SQL).
         cost = pricing.estimate_cost(
             model_name,
             d.tokens_in,
@@ -552,7 +552,7 @@ def scan_once(*, dry_run: bool = False) -> list[dict]:
     2. Discover other live grok_local Paperclip processes via /proc.
     3. Discover recent Paperclip run scratch dirs for known grok agents.
     4. Tail ``~/.grok/logs/unified.jsonl`` for per-session token deltas
-       (AIM-470 — primary token accounting path).
+       (— primary token accounting path).
 
     Deduped by run_id for Paperclip presence. Never requires a human to call
     ``emit-run``.

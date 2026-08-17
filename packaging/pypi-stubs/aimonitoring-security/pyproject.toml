@@ -1,9 +1,9 @@
-# Official PyPI name reservation for AI Monitoring (AIM-510 / D-489-2a).
+# Official PyPI name reservation for AI Monitoring (D-489-2a).
 # This is a stub only — no product code, no console scripts.
 # Real install: signed wheel on GitHub Releases (hawikk/aim).
 #
 # Charter names `aimonitoring` / `aim-monitoring` are blocked by PyPI similarity
-# against existing `ai-monitoring` (Whitecircle). Board-configured pending
+# against existing `ai-monitoring` (Whitecircle). Configured pending
 # publisher (2026-07-31): aimonitoring-security.
 # setuptools>=77 is required for the PEP 639 SPDX `license` expression below;
 # older versions reject a plain string and want the legacy `{ text = ... }` table.

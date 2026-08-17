@@ -1,7 +1,7 @@
 # Build the guardrail evaluator image from the repo root:
 #   docker compose build guardrail
 #
-# Runs the post-ingest guardrail poller (AIM-65): evaluate-db on an interval.
+# Runs the post-ingest guardrail poller: evaluate-db on an interval.
 FROM python:3.12-slim AS build
 WORKDIR /src
 COPY services/guardrail/pyproject.toml ./
@@ -14,11 +14,11 @@ FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 COPY --from=build /install /usr/local
-# Versioned policy ruleset, read at runtime. Content is a Security/CEO-reviewed
+# Versioned policy ruleset, read at runtime. Content is a Security-reviewed
 # proposal (policies/guardrail/README) — changes go through PR review, not the
 # image. Pinned here so the path does not depend on the repo-relative layout.
 COPY policies/guardrail /app/policies/guardrail
-# Alert bus contract (AIM-158). Every publish is validated against this file
+# Alert bus contract. Every publish is validated against this file
 # before it reaches the stream, so it ships in the image and is pointed at
 # explicitly — the repo-relative fallback in bus.load_validator() resolves to
 # nothing here, and a publisher that silently stopped validating is exactly

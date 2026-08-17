@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Endpoint enforce-decision latency SLO harness (AIM-785).
+"""Endpoint enforce-decision latency SLO harness.
 
 Measures the Claude Code collector *enforce decision path* — the hot path that
 runs on every UserPromptSubmit / PreToolUse hook before the engineer's tool
@@ -12,7 +12,7 @@ This is the latency budget that category-defining enforcement must not break
 validation are measured separately as informational rows when --full-hook is
 set; they are not part of the gated SLO.
 
-SLO (docs/inline-enforcement-design-2026-07.md §5 + AIM-785):
+SLO (docs/inline-enforcement-design-2026-07.md §5 +):
     p95 < 200 ms for every required scenario on the decision path.
 
 Usage:
@@ -46,7 +46,7 @@ from typing import Any, Callable
 ROOT = Path(__file__).resolve().parents[1]
 CLAUDE_COLLECTOR = ROOT / "collectors" / "claude-code"
 
-# Gated budget for AIM-785. Design doc also mentions p99 < 200 ms and a
+# Gated budget. Design doc also mentions p99 < 200 ms and a
 # fail-open hard timeout at 500 ms; CI gates the issue's stated p95 target.
 P95_BUDGET_MS = 200.0
 # Soft p99 signal for reports (does not fail CI by default; --strict-p99 does).
@@ -294,7 +294,7 @@ def run_scenario(
 
 def render_markdown(results: list[ScenarioResult], *, overall_pass: bool) -> str:
     lines = [
-        "# Endpoint decision latency SLO report (AIM-785)",
+        "# Endpoint decision latency SLO report",
         "",
         f"**Budget:** p95 < {P95_BUDGET_MS:.0f} ms (decision path)",
         f"**Overall:** `{'PASS' if overall_pass else 'FAIL'}`",
@@ -319,7 +319,7 @@ def render_markdown(results: list[ScenarioResult], *, overall_pass: bool) -> str
 
 def render_text(results: list[ScenarioResult], *, overall_pass: bool) -> str:
     header = (
-        f"Endpoint decision latency SLO (AIM-785)  "
+        f"Endpoint decision latency SLO "
         f"budget p95 < {P95_BUDGET_MS:.0f} ms  →  "
         f"{'PASS' if overall_pass else 'FAIL'}"
     )
@@ -347,7 +347,6 @@ def build_report(
 ) -> dict[str, Any]:
     return {
         "version": 1,
-        "issue": "AIM-785",
         "slo": {
             "metric": "p95_ms",
             "budget_ms": P95_BUDGET_MS,

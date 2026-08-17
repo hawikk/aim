@@ -1,4 +1,4 @@
-/* Teams view (AIM-94/483) — pure-moved from app.js (AIM-527). */
+/* Teams view — pure-moved from app.js. */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtTok, fmtDaySafe, fmtUsd, fmtTs } from '../lib/format.js';
 import { state, hashFor, api, apiJson, setStatus, refresh, canManageTeams } from '../lib/runtime.js';
@@ -8,7 +8,7 @@ import { hideEntityDetail, entityDetailError, entityDetailShell } from '../lib/e
 import { refCell } from '../lib/ui.js';
 
 export async function loadTeams() {
-  // AIM-94 / AIM-737: matrix + model rollup load independently so a single
+  // matrix + model rollup load independently so a single
   // aggregate failure can't blank the teams table/chart above.
   loadTeamsMatrix().catch((err) => {
     $('#teams-matrix').innerHTML = `<tbody><tr><td><div class="err">Team × tool matrix failed to load: ${esc(err.message)}</div></td></tr></tbody>`;
@@ -72,7 +72,7 @@ export async function loadTeams() {
   );
 }
 
-// Drill-down panel for a single team (AIM-483): usage cards, rename + membership
+// Drill-down panel for a single team: usage cards, rename + membership
 // management for security-admin, member list, and local identity audit trail.
 export async function renderTeamDetail(listPayload) {
   const box = $('#team-detail');
@@ -140,7 +140,7 @@ export async function renderTeamDetail(listPayload) {
     <div class="table-wrap" tabindex="0" role="region" aria-label="Team identity audit, scrollable"><table id="team-audit"></table></div>`,
   });
 
-  // AIM-737: model/token/cost for this team via aggregate (filter client-side).
+  // model/token/cost for this team via aggregate (filter client-side).
   loadTeamDetailModels(d.team).catch((err) => {
     table($('#team-models'), [{ key: 'model', label: 'Model' }], [], {
       caption: 'Models for this team — failed to load',
@@ -217,7 +217,7 @@ export async function renderTeamDetail(listPayload) {
   }
 }
 
-/* AIM-737: team × model — tokens and estimated cost from the aggregate
+/*: team × model — tokens and estimated cost from the aggregate
  * endpoint. OTel app spans have no team; this table covers employee tooling
  * attribution (same event population as the teams rollup). Export via #exp-teams-models. */
 export async function loadTeamsModels() {
@@ -271,7 +271,7 @@ export async function loadTeamsModels() {
   );
 }
 
-/** AIM-737: models for one team (filter team×model aggregate client-side). */
+/**: models for one team (filter team×model aggregate client-side). */
 export async function loadTeamDetailModels(teamKey) {
   const el = $('#team-models');
   if (!el) return;
@@ -300,7 +300,7 @@ export async function loadTeamDetailModels(teamKey) {
   });
 }
 
-/* AIM-94: team × tool matrix — tokens per team per tool from the generic
+/*: team × tool matrix — tokens per team per tool from the generic
  * aggregate endpoint. Top teams by total tokens get their own row; the rest
  * fold into "(other)". Follows state.days via the normal refresh cycle. */
 export const MATRIX_TOP_TEAMS = 12;

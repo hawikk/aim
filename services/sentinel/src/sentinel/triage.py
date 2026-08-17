@@ -187,7 +187,7 @@ class Triager:
         import time
         started = time.monotonic()
         system = (llm.flavor or "openai").strip().lower() or "openai"
-        # AIM-736: instrument the live provider call only. Disabled/unconfigured
+        # instrument the live provider call only. Disabled/unconfigured
         # paths are explicit exceptions (no network call → no GenAI span).
         try:
             with telemetry.llm_span(system, llm.model) as span:

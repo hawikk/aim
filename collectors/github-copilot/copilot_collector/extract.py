@@ -1,4 +1,4 @@
-"""Metadata-only extraction from local GitHub Copilot surfaces (AIM-1167).
+"""Metadata-only extraction from local GitHub Copilot surfaces.
 
 Honesty contract
 ----------------

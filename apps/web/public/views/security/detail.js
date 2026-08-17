@@ -1,5 +1,5 @@
-/* Security view row drill-down panel (AIM-482), split out of
- * views/security.js (AIM-1135). Detector evidence fetches /api/flags detail;
+/* Security view row drill-down panel, split out of
+ * views/security.js. Detector evidence fetches /api/flags detail;
  * unapproved-tool detail renders from the cached list payload. */
 import { $, esc } from '../../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, fmtUsd } from '../../lib/format.js';
@@ -50,7 +50,7 @@ export async function openDetectorDetail(detector) {
       ?? null;
     const det = d.detail || {};
     const sev = summary?.severity || 'medium';
-    // AIM-587 severity filter + AIM-589 range: findingsHash carries both.
+    // severity filter + range: findingsHash carries both.
     const findingsHref = findingsHash({ fstatus: 'open', fsev: sev, days: state.days });
     const findingsNote = summary
       ? `Open Findings triage (filter severity=${sev}) for the backing findings.`

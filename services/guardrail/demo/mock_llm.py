@@ -1,4 +1,4 @@
-"""Local OpenAI-compatible chat stub for the AIM-115 sandbox pilot.
+"""Local OpenAI-compatible chat stub for the sandbox pilot.
 
 The sandbox has no external LLM provider key, so the dogfood pilot points the
 guardrail LLM-judge at this stub instead. It implements just

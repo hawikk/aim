@@ -1,4 +1,4 @@
--- 019_enroll_token_bound_email.sql — AIM-455: bind enrollment to a directory human.
+-- 019_enroll_token_bound_email.sql — bind enrollment to a directory human.
 --
 -- The enroll flow previously only minted a device_id + device_token. Identity
 -- resolution needs a row in identity-sync.device_mappings, and that table had a
@@ -15,4 +15,4 @@ ALTER TABLE enroll_tokens
   ADD COLUMN IF NOT EXISTS bound_email TEXT;
 
 COMMENT ON COLUMN enroll_tokens.bound_email IS
-  'Optional directory primary_email this token attributes devices to (AIM-455). NULL = unbound fleet/bootstrap token.';
+  'Optional directory primary_email this token attributes devices to. NULL = unbound fleet/bootstrap token.';

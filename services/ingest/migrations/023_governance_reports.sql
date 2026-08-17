@@ -1,4 +1,4 @@
--- 023_governance_reports.sql — AIM-325: scheduled executive AI-governance
+-- 023_governance_reports.sql — scheduled executive AI-governance
 -- reports, stored so history is retained (one quarter minimum) and diffable.
 --
 -- Stores the full governance report (usage by team/tool/model, violations +

@@ -1,4 +1,4 @@
-// Endpoint enforcement policy reader + per-rule mode matrix (AIM-788).
+// Endpoint enforcement policy reader + per-rule mode matrix.
 //
 // Declared fleet intent lives in the same JSON bundle endpoints load
 // (`enforcement.json` / default_enforcement.json). This module reads that
@@ -12,7 +12,7 @@
 //   confirm  — challenge UX when enforced (pii-in-prompt)
 //   enforce  — hard block or redact when global mode=enforce AND rule.enforce
 //   not_configured — rail is catalogued but absent from the loaded bundle
-//                    (e.g. secret-in-tool-input until AIM-320/redact lands)
+// (e.g. secret-in-tool-input/redact lands)
 //
 // Actions: block | redact. Primary disposition when the rule is applied.
 
@@ -29,7 +29,7 @@ export const DEFAULT_ENFORCEMENT_CANDIDATES = [
   '/app/enforcement/enforcement.enforce.json',
 ];
 
-/** Fixed catalog of endpoint-enforceable rails (AIM-788 residual B). */
+/** Fixed catalog of endpoint-enforceable rails (residual B). */
 export const ENDPOINT_RAILS = [
   {
     id: 'secret-pattern-in-prompt',
@@ -74,7 +74,7 @@ export const ENDPOINT_RAILS = [
     disposition: 'redact',
     modeWhenEnforced: 'enforce',
     hook: 'PreToolUse',
-    // Absent from the shipped bundle until AIM-320 / AIM-629 redact land.
+    // Absent from the shipped bundle until redact land.
     optional: true,
     notes: 'PreToolUse updatedInput rewrite; action redacted. Row ships as not_configured until the rail lands in the bundle.',
   },
@@ -248,7 +248,7 @@ export function totalsLast7d(rules) {
 }
 
 /**
- * Scorecard-pack evidence export (AIM-642 consumer).
+ * Scorecard-pack evidence export (consumer).
  * Deterministic given the same matrix + policy snapshot.
  */
 export function buildEvidencePack({ policyMeta, rules, window }) {
@@ -267,7 +267,6 @@ export function buildEvidencePack({ policyMeta, rules, window }) {
   return {
     kind: 'aim-enforcement-mode-matrix',
     version: 1,
-    issue: 'AIM-788',
     scorecardPack: true,
     generatedAt: window?.to ?? new Date().toISOString(),
     window: {
@@ -291,7 +290,7 @@ export function buildEvidencePack({ policyMeta, rules, window }) {
       enforcedRules: matrix.filter((r) => r.mode === 'enforce' || r.mode === 'confirm').map((r) => r.ruleId),
       observeRules: matrix.filter((r) => r.mode === 'observe').map((r) => r.ruleId),
       notConfigured: matrix.filter((r) => r.mode === 'not_configured').map((r) => r.ruleId),
-      note: 'Modes come from the declared endpoint enforcement bundle; last-7d counts are measured dispositions from events.payload.enforcement. Per-host coverage is AIM-781.',
+      note: 'Modes come from the declared endpoint enforcement bundle; last-7d counts are measured dispositions from events.payload.enforcement. Per-host coverage is.',
     },
   };
 }

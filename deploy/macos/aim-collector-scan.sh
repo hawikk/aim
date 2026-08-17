@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — periodic scan wrapper for macOS (AIM-743).
+# AI Monitoring — periodic scan wrapper for macOS.
 # Runs `scan-once` + `flush` for every human user. Invoked by LaunchDaemon
 # as root every 5 minutes.
 set -uo pipefail

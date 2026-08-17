@@ -1,16 +1,16 @@
 """Hook entrypoint: convert a Claude Code hook payload (stdin JSON) into
-metadata-only v1 events — and, since AIM-110 Phase 1, compute endpoint
-enforcement decisions for the approved critical rules (AIM-111 Phase 2a
+metadata-only v1 events — and, Phase 1, compute endpoint
+enforcement decisions for the approved critical rules (Phase 2a
 adds restricted-repo-access and the pii-in-prompt confirm-prompt behind
 the same enforce flags, shadow-first).
 
 Registered events: SessionStart, SessionEnd, PostToolUse, UserPromptSubmit,
 PreToolUse (PreToolUse is telemetry-inert — it exists only to deny MCP calls
-to unapproved servers, deny restricted-repo paths, and (AIM-320) redact
+to unapproved servers, deny restricted-repo paths, and redact
 secrets from tool inputs via updatedInput; PostToolUse remains the telemetry
 rail).
 
-Enforcement posture (AIM-15 amended 2026-07-22, board-approved): observe +
+Enforcement posture (amended 2026-07-22, approved): observe +
 endpoint blocking for critical rules. Fail-open is a hard requirement: any
 error in the decision path (missing/malformed policy, matcher exception,
 audit-event failure) degrades to observe — exit 0, no decision output. A
@@ -50,14 +50,14 @@ def _split_tool_name(name: str) -> tuple[str, str | None]:
 
 
 def _opaque_call_id(raw_id: str) -> str:
-    """Daily-stable opaque call id (AIM-627/799). Same salt family as session_id."""
+    """Daily-stable opaque call id. Same salt family as session_id."""
     from datetime import datetime, timezone
     day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     return events.session_id(f"call|{raw_id}", day=day)[:32]
 
 
 def _post_tool_use_chain(payload: dict, *, session_id: str, cwd, flags, tool_version) -> list[dict]:
-    """AIM-799: PostToolUse → tool_use event with optional chain + handoff
+    """PostToolUse → tool_use event with optional chain + handoff
     metadata when the framework exposes tool ids. Never reads tool_input /
     tool_response bodies into the event (only flags, already scanned)."""
     raw_name = payload.get("tool_name")
@@ -130,7 +130,7 @@ def handle_payload(payload: dict) -> list[dict]:
     cwd = payload.get("cwd")
 
     # Local scan of any content-bearing fields; occurrences are fingerprinted
-    # by events.make_flags and the matched text is discarded (AIM-225).
+    # by events.make_flags and the matched text is discarded.
     flags = []
     for field in _CONTENT_FIELDS:
         flags += matchers.scan_obj_matches(payload.get(field))
@@ -145,13 +145,13 @@ def handle_payload(payload: dict) -> list[dict]:
     if not session_id:
         return []
 
-    # Schema v1 has no event_type field (gap raised on AIM-18 for v1.1);
+    # Schema v1 has no event_type field (gap raised on for v1.1);
     # hook events carry session/flags/tool identity, token volume comes
     # from the transcript watcher.
     ev = events.new_event(raw_session_id=session_id, model=None, cwd=cwd,
                           flags=flags, tool_version=tool_version)
     out = [ev]
-    # AIM-799: PostToolUse also emits a discrete tool_use row with chain
+    # PostToolUse also emits a discrete tool_use row with chain
     # fields when tool_name (and optional tool_use_id) are present.
     if hook_name == "PostToolUse":
         out.extend(_post_tool_use_chain(
@@ -177,7 +177,7 @@ def _enforcement_decision(payload: dict):
     emitted exactly when nothing fires — that is the case the bake cannot
     otherwise distinguish from "no collector here".
 
-    AIM-782: multi-rail orchestration returns a single primary Decision plus
+    multi-rail orchestration returns a single primary Decision plus
     ordered rail attribution. Deterministic precedence lives in
     ``enforce.RAIL_PRECEDENCE`` / ``docs/security/multi-rail-precedence.md``
     — never short-circuit in a way that could emit two denials.
@@ -188,12 +188,12 @@ def _enforcement_decision(payload: dict):
     evaluated = hook_name in enforce.EVALUATED_HOOKS
     if hook_name == "UserPromptSubmit":
         # Decision scans the prompt field only. prompt + session_id are
-        # required for AIM-296 secret break-glass and the PII confirm path.
+        # required secret break-glass and the PII confirm path.
         prompt = payload.get("prompt")
         flags = matchers.scan_obj(prompt)
         orchestrated = enforce.orchestrate(payload, pol, prompt_flags=flags)
     elif hook_name == "PreToolUse":
-        # Decision C multi-rail (MCP + restricted-repo). Redact (AIM-320)
+        # Decision C multi-rail (MCP + restricted-repo). Redact
         # remains outside Decision C multi-rail and only runs when neither
         # MCP nor restricted-repo fired — same short-circuit order as main.
         orchestrated = enforce.orchestrate(payload, pol)
@@ -241,7 +241,7 @@ def _attach_posture(
     spool. Best-effort and isolated: posture is bookkeeping, so a failure here
     must not drop telemetry or a block decision.
 
-    AIM-790: when the decision path ran (``evaluated``), also stamp
+    when the decision path ran (``evaluated``), also stamp
     ``enforcement_latency_ms`` under posture — metadata-only wall time for the
     design SLO (p95 < 200 ms). Fail-open timeout stays a separate budget."""
     from . import enforce
@@ -262,7 +262,7 @@ def run(raw: bytes) -> tuple[int, str]:
         pol, evaluated = {}, False
         latency_ms: int | None = None
         try:
-            # AIM-790: wall time for the local decision path only (policy load
+            # wall time for the local decision path only (policy load
             # + rule evaluation + audit attach). Spool/flush is out of scope —
             # that is async bookkeeping, not the engineer's block latency.
             t0 = time.perf_counter()

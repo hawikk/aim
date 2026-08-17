@@ -1,4 +1,4 @@
-"""Heuristics: does this signal look like an AI *coding* tool? (AIM-644)
+"""Heuristics: does this signal look like an AI *coding* tool?
 
 The fixed catalogue (`catalogue/ai-tools.json`) is the allow/deny knowledge
 base. Auto-discovery raises ``unknown_ai_coding_tool`` only when a signal is

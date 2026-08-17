@@ -1,4 +1,4 @@
-// Shadow AI discovery API (AIM-300 / AIM-504 / AIM-776 / AIM-778).
+// Shadow AI discovery API.
 //
 // Views over tables written by services/shadow-ai:
 //   shadow_ai_tools            — aggregate tool inventory (no per-user fields)
@@ -29,7 +29,7 @@ const DISPOSITION_ACTIONS = new Set([
   'catalogue',
 ]);
 
-// AIM-776 discovery-queue statuses + legal transitions (open is the default).
+// discovery-queue statuses + legal transitions (open is the default).
 const DISCOVERY_STATUSES = new Set([
   'open',
   'proposed',
@@ -267,7 +267,7 @@ function normalizeDispositionBody(body) {
 export async function shadowAiRoutes(fastify, opts) {
   const db = opts?.db ?? { query };
   // Shadow AI inventory is operator/security data: analyst+ (same gate as
-  // /api/fleet and the findings console, AIM-95).
+  // /api/fleet and the findings console).
   const userLevel = requireRoles('analyst', 'security-admin', 'admin');
 
   // ---- discovered AI tools, worst risk first ----
@@ -289,7 +289,7 @@ export async function shadowAiRoutes(fastify, opts) {
     return { tools };
   });
 
-  // ---- AIM-504: AI SaaS apps authorized via corporate IdP (pseudonyms) ----
+  // ---- AI SaaS apps authorized via corporate IdP (pseudonyms) ----
   // Left-join findings so ChatGPT-class grants surface with finding_type =
   // unapproved_ai_saas_grant when the sync job emitted one.
   fastify.get('/api/shadow-ai/grants', async (req, reply) => {
@@ -346,10 +346,10 @@ export async function shadowAiRoutes(fastify, opts) {
     let grantCount = 0;
     let findingCount = 0;
     let chatgptGrants = 0;
-    // AIM-777: multi-IdP inventory must surface per-source grant counts so
+    // multi-IdP inventory must surface per-source grant counts so
     // operators can see Entra vs Okta vs Google coverage at pilot/prod scale.
     let grantsByIdpSource = {};
-    // AIM-776: catalogue-ops lag — open discovery candidates + oldest age.
+    // catalogue-ops lag — open discovery candidates + oldest age.
     let discoveryQueueOpen = 0;
     let discoveryQueueOldestOpenAgeSeconds = null;
     let discoveryQueueOldestOpenFirstSeen = null;
@@ -419,7 +419,7 @@ export async function shadowAiRoutes(fastify, opts) {
     return summary;
   });
 
-  // ---- AIM-776: continuous catalogue ops discovery queue ----
+  // ---- continuous catalogue ops discovery queue ----
   // Uncatalogued IdP apps waiting for a catalogue PR. Draft entry lives in
   // proposed_entry. Status transitions: open → proposed|catalogued|dismissed|known_non_ai.
   fastify.get('/api/shadow-ai/discovery-queue', async (req, reply) => {
@@ -528,7 +528,7 @@ export async function shadowAiRoutes(fastify, opts) {
     }
   });
 
-  // ---- AIM-778: append-only analyst dispositions (allow / watch / enforce) ----
+  // ---- append-only analyst dispositions (allow / watch / enforce) ----
   // Latest row per (target_kind, target_key) is the active disposition.
   // Findings builder (services/shadow-ai) honors allow / known_non_ai on re-sync.
   fastify.get('/api/shadow-ai/dispositions', async (req, reply) => {

@@ -1,5 +1,5 @@
-/* MCP session chain panel (AIM-1157 split): GET /api/mcp-sessions/:sessionId
- * reconstruction (AIM-800 / AIM-627), deep link #/mcp?session=<id>.
+/* MCP session chain panel (split): GET /api/mcp-sessions/:sessionId
+ * reconstruction, deep link #/mcp?session=<id>.
  * Metadata only — args and results are never returned by the API and the
  * client privacy check refuses to paint if a regression leaks them.
  * The orchestrator (public/mcp.js) populates fctx before bind*() runs. */

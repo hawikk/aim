@@ -5,13 +5,13 @@ Assistant transcript lines carry message.model and message.usage with token
 counts — this is where tokens/cost come from (hook payloads don't have
 them). We aggregate per session and emit one `usage` event per flush cycle
 per dirty session. Content is never read into events; only numeric usage
-fields and tool names are extracted. Personal mode (AIM-77) additionally
+fields and tool names are extracted. Personal mode additionally
 runs the local secret/PII matchers over message content IN MEMORY at scan
 time (``scan_content=True``): matched content is fingerprinted and discarded
-immediately and only detector metadata (name + redacted fingerprint, AIM-225)
+immediately and only detector metadata (name + redacted fingerprint)
 lands on the event's match_flags — the metadata-only contract is unchanged.
 
-Tool-call capture (AIM-86 / AIM-627): tool_use blocks in assistant lines
+Tool-call capture: tool_use blocks in assistant lines
 are counted per session keyed by (tool_name, mcp_server), and also tracked
 as discrete invocations when a tool_use ``id`` is present (schema v1.10
 chain fields: call_id, parent_call_id, result_status, seq). tool_result
@@ -97,7 +97,7 @@ def _split_tool_name(name: str) -> tuple[str, str | None]:
     return name[:64], None
 
 
-# Built-in tools that spawn sub-agents / Task loops (AIM-627 A2A handoffs).
+# Built-in tools that spawn sub-agents / Task loops (A2A handoffs).
 _HANDOFF_TOOL_KIND = {
     "Task": "task",
     "Agent": "subagent",
@@ -118,8 +118,8 @@ def _opaque_call_id(tool_use_id: str) -> str:
 def _extract_tool_calls(lines: list[str], agg: dict) -> None:
     """Fold tool_use blocks into aggregates + discrete chain invocations.
 
-    AIM-86: only the block ``name`` is read for aggregates.
-    AIM-627: when ``id`` is present, also record a discrete invocation with
+    only the block ``name`` is read for aggregates.
+    when ``id`` is present, also record a discrete invocation with
     opaque call_id / seq / parent_call_id; tool_result contributes only
     ``is_error`` → result_status (never content). Task/Agent names append
     agent_handoffs metadata.
@@ -233,7 +233,7 @@ def _extract_tool_calls(lines: list[str], agg: dict) -> None:
 def _flag_key(flag) -> str:
     """Dedupe key for a stored flag entry. Legacy checkpoint entries are bare
     detector names; fingerprinted entries key on detector + fingerprint so a
-    NEW secret under an already-seen detector is still emitted (AIM-225)."""
+    NEW secret under an already-seen detector is still emitted."""
     if isinstance(flag, str):
         return flag
     fp = flag.get("fingerprint")
@@ -246,8 +246,8 @@ def _extract_flags(lines: list[str]) -> list[dict]:
     Only the ``message`` payload is scanned (not envelope metadata like
     timestamps); matched text is fingerprinted and discarded in-process —
     raw content never reaches the aggregate, the checkpoint, or an event
-    (AIM-225). Returns match_flags entries (dicts, JSON-safe so the
-    checkpoint can persist them). Used by personal mode only (AIM-77).
+    . Returns match_flags entries (dicts, JSON-safe so the
+    checkpoint can persist them). Used by personal mode only.
     """
     matches = []
     for line in lines:
@@ -265,10 +265,10 @@ def scan_once(sink=None, checkpoint: str = "checkpoint", ts_from_transcript: boo
     """One pass over all transcripts. Returns number of events emitted.
 
     `sink` is a callable taking a list of events; it defaults to the network
-    spool. Personal mode (AIM-67) passes a SQLite-backed sink and its own
+    spool. Personal mode passes a SQLite-backed sink and its own
     `checkpoint` namespace so the two paths never share offset state, and sets
     `ts_from_transcript` so events are dated by real activity time. Personal
-    mode also sets `scan_content` (AIM-77) so match_flags are real: content
+    mode also sets `scan_content` so match_flags are real: content
     is scanned in memory and discarded, only detector names are emitted.
     """
     if sink is None:
@@ -295,7 +295,7 @@ def scan_once(sink=None, checkpoint: str = "checkpoint", ts_from_transcript: boo
             "emitted_tokens": {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0},
             "tool_calls": {}, "emitted_tool_calls": {},
         })
-        # checkpoints written before AIM-86 lack the tool-call keys
+        # checkpoints written lack the tool-call keys
         tool_calls = agg.setdefault("tool_calls", {})
         emitted_calls = agg.setdefault("emitted_tool_calls", {})
         _extract_usage(lines, agg)
@@ -313,7 +313,7 @@ def scan_once(sink=None, checkpoint: str = "checkpoint", ts_from_transcript: boo
 
         # Emit only the delta since last emission, so dashboards can sum.
         # Schema v1 has only tokens_in/tokens_out: cache_read is prompt-side
-        # volume, folded into tokens_in (gap noted on AIM-18 for v1.1).
+        # volume, folded into tokens_in (gap noted on for v1.1).
         delta = {k: agg["tokens"][k] - agg["emitted_tokens"][k] for k in agg["tokens"]}
         if any(v > 0 for v in delta.values()) or new_flags:
             ev = events.new_event(
@@ -331,7 +331,7 @@ def scan_once(sink=None, checkpoint: str = "checkpoint", ts_from_transcript: boo
                 agg["emitted_flags"] = [_flag_key(f) for f in agg["flags"]]
             emitted += 1
 
-        # Tool-call deltas (AIM-86 / AIM-627), emitted independently of token
+        # Tool-call deltas, emitted independently of token
         # deltas: a tool_use event goes out even when the token delta is zero.
         # Prefer discrete chain invocations when tool_use ids were present;
         # fall back to aggregate (server|tool) counts for id-less transcripts.
@@ -414,7 +414,7 @@ def scan_once(sink=None, checkpoint: str = "checkpoint", ts_from_transcript: boo
     for _sid, _agg in aggs.items():
         if isinstance(_agg.get("seen_tool_use_ids"), set):
             _agg["seen_tool_use_ids"] = sorted(_agg["seen_tool_use_ids"])
-    # MCP server config inventory (AIM-97/AIM-570): one event when the
+    # MCP server config inventory: one event when the
     # configured (name, scope) set changed. Workspace paths come from
     # session cwd fragments already in the checkpoint (never re-emitted).
     try:
@@ -443,7 +443,7 @@ def watch(interval: float = 30.0) -> None:
         try:
             scan_once()
             res = spool.flush()
-            # Honour ingest backpressure (AIM-127): when the service sheds with
+            # Honour ingest backpressure: when the service sheds with
             # 429/Retry-After, wait at least the requested window before the next
             # attempt so we don't hammer an overloaded ingest node.
             retry_after = res.get("retry_after") if isinstance(res, dict) else None

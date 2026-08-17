@@ -1,11 +1,11 @@
-/* AIM-693 — Auditor offline evidence pack v2.
+/* — Auditor offline evidence pack v2.
  *
  * Pure, DOM-free helpers that assemble a complete compliance evidence pack a
  * non-engineer auditor can take offline:
  *   - human-readable README + SUMMARY
  *   - live report JSON
  *   - regulator CSV
- *   - signed evidence bundle (AIM-99)
+ * - signed evidence bundle
  *   - SHA256SUMS (gnu coreutils `sha256sum -c` compatible)
  *   - MANIFEST.json (machine-readable inventory + pack hash)
  *
@@ -226,7 +226,7 @@ export function buildReadmeText({ period, exportedAt, files, packSha256 } = {}) 
     '  SUMMARY.txt              — one-page executive summary',
     '  report.json              — full structured compliance report',
     '  report.csv               — same numbers in spreadsheet form',
-    '  evidence-bundle.json     — signed, audit-chain-anchored bundle (AIM-99)',
+    ' evidence-bundle.json — signed, audit-chain-anchored bundle',
     '  MANIFEST.json            — machine inventory + pack metadata',
     '',
     'Step 3 — Optional: cryptographic chain verification (ops)',

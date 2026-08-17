@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync the canonical matcher ruleset into each collector package (AIM-91).
+"""Sync the canonical matcher ruleset into each collector package.
 
 The endpoint collectors ship as standalone packages (Intune etc.), so each
 carries a verbatim vendored copy of the shared ruleset. The single source of

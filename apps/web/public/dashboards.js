@@ -1,4 +1,4 @@
-/* AIM-708 — Custom dashboard builder. Orchestrator only.
+/* — Custom dashboard builder. Orchestrator only.
  *
  * Beyond saved views (filter presets): operators compose widgets — KPIs,
  * charts, tables — into named dashboards. Self-contained module view that
@@ -9,8 +9,8 @@
  * telemetry content is stored. Widget data is always re-fetched from the
  * existing read APIs under the current time range.
  *
- * Split (AIM-1162, mirroring the AIM-1140 findings / AIM-1147 rules /
- * AIM-1157 mcp splits) — the panels live in sibling modules with clear
+ * Split (mirroring the findings rules /
+ * mcp splits) — the panels live in sibling modules with clear
  * ownership:
  *   ./dashboards/state.js    shared view-private dctx + reset
  *   ./dashboards/data.js     range parse + per-source data loaders (cached)

@@ -1,11 +1,10 @@
 """The review bundle: the smallest slice of the PR a model can reason about.
 
-What leaves the box is the trust boundary of the whole AI reviewer (AIM-162 /
-AIM-233), so it is stated precisely:
+What leaves the box is the trust boundary of the whole AI reviewer, so it is stated precisely:
 
 1. **Diff slice** — the added hunks of each reviewable file, plus a
    configurable window of surrounding lines, capped per file and in total.
-2. **Repo-graph slice (AIM-233)** — for each symbol the PR touched, the
+2. **Repo-graph slice** — for each symbol the PR touched, the
    *signatures* of its callers and callees (no function bodies), also capped.
    This is the Greptile-style cross-file context without sending the repo.
 
@@ -122,7 +121,7 @@ def build_bundle(repo_dir: str, scope: DiffScope, *,
 
     The stats are part of the contract: the check summary and the eval harness
     both read them, and both would rather show "3 files skipped, 1 truncated"
-    than imply a completeness that did not happen. Graph fields (AIM-233) are
+    than imply a completeness that did not happen. Graph fields are
     always present so cost-delta reporting does not need key checks.
     """
     stats: dict = {

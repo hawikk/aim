@@ -1,4 +1,4 @@
-// AIM-719 — emergency admin break-glass: dual control + hardware-key crypto.
+// — emergency admin break-glass: dual control + hardware-key crypto.
 //
 // Pure helpers (no Fastify). Routes and tests import this module.
 // WebAuthn path: ES256 (P-256) challenge-response over a server-issued nonce.

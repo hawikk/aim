@@ -1,5 +1,5 @@
-/* Audit trail view (AIM-95) — pure-moved from app.js (AIM-527).
- * AIM-989: JIT first-login failure + SLA breach surfaces on this tab so
+/* Audit trail view — pure-moved from app.js.
+ * JIT first-login failure + SLA breach surfaces on this tab so
  * auditors see identity.jit_* without digging raw logs. */
 import { $, esc } from '../lib/dom.js';
 import { fmtTs } from '../lib/format.js';
@@ -142,12 +142,12 @@ async function loadJitStatus() {
 }
 
 
-/* ---------- Audit trail view (AIM-95) ----------
+/* ---------- Audit trail view ----------
  * Server-gated to auditor + admin; the tab only renders with
  * capabilities.auditTrail, so a 403 here means the role changed mid-session —
  * refresh() already surfaces that as a retryable banner.
  *
- * AIM-998: `#/audit?action=guardrail.alerts_update` (and optional actor/since)
+ * `#/audit?action=guardrail.alerts_update` (and optional actor/since)
  * pre-fills the filter bar so Rules can deep-link destination config changes. */
 export function applyAuditFiltersFromHash(hash = typeof location !== 'undefined' ? location.hash : '') {
   const filters = parseAuditFiltersFromHash(hash);

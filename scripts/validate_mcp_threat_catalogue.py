@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate policies/mcp/threat-catalogue.yaml shape (AIM-627 / AIM-668).
+"""Validate policies/mcp/threat-catalogue.yaml shape.
 
 Stdlib + PyYAML only. Exit 0 on success, 1 on structural failure.
 
@@ -7,7 +7,7 @@ Also enforces continuous-update hygiene:
   - last_reviewed present (ISO date string)
   - allowlist_recommendations maps into deny/review suggestions
   - each threat cites detector_or_rail
-  - curated never-approve lists are non-empty (AIM-668)
+  - curated never-approve lists are non-empty
 """
 from __future__ import annotations
 
@@ -84,10 +84,10 @@ def main() -> int:
             print(f"threats[{i}] detector_or_rail must be a non-empty string", file=sys.stderr)
             return 1
 
-    # AIM-668: continuous update must map into allowlist recommendations.
+    # continuous update must map into allowlist recommendations.
     rec = data.get("allowlist_recommendations")
     if not isinstance(rec, dict):
-        print("allowlist_recommendations must be a mapping (AIM-668)", file=sys.stderr)
+        print("allowlist_recommendations must be a mapping", file=sys.stderr)
         return 1
     errs: list[str] = []
     for key in (
@@ -97,13 +97,13 @@ def main() -> int:
         items = rec.get(key, [])
         errs.extend(_check_substring_list(items, key))
         if isinstance(items, list) and len(items) < 1:
-            errs.append(f"{key} must contain at least one curated entry (AIM-668)")
+            errs.append(f"{key} must contain at least one curated entry")
 
     nas = rec.get("never_approve_servers", [])
     if not isinstance(nas, list):
         errs.append("never_approve_servers must be a list")
     elif len(nas) < 1:
-        errs.append("never_approve_servers must contain at least one curated entry (AIM-668)")
+        errs.append("never_approve_servers must contain at least one curated entry")
     else:
         for i, item in enumerate(nas):
             if not isinstance(item, dict):

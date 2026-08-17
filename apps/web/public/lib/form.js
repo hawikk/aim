@@ -1,4 +1,4 @@
-/* Shared form primitives for the mutation module UIs (AIM-1113, AIM-453
+/* Shared form primitives for the mutation module UIs (
  * Phase 3).
  *
  * findings.js, rules.js and inbox.js each grew the same three patterns by
@@ -104,7 +104,7 @@ export async function withBusy(controls, task, { reenable = 'error' } = {}) {
 /**
  * Show an inline form error and move focus to the offending field.
  *
- * AIM-515: the error element carries role="alert" so screen readers speak
+ * the error element carries role="alert" so screen readers speak
  * the message, but without the focus move the operator has to hunt for which
  * input the message is about. Pass `field` whenever the error names one.
  *

@@ -88,7 +88,7 @@ Images already set USER (node / guardrail); we enforce non-root + drop ALL.
 {{- end }}
 
 {{/*
-Object-store endpoint for ingest (AIM-769).
+Object-store endpoint for ingest.
 1. objectStore.endpoint if set (external or cross-namespace)
 2. in-cluster MinIO when minio.enabled
 3. fail when minio.enabled=false and no endpoint
@@ -109,7 +109,7 @@ Usage: {{ include "aim.objectStoreEndpoint" . }}
 {{- end }}
 
 {{/*
-Multi-AZ placement for app Deployments (AIM-769 / AIM-635 package A).
+Multi-AZ placement for app Deployments (package A).
 When topology.spread.enabled, pods prefer distinct topology.kubernetes.io/zone.
 When topology.antiAffinity.enabled, prefer different nodes (hostname).
 Usage:

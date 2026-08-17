@@ -1,5 +1,5 @@
 #!/bin/bash
-# AIM-743 — pkg postinstall for AIMonitoringCollector.
+# — pkg postinstall for AIMonitoringCollector.
 # Invoked by installer(8) as root after payload is laid down.
 set -euo pipefail
 

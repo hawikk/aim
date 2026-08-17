@@ -1,4 +1,4 @@
-/* AIM-695 — Active control → framework control ID map helpers.
+/* — Active control → framework control ID map helpers.
  *
  * Pure functions over the /api/compliance/report payload so every live
  * guardrail rule (active control) answers:

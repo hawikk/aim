@@ -4,16 +4,16 @@ CANONICAL SOURCE. The copies under each collector package
 (`collectors/*/*_collector/matchers.py`) are generated from this file by
 `scripts/sync_matcher_ruleset.py`. Edit HERE, re-run the sync script, and
 keep `collectors/matcher-fixtures/evasion.json` +
-`docs/security/detector-evasion-capability.md` in sync (AIM-91, AIM-96).
+`docs/security/detector-evasion-capability.md` in sync.
 
 These run ON THE ENDPOINT against content that never leaves the machine
 (hook prompt text, tool inputs, local task/wire logs). Output is a set of
 flag strings only — matched content is discarded immediately.
-`scan_text_matches`/`scan_obj_matches` (AIM-225) additionally expose the
+`scan_text_matches`/`scan_obj_matches` additionally expose the
 occurrences IN-PROCESS so the event builder can compute redacted secret
 fingerprints; `Match.matched` is fingerprinted and discarded on the spot,
-never logged, spooled, or emitted. The one exception is `redact_text`
-(AIM-320): same detectors, but it rewrites the matched spans in place to
+never logged, spooled, or emitted. The one exception is `redact_text`:
+same detectors, but it rewrites the matched spans in place to
 `[REDACTED:<detector>]` markers for the endpoint inline-redaction guardrail
 — still nothing but flag names leaves the machine.
 
@@ -31,10 +31,10 @@ Detection passes (union of flags), per scan:
      be welded into fake context-dependent matches
   4. base64 decode-and-rescan — bounded blob extraction (incl. MIME-style
      line-joined blobs), decoded payloads re-scanned with pass 1 and at
-     most one extra base64 depth (depth-2 max; AIM-578)
+     most one extra base64 depth (depth-2 max)
   5. targeted hex decode-and-rescan — even-length hex runs that UTF-8-decode
      cleanly are re-scanned plain (catches hex-wrapped AKIA-class tokens
-     without generic binary-hash FPs; AIM-578)
+     without generic binary-hash FPs)
 
 Validated detectors (credit card/Luhn, IBAN/MOD-97, SSN structure, ES DNI/NIE
 check letter, FR NIR key, DE Steuer-ID check digit, JWT header decode, token
@@ -44,7 +44,7 @@ to keep precision high.
 Detector categories (name prefix):
   secret:    credential material — severity high downstream
   pii:       personal data — severity medium downstream
-  injection: prompt-injection / jailbreak phrasings (AIM-96) — severity
+  injection: prompt-injection / jailbreak phrasings — severity
              medium downstream. These are PROSE patterns: inherently more
              FP-prone than token detectors because engineers legitimately
              discuss injection attacks with their coding assistants. They
@@ -93,7 +93,7 @@ _CONFUSABLES = {
     "і": "i",  # U+0456
     "ј": "j",  # U+0458
     "ѕ": "s",  # U+0455
-    # Cyrillic lookalikes (uppercase) — AIM-636 / R-2026-08-09
+    # Cyrillic lookalikes (uppercase) — / R-2026-08-09
     # Lowercase-only folding left capital U+0410 (А) etc. as residual misses.
     "А": "A",  # U+0410
     "Е": "E",  # U+0415
@@ -112,21 +112,21 @@ _CONFUSABLES = {
 }
 _CONFUSABLE_TABLE = str.maketrans(_CONFUSABLES)
 
-# Bracketed [at]/[dot] (AIM-91) and parenthesized (at)/(dot) (AIM-578).
+# Bracketed [at]/[dot] and parenthesized (at)/(dot).
 # Bare " at " / " dot " remain intentionally unfolded — too FP-prone in prose.
 _AT_DOT_FOLD = re.compile(r"\s*[\[(](?:at|dot)[\])]\s*", re.IGNORECASE)
 
-# JSON/JS-style \\uXXXX escapes of printable ASCII (AIM-578 / F-match-6 class).
+# JSON/JS-style \\uXXXX escapes of printable ASCII (F-match-6 class).
 # Only ASCII is folded so raw-log lines like "\\u0041KIA..." collapse to the
 # real token shape; non-ASCII escapes are left alone.
 _UNICODE_ESCAPE_ASCII = re.compile(r"\\u00([2-7][0-9a-fA-F])")
 
 # Invisible / format characters adversaries insert into token bodies to split
-# contiguous regex matches (AIM-506 / F-match-4). Stripped in the normalize
+# contiguous regex matches (F-match-4). Stripped in the normalize
 # pass only — raw pass still catches clean tokens; squashed pass already drops
 # true whitespace. These characters never appear in real credential material.
 _INVISIBLE_CHARS = re.compile(
-    # AIM-506 base set + AIM-729 purple-team expansion (invisible math format chars)
+    # base set + purple-team expansion (invisible math format chars)
     "[\u200b\u200c\u200d\u2060\u2061\u2062\u2063\u2064\ufeff\u00ad]"
     # ZWSP ZWNJ ZWJ WJ FA IT IS IP BOM soft-hyphen
 )
@@ -187,7 +187,7 @@ def _token_ok(m: re.Match) -> bool:
 
 # AWS publishes a handful of documentation credentials that are cryptographically
 # dead and appear constantly in engineer→assistant paste (SDK samples, blogs,
-# Stack Overflow). Live pilot FP audit (AIM-580): these dominate organic
+# Stack Overflow). Live pilot FP audit: these dominate organic
 # "secret" noise and are allowlisted by gitleaks/trufflehog. Exact denylist
 # only — other format-valid dead keys (canaries, corpus positives) still fire.
 _AWS_DOCS_ACCESS_KEYS = frozenset({
@@ -200,12 +200,12 @@ _AWS_DOCS_SECRET_BODIES = frozenset({
 
 
 def _aws_access_key_ok(m: re.Match) -> bool:
-    """Reject the exact AWS documentation access-key id (AIM-580)."""
+    """Reject the exact AWS documentation access-key id."""
     return m.group(0).upper() not in _AWS_DOCS_ACCESS_KEYS
 
 
 def _aws_secret_key_ok(m: re.Match) -> bool:
-    """Reject the exact AWS documentation secret-key body (AIM-580)."""
+    """Reject the exact AWS documentation secret-key body."""
     body_m = re.search(r"[0-9a-zA-Z/+]{40}", m.group(0))
     if not body_m:
         return True
@@ -217,12 +217,12 @@ _RULES: list[_Rule] = [
     _Rule("secret:private-key-block", re.compile(
         r"-{2,}\s*BEGIN\s+(?:RSA\s+|EC\s+|OPENSSH\s+|DSA\s+|PGP\s+)?PRIVATE\s+KEY\s*-{2,}",
         re.IGNORECASE), True),
-    # ap[i1]_k[e3]y covers common leetspeak label evasion (AIM-578).
+    # ap[i1]_k[e3]y covers common leetspeak label evasion.
     _Rule("secret:generic-api-key-assignment", re.compile(
         r"\b(?:api[_-]?key|api[_-]?secret|access[_-]?token|ap[i1][_-]?k[e3]y)\b\s*[:=]\s*[\"']?[A-Za-z0-9_\-]{16,}[\"']?",
         re.IGNORECASE), True),
     _Rule("pii:email", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"), True),
-    # --- prompt-injection / jailbreak phrasings (AIM-96) -------------------
+    # --- prompt-injection / jailbreak phrasings -------------------
     # Prose patterns: squash=False everywhere in this group (whitespace
     # deletion would weld prose into false matches). All case-insensitive;
     # Unicode-confusable evasion is handled by the normalization pass.
@@ -305,7 +305,7 @@ _TOKEN_RULES: list[_ValidatedRule] = [
     # Real keys are uppercase; a fully-lowercased AKIA copy is a known lossy
     # evasion we still catch. "asia" is deliberately not case-folded — it is
     # an English word and would FP in the whitespace-deleted pass.
-    # AIM-580: exact AWS docs access-key id is denylisted (organic paste noise).
+    # exact AWS docs access-key id is denylisted (organic paste noise).
     _ValidatedRule(
         "secret:aws-access-key",
         re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b|\bakia[0-9a-z]{16}\b"),
@@ -315,7 +315,7 @@ _TOKEN_RULES: list[_ValidatedRule] = [
     # Requires an assignment-ish separator ([:=]) so the whitespace-deleted
     # pass cannot weld prose mentioning "aws" into a 40-char run. No trailing
     # \b after "aws": it must match inside names like aws_secret.
-    # AIM-580: exact AWS docs secret-key body is denylisted.
+    # exact AWS docs secret-key body is denylisted.
     _ValidatedRule(
         "secret:aws-secret-key",
         re.compile(
@@ -330,7 +330,7 @@ _TOKEN_RULES: list[_ValidatedRule] = [
     # (no underscores); fine-grained github_pat_ tokens carry an 82-char body
     # that may contain underscores. Pinning the exact length + charset rejects
     # documentation placeholders such as `ghp_your_github_token` and
-    # `ghp_your_new_github_token` (AIM-128: the sole secret firing in the AIM-117
+    # `ghp_your_new_github_token` (the sole secret firing in the
     # dogfood backtest was one such placeholder) while still matching real
     # leaked tokens; placeholder suppression stays as a same-char backstop.
     _ValidatedRule("secret:github-token", re.compile(
@@ -345,7 +345,7 @@ _TOKEN_RULES: list[_ValidatedRule] = [
         r"\bsk-([A-Za-z0-9_\-]{20,})\b", re.IGNORECASE), _token_ok, True),
     _ValidatedRule("secret:anthropic-key", re.compile(
         r"\bsk-ant-([A-Za-z0-9_\-]{20,})\b", re.IGNORECASE), _token_ok, True),
-    # --- additional token types (AIM-96), all placeholder-suppressed --------
+    # --- additional token types, all placeholder-suppressed --------
     _ValidatedRule("secret:google-api-key", re.compile(
         r"\bAIza([0-9A-Za-z_\-]{35})\b"), _token_ok, True),
     # Live + restricted keys only: pk_ is publishable by design, sk_test is
@@ -373,7 +373,7 @@ _SLACK_WEBHOOK_RULE = _ValidatedRule("secret:slack-webhook", re.compile(
     re.IGNORECASE), _token_ok, False)
 
 
-# --- JWT: candidate + header-decode validation (AIM-96) --------------------
+# --- JWT: candidate + header-decode validation --------------------
 
 _JWT_CANDIDATE = re.compile(
     r"\b(eyJ[A-Za-z0-9_\-]{8,})\.[A-Za-z0-9_\-]{8,}\.[A-Za-z0-9_\-]{4,}\b")
@@ -418,7 +418,7 @@ def _cc_ok(m: re.Match) -> bool:
 
 # --- US SSN: candidate + structural validity --------------------------------
 
-# Dot separators allowed (AIM-578); 3-2-4 + structural checks keep FP guards green.
+# Dot separators allowed; 3-2-4 + structural checks keep FP guards green.
 _SSN_CANDIDATE = re.compile(r"\b(\d{3})[ .\-]?(\d{2})[ .\-]?(\d{4})\b")
 
 
@@ -441,7 +441,7 @@ def _iban_ok(m: re.Match) -> bool:
     return int(digits) % 97 == 1
 
 
-# --- ES DNI/NIE: candidate + check letter (AIM-96) --------------------------
+# --- ES DNI/NIE: candidate + check letter --------------------------
 
 _ES_DNI_CANDIDATE = re.compile(r"\b(\d{8}|[XYZ]\d{7})[ -]?([A-Z])\b", re.IGNORECASE)
 _ES_DNI_LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE"
@@ -456,7 +456,7 @@ def _es_dni_ok(m: re.Match) -> bool:
     return _ES_DNI_LETTERS[int(body) % 23] == letter
 
 
-# --- FR NIR (INSEE): candidate + mod-97 key (AIM-96) ------------------------
+# --- FR NIR (INSEE): candidate + mod-97 key ------------------------
 
 _FR_NIR_CANDIDATE = re.compile(
     r"\b([1278])\s?(\d{2})\s?(\d{2})\s?(\d{2}|2[AB])\s?(\d{3})\s?(\d{3})\s?(\d{2})\b",
@@ -475,7 +475,7 @@ def _fr_nir_ok(m: re.Match) -> bool:
     return 97 - (n % 97) == int(key)
 
 
-# --- DE Steuer-ID (IdNr): candidate + ISO 7064 Mod 11,10 (AIM-96) -----------
+# --- DE Steuer-ID (IdNr): candidate + ISO 7064 Mod 11,10 -----------
 
 _DE_STEUERID_CANDIDATE = re.compile(r"\b(\d{11})\b")
 
@@ -496,7 +496,7 @@ def _de_steuerid_ok(m: re.Match) -> bool:
     return check == int(digits[10])
 
 
-# --- IT codice fiscale: structural candidate + month/day checks (AIM-96) ----
+# --- IT codice fiscale: structural candidate + month/day checks ----
 # The check-character table (odd/even position values) is not reproduced —
 # structure + month-letter + day-range keeps precision acceptable; documented
 # as structure-only in the capability statement.
@@ -531,11 +531,11 @@ _VALIDATED_RULES: list[_ValidatedRule] = _TOKEN_RULES + [
 _B64_CANDIDATE = re.compile(r"(?<![A-Za-z0-9+/=])[A-Za-z0-9+/]{24,}={0,2}(?![A-Za-z0-9+/=])")
 _B64_LINE = re.compile(r"^[A-Za-z0-9+/]{4,}={0,2}$")
 _B64_MAX_BLOBS = 64
-# Depth-1 was the original bound (CPU/DoS). AIM-578 permits one nested decode
+# Depth-1 was the original bound (CPU/DoS). permits one nested decode
 # so base64-of-base64 secret wrappers are caught; depth >2 still evades by design.
 _B64_MAX_DEPTH = 2
 
-# --- targeted hex decode-and-rescan (AIM-578 / F-match-1 class) -------------
+# --- targeted hex decode-and-rescan (F-match-1 class) -------------
 # Even-length hex runs of ≥24 chars (12+ decoded bytes). Only UTF-8-clean
 # decodes are re-scanned — commit hashes / random digests almost always fail
 # strict UTF-8 or fail to match any token pattern, so this stays precision-safe.
@@ -555,7 +555,7 @@ def rule_names() -> list[str]:
 
 
 class Match(NamedTuple):
-    """One detector occurrence, IN-PROCESS ONLY (AIM-225).
+    """One detector occurrence, IN-PROCESS ONLY.
 
     `matched` is the raw matched text. The collector's event builder turns it
     into a redacted fingerprint (keyed, truncated HMAC) and discards it; it
@@ -585,7 +585,7 @@ def _scan_plain_matches(text: str, squash: bool, surface: str) -> list[Match]:
 def _mime_join_b64(text: str) -> str:
     """Join consecutive pure-base64 lines (MIME-style short wraps) into blobs.
 
-    AIM-578 / F-match-3: blob extraction requires a contiguous ≥24-char run;
+    / F-match-3: blob extraction requires a contiguous ≥24-char run;
     MIME wraps of 16-char lines otherwise decode as garbage per fragment.
     Non-base64 lines break the join so prose is never welded across paragraphs.
     """
@@ -636,7 +636,7 @@ def _scan_base64_matches(text: str, depth: int = 1) -> list[Match]:
 
 
 def _scan_hex_matches(text: str) -> list[Match]:
-    """Decode even-length hex runs and re-scan plain (AIM-578)."""
+    """Decode even-length hex runs and re-scan plain."""
     out: list[Match] = []
     for m in list(_HEX_CANDIDATE.finditer(text))[:_HEX_MAX_BLOBS]:
         blob = m.group(0)
@@ -702,7 +702,7 @@ def scan_obj(obj) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# Inline redaction (AIM-320)
+# Inline redaction
 # ---------------------------------------------------------------------------
 #
 # scan_text is multi-pass (raw / normalized / squashed / base64-rescan), but
@@ -724,7 +724,7 @@ class Redaction(NamedTuple):
 
 
 #: Detector-name prefixes redact_text covers by default: the high-precision
-#: secret rules that passed the AIM-296 enforce gate. PII/injection detectors
+#: secret rules that passed the enforce gate. PII/injection detectors
 #: are deliberately NOT defaulted in — structured PII can be opted in by the
 #: caller; prose (injection) patterns are NEVER redactable (rewriting a
 #: sentence is not redaction, it is silent content mutation) and are excluded

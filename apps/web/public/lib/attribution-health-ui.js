@@ -1,6 +1,6 @@
-/* AIM-1007 — pure helpers for the live Attribution health panel.
+/* — pure helpers for the live Attribution health panel.
  *
- * Epic A gate (AIM-487) re-measure shape from AIM-868:
+ * Epic A gate re-measure shape:
  *   - windows 1h / 24h / 7d with pct_ok + n
  *   - 7d gate threshold ≥95%
  *   - last attributed timestamp with >15m stale warning

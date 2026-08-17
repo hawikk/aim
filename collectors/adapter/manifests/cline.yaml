@@ -1,4 +1,4 @@
-# Cline + Roo Code — one named tool_raw=cline (AIM-1169). Depth from
+# Cline + Roo Code — one named tool_raw=cline. Depth from
 # inspected vendor stores, not a collector fork:
 #   Cline 4.x: ~/.cline/data/globalState.json taskHistory[] (HistoryItem:
 #     id, ts, tokensIn, tokensOut, modelId, totalCost; `task` is prompt).

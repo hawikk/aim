@@ -1,4 +1,4 @@
--- 027_scim_provisioning.sql — AIM-713: SCIM 2.0 User/Group provisioning store.
+-- 027_scim_provisioning.sql — SCIM 2.0 User/Group provisioning store.
 --
 -- Enterprise IdPs (Okta / Entra / Google) push user and group lifecycle into
 -- AIM via /scim/v2/*. This migration is the durable directory those routes

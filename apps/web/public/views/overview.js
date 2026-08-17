@@ -1,6 +1,6 @@
-/* Overview view (AIM-481) — pure-moved from app.js (AIM-527).
- * AIM-707: widget order + KPI emphasis follow the active home persona.
- * AIM-1007: live Attribution health panel (1h/24h/7d Epic A gate). */
+/* Overview view — pure-moved from app.js.
+ * widget order + KPI emphasis follow the active home persona.
+ * live Attribution health panel (1h/24h/7d Epic A gate). */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, relTime, fmtUsd } from '../lib/format.js';
 import { state, hashFor, api } from '../lib/runtime.js';
@@ -12,8 +12,8 @@ import { findingsHash } from '../lib/view-filters.js';
 import { loadAttributionHealthPanel } from '../lib/attribution-health-panel.js';
 import { mergeVendorTools, renderVendorFeedBanner, vendorFeedEmpty } from '../lib/vendor-feeds.js';
 
-/* AIM-481 Overview helpers: tool columns shared by the sanctioned / unapproved
- * split tables. Severity ordering comes from lib/severity.js (AIM-524). */
+/* Overview helpers: tool columns shared by the sanctioned / unapproved
+ * split tables. Severity ordering comes from lib/severity.js. */
 const OV_TOOL_COLS = [
   { key: 'tool', label: 'Tool', render: (r) => `<a href="${hashFor('tools', r.tool)}">${esc(r.tool)}</a>` },
   { key: 'users', label: 'Users', num: true, render: (r) => fmtInt(r.users) },
@@ -34,7 +34,7 @@ function renderOverviewAlerts(openFindings, canFindings) {
   /* openFindings is already the union of the critical + high API pulls —
    * do not re-filter on the raw label. The alert corpus ships labels like
    * "catastrophic" that only band via severity_id; dropping them here is how
-   * a real critical vanishes from the front page (AIM-524). */
+   * a real critical vanishes from the front page. */
   const rows = [...(openFindings?.findings ?? [])]
     .sort((a, b) => compareSeverity(a.severity ?? a.band, b.severity ?? b.band)
       || new Date(b.detectedAt) - new Date(a.detectedAt))
@@ -73,7 +73,7 @@ function renderHomeBanner(persona) {
 /** KPI row ordered for the active persona — same data, different lead questions. */
 function overviewKpis(d, { persona, canFindings, canUsers, critCount, prev }) {
   const usersHref = canUsers ? hashFor('users') : hashFor('teams');
-  // AIM-589: keep shared range via hashFor — bare '#/activity' drops ?days=.
+  // keep shared range via hashFor — bare '#/activity' drops ?days=.
   const eventsHref = canUsers ? hashFor('activity') : hashFor('tools');
   const critTone = critCount > 0 ? 'bad' : null;
   const critDelta = canFindings
@@ -85,7 +85,7 @@ function overviewKpis(d, { persona, canFindings, canUsers, critCount, prev }) {
   const attrTone = d.attribution?.alert || (attrPct != null && attrPct > (d.attribution?.targetPct ?? 5))
     ? 'bad'
     : (attrPct != null && attrPct > 0 ? 'warn' : 'good');
-  // AIM-551 / AIM-589: critical KPI must land on open+critical with range, not bare #/findings.
+  // critical KPI must land on open+critical with range, not bare #/findings.
   const critHref = canFindings
     ? findingsHash({ fstatus: 'open', fsev: 'critical', days: state.days })
     : null;
@@ -118,7 +118,7 @@ function overviewKpis(d, { persona, canFindings, canUsers, critCount, prev }) {
   };
 
   // Persona answerability: SOC = what is on fire; SecEng = what is unsanctioned;
-  // Admin = is the fleet covered. Viewer/null keeps the AIM-481 default set.
+  // Admin = is the fleet covered. Viewer/null keeps the default set.
   if (persona === 'soc') {
     return [cards.critical, cards.events, cards.users, cards.unapproved].join('');
   }
@@ -132,10 +132,10 @@ function overviewKpis(d, { persona, canFindings, canUsers, critCount, prev }) {
 }
 
 export async function loadOverview() {
-  // AIM-481 front page: four honest KPIs (each links to its backing view),
+  // front page: four honest KPIs (each links to its backing view),
   // an events sparkline, a top-alerts strip into Findings, and a sanctioned vs
   // unapproved tool split. No vanity hosts/sessions/tokens tiles.
-  // AIM-707: persona reorders widgets and KPI emphasis; never blanks the page.
+  // persona reorders widgets and KPI emphasis; never blanks the page.
   const persona = resolveHomeRole(state.me);
   applyHomeWidgets($('#view-overview'), persona);
   renderHomeBanner(persona);
@@ -180,14 +180,14 @@ export async function loadOverview() {
   const critCount = canFindings ? (crit?.total ?? 0) : null;
 
   $('#ov-cards').innerHTML = overviewKpis(d, { persona, canFindings, canUsers, critCount, prev });
-  // AIM-1007: Epic A multi-window panel — fire-and-forget so Overview KPIs
+  // Epic A multi-window panel — fire-and-forget so Overview KPIs
   // still paint if attribution-health is slow or missing on older backends.
   void loadAttributionHealthPanel('#ov-attr-health', '#ov-attr-health-verified');
   renderOverviewAttribution(d.attribution, d.lastVerifiedAt);
   if (d.trend.length === 0) {
     setChartState('#ov-trend', true, EMPTY.overviewTrend);
   } else {
-    // Prefer events when the API supplies them (AIM-481); fall back to sessions
+    // Prefer events when the API supplies them; fall back to sessions
     // on older backends so a partial deploy never blanks the sparkline.
     const spark = d.trend.map((t) => (t.events != null ? t.events : t.sessions));
     const series = [{ label: 'Events', data: spark, token: ACCENT }];
@@ -222,7 +222,7 @@ export async function loadOverview() {
   state.tools = d.tools.map((t) => t.tool);
 }
 
-/* AIM-452: first-class attributed vs unattributed rate on Overview.
+/*: first-class attributed vs unattributed rate on Overview.
  * Threshold breach is already an alert-bus candidate on the API; this panel
  * is the operator-facing trend and the by-tool / by-host split. */
 function renderOverviewAttribution(att, fallbackVerified) {

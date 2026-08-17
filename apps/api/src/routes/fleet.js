@@ -1,28 +1,28 @@
-// Fleet / collector coverage API (AIM-80 / AIM-439 / AIM-645). Reads the device
-// registry written by ingest enrollment + heartbeats (AIM-28) from the same
+// Fleet / collector coverage API. Reads the device
+// registry written by ingest enrollment + heartbeats from the same
 // Postgres the dashboard already reads. Health semantics mirror ingest's
 // coverage rollup (services/ingest/src/device-store.ts): healthy = last
 // heartbeat within 1x the device's own heartbeat interval, stale = within 3x,
 // dead = older, never_seen = no heartbeat yet; revoked devices are excluded
 // entirely.
 //
-// AIM-452: a device that stops reporting becomes a coverage *gap* within one
+// a device that stops reporting becomes a coverage *gap* within one
 // heartbeat interval (stale), not a silent disappearance. Every coverage
 // claim carries lastVerifiedAt so a stale number is visibly stale.
 //
-// AIM-619 / AIM-588: optional `trend` is a multi-day series from
+// optional `trend` is a multi-day series from
 // fleet_coverage_daily — real daily snapshots, never a single live rollup
 // repeated across days. Scheduler + on-read upsert keep "today" current;
 // prior days freeze at their last capture. Frontend soft-fails when trend is
 // empty/missing.
-// AIM-612 / AIM-588: optional `trend` (daily coverage rollup for the Fleet
+// optional `trend` (daily coverage rollup for the Fleet
 // chart) is intentionally omitted. There is no coverage history store —
 // devices only hold the live snapshot (last_heartbeat_at). Do not invent a
 // multi-day series from the current snapshot alone. The frontend soft-fails
 // to an honest empty state until a real daily rollup (snapshot table or
 // heartbeat-derived history) lands.
 //
-// AIM-645: collector coverage SLO — ≥99% of enrolled fleet is SLO-healthy.
+// collector coverage SLO — ≥99% of enrolled fleet is SLO-healthy.
 // SLO-healthy is stricter than the green heartbeat bucket: version present,
 // last_event_at (liveness heartbeat) fresh within 1× interval, and no active
 // client-side errors. Enrollment grace (24h) excludes brand-new never_seen
@@ -31,7 +31,7 @@
 //
 // GATED to the security group, same as /api/findings (privacy gate): fleet
 // inventory is operator/security data. device_token_hash is never selected.
-// Raw last_counters JSON never leaves the API either — AIM-439 projects the
+// Raw last_counters JSON never leaves the API either — projects the
 // drop-health fields collectors already report on heartbeat (events_rejected,
 // events_spooled, batches_fully_rejected, last_rejection_at) so silent
 // client-side loss is first-class, not buried in an opaque blob.
@@ -41,11 +41,11 @@ import { requireRoles } from '../auth.js';
 // Health thresholds in multiples of the device's own heartbeat interval
 // (mirror services/ingest/src/device-store.ts).
 // STALE_INTERVALS = 1 means a missed heartbeat is a coverage gap within one
-// interval (AIM-452 AC4), not after three.
+// interval (AC4), not after three.
 const STALE_INTERVALS = 1;
 const DEAD_INTERVALS = 3;
 
-// AIM-439: a drop is "active" when the collector last recorded a rejection
+// a drop is "active" when the collector last recorded a rejection
 // within this many seconds (default 2× the usual 5m heartbeat interval).
 // Lifetime counters stay visible forever; only the active window pages.
 const DEFAULT_DROP_RECENT_SEC = 900;
@@ -54,7 +54,7 @@ const _DAY_MS = 86_400_000;
 const DEFAULT_TREND_DAYS = 30;
 const DEFAULT_HISTORY_RETENTION_DAYS = 365;
 const DEFAULT_SNAPSHOT_CHECK_MS = 3600_000; // hourly
-// AIM-866: offset pagination for /api/fleet (path-to-5k). Default page ≤ 100
+// offset pagination for /api/fleet (path-to-5k). Default page ≤ 100
 // for UI; rollup counts (deployed/healthy/…) stay fleet-wide. p95 latency
 // budget ≤ 400 ms @ 700 seats / page (docs/frontend-performance-budget.md §4.1;
 // docs/api-read-path-pagination.md).
@@ -73,7 +73,7 @@ function parseFleetOffset(q) {
   return Math.floor(n);
 }
 
-// AIM-645 collector coverage SLO defaults.
+// collector coverage SLO defaults.
 /** Target share of enrolled (grace-adjusted) devices that must be SLO-healthy. */
 export const DEFAULT_COVERAGE_SLO_TARGET_PCT = 99;
 /** Enrollment grace: never_seen devices younger than this are out of denom. */
@@ -103,7 +103,7 @@ function parseDays(q, def = DEFAULT_TREND_DAYS, max = 365) {
 }
 
 /**
- * UTC calendar day as midnight ISO (AIM-588 fixture contract).
+ * UTC calendar day as midnight ISO (fixture contract).
  * @param {Date|string|number} [when]
  */
 export function utcDayIso(when = new Date()) {
@@ -148,7 +148,7 @@ export function coverageSloWindowSeconds(env = process.env) {
 }
 
 /**
- * AIM-645: per-device SLO health.
+ * per-device SLO health.
  *
  * A device is SLO-healthy when ALL of:
  *   1. version — non-empty collector_version
@@ -202,7 +202,7 @@ export function evaluateDeviceSloHealth({
 }
 
 /**
- * AIM-645: fleet-level collector coverage SLO.
+ * fleet-level collector coverage SLO.
  *
  * Coverage = sloHealthy / inScope, where inScope is enrolled non-revoked
  * devices minus never_seen enrollments still inside the 24h grace window.
@@ -305,7 +305,7 @@ export function evaluateCollectorCoverageSlo(devices, opts = {}) {
 
 /**
  * Project safe, typed drop-health fields from a heartbeat counters object.
- * Pure so fleet + system-status share the same semantics (AIM-439).
+ * Pure so fleet + system-status share the same semantics.
  *
  * @param {unknown} counters raw last_counters JSON (object or null)
  * @param {number} nowMs
@@ -436,7 +436,7 @@ export function coverageRollupFromSummary(summary, when = new Date()) {
 }
 
 /**
- * Map DB history rows → AIM-588 trend points (sorted ascending by day).
+ * Map DB history rows → trend points (sorted ascending by day).
  * @param {Array<Record<string, unknown>>} rows
  */
 export function historyRowsToTrend(rows) {
@@ -555,7 +555,7 @@ export async function snapshotFleetCoverage(db, opts = {}) {
 }
 
 // opts.db is injectable for tests; defaults to the real pg pool.
-// opts.history / opts.snapshots control the AIM-619 daily history path.
+// opts.history / opts.snapshots control the daily history path.
 export async function fleetRoutes(fastify, opts) {
   const db = opts?.db ?? { query };
   const userLevel = requireRoles('analyst', 'admin');
@@ -678,7 +678,7 @@ export async function fleetRoutes(fastify, opts) {
     const trendDays = parseDays(req.query, DEFAULT_TREND_DAYS);
     try {
       const trend = await loadCoverageTrend(db, trendDays);
-      // AIM-612: omit trend entirely when history is empty — never invent a
+      // omit trend entirely when history is empty — never invent a
       // single-day series from the live snapshot.
       if (Array.isArray(trend) && trend.length > 0) {
         summary.trend = trend;

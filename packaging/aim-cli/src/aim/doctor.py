@@ -13,13 +13,13 @@ It answers five questions and, with `--fix`, acts on the ones it can:
      and `--fix` re-installs the hook **without touching the spool**, so no
      events queued before the clobber are lost.
   3. Spool — is anything queued locally, and can it drain? `--fix` flushes.
-  4. Rejections — did ingest refuse events inside an HTTP 200 (AIM-200)? Those
+  4. Rejections — did ingest refuse events inside an HTTP 200? Those
      already left the spool, so there is nothing to repair; the check exists so
      the loss is *stated* at the endpoint instead of reading as a clean send.
      `--ack-rejections` (never `--fix`) clears the ledger.
   5. Auto-start service — is the per-user watcher registered and running, so
      collection survives a reboot? `--fix` (re-)registers and starts it.
-  6. Enforcement bundle (AIM-440) — is the declared secret-pattern enforce
+  6. Enforcement bundle — is the declared secret-pattern enforce
      policy actually loaded on this endpoint? A missing or stale shadow bake
      is the compliance gap where policy claims ``mode: enforce`` but every
      finding stays ``decision: observe``. `--fix` seeds/upgrades the
@@ -204,7 +204,7 @@ def _check_service(enrolled):
 
 
 def _check_enforcement():
-    """AIM-440: declared enforce posture must match the loaded endpoint bundle.
+    """declared enforce posture must match the loaded endpoint bundle.
 
     Platform findings always carry ``decision: observe`` (engine is detect-and-
     alert only). Real blocks live on usage events as ``enforcement.action``.
@@ -264,13 +264,13 @@ def _check_enforcement():
         "enforcement", _FAIL,
         f"loaded mode={mode} secret-pattern.enforce={secret} hash={phash} "
         f"at {path}; declared posture is mode=enforce + "
-        "secret-pattern-in-prompt (AIM-296). Findings will stay "
+        "secret-pattern-in-prompt. Findings will stay "
         "decision=observe until the enforce bundle is delivered.",
         remedy="enforcement")]
 
 
 def _check_rejections():
-    """Events ingest refused inside a 2xx (AIM-200).
+    """Events ingest refused inside a 2xx.
 
     These already left the spool — nothing local can replay them, so there is
     no remedy flag. The value of the check is that the loss is *stated*: a
@@ -288,7 +288,7 @@ def _check_rejections():
             path = str(spool.rejections_path())
         except Exception as e:  # noqa: BLE001
             # An unreadable ledger is not "no rejections". A collector older
-            # than AIM-200 has no rejections() at all, and staying silent here
+            # than has no rejections() at all, and staying silent here
             # would rebuild the silent drop one layer up.
             findings.append(Finding(
                 tool.label, _WARN,

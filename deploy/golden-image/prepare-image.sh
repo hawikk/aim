@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-745 — golden-image prepare (Linux / WSL template host).
+# — golden-image prepare (Linux / WSL template host).
 #
 # Installs the collector payload + scheduler at *image build time* without
 # binding a device identity. Pair with seal-for-clone.sh before generalize

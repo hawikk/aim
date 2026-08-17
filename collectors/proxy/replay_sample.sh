@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Replay a (sanitized) proxy log sample through the ingestion connector and
-# verify the output — the AIM-50 acceptance check for IT-provided samples.
+# verify the output — the acceptance check for IT-provided samples.
 #
 # Usage:
 #   ./replay_sample.sh <sample-file> [format]

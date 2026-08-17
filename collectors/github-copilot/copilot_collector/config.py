@@ -1,4 +1,4 @@
-"""Managed configuration resolution (AIM-36). Identical contract to the
+"""Managed configuration resolution. Identical contract to the
 Claude Code collector: a managed JSON file dropped by endpoint tooling,
 with env overrides for dev.
 
@@ -48,7 +48,7 @@ def config_path() -> Path | None:
 def load() -> dict:
     """Parsed config dict; {} if no file or unreadable/invalid.
 
-    AIM-749: prefer signed/harden load when ``collectors.integrity`` is
+    prefer signed/harden load when ``collectors.integrity`` is
     importable; fall back to bare JSON so pilot hooks never hard-fail.
     """
     p = config_path()
@@ -82,7 +82,7 @@ def ingest_url() -> str | None:
 def token() -> str | None:
     """Resolve the events bearer for spool flush.
 
-    Order (AIM-443 / AIM-319):
+    Order:
       1. ``AIM_COLLECTOR_TOKEN`` env — explicit operator override
       2. ``<state dir>/device_token`` — enrollment-issued per-device bearer
       3. ``token_file`` from managed config
@@ -90,7 +90,7 @@ def token() -> str | None:
 
     Heartbeat already uses the device token. Preferring it for events too
     means re-enrollment cannot leave the event path on a stale shared
-    bearer while liveness stays green (the AIM-443 dogfood failure mode:
+    bearer while liveness stays green (the dogfood failure mode:
     141k events lost to ``auth_rejected: HTTP 401`` with a healthy device).
     """
     env = os.environ.get("AIM_COLLECTOR_TOKEN")

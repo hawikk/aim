@@ -1,4 +1,4 @@
-/** First-party vendor admin daily rollup (AIM-1168). Org-level only. */
+/** First-party vendor admin daily rollup. Org-level only. */
 
 export const VENDOR_FEEDS = ["copilot_metrics", "cursor_analytics", "claude_otel"] as const;
 export type VendorFeedId = (typeof VENDOR_FEEDS)[number];

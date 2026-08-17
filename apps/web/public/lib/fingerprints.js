@@ -1,4 +1,4 @@
-/* AIM-225 / AIM-541 — extract redacted secret fingerprints from finding
+/* — extract redacted secret fingerprints from finding
  * evidence and optionally annotate them with fixture-registry cluster hints.
  *
  * Findings never carry matched content; secret/pii match_flags entries carry
@@ -8,7 +8,7 @@
  * structure and returns the deduped fingerprint list for display: enough for
  * an analyst to prove and dedupe a finding without ever seeing the secret.
  *
- * AIM-541: when a fingerprint is in the company fixture allowlist (offline
+ * when a fingerprint is in the company fixture allowlist (offline
  * HMAC of known dead keys with AIM_HASH_SALT), suggest incident cluster A
  * (known synthetic / fixture). The registry stores only
  * detector+fingerprint+label+source — never raw secrets.

@@ -1,5 +1,5 @@
-/* Chart.js helpers pure-moved from app.js (AIM-527), with AIM-514 token retheme.
- * AIM-588: pure series builders live in chart-series.js (DOM-free for unit tests). */
+/* Chart.js helpers pure-moved from app.js, with token retheme.
+ * pure series builders live in chart-series.js (DOM-free for unit tests). */
 import { $ } from './dom.js';
 import { fmtInt } from './format.js';
 import { emptyState } from './components.js';
@@ -19,12 +19,12 @@ export { detectionVolumeSeries, enforcementBlocksSeries, fleetCoverageSeries, WA
 
 export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-/* AIM-514: a chart color is a TOKEN NAME here, never a hex captured at import. */
+/*: a chart color is a TOKEN NAME here, never a hex captured at import. */
 export const ACCENT = SERIES_ACCENT || '--accent';
 export const GOOD = SERIES_GOOD || '--good';
 export const BAD = SERIES_BAD || '--bad';
-/* AIM-151: one accent + semantic set + two neutrals. */
-/* AIM-524: slot 6 was --sev-high, so a sixth series impersonated a high badge.
+/*: one accent + semantic set + two neutrals. */
+/*: slot 6 was --sev-high, so a sixth series impersonated a high badge.
  * Status colours are reserved; categorical series must not sit on --sev-*. */
 export const PALETTE = [ACCENT, GOOD, '--warn', BAD, '--muted', '--accent-solid'];
 
@@ -45,13 +45,13 @@ function applyChartDefaults() {
   Chart.defaults.plugins.tooltip.bodyColor = cssVar('--chart-tooltip-body');
   Chart.defaults.plugins.tooltip.padding = 10;
   Chart.defaults.plugins.tooltip.cornerRadius = 4;
-  /* Fixed short duration. Avoid layout thrash on repaint (AIM-588). */
+  /* Fixed short duration. Avoid layout thrash on repaint. */
   Chart.defaults.animation.duration = 150;
 }
 applyChartDefaults();
 
 export const charts = {};
-/* chart instance -> re-resolve token colors. WeakMap so destroyed charts drop out (AIM-514). */
+/* chart instance -> re-resolve token colors. WeakMap so destroyed charts drop out. */
 const recolorers = new WeakMap();
 
 const tint = (hex) => (hex?.startsWith('#') && hex.length === 7 ? `${hex}1a` : hex);
@@ -162,7 +162,7 @@ export function barChart(id, labels, data, label, summary, opts = {}) {
   setChartState(id, false, null, summary);
 }
 
-/* Re-resolve every token-derived color and repaint in place (AIM-514). */
+/* Re-resolve every token-derived color and repaint in place. */
 function rethemeCharts() {
   applyChartDefaults();
   for (const chart of Object.values(charts)) {
@@ -173,7 +173,7 @@ function rethemeCharts() {
 }
 /**
  * Wire theme toggle + chart re-coloring. Must run from the cache-busted app.js
- * bootstrap on every harness mount (AIM-551 / AIM-527): `public/lib/*` modules
+ * bootstrap on every harness mount: `public/lib/*` modules
  * are deliberately shared across mounts, so a top-level call here only fires
  * once and leaves later mounts with a dead toggle (theme.test.js).
  */
@@ -204,7 +204,7 @@ export function chartSummary(kind, labels, series) {
   return `${kind} chart over ${labels.length} day(s). ${totals.join('; ')}.`;
 }
 
-/* Underscore aliases for AIM-527 private import names used by views/*.js. */
+/* Underscore aliases private import names used by views/*.js. */
 export {
   ACCENT as _ACCENT,
   GOOD as _GOOD,

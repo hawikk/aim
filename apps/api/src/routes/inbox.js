@@ -1,7 +1,7 @@
-// Unified inbox: shell-side ack/snooze state + stack health (AIM-160).
+// Unified inbox: shell-side ack/snooze state + stack health.
 //
 // The inbox UI (apps/web/public/inbox.js) renders the cross-pillar alerts
-// served by routes/alerts.js (AIM-158). Acknowledgement is SHELL state: it is
+// served by routes/alerts.js. Acknowledgement is SHELL state: it is
 // stored by this API in alert_inbox_state (migration 017) and never written
 // back into any pillar's own store (D1) — the shell reads the bus, it does
 // not mutate the pillars. State is keyed on the contract's alert_id (a uuid4)
@@ -10,7 +10,7 @@
 //
 // Same privacy gate as /api/alerts (analyst+): the state map reveals which
 // alerts an analyst has seen, which is user-level metadata. Every mutation is
-// recorded in the immutable audit trail (AIM-27), mirroring findings triage.
+// recorded in the immutable audit trail, mirroring findings triage.
 //
 // GET /api/stack/health lives here too: it is the other half of the shell's
 // chrome (health strip + pillar deep links) and shares the module's gate.
@@ -153,7 +153,7 @@ async function probe({ name, url, ui }) {
     // A service that answers 200 may still report itself degraded (sentinel's
     // /healthz stays 200 so compose does not restart it — the body carries the
     // state). Without this, "no notification channel configured" rendered as a
-    // green dot (AIM-250). Only the single token 'degraded' is adopted; any
+    // green dot. Only the single token 'degraded' is adopted; any
     // other body is treated as ok.
     const degraded = await readDegradedDetail(res);
     if (degraded) {

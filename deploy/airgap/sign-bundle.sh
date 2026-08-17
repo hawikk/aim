@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sign an AIM air-gap tarball with Ed25519 (OpenSSL) — AIM-747.
+# Sign an AIM air-gap tarball with Ed25519 (OpenSSL).
 #
 # Usage:
 #   AIM_AIRGAP_SIGNING_KEY=/path/to/priv.pem \

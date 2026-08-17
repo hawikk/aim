@@ -1,5 +1,5 @@
-/* Users view (AIM-79) — pure-moved from app.js (AIM-527).
- * AIM-867: page the list at ≤100 rows; never re-assemble multi-MB full lists. */
+/* Users view — pure-moved from app.js.
+ * page the list at ≤100 rows; never re-assemble multi-MB full lists. */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, fmtMs, fmtUsd, fmtTs } from '../lib/format.js';
 import { state, hashFor, api, showError } from '../lib/runtime.js';
@@ -16,7 +16,7 @@ import { usersListTruncation, usersTruncationBannerCopy } from '../lib/users-lis
 let usersListPage = 1;
 let usersListDays = null;
 
-/** Paint or clear the LIMIT-cap honesty banner (AIM-865). */
+/** Paint or clear the LIMIT-cap honesty banner. */
 export function renderUsersTruncationBanner(payload) {
   const el = $('#users-truncation-banner');
   if (!el) return;
@@ -38,7 +38,7 @@ export async function loadUsers() {
     }
     const req = pageRequest({ page: usersListPage, pageSize: DEFAULT_PAGE_SIZE });
     const d = await api(withPageParams(`/api/users?days=${state.days}`, req));
-    // AIM-865: fleet-wide hard cap honesty (separate from AIM-867 page banner).
+    // fleet-wide hard cap honesty (separate page banner).
     renderUsersTruncationBanner(d);
     const page = resolvePage({
       rows: d.users,
@@ -136,7 +136,7 @@ export async function renderUserDetail() {
     <h2>Linked findings</h2><div class="table-wrap" tabindex="0" role="region" aria-label="Findings linked to this user, scrollable"><table id="user-detail-findings"></table></div>
     <p><a class="btn btn-ghost btn-sm" id="open-findings-console" href="${esc(entityHref('findings', null, { days: state.days }))}">Triage in findings console →</a></p>`,
   });
-  // AIM-589: navigate via the hash (preserves days) instead of a synthetic tab click.
+  // navigate via the hash (preserves days) instead of a synthetic tab click.
   box.querySelector('#open-findings-console')?.addEventListener('click', (ev) => {
     const href = entityHref('findings', null, { days: state.days });
     if (!setHash(location, href)) navigateToView('findings');

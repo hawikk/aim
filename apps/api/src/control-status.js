@@ -1,4 +1,4 @@
-// Continuous control monitoring status (AIM-694).
+// Continuous control monitoring status.
 //
 // Each framework control is evaluated against live mapped guardrail rules and
 // open findings in the report window. Weekly / on-demand snapshots store the

@@ -1,14 +1,14 @@
-// AIM-144: Live Activity Trail — per-event security score + cost, real-time tab.
+// Live Activity Trail — per-event security score + cost, real-time tab.
 //
 // Self-contained module: activates when the view-activity section is present and
 // capabilities.userLevel is true (analyst + admin).
 //
-// Split (AIM-1163, mirroring the AIM-1140 findings / AIM-1147 rules / AIM-1157
+// Split (mirroring the findings rules /
 // mcp splits) — the panels live in sibling modules with clear ownership:
 //   ./activity/state.js        shared view-private actx + reset
 //   ./activity/row.js          row + skeleton/empty/error renderers (pure)
 //   ./activity/feed.js         polling, cursor pagination, stream pause/resume
-//   ./activity/saved-views.js  /api/views saved-filter panel (AIM-587)
+// ./activity/saved-views.js /api/views saved-filter panel
 //
 // This file wires the controls, the delegated row interactions, the visibility
 // observer, and the panels in order. Keep it thin — new panel code goes in a
@@ -40,7 +40,7 @@ function init() {
 
   $('#act-load-more')?.addEventListener('click', loadMore);
 
-  // Saved views (AIM-587): bind before the delegated handlers so the
+  // Saved views: bind before the delegated handlers so the
   // clear-filters handoff can reach syncViewUI.
   const views = bindSavedViews();
 

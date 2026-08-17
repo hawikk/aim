@@ -1,9 +1,9 @@
-/* AIM-94 — pure triage logic shared by findings.js and the node:test suite.
+/* — pure triage logic shared by findings.js and the node:test suite.
  * DOM-free by design: findings.js renders and fetches; this module decides.
  * Kept dependency-free so node:test can import it without a browser. */
 
 // Valid finding statuses, in lifecycle order. The vocabulary maps onto the
-// Costa-style disposition lifecycle (AIM-223): new = Open, acknowledged =
+// Costa-style disposition lifecycle: new = Open, acknowledged =
 // Under Review, resolved + false_positive = Resolved (with an explicit
 // false-positive category).
 export const TRIAGE_STATUSES = ['new', 'acknowledged', 'resolved', 'false_positive'];
@@ -42,12 +42,12 @@ export function buildTriagePayload(status, note) {
   return payload;
 }
 
-// Body for POST /api/findings/triage (bulk, AIM-94) — same note rule, ids copied.
+// Body for POST /api/findings/triage (bulk) — same note rule, ids copied.
 export function buildBulkPayload(ids, status, note) {
   return { ids: [...ids], ...buildTriagePayload(status, note) };
 }
 
-/* AIM-223: transitions that REQUIRE a non-empty reason — client-side mirror
+/*: transitions that REQUIRE a non-empty reason — client-side mirror
  * of REASON_REQUIRED in apps/api/src/routes/findings.js. The API is the
  * enforcement point; this exists so the UI can refuse early with a clear
  * message instead of round-tripping a 400. */

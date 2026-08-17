@@ -1,10 +1,10 @@
-/* The fetch boundary for the dashboard (AIM-1089, AIM-453 Phase 1).
+/* The fetch boundary for the dashboard (Phase 1).
  *
  * Every view talks to the API through `api()` here. It used to be
  * reimplemented in sixteen view modules and the copies had diverged —
  * some read `body.error`, some did not; some handled 204, some would
  * throw trying to parse an empty body. Sixteen copies is sixteen things
- * to audit, same lesson as the esc extraction in AIM-523. This module is the
+ * to audit, same lesson as the esc extraction. This module is the
  * one copy.
  * The `no-local-api` guard in test/api.test.js fails the build if a view
  * reintroduces a local definition.

@@ -1,4 +1,4 @@
-"""MCP server config inventory for Cursor (schema v1.2, AIM-97/AIM-570).
+"""MCP server config inventory for Cursor (schema v1.2).
 
 Reports which MCP servers are CONFIGURED — name and scope only, never
 commands, args, URLs, or env values. One ``event_type="inventory"`` event

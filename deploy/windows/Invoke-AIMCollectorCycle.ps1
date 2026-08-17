@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Periodic collector cycle for Windows (AIM-28): per-user scan+flush, then
+  Periodic collector cycle for Windows: per-user scan+flush, then
   machine-level enroll/heartbeat so the fleet coverage dashboard can tell
   healthy devices from dead ones.
 

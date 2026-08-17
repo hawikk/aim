@@ -1,4 +1,4 @@
-# JetBrains AI Assistant — named presence (AIM-1176).
+# JetBrains AI Assistant — named presence.
 # Marketplace xmlId com.intellij.ml.llm. Inspected layout (2026-08-13):
 #   Config: <IDE_CONFIG>/options/llm.settings.xml (and llm.xml)
 #   Plugin dir: <IDE_CONFIG>/plugins/ml-llm or "AI Assistant"

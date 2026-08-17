@@ -1,4 +1,4 @@
-# Backup and restore runbook (AIM-98)
+# Backup and restore runbook
 
 Covers both deployment shapes: docker compose (single host) and Helm
 (Kubernetes). Commands are given for both; pick the block that matches your
@@ -10,7 +10,7 @@ deployment.
 | --- | --- | --- |
 | **Postgres** | `pgdata` volume / DB PVC | System of record: telemetry metadata, policies, audit trail, findings, enrollments. Lose this and you lose the platform's history. |
 | **MinIO bucket** | `minio-data` volume / object-store PVC | Raw event batches under `raw/` (see `docs/deployment/raw-batch-archival.md`) — the byte-exact forensics/replay copy. |
-| **Config/secrets** | `.env`, helm values, tokens, `AIM_HASH_SALT` | Needed to make a restored stack *the same* stack. The salt especially: pseudonymized joins depend on it (AIM-78). Store in your secrets manager, not in the backup dir. |
+| **Config/secrets** | `.env`, helm values, tokens, `AIM_HASH_SALT` | Needed to make a restored stack *the same* stack. The salt especially: pseudonymized joins depend on it. Store in your secrets manager, not in the backup dir. |
 
 **Not precious:** container images and the Helm chart — rebuildable from source
 or re-transferable via the air-gap bundle. Never waste backup capacity on them.
@@ -132,7 +132,7 @@ is older than expected, you restored an old dump — check the filename date.
 
 A backup you have never restored is a rumor.
 
-**Automated correctness proof (CI + local, AIM-291):**
+**Automated correctness proof (CI + local):**
 
 ```sh
 ./scripts/backup-restore-proof.sh
@@ -144,7 +144,7 @@ events/findings/retention_audit rows plus a filesystem object-store tree,
 DB/dir, and asserts matching counts, a retention_audit sample hash, and the
 `schema_migrations` ledger. CI runs it on every PR.
 
-**Automated pilot drill with measured RTO/RPO (AIM-598):**
+**Automated pilot drill with measured RTO/RPO:**
 
 ```sh
 # Write a durable drill log under docs/deployment/drills/ and keep work dir:

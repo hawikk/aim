@@ -1,12 +1,12 @@
 // Endpoint enforcement surfaces (combined).
 //
-// AIM-612  GET /api/enforcement                 — daily trend
-// AIM-789  GET /api/enforcement/coverage        — install-path + honor (Security panel)
-// AIM-788  GET /api/enforcement/rules[|/evidence] — mode matrix
-// AIM-567  GET /api/enforcement/break-glass     — analyst override trail
-// AIM-784  grants lifecycle under /break-glass/grants*
+// GET /api/enforcement — daily trend
+// GET /api/enforcement/coverage — install-path + honor (Security panel)
+// GET /api/enforcement/rules[|/evidence] — mode matrix
+// GET /api/enforcement/break-glass — analyst override trail
+// grants lifecycle under /break-glass/grants*
 //
-// AIM-781 fleet coverage (fail-open inventory) lives in enforcement-coverage.js
+// fleet coverage (fail-open inventory) lives in enforcement-coverage.js
 // at GET /api/enforcement/fleet-coverage (path split after concurrent merge).
 //
 // Privacy: metadata only — action, rule_id, policy_hash, grant lifecycle.
@@ -41,7 +41,7 @@ export function rate(numerator, denominator) {
   return Math.round((n / d) * 1000) / 1000;
 }
 
-/** Normalize a day key to UTC midnight ISO (matches AIM-588 fixture contract). */
+/** Normalize a day key to UTC midnight ISO (matches fixture contract). */
 export function dayIso(v) {
   if (v == null) return null;
   if (v instanceof Date) {
@@ -174,7 +174,7 @@ export function buildCoverage(input) {
   } else if (!covered) {
     installNote =
       'No event carried enforcement_posture.policy=loaded. Zero blocks means no coverage, not a clean fleet ' +
-      '(AIM-110 doctrine). Bundle delivery / collector install path is dark.';
+      '(doctrine). Bundle delivery / collector install path is dark.';
   } else {
     installNote =
       `${policyLoaded}/${eventsTotal} events (${eventCoverageRate}) and ` +
@@ -502,7 +502,7 @@ export async function enforcementRoutes(fastify, opts) {
   const userLevel = requireRoles('analyst', 'admin');
   const adminOnly = requireRoles('admin');
 
-  // GET /api/enforcement?days=N  (AIM-612)
+  // GET /api/enforcement?days=N
   fastify.get('/api/enforcement', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
     const days = parseDays(req.query, 30);
@@ -525,7 +525,7 @@ export async function enforcementRoutes(fastify, opts) {
     };
   });
 
-  // GET /api/enforcement/coverage?days=N  (AIM-789)
+  // GET /api/enforcement/coverage?days=N
   // Default window is 7d — install-path freshness for fleet posture, not a
   // month-long bake. Max 90 keeps the JSONB scans bounded for pilot scale.
   fastify.get('/api/enforcement/coverage', async (req, reply) => {
@@ -654,7 +654,7 @@ export async function enforcementRoutes(fastify, opts) {
     return pack;
   });
 
-  /* ---------- AIM-567: endpoint override trail ---------- */
+  /* ---------- endpoint override trail ---------- */
 
   fastify.get('/api/enforcement/break-glass', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
@@ -762,7 +762,7 @@ export async function enforcementRoutes(fastify, opts) {
     return body;
   });
 
-  /* ---------- AIM-784: grant control plane ---------- */
+  /* ---------- grant control plane ---------- */
 
   fastify.get('/api/enforcement/break-glass/grants', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
@@ -842,7 +842,7 @@ export async function enforcementRoutes(fastify, opts) {
       summary,
       grants,
       note:
-        'Enterprise break-glass grants (AIM-784). Default pilot path does not '
+        'Enterprise break-glass grants. Default pilot path does not '
         + 'require manager approval (secret_override_requires_manager=false). '
         + 'Approve/deny/revoke require admin. No prompt or secret content stored.',
     };
@@ -1340,7 +1340,7 @@ export async function enforcementRoutes(fastify, opts) {
       endpointSummary,
       policyNote:
         'secret_override_requires_manager defaults to false (pilot resubmit path). '
-        + 'Do not enable manager-required mode without CEO/Security sign-off. '
+        + 'Do not enable manager-required mode without Security sign-off. '
         + 'No prompt text or secret content is present in this pack.',
     };
 

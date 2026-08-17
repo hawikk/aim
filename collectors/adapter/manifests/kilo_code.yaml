@@ -8,7 +8,7 @@ legacy:
   package: collectors/kilo-code
   reason: >
     VS Code globalStorage task JSON (ui_messages / api_conversation_history)
-    plus standalone CLI SQLite sessions (AIM-647) and MCP inventory stay in
+    plus standalone CLI SQLite sessions and MCP inventory stay in
     collectors/kilo-code; manifest registers the tool on the shared contract.
 surfaces:
   - type: local_session_logs
@@ -22,7 +22,7 @@ surfaces:
       format: legacy
       session_glob: "tasks/*/ui_messages.json"
       source: endpoint
-  # Standalone CLI (AIM-647 dual surface) — separate on-disk store from the
+  # Standalone CLI (dual surface) — separate on-disk store from the
   # VS Code extension. Events tag tool_version as cli/<version>.
   - type: local_session_logs
     fidelity: depth

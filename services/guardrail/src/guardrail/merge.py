@@ -1,4 +1,4 @@
-"""Multi-source policy pack merge (AIM-691).
+"""Multi-source policy pack merge.
 
 Merges org + team + local guardrail packs into one effective ``Ruleset`` with
 documented precedence and security floors.

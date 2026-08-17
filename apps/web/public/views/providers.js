@@ -1,4 +1,4 @@
-/* Providers view — pure-moved from app.js (AIM-527). */
+/* Providers view — pure-moved from app.js. */
 import { $, esc } from '../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, fmtUsd } from '../lib/format.js';
 import { state, hashFor, api } from '../lib/runtime.js';

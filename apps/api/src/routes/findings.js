@@ -1,30 +1,30 @@
-// Security findings triage API (AIM-32). Findings are written post-ingest by
+// Security findings triage API. Findings are written post-ingest by
 // `guardrail evaluate-db` (services/guardrail) from the same metadata-only
 // event store the dashboard reads — detector names and pseudonyms only,
 // never matched content.
 //
 // All endpoints are GATED to the security group, same as /api/users
 // (privacy gate): findings carry user/host pseudonyms and rule evidence.
-// Triage transitions are recorded in the immutable audit trail (AIM-27).
+// Triage transitions are recorded in the immutable audit trail.
 //
-// AIM-223: every transition is ALSO persisted as an append-only row in
+// every transition is ALSO persisted as an append-only row in
 // finding_transitions (migration 018) — who, when, from_status -> to_status,
 // reason — queryable per finding at GET /api/findings/:id/transitions. The
 // finding row itself keeps only the latest disposition. Resolving without a
 // non-empty reason is rejected (400): "we resolved it but can't say who or
 // why" is the failure this closes.
 //
-// AIM-432 F1: the status UPDATE and the transition INSERT(s) share one
+// F1: the status UPDATE and the transition INSERT(s) share one
 // transaction on one connection. A crash mid-write rolls both back — a
 // disposition without a log row is the silent failure this closes. Bulk
 // triage inserts all transition rows in a single multi-row statement.
 //
-// AIM-442: GET /api/findings/summary surfaces aging + unhandled-critical
+// GET /api/findings/summary surfaces aging + unhandled-critical
 // count + SLA posture so "20 untouched criticals" is impossible to miss.
 // POST /api/findings/apply-suppressions auto-closes proven-noise classes
 // with the suppression reason recorded on finding_transitions.
 //
-// AIM-696: high/critical findings carry complianceEvidence — control refs
+// high/critical findings carry complianceEvidence — control refs
 // from framework-map.yaml — so triage and the auditor path share one map.
 import { query, withTransaction } from '../db.js';
 import { requireRoles } from '../auth.js';
@@ -60,7 +60,7 @@ const SEVERITIES = ['low', 'medium', 'high', 'critical'];
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
-/* AIM-223: statuses that are a final disposition and therefore REQUIRE a
+/*: statuses that are a final disposition and therefore REQUIRE a
  * non-empty reason. 'false_positive' stays optional — it is usually applied
  * in bulk during rule tuning, and the detector evidence on the finding is
  * the record of why. */
@@ -83,7 +83,7 @@ function transitionError(status, note) {
   return null;
 }
 
-// Append transition rows in a single multi-row INSERT (AIM-432 F1). The
+// Append transition rows in a single multi-row INSERT (F1). The
 // finding_transitions table is append-only (migration 018 / 020) — this
 // module is its only writer. Empty rows is a no-op.
 async function recordTransitions(client, rows, toStatus, actor, note) {
@@ -114,12 +114,12 @@ function parseOffset(q) {
   return Math.floor(n);
 }
 
-// AIM-442: wrap the canonical shape (AIM-532) with age + SLA flags so the
+// wrap the canonical shape with age + SLA flags so the
 // inbox can sort/badge without a second round-trip. Closed findings never
 // "breach" (evaluateFindingSla only applies to critical+new).
-// Named findingWithSla (not toFinding) so the AIM-532 single-source contract
+// Named findingWithSla (not toFinding) so the single-source contract
 // stays true: only findings-shape.js defines toFinding.
-// AIM-696: high/critical also get complianceEvidence (read-time map attach).
+// high/critical also get complianceEvidence (read-time map attach).
 function findingWithSla(r, map = null) {
   const base = toFinding(r);
   const sla = evaluateFindingSla(base);
@@ -135,7 +135,7 @@ function findingWithSla(r, map = null) {
 
 // opts.db is injectable for tests; defaults to the real pg pool.
 // opts.db.withTransaction(fn) must run fn on one connection inside a txn.
-// opts.mapPath / opts.getMap inject the compliance map (AIM-696 tests).
+// opts.mapPath / opts.getMap inject the compliance map (tests).
 export async function findingsRoutes(fastify, opts) {
   const db = opts?.db ?? { query, withTransaction };
   // Findings carry user/host pseudonyms and rule evidence: analyst+ (privacy
@@ -158,7 +158,7 @@ export async function findingsRoutes(fastify, opts) {
   }
 
   // ---- list findings, filterable by status / severity / rule_id ----
-  // ?format=csv (AIM-82) exports the same filtered rows as an attachment,
+  // ?format=csv exports the same filtered rows as an attachment,
   // capped by the same limit/offset pagination params.
   fastify.get('/api/findings', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
@@ -166,7 +166,7 @@ export async function findingsRoutes(fastify, opts) {
     const clauses = [];
     const params = [];
     if (req.query?.status) {
-      // Comma-separated list allowed (AIM-82: CSV export mirrors the UI's
+      // Comma-separated list allowed (CSV export mirrors the UI's
       // "open" = new+acknowledged filter); every value must be a valid status.
       const statuses = String(req.query.status).split(',').map((s) => s.trim()).filter(Boolean);
       const bad = statuses.filter((s) => !STATUSES.includes(s));
@@ -212,7 +212,7 @@ export async function findingsRoutes(fastify, opts) {
     };
   });
 
-  // ---- AIM-442 backlog + SLA summary: aging buckets, unhandled criticals,
+  // ---- backlog + SLA summary: aging buckets, unhandled criticals,
   // and breach sample. Analyst+. Registered before /:id so "summary" is not
   // captured as a finding id. ----
   fastify.get('/api/findings/summary', async (req, reply) => {
@@ -233,7 +233,7 @@ export async function findingsRoutes(fastify, opts) {
     }
   });
 
-  // ---- AIM-442: apply proven-noise suppressions (admin). dryRun=1 previews.
+  // ---- apply proven-noise suppressions (admin). dryRun=1 previews.
   // Each suppression writes false_positive + a transition row with the fixed
   // reason so the audit trail shows *why* a class was closed. ----
   fastify.post('/api/findings/apply-suppressions', async (req, reply) => {
@@ -259,11 +259,11 @@ export async function findingsRoutes(fastify, opts) {
     }
   });
 
-  // ---- bulk triage (AIM-94): apply one status (+ optional note) to up to
+  // ---- bulk triage: apply one status (+ optional note) to up to
   // 200 findings in a single UPDATE. Audited once per batch, not per row;
-  // the per-finding record is the transition row (AIM-223). The CTE captures
+  // the per-finding record is the transition row. The CTE captures
   // each finding's pre-update status so the log records a real from->to.
-  // AIM-432 F1: UPDATE + multi-row INSERT run in one transaction. ----
+  // F1: UPDATE + multi-row INSERT run in one transaction. ----
   fastify.post('/api/findings/triage', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
     const body = req.body ?? {};
@@ -305,7 +305,7 @@ export async function findingsRoutes(fastify, opts) {
     }
   });
 
-  // ---- transition history (AIM-223): the full append-only disposition log
+  // ---- transition history: the full append-only disposition log
   // for one finding, chronological. 404 when the finding does not exist — an
   // empty list must mean "no transitions yet", never "no such finding". ----
   fastify.get('/api/findings/:id/transitions', async (req, reply) => {
@@ -337,9 +337,9 @@ export async function findingsRoutes(fastify, opts) {
   });
 
   // ---- triage a finding: set status (+ optional note; required on resolve,
-  // AIM-223). Any transition is allowed; the audit trail and the append-only
+  //). Any transition is allowed; the audit trail and the append-only
   // transition log preserve who moved what, from what, when, and why.
-  // AIM-432 F1: UPDATE + INSERT share one transaction. ----
+  // F1: UPDATE + INSERT share one transaction. ----
   fastify.patch('/api/findings/:id', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
     const body = req.body ?? {};

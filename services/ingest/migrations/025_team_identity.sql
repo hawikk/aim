@@ -1,4 +1,4 @@
--- 025_team_identity.sql — AIM-483: team display identity + membership overrides.
+-- 025_team_identity.sql — team display identity + membership overrides.
 --
 -- Attribution team keys (events.team) come from identity-sync at ingest time
 -- and are effectively opaque bucket labels when device_mappings is empty.

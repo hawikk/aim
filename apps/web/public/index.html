@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="dark light" />
   <title>AI Monitoring — Usage Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232dd4a8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1' y='1' width='22' height='22' rx='3' fill='%230a0a0b' stroke='none'/%3E%3Cpath d='M21 12h-2.5l-2 6-4-14-2.5 8H5'/%3E%3C/svg%3E" />
-  <!-- AIM-514: apply the stored theme BEFORE first paint. This has to be an
+  <!-- apply the stored theme BEFORE first paint. This has to be an
        inline, blocking script — a module script is deferred, and a deferred
        theme is a visible flash of dark on a light-theme operator's screen.
        Keep the key and the value vocabulary identical to public/lib/theme.js
@@ -32,7 +32,7 @@
         <span class="brand-name">AI Monitoring</span>
       </div>
 
-      <!-- AIM-1070: primary rail + collapsible utility groups. Routes stay
+      <!-- primary rail + collapsible utility groups. Routes stay
            addressable; placeNavTab (lib/nav-ia.js) rehomes module tabs. -->
       <nav id="tabs" role="tablist" aria-label="Dashboard views">
         <div class="nav-slot nav-slot-primary" data-nav-slot="primary">
@@ -127,7 +127,7 @@
 
       <div class="sidebar-foot">
         <span id="me" class="me"></span>
-        <!-- AIM-479: GET /auth/logout clears the session and lands on a signed-out
+        <!-- GET /auth/logout clears the session and lands on a signed-out
              page (no auto-redirect to /auth/login — that re-auths via SSO). -->
         <a id="sign-out" class="sign-out" href="/auth/logout" hidden>Sign out</a>
       </div>
@@ -145,7 +145,7 @@
         <div class="controls">
           <span id="pipeline-health" class="pipeline-health" role="status" aria-live="polite" hidden></span>
           <span id="env-tag" class="tag" title="Environment">pilot</span>
-          <!-- AIM-707: home persona picker (SOC / Sec Eng / Admin). Hidden when
+          <!-- home persona picker (SOC / Sec Eng / Admin). Hidden when
                the session has fewer than two allowable personas. Preference is
                local (aim.homeRole); API role still gates data. -->
           <div class="segmented home-role" id="home-role" role="group" aria-label="Home layout" hidden>
@@ -153,13 +153,13 @@
             <button type="button" data-home-role="seceng" aria-pressed="false" title="Security engineering home">Sec Eng</button>
             <button type="button" data-home-role="admin" aria-pressed="false" title="Admin home — fleet posture">Admin</button>
           </div>
-          <!-- AIM-917: locale picker — registered catalogs only (en/de/fr/nl).
+          <!-- locale picker — registered catalogs only (en/de/fr/nl).
                Preference: localStorage aim.locale → navigator → en. -->
           <label class="picker locale-picker" for="locale-picker">
             <span class="locale-picker-label">Language</span>
             <select id="locale-picker" aria-label="Language" title="Interface language for admin and analyst chrome"></select>
           </label>
-          <!-- AIM-514: theme toggle. aria-pressed carries the state so the
+          <!-- theme toggle. aria-pressed carries the state so the
                accessible name ("Light theme") stays stable; the icon shows the
                theme the click will switch TO. -->
           <button type="button" id="theme-toggle" class="theme-toggle" data-theme-toggle aria-pressed="false" title="Switch to the light theme">
@@ -175,8 +175,8 @@
 
       <main id="main">
     <section id="view-overview" class="view active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
-      <!-- AIM-481 front page + AIM-707 role-based widget order (data-home-widget). -->
-      <!-- AIM-1070: Home is the single main page — live signals only, not a second tab rail. -->
+      <!-- front page + role-based widget order (data-home-widget). -->
+      <!-- Home is the single main page — live signals only, not a second tab rail. -->
       <div class="banner info home-banner" id="ov-home-banner" hidden></div>
       <div class="banner info" id="ov-vendor-feeds" hidden></div>
       <div class="cards" id="ov-cards" data-home-widget="kpis"></div>
@@ -198,14 +198,14 @@
           <div class="table-wrap" tabindex="0" role="region" aria-label="Unapproved tools table, scrollable"><table id="ov-tools-unapproved"></table></div>
         </div>
       </div>
-      <!-- AIM-1007: live multi-window Epic A attribution health (1h/24h/7d pct_ok) -->
+      <!-- live multi-window Epic A attribution health (1h/24h/7d pct_ok) -->
       <div class="panel" id="ov-attr-health-panel" data-home-widget="attribution">
         <h2>Attribution health <span class="hint">live 1h / 24h / 7d pct_ok — Epic A gate ≥95% on trailing 7d; service principals count as OK</span>
           <span class="verified-stamp" id="ov-attr-health-verified" hidden></span>
         </h2>
         <div id="ov-attr-health" aria-live="polite"></div>
       </div>
-      <!-- AIM-452: attributed vs unattributed is a first-class, alertable Overview metric -->
+      <!-- attributed vs unattributed is a first-class, alertable Overview metric -->
       <div class="panel" id="ov-attribution-panel" data-home-widget="attribution">
         <h2>Identity coverage <span class="hint">attributed vs unattributed usage — a rate nobody alerts on is how we assert fleet coverage we do not have</span>
           <span class="verified-stamp" id="ov-attr-verified" hidden></span>
@@ -243,11 +243,11 @@
     </section>
 
     <section id="view-app-llm" class="view" role="tabpanel" aria-labelledby="tab-app-llm" tabindex="0">
-      <div class="banner info">Application-LLM traffic (AIM-103): company software vs employee tools calling LLM provider APIs, metered at the proxy. <b>application</b> = server/DC/CI source; <b>employee</b> = endpoint source; <b>unknown</b> = not yet classified (subnet inventory pending). Metadata only — volume, bytes, status; no tokens, models, or content. For OTel-instrumented apps (model + token + cost), open the <a href="#apps">Apps</a> view.</div>
+      <div class="banner info">Application-LLM traffic: company software vs employee tools calling LLM provider APIs, metered at the proxy. <b>application</b> = server/DC/CI source; <b>employee</b> = endpoint source; <b>unknown</b> = not yet classified (subnet inventory pending). Metadata only — volume, bytes, status; no tokens, models, or content. For OTel-instrumented apps (model + token + cost), open the <a href="#apps">Apps</a> view.</div>
       <div class="cards" id="al-cards"></div>
       <div class="panel" id="al-otel-panel" hidden>
         <h2>OTel instrumented apps <span class="hint">model + token + cost depth lives on Apps — proxy metering above cannot see tokens</span></h2>
-      <div class="banner info">Application-LLM traffic (AIM-103): company software vs employee tools calling LLM provider APIs, metered at the proxy. <b>application</b> = server/DC/CI source; <b>employee</b> = endpoint source; <b>unknown</b> = not yet classified (subnet inventory pending). Metadata only — volume, bytes, status; no tokens, models, or content. For OTel-instrumented apps (model + token totals), open the <a href="#apps">Apps</a> view.</div>
+      <div class="banner info">Application-LLM traffic: company software vs employee tools calling LLM provider APIs, metered at the proxy. <b>application</b> = server/DC/CI source; <b>employee</b> = endpoint source; <b>unknown</b> = not yet classified (subnet inventory pending). Metadata only — volume, bytes, status; no tokens, models, or content. For OTel-instrumented apps (model + token totals), open the <a href="#apps">Apps</a> view.</div>
       <div class="cards" id="al-cards"></div>
       <div class="panel" id="al-otel-panel" hidden>
         <h2>OTel instrumented apps <span class="hint">model + token depth lives on Apps — proxy metering above cannot see tokens</span></h2>
@@ -261,12 +261,12 @@
 
     <section id="view-apps" class="view" role="tabpanel" aria-labelledby="tab-apps" tabindex="0">
       <div class="banner info" id="apps-vendor-feeds" hidden></div>
-      <div class="banner info">Application LLM telemetry (AIM-105 / AIM-737): APM-class per-service signals from OTel GenAI instrumentation — model distribution, token metering (in/out), estimated cost by service and model. Metadata only; there is deliberately no employee/user dimension here. Complements the App-LLM view (proxy metering) with in-app instrumentation. Team-level model/cost is on <a href="#teams">Teams</a>.</div>
+      <div class="banner info">Application LLM telemetry: APM-class per-service signals from OTel GenAI instrumentation — model distribution, token metering (in/out), estimated cost by service and model. Metadata only; there is deliberately no employee/user dimension here. Complements the App-LLM view (proxy metering) with in-app instrumentation. Team-level model/cost is on <a href="#teams">Teams</a>.</div>
       <div class="panel detail" id="apps-detail" hidden></div>
       <div class="cards" id="apps-cards"></div>
       <div class="panel"><h2>Instrumented applications <span class="hint">per-service LLM usage — click a service for its model inventory and trend</span> <a class="btn-export" id="exp-apps" href="/api/apps/llm?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Instrumented applications table, scrollable"><table id="apps-table"></table></div></div>
       <div class="panel"><h2>Model distribution <span class="hint">which models OTel sources call — tokens and estimated cost (metadata only, no prompt content)</span> <a class="btn-export" id="exp-apps-models" href="/api/apps/llm?format=csv&amp;breakdown=models" download>CSV</a></h2>
-      <div class="banner info">Application LLM telemetry (AIM-105 / AIM-574): APM-class per-service signals from OTel GenAI instrumentation — model distribution, token metering (in/out), errors and latency. Metadata only; there is deliberately no employee/user dimension here. Complements the App-LLM view (proxy metering) with in-app instrumentation.</div>
+      <div class="banner info">Application LLM telemetry: APM-class per-service signals from OTel GenAI instrumentation — model distribution, token metering (in/out), errors and latency. Metadata only; there is deliberately no employee/user dimension here. Complements the App-LLM view (proxy metering) with in-app instrumentation.</div>
       <div class="panel detail" id="apps-detail" hidden></div>
       <div class="cards" id="apps-cards"></div>
       <div class="panel"><h2>Instrumented applications <span class="hint">per-service LLM usage — click a service for its model inventory and trend</span> <a class="btn-export" id="exp-apps" href="/api/apps/llm?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Instrumented applications table, scrollable"><table id="apps-table"></table></div></div>
@@ -280,12 +280,12 @@
       <div class="banner warn" id="teams-attr-banner" hidden></div>
       <div class="panel detail" id="team-detail" hidden></div>
       <div class="panel"><h2>Per-team usage <span class="hint">click a team for identity, members, models, and rename; unresolved identities bucket into (unattributed)</span> <a class="btn-export" id="exp-teams" href="/api/teams?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Per-team usage table, scrollable"><table id="teams-table"></table></div></div>
-      <!-- AIM-737: team × model tokens/cost (aggregate endpoint; exportable) -->
+      <!-- team × model tokens/cost (aggregate endpoint; exportable) -->
       <div class="panel"><h2>Model usage by team <span class="hint">tokens and estimated cost per model — employee tooling path (OTel apps have no team dimension; see Apps)</span> <a class="btn-export" id="exp-teams-models" href="/api/aggregate?group_by=team,model&amp;format=csv" download>CSV</a></h2>
         <div class="chart-box"><canvas id="teams-models-chart" role="img" aria-label="Bar chart of estimated cost by model across teams"></canvas></div>
         <div class="table-wrap" tabindex="0" role="region" aria-label="Model usage by team table, scrollable"><table id="teams-models-table"></table></div>
       </div>
-      <!-- AIM-94: team × tool token matrix (aggregate endpoint, follows the range control) -->
+      <!-- team × tool token matrix (aggregate endpoint, follows the range control) -->
       <div class="panel"><h2>Team × tool matrix <span class="hint">tokens per team and tool — hover a cell for events and est. cost</span></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Team by tool token matrix, scrollable"><table id="teams-matrix"></table></div></div>
       <div class="panel"><h2>Cost by team</h2><div class="chart-box"><canvas id="teams-chart" role="img" aria-label="Bar chart of estimated cost by team"></canvas></div></div>
     </section>
@@ -317,9 +317,9 @@
     <section id="view-security" class="view" role="tabpanel" aria-labelledby="tab-security" tabindex="0">
       <div class="banner warn">Guardrail match flags (observe-only, v1) and unapproved tool discovery. Aggregates only — matched content is never stored; user identities withheld here by policy. Click a detector row for evidence, or use <b>View all open findings</b> / severity pills to open the full alert list in Findings triage.</div>
       <div class="cards" id="sec-cards"></div>
-      <!-- AIM-796: fleet enforce coverage (install path + honor rate). Analyst+ only;
+      <!-- fleet enforce coverage (install path + honor rate). Analyst+ only;
            hidden until capabilities.coverage or capabilities.fleet unhides it.
-           Loads GET /api/enforcement/coverage (AIM-789 contract). Metadata only. -->
+           Loads GET /api/enforcement/coverage (contract). Metadata only. -->
       <div class="panel" id="sec-enforce-panel" hidden>
         <h2>Fleet enforce coverage <span class="hint">install-path (policy loaded) + honor rate under mode=enforce — zero blocks is not clean when posture is dark</span>
           <span class="verified-stamp" id="sec-enforce-asof" hidden></span>
@@ -336,7 +336,7 @@
           <option value="low">low</option>
         </select></label>
         <span class="hint" id="sec-filter-hint"></span>
-        <!-- AIM-1023: always-visible hop into Findings triage (wired in loadSecurity). -->
+        <!-- always-visible hop into Findings triage (wired in loadSecurity). -->
         <a class="btn-control" id="sec-findings-cta" href="#/findings" hidden>View all open findings →</a>
       </div>
       <div class="panel detail" id="sec-detail" hidden>
@@ -349,7 +349,7 @@
       <div class="panel"><h2>Match flags by detector <span class="hint">click a row for evidence + triage</span> <a class="panel-link" id="sec-findings-panel-link" href="#/findings" hidden>View all open findings →</a> <a class="btn-export" id="exp-flags" href="/api/flags?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Match flags by detector table, scrollable"><table id="flags-table"></table></div></div>
       <div class="panel"><h2>Matches by severity <span class="hint">where the risk sits across every triggered detector</span></h2><div class="chart-box"><canvas id="flags-severity" role="img" aria-label="Bar chart of detector matches by severity"></canvas></div></div>
       <div class="panel"><h2>Flag hits per day</h2><div class="chart-box"><canvas id="flags-trend" role="img" aria-label="Line chart of guardrail flag hits per day"></canvas></div></div>
-      <!-- AIM-588: fixed-height chart boxes side-by-side — no layout thrash on load. -->
+      <!-- fixed-height chart boxes side-by-side — no layout thrash on load. -->
       <div class="charts-grid" role="group" aria-label="Security trend charts">
         <div class="panel">
           <h2>Detection volume <span class="hint">guardrail matches per day — total + top detectors</span></h2>
@@ -374,7 +374,7 @@
 
       <div class="panel" id="sec-break-glass-grants-panel">
         <h2>Break-glass grants
-          <span class="hint">AIM-784 — manager approval, expiry, revoke · metadata only</span>
+          <span class="hint">manager approval, expiry, revoke · metadata only</span>
           <a class="btn-export" id="exp-break-glass-grants" href="/api/enforcement/break-glass/grants?format=csv" download>CSV</a>
           <a class="btn-export" id="exp-break-glass-audit" href="/api/enforcement/break-glass/audit-export?format=bundle" download>Audit pack</a>
         </h2>
@@ -444,8 +444,8 @@
     </section>
 
     <section id="view-fleet" class="view" role="tabpanel" aria-labelledby="tab-fleet" tabindex="0">
-      <div class="banner info">Collector fleet — enrolled devices and heartbeat health. Restricted to the security group; access is logged. Heartbeat buckets: <b>healthy</b> within one interval, <b>stale</b> within three, <b>dead</b> beyond that, <b>never seen</b> before first heartbeat. <b>SLO-healthy</b> (AIM-645, ≥99% target) requires a reported <code>collector_version</code>, fresh <code>last_event_at</code> (heartbeat), and no active client-side errors. Enrolled-but-silent hosts appear as coverage gaps — they do not vanish. <b>Enforce coverage</b> (AIM-781) answers who can enforce today: install-path bundle delivery, honor rate, and fail-open inventory.</div>
-      <!-- AIM-1007: same Epic A attribution health panel as Overview home -->
+      <div class="banner info">Collector fleet — enrolled devices and heartbeat health. Restricted to the security group; access is logged. Heartbeat buckets: <b>healthy</b> within one interval, <b>stale</b> within three, <b>dead</b> beyond that, <b>never seen</b> before first heartbeat. <b>SLO-healthy</b> (≥99% target) requires a reported <code>collector_version</code>, fresh <code>last_event_at</code> (heartbeat), and no active client-side errors. Enrolled-but-silent hosts appear as coverage gaps — they do not vanish. <b>Enforce coverage</b> answers who can enforce today: install-path bundle delivery, honor rate, and fail-open inventory.</div>
+      <!-- same Epic A attribution health panel as Overview home -->
       <div class="panel" id="fleet-attr-health-panel">
         <h2>Attribution health <span class="hint">live 1h / 24h / 7d pct_ok — Epic A gate ≥95% on trailing 7d</span>
           <span class="verified-stamp" id="fleet-attr-health-verified" hidden></span>
@@ -456,7 +456,7 @@
       <div class="panel"><h2>Collector coverage <span class="hint">share of enrolled devices actually reporting — the gap is the part that is not green</span>
         <span class="verified-stamp" id="fleet-verified" hidden></span>
       </h2><div id="fleet-coverage"></div></div>
-      <!-- AIM-588: coverage over time; fixed chart-box height prevents thrash. -->
+      <!-- coverage over time; fixed chart-box height prevents thrash. -->
       <div class="panel">
         <h2>Coverage over time <span class="hint">healthy % of enrolled devices and gap count per day</span></h2>
         <div class="chart-box"><canvas id="fleet-cov-trend" role="img" aria-label="Line chart of fleet coverage over time"></canvas></div>
@@ -501,7 +501,7 @@
 
     <section id="view-audit" class="view" role="tabpanel" aria-labelledby="tab-audit" tabindex="0">
       <div class="banner info">Audit trail — immutable record of sign-ins, authorization decisions and sensitive actions. Restricted to auditors and security admins.</div>
-      <!-- AIM-989: operator-visible JIT first-login failures + SLA breaches (no raw log dig) -->
+      <!-- operator-visible JIT first-login failures + SLA breaches (no raw log dig) -->
       <div class="panel jit-status-panel" id="jit-status-panel" aria-labelledby="jit-status-h">
         <h2 id="jit-status-h">JIT provisioning <span class="hint">first-login failures &amp; SLA</span></h2>
         <p class="hint">Surfaces <code>identity.jit_provision_failed</code> and <code>identity.jit_sla_breach</code> from the audit trail. Runbook: <code id="jit-runbook-link">docs/security/jit-provisioning-sla.md</code></p>
@@ -535,38 +535,38 @@
   </div>
 
   <script type="module" src="/app.js"></script>
-  <!-- AIM-290: product system status — "is it working and covering everything?" -->
+  <!-- product system status — "is it working and covering everything?" -->
   <script type="module" src="/status.js"></script>
-  <!-- AIM-746: install health — enroll → first evidence SLO + breach alerts -->
+  <!-- install health — enroll → first evidence SLO + breach alerts -->
   <script type="module" src="/install-health.js"></script>
-  <!-- AIM-704: destination health — failed webhook/email/Slack delivery SLO + ops alerts -->
+  <!-- destination health — failed webhook/email/Slack delivery SLO + ops alerts -->
   <script type="module" src="/destination-health.js"></script>
-  <!-- AIM-708: custom dashboard builder — compose KPIs/charts/tables into named dashboards (beyond saved views) -->
+  <!-- custom dashboard builder — compose KPIs/charts/tables into named dashboards (beyond saved views) -->
   <script type="module" src="/dashboards.js"></script>
-  <!-- AIM-70: findings triage console — self-contained module, activates on capabilities.findingsConsole -->
+  <!-- findings triage console — self-contained module, activates on capabilities.findingsConsole -->
   <script type="module" src="/findings.js"></script>
   <script type="module" src="/cases.js"></script>
-  <!-- AIM-160: unified cross-pillar alert inbox + stack health strip — self-contained module, activates on capabilities.findingsConsole (same analyst+ gate as /api/alerts) -->
+  <!-- unified cross-pillar alert inbox + stack health strip — self-contained module, activates on capabilities.findingsConsole (same analyst+ gate as /api/alerts) -->
   <script type="module" src="/inbox.js"></script>
-  <!-- AIM-81: guardrail rules transparency viewer — self-contained module, activates on capabilities.guardrail -->
+  <!-- guardrail rules transparency viewer — self-contained module, activates on capabilities.guardrail -->
   <script type="module" src="/rules.js"></script>
-  <!-- AIM-689: analyst-facing policy editor (safe subset, no raw YAML) — activates on capabilities.findingsConsole -->
+  <!-- analyst-facing policy editor (safe subset, no raw YAML) — activates on capabilities.findingsConsole -->
   <script type="module" src="/policy.js"></script>
-  <!-- AIM-703: SOC runbooks for every alert class — deep-linked from findings/rules/inbox; activates on capabilities.findingsConsole -->
+  <!-- SOC runbooks for every alert class — deep-linked from findings/rules/inbox; activates on capabilities.findingsConsole -->
   <script type="module" src="/runbooks.js"></script>
-  <!-- AIM-87: compliance evidence report — self-contained module, activates on capabilities.compliance -->
+  <!-- compliance evidence report — self-contained module, activates on capabilities.compliance -->
   <script type="module" src="/compliance.js"></script>
-  <!-- AIM-718: access review / attestation for AIM roles — admin + auditor -->
+  <!-- access review / attestation for AIM roles — admin + auditor -->
   <script type="module" src="/access-review.js"></script>
   <!-- MCP server inventory — self-contained module, activates on capabilities.findingsConsole -->
   <script type="module" src="/mcp.js"></script>
-  <!-- AIM-278: Coverage & Trust — known/covered/dark per surface — self-contained module, activates on capabilities.coverage (analyst+) -->
+  <!-- Coverage & Trust — known/covered/dark per surface — self-contained module, activates on capabilities.coverage (analyst+) -->
   <script type="module" src="/coverage.js"></script>
-  <!-- AIM-504: SaaS/OAuth shadow discovery (IdP grants) -->
+  <!-- SaaS/OAuth shadow discovery (IdP grants) -->
   <script type="module" src="/shadow-ai.js"></script>
-  <!-- AIM-144: live activity trail — self-contained module, activates on capabilities.userLevel -->
+  <!-- live activity trail — self-contained module, activates on capabilities.userLevel -->
   <script type="module" src="/activity.js"></script>
-  <!-- AIM-131: first-run onboarding + enrollment-token minting — self-contained module, activates on capabilities.admin (admin). Loaded last so its first-run activate() wins the initial landing. -->
+  <!-- first-run onboarding + enrollment-token minting — self-contained module, activates on capabilities.admin (admin). Loaded last so its first-run activate() wins the initial landing. -->
   <script type="module" src="/onboarding.js"></script>
 </body>
 </html>

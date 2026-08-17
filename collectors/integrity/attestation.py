@@ -1,4 +1,4 @@
-"""Continuous independence attestation (AIM-639 / AIM-751).
+"""Continuous independence attestation.
 
 Produces a machine-readable report proving that the architectural controls
 for independence from the agent execution loop are present in-tree:
@@ -42,7 +42,7 @@ REQUIRED_PATHS = (
     "deploy/linux/systemd/aim-collector-oob-health.service",
     "deploy/linux/systemd/aim-collector-oob-health.timer",
     "docs/aim-639-independence-path-to-10.md",
-    # Continuous out-of-band job (AIM-751) — must remain scheduled on aim-ops.
+    # Continuous out-of-band job — must remain scheduled on aim-ops.
     ".github/workflows/independence-attestation.yml",
 )
 
@@ -224,7 +224,7 @@ def run_attestation(repo_root: Path | str | None = None) -> Attestation:
     except OSError as e:
         checks.append(Check(id="install_wires_oob_and_pubkey", ok=False, detail=str(e)))
 
-    # 5c) Continuous CI job (AIM-751) must stay on aim-ops; aim-ci only in comments
+    # 5c) Continuous CI job must stay on aim-ops; aim-ci only in comments
     wf = root / ".github/workflows/independence-attestation.yml"
     try:
         wtxt = wf.read_text(encoding="utf-8") if wf.is_file() else ""

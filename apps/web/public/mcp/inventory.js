@@ -1,4 +1,4 @@
-/* MCP inventory panel (AIM-1157 split): fleet catalogue table, KPI cards,
+/* MCP inventory panel (split): fleet catalogue table, KPI cards,
  * status/source filters, and the per-server installation drill-down.
  * The orchestrator (public/mcp.js) populates fctx before bind*() runs. */
 
@@ -65,7 +65,7 @@ export function activeFilterLabels({ status = 'all', source = 'all' } = {}) {
   return labels;
 }
 
-/* AIM-526: column specs feed the shared table() — no hand-rolled thead. */
+/*: column specs feed the shared table() — no hand-rolled thead. */
 const INVENTORY_COLS = [
   { key: 'name', label: 'MCP server', render: (s) => `<code>${esc(s.name)}</code>` },
   { key: 'status', label: 'Status', render: (s) => statusPill(s.status) },
@@ -87,7 +87,7 @@ const INVENTORY_COLS = [
   { key: 'lastSeen', label: 'Last seen', render: (s) => esc(fmtDay(s.lastSeen)) },
 ];
 
-/* AIM-589: entity hops go through entityHref so the shared range survives. */
+/*: entity hops go through entityHref so the shared range survives. */
 const installCtx = () => ({ days: dashState.days });
 const INSTALL_COLS = [
   {
@@ -218,7 +218,7 @@ function renderRangeHint() {
   const policyHint = discMode
     ? 'discovery mode (empty approved_mcp_servers — all unapproved)'
     : approvedN === 0
-      ? 'deny-unlisted allowlist (empty — all MCP unapproved; AIM-441 discovery closed)'
+      ? 'deny-unlisted allowlist (empty — all MCP unapproved; discovery closed)'
       : `allowlist active (${fmtInt(approvedN)} approved) · policy_hash ${String(mcpState.policy?.contentHash ?? '').slice(0, 12) || '—'}…`;
   section.querySelector('#mcp-range').textContent =
     `last ${mcpState.rangeDays ?? dashState.days} days · ${policyHint} · click a row for who has it configured · Override deny for unapproved`;

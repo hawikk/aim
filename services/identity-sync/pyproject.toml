@@ -9,7 +9,7 @@ dependencies = [
     "sqlalchemy>=2.0",
     "pydantic>=2.6",
     "pydantic-settings>=2.2",
-    # Verified-JWT caller authentication for the gated endpoints (AIM-306).
+    # Verified-JWT caller authentication for the gated endpoints.
     # The crypto extra backs RS/ES verification against an IdP JWKS in prod.
     "PyJWT[crypto]>=2.8",
 ]

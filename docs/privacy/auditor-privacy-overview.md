@@ -1,9 +1,9 @@
 # Auditor privacy overview — metadata-only AI monitoring
 
 **Audience:** Internal / external auditors, works-council reviewers, Legal  
-**Length:** two pages · **Issue:** AIM-654 · **Epic:** AIM-625  
-**Status:** shipping posture (policy AIM-15 / AIM-16) · **Date:** 2026-08-01  
-**Owner (docs):** Frontend Engineer · **Policy owner:** Security / CEO
+**Length:** two pages
+**Status:** shipping posture (policy) · **Date:** 2026-08-01
+**Policy owner:** Security
 
 This is the auditor-facing privacy one-pager. It states what the platform
 collects, what it never collects, and **how to verify those claims offline**
@@ -110,7 +110,7 @@ From the product **Compliance** tab → **Download offline pack (.zip)**:
 | `README.txt` | How to check integrity with stock tools |
 | `SUMMARY.txt` | One-page executive posture |
 | `report.json` / `report.csv` | Same numbers as the live report |
-| `evidence-bundle.json` | Signed AIM-99 bundle (hash-linked to the audit chain) |
+| `evidence-bundle.json` | Signed bundle (hash-linked to the audit chain) |
 | `SHA256SUMS` | GNU `sha256sum -c` inventory |
 | `MANIFEST.json` | Machine inventory + pack hash + verify hooks |
 
@@ -145,7 +145,7 @@ Exit 0 = structure, content hash, HMAC signature, full audit-chain walk, and a
 
 - That every endpoint in the fleet is enrolled (see Coverage / Fleet views).
 - That a customer’s works-council filing is complete (use the DPIA pack + Legal).
-- That residual inference risk is zero (see AIM-651 report above).
+- That residual inference risk is zero.
 
 ### Related deeper docs
 
@@ -156,5 +156,5 @@ Exit 0 = structure, content hash, HMAC signature, full audit-chain walk, and a
 ---
 
 *End of auditor privacy overview (2 pages). For product questions, route through
-Security; for policy reversals (e.g. content capture), escalate to the CEO —
+Security; for policy reversals (e.g. content capture), escalate to the policy owner
 engineering will not route around these lines.*

@@ -1,4 +1,4 @@
-"""Out-of-band merge auditor (AIM-298 / Epic C D-C3 Tier 1).
+"""Out-of-band merge auditor (Epic C D-C3 Tier 1).
 
 GitHub Actions `merge-audit.yml` shares a failure domain with the gates: when
 billing or the runner dies, the auditor dies with them. That is exactly what
@@ -124,7 +124,7 @@ class AuditResult:
     notes: list[str] = field(default_factory=list)
     alerts: list[dict] = field(default_factory=list)
     revert_pr: int | None = None
-    # AIM-446 — full required-check verdicts for durable evidence retention.
+    # — full required-check verdicts for durable evidence retention.
     verdicts: list[CheckVerdict] = field(default_factory=list)
     classification: str = "unknown"
     policy_hash: str = ""
@@ -578,7 +578,7 @@ def open_revert_pr(
             _log({"event": "merge_audit.revert_ref_failed", "error": str(exc)[:200]})
             return None
 
-    title = f"Revert unauthorized merge of #{pr_number} (AIM-298)"
+    title = f"Revert unauthorized merge of #{pr_number}"
     body = (
         f"{BYPASS_MARKER}\n"
         f"## Auto-revert for unauthorized merge bypass\n\n"
@@ -589,7 +589,7 @@ def open_revert_pr(
         f"- Reason recorded: {reason[:500]}\n\n"
         f"**This does not rotate secrets.** If the merge may have exposed a "
         f"credential, rotate it first — a git revert does not undo disclosure.\n\n"
-        f"Opened by gatehouse out-of-band merge-audit (AIM-298 Tier 1).\n"
+        f"Opened by gatehouse out-of-band merge-audit (Tier 1).\n"
     )
     try:
         pr = request("POST", f"{api_root}/repos/{repo}/pulls", token, {
@@ -692,9 +692,9 @@ def run_audit_once(
 
     `skip_keys` holds previously handled `repo#pr@head_sha` keys so a long-running
     poller does not re-publish the same bypass or re-open the same revert branch
-    every interval (AIM-357).
+    every interval.
 
-    AIM-446: every audited PR is written to the evidence store (default path /
+    every audited PR is written to the evidence store (default path /
     GATEHOUSE_EVIDENCE_DB) with 90-day retention, including clean merges.
     """
     now = now or bus.utc_second(None)
@@ -794,7 +794,7 @@ def parse_repo_specs(specs: list[str], default_ref: str = "main") -> tuple[list[
 
     The twin repo (littlewiz) gates `master` while ai-monitoring gates `main`,
     so a single shared `--base-ref` cannot express a multi-repo deployment
-    (AIM-413). A bare `OWNER/NAME` falls back to `default_ref`.
+    . A bare `OWNER/NAME` falls back to `default_ref`.
     """
     repos: list[str] = []
     refs: dict[str, str] = {}

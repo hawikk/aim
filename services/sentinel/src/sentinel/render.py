@@ -95,7 +95,7 @@ def _short_ref(value: str, *, keep: int = 8) -> str:
 
 def format_child_links(children: list[dict] | None, *, gateway_base_url: str,
                        limit: int = 8) -> list[str]:
-    """Plain-text lines for AIM-700 parent→child links under a parent incident.
+    """Plain-text lines parent→child links under a parent incident.
 
     Returns [] when there is nothing to show (no children, or a single child
     that is just the paged alert with no cross-tool/user fan-out). Multi-child

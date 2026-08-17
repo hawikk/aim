@@ -1,4 +1,4 @@
-"""Alert delivery for guardrail findings (AIM-76).
+"""Alert delivery for guardrail findings.
 
 Wires new findings out of Postgres to external destinations so they reach a
 SIEM instead of only sitting in the findings table:
@@ -10,19 +10,19 @@ SIEM instead of only sitting in the findings table:
   ``packages/alerting/src/sentinel.ts`` (Log Analytics Data Collector API,
   SharedKey HMAC-SHA256 auth, CEF mapping). Kept deliberately small; the TS
   remains the reference implementation.
-- ``GoogleChatNotifier`` (AIM-485) — Google Chat incoming-webhook destination
+- ``GoogleChatNotifier`` — Google Chat incoming-webhook destination
   for the company standard channel. Webhook URL is env-only (never UI), one
   Cards V2 message per batch (severity / rule / tool / pseudonymous subject /
   deep link to the findings triage view), min-severity filter.
-- ``EmailNotifier`` (AIM-582) — SMTP email destination. Recipients + enable
+- ``EmailNotifier`` — SMTP email destination. Recipients + enable
   + min_severity are policy/UI-managed; SMTP host/from/user/password stay
   env-only (``ALERT_EMAIL_SMTP_*`` / ``ALERT_EMAIL_FROM``). One plain-text
   message per batch, metadata only.
-- ``SlackNotifier`` (AIM-583) — optional Slack incoming-webhook destination
+- ``SlackNotifier`` — optional Slack incoming-webhook destination
   behind ``ALERT_SLACK_ENABLED`` (default off — SOC opt-in only). Webhook URL
   is env-only (``ALERT_SLACK_WEBHOOK_URL``; the URL *is* the secret). One
   Block Kit message per batch, same metadata-only posture as Google Chat.
-- ``PagerDutyNotifier`` (AIM-699) — Events API v2 trigger per finding. Routing
+- ``PagerDutyNotifier`` — Events API v2 trigger per finding. Routing
   key is env-only (``ALERT_PAGERDUTY_ROUTING_KEY``). Designed as the late
   stage of multi-stage escalation (Slack → PagerDuty with timers).
 
@@ -32,11 +32,11 @@ retry policy: 3 retries with exponential backoff (0.5s, 1s, 2s) on HTTP
 
 Metadata-only guarantee: payloads are built from finding metadata fields
 (rule id, severity, pseudonymous refs, detector names) — never prompt or
-response content (AIM-16). Alert payloads leave the platform, so they carry
+response content. Alert payloads leave the platform, so they carry
 pseudonyms and links, not raw evidence (trust boundary).
 
 Config is via env (see ``notifiers_from_env``) or the policy ruleset's
-``settings.alerts`` section (see ``notifiers_from_config``, AIM-94 — secrets
+``settings.alerts`` section (see ``notifiers_from_config``, — secrets
 stay env-managed either way); transports are injectable so tests need no
 network.
 """
@@ -81,7 +81,7 @@ SLACK_MAX_FINDINGS_PER_MESSAGE = 8
 # Pseudonym display width in chat — full hash stays in Postgres; chat only needs
 # enough of the prefix to correlate with the findings table.
 _PSEUDONYM_DISPLAY_CHARS = 12
-# AIM-583: Slack is SOC opt-in. Default off until ALERT_SLACK_ENABLED is set
+# Slack is SOC opt-in. Default off until ALERT_SLACK_ENABLED is set
 # truthy (1/true/yes/on). Without the flag the notifier never registers even
 # if a webhook URL is present in the environment.
 _TRUTHY_FLAG_VALUES = frozenset({"1", "true", "yes", "on"})
@@ -142,7 +142,7 @@ def finding_fields(finding: dict) -> dict:
     evidence.matched (detector names, never content) becomes MatchFlags as a
     JSON string.
 
-    AIM-585: also surface host_ref, policy_hash, engine severity, decision,
+    also surface host_ref, policy_hash, engine severity, decision,
     and source event_ids — SOC triage fields previously dropped between the
     engine finding and the Sentinel/CEF payload.
     """
@@ -152,7 +152,7 @@ def finding_fields(finding: dict) -> dict:
     matched = evidence.get("matched")
     # Subject for alert payloads: prefer user_ref; fall back to host_ref so
     # proxy/App-LLM findings (no employee identity) still show a pivot key
-    # in webhook/Sentinel/Chat (AIM-575 new-source signal is host-keyed).
+    # in webhook/Sentinel/Chat (new-source signal is host-keyed).
     subject_ref = subject.get("user_ref") or subject.get("host_ref") or ""
     event_ids = evidence.get("event_ids") or []
     if isinstance(event_ids, (list, tuple)):
@@ -165,7 +165,7 @@ def finding_fields(finding: dict) -> dict:
         "title": finding.get("title"),
         "timestamp": finding.get("ts"),
         "user_id": subject_ref,
-        # AIM-383: team budgets + scoped allowlists carry team on subject/context.
+        # team budgets + scoped allowlists carry team on subject/context.
         "team": subject.get("team") or context.get("team") or "",
         "tool": context.get("tool") or context.get("provider") or "",
         "model": context.get("model") or "",
@@ -186,7 +186,7 @@ TAXONOMY: dict[str, tuple[str, str]] = {
     "secret_pattern_detected": ("High", "rb-secret-exposure"),
     "unapproved_tool_detected": ("Medium", "rb-unapproved-tool"),
     "pii_pattern_detected": ("Medium", "rb-pii-exposure"),
-    # AI tool used against a restricted repository (AIM-78). Engine severity is
+    # AI tool used against a restricted repository. Engine severity is
     # critical; Sentinel tops out at High.
     "restricted_repo_access": ("High", "rb-restricted-repo"),
     # Sanctioned tool talking to an unapproved provider/model. Same triage path
@@ -194,7 +194,7 @@ TAXONOMY: dict[str, tuple[str, str]] = {
     "unapproved_provider_or_model": ("Medium", "rb-unapproved-tool"),
     "usage_anomaly": ("Low", "rb-usage-anomaly"),
     "policy_violation": ("High", "rb-policy-violation"),
-    # AIM-97 per-tool-call rail. shell in a restricted repo pages like
+    # per-tool-call rail. shell in a restricted repo pages like
     # restricted_repo_access (High); network egress there is lower confidence.
     "shell_tool_restricted_repo": ("High", "rb-restricted-repo"),
     "network_tool_restricted_repo": ("Medium", "rb-restricted-repo"),
@@ -202,18 +202,18 @@ TAXONOMY: dict[str, tuple[str, str]] = {
     # intent-to-use, not observed traffic; same triage path as unapproved tool.
     "unapproved_mcp_server_configured": ("Medium", "rb-unapproved-tool"),
     "telemetry_gap": ("Informational", "rb-telemetry-gap"),
-    # AIM-383: team budget thresholds + scoped model/provider allowlist.
+    # team budget thresholds + scoped model/provider allowlist.
     "team_budget_threshold": ("Medium", "rb-usage-anomaly"),
     "model_provider_not_permitted": ("Medium", "rb-unapproved-tool"),
-    # AIM-441 expanded detection depth.
+    # expanded detection depth.
     "credential_shaped_tool_call": ("High", "rb-secret-exposure"),
     "high_volume_repo_egress": ("High", "rb-usage-anomaly"),
     "bulk_shell_hourly": ("Medium", "rb-usage-anomaly"),
     "high_volume_repo_tokens": ("Medium", "rb-usage-anomaly"),
-    # AIM-575: first-ever proxy provider-API caller (App-LLM phase-1 signal).
+    # first-ever proxy provider-API caller (App-LLM phase-1 signal).
     # Medium — SOC reviews host_ref + provider; may be sanctioned app rollout.
     "app_llm_new_source": ("Medium", "rb-app-llm-new-source"),
-    # AIM-738: catalogue completeness — uncatalogued provider/model first-seen.
+    # catalogue completeness — uncatalogued provider/model first-seen.
     # Low — ops/catalogue ownership signal, not a user-security incident.
     "app_llm_new_provider": ("Low", "rb-app-llm-catalogue-drift"),
     "app_llm_new_model": ("Low", "rb-app-llm-catalogue-drift"),
@@ -228,34 +228,34 @@ RULE_ID_ALIASES = {
     "unapproved-provider-or-model": "unapproved_provider_or_model",
     "restricted-repo-access": "restricted_repo_access",
     "pii-in-prompt": "pii_pattern_detected",
-    # AIM-86: MCP call to an unapproved server. Maps to the generic
+    # MCP call to an unapproved server. Maps to the generic
     # policy_violation type — a dedicated Sentinel finding type would be a
-    # taxonomy change (AIM-27), which is Security's call.
+    # taxonomy change, which is Security's call.
     "unapproved-mcp-server": "policy_violation",
-    # AIM-96: prompt-injection detector fired. Generic policy_violation type,
+    # prompt-injection detector fired. Generic policy_violation type,
     # same rationale as unapproved-mcp-server (taxonomy change is Security's call).
     "injection-attempt-in-prompt": "policy_violation",
-    # AIM-97 per-tool-call rail: dedicated finding types (see TAXONOMY).
+    # per-tool-call rail: dedicated finding types (see TAXONOMY).
     "shell-tool-restricted-repo": "shell_tool_restricted_repo",
     "network-tool-restricted-repo": "network_tool_restricted_repo",
     "unapproved-mcp-server-configured": "unapproved_mcp_server_configured",
     "unapproved-mcp-tool": "policy_violation",
     "anomalous-volume-hourly": "usage_anomaly",
     "off-hours-bulk-usage": "usage_anomaly",
-    # AIM-383 model/cost governance.
+    # model/cost governance.
     "model-provider-not-permitted": "model_provider_not_permitted",
     "team-budget-tokens-warn": "team_budget_threshold",
     "team-budget-tokens-critical": "team_budget_threshold",
     "team-budget-cost-warn": "team_budget_threshold",
     "team-budget-cost-critical": "team_budget_threshold",
-    # AIM-441 expanded detection depth.
+    # expanded detection depth.
     "credential-shaped-tool-call": "credential_shaped_tool_call",
     "high-volume-repo-egress": "high_volume_repo_egress",
     "bulk-shell-hourly": "bulk_shell_hourly",
     "high-volume-repo-tokens": "high_volume_repo_tokens",
-    # AIM-575 App-LLM new-sources → SOC.
+    # App-LLM new-sources → SOC.
     "app-llm-new-source": "app_llm_new_source",
-    # AIM-738 catalogue drift.
+    # catalogue drift.
     "app-llm-new-provider": "app_llm_new_provider",
     "app-llm-new-model": "app_llm_new_model",
 }
@@ -272,7 +272,7 @@ def classify(finding_type: str) -> tuple[str, str, bool]:
     return FALLBACK_TAXONOMY[0], FALLBACK_TAXONOMY[1], False
 
 
-# -- CEF (port of packages/alerting/src/cef.ts, AIM-585 field completeness) ---
+# -- CEF (port of packages/alerting/src/cef.ts, field completeness) ---
 
 _CEF_VENDOR = "AIMonitoring"
 _CEF_PRODUCT = "GuardrailEngine"
@@ -315,7 +315,7 @@ def cef_act(decision: str | None) -> str:
 def to_cef(fields: dict, severity: int, runbook_url: str = "") -> str:
     """Build a CEF string for a finding. Metadata-only: pattern ids, never content.
 
-    Custom strings always ship with *Label pairs (AIM-585) so Sentinel parsers
+    Custom strings always ship with *Label pairs so Sentinel parsers
     do not need a side-channel schema.
     """
     name = fields.get("title") or fields["finding_type"]
@@ -361,7 +361,7 @@ def to_cef(fields: dict, severity: int, runbook_url: str = "") -> str:
     ])
 
 
-# Canonical Sentinel / webhook JSON field set (AIM-76 + AIM-585 completeness).
+# Canonical Sentinel / webhook JSON field set (+ completeness).
 SENTINEL_RECORD_FIELDS = (
     "FindingId",
     "TimeGenerated",
@@ -386,7 +386,7 @@ SENTINEL_RECORD_FIELDS = (
 
 
 def build_record(finding: dict, runbook_base_url: str = "") -> dict:
-    """Enrich an engine finding into the notifier JSON record (AIM-76 / AIM-585).
+    """Enrich an engine finding into the notifier JSON record.
 
     Same field set as the TS SentinelForwarder.buildRecord — see
     SENTINEL_RECORD_FIELDS and docs/aim-585-sentinel-cef-field-matrix.md.
@@ -475,7 +475,7 @@ def _post_with_retry(
 
 
 class WebhookNotifier:
-    """Generic HMAC-signed HTTPS webhook (AIM-76).
+    """Generic HMAC-signed HTTPS webhook.
 
     One POST per batch: JSON array of records, signed with
     ``X-AIM-Signature: sha256=<hex HMAC-SHA256 of body>`` keyed by the
@@ -538,7 +538,7 @@ class WebhookNotifier:
 
 
 class SentinelNotifier:
-    """Microsoft Sentinel via the Log Analytics Data Collector API (AIM-76).
+    """Microsoft Sentinel via the Log Analytics Data Collector API.
 
     Faithful Python port of packages/alerting/src/sentinel.ts: same
     string-to-sign, ``SharedKey {workspaceId}:{base64-hmac}`` Authorization
@@ -762,7 +762,7 @@ def build_google_chat_card(
 
 
 class GoogleChatNotifier:
-    """Google Chat incoming webhook (AIM-485).
+    """Google Chat incoming webhook.
 
     One Cards V2 POST per batch of eligible findings. The webhook URL is the
     secret (Google Chat space keys live in the URL path/query) and is only
@@ -838,7 +838,7 @@ class GoogleChatNotifier:
 
 
 def slack_feature_enabled(env: dict | None = None) -> bool:
-    """AIM-583: Slack destination is behind ALERT_SLACK_ENABLED (default off).
+    """Slack destination is behind ALERT_SLACK_ENABLED (default off).
 
     SOC opt-in only — research ranked Slack/email destinations as "only if the
     security team asks." The flag must be truthy *and* a webhook URL must be
@@ -972,7 +972,7 @@ def build_slack_message(
 
 
 class SlackNotifier:
-    """Slack incoming webhook (AIM-583) — SOC opt-in via ALERT_SLACK_ENABLED.
+    """Slack incoming webhook — SOC opt-in via ALERT_SLACK_ENABLED.
 
     One Block Kit POST per batch of eligible findings. The webhook URL is the
     secret (Slack signing tokens live in the path) and is only ever read from
@@ -1046,7 +1046,7 @@ class SlackNotifier:
 
 
 
-# PagerDuty Events API v2 — on-call page destination for AIM-699 escalation.
+# PagerDuty Events API v2 — on-call page destination escalation.
 PAGERDUTY_EVENTS_URL = "https://events.pagerduty.com/v2/enqueue"
 # Map engine severity → PD payload severity.
 PAGERDUTY_SEVERITY = {
@@ -1101,7 +1101,7 @@ def build_pagerduty_event(
 
 
 class PagerDutyNotifier:
-    """PagerDuty Events API v2 (AIM-699) — on-call page destination.
+    """PagerDuty Events API v2 — on-call page destination.
 
     One trigger event per eligible finding (not batched): PagerDuty dedupes
     on ``dedup_key=aim:<finding_id>``. Routing key is env-only
@@ -1179,7 +1179,7 @@ class PagerDutyNotifier:
         return DeliveryResult(delivered_ids, last_status, total_attempts or 1)
 
     def deliver_test(self) -> DeliveryResult:
-        """Fire a synthetic Events API v2 trigger (AIM-586 delivery proof).
+        """Fire a synthetic Events API v2 trigger (delivery proof).
 
         Always pages once regardless of ``min_severity`` so operators can
         prove the routing key and PD service integration without waiting for
@@ -1210,7 +1210,7 @@ class PagerDutyNotifier:
 
 
 def build_test_pagerduty_finding() -> dict:
-    """Synthetic critical finding for the PagerDuty notify-test path (AIM-586)."""
+    """Synthetic critical finding for the PagerDuty notify-test path."""
     return {
         "finding_id": "00000000-0000-4000-8000-00000000pdte",
         "rule_id": "pagerduty-destination-test",
@@ -1337,7 +1337,7 @@ def build_email_message(
 
 
 def build_test_email_finding() -> dict:
-    """Synthetic finding used by the notify-test path (AIM-582 delivery proof)."""
+    """Synthetic finding used by the notify-test path (delivery proof)."""
     return {
         "finding_id": "00000000-0000-4000-8000-00000000test",
         "rule_id": "email-destination-test",
@@ -1390,7 +1390,7 @@ def default_email_transport(
 
 
 class EmailNotifier:
-    """SMTP email destination (AIM-582).
+    """SMTP email destination.
 
     One plain-text message per batch of eligible findings. SMTP credentials and
     From address are env-managed (``ALERT_EMAIL_SMTP_*`` / ``ALERT_EMAIL_FROM``);
@@ -1513,7 +1513,7 @@ class EmailNotifier:
         return self._send_with_retry(message, [f["finding_id"] for f in eligible])
 
     def deliver_test(self) -> DeliveryResult:
-        """Send a synthetic test message (AIM-582 delivery proof)."""
+        """Send a synthetic test message (delivery proof)."""
         finding = build_test_email_finding()
         message = build_email_message(
             [finding],
@@ -1575,7 +1575,7 @@ def notifiers_from_env(env: dict | None = None) -> list:
             runbook_base_url=env.get("RUNBOOK_BASE_URL") or "",
         ))
 
-    # AIM-485: Google Chat company channel. Webhook URL is the secret.
+    # Google Chat company channel. Webhook URL is the secret.
     google_chat_url = env.get("ALERT_GOOGLE_CHAT_WEBHOOK_URL")
     if google_chat_url:
         notifiers.append(GoogleChatNotifier(
@@ -1584,7 +1584,7 @@ def notifiers_from_env(env: dict | None = None) -> list:
             triage_base_url=env.get("AIM_BASE_URL") or "",
         ))
 
-    # AIM-583: Slack — feature-flagged off by default (SOC opt-in).
+    # Slack — feature-flagged off by default (SOC opt-in).
     if slack_feature_enabled(env):
         slack_url = env.get("ALERT_SLACK_WEBHOOK_URL")
         if slack_url:
@@ -1594,7 +1594,7 @@ def notifiers_from_env(env: dict | None = None) -> list:
                 triage_base_url=env.get("AIM_BASE_URL") or "",
             ))
 
-    # AIM-699: PagerDuty Events API v2 — on-call page / escalation stage.
+    # PagerDuty Events API v2 — on-call page / escalation stage.
     pd_key = env.get("ALERT_PAGERDUTY_ROUTING_KEY")
     if pd_key:
         notifiers.append(PagerDutyNotifier(
@@ -1607,7 +1607,7 @@ def notifiers_from_env(env: dict | None = None) -> list:
     if env.get("ALERT_BUS_URL"):
         notifiers.append(bus_notifier(env))
 
-    # AIM-324: SIEM exporters (Splunk HEC / syslog-CEF). Off by default.
+    # SIEM exporters (Splunk HEC / syslog-CEF). Off by default.
     # Env-configured SIEM destinations export pseudonyms only — the
     # identity_map knob exists solely in the policy path (siem.py).
     from .siem import siem_notifiers_from_env
@@ -1615,7 +1615,7 @@ def notifiers_from_env(env: dict | None = None) -> list:
     notifiers.extend(siem_notifiers_from_env(env))
 
 
-    # AIM-582: email via SMTP. Host + From gate the destination; recipients
+    # email via SMTP. Host + From gate the destination; recipients
     # come from ALERT_EMAIL_TO (comma-separated) when policy is not used.
     if env.get("ALERT_EMAIL_SMTP_HOST") and env.get("ALERT_EMAIL_FROM"):
         to_addrs = _normalize_email_addrs(env.get("ALERT_EMAIL_TO") or "")
@@ -1631,7 +1631,7 @@ def notifiers_from_env(env: dict | None = None) -> list:
 
 
 def bus_notifier(env: dict):
-    """Build the unified-alert-bus publisher (AIM-158).
+    """Build the unified-alert-bus publisher.
 
     Imported lazily to keep the bus adapter off the import path of every
     guardrail entrypoint — `notify` is imported by the streaming CLI, which
@@ -1650,7 +1650,7 @@ def bus_notifier(env: dict):
 
 
 def notifiers_from_config(alerts: dict, env: dict | None = None) -> list:
-    """Build notifiers from the policy's ``settings.alerts`` section (AIM-94).
+    """Build notifiers from the policy's ``settings.alerts`` section.
 
     Non-secret config (enabled, url, min_severity, workspace_id, log_type)
     comes from policy-as-code; secrets stay env-managed
@@ -1658,7 +1658,7 @@ def notifiers_from_config(alerts: dict, env: dict | None = None) -> list:
     / ALERT_EMAIL_SMTP_* / ALERT_SLACK_WEBHOOK_URL). Disabled or missing sections produce no
     notifier; unknown keys are ignored so newer policy revisions stay loadable
     by older engines. Slack additionally requires ``ALERT_SLACK_ENABLED``
-    (AIM-583; default off).
+    (default off).
     """
     env = env if env is not None else os.environ
     alerts = alerts or {}
@@ -1683,7 +1683,7 @@ def notifiers_from_config(alerts: dict, env: dict | None = None) -> list:
             runbook_base_url=env.get("RUNBOOK_BASE_URL") or "",
         ))
 
-    # AIM-485: Google Chat. Policy owns enable + min_severity only; the
+    # Google Chat. Policy owns enable + min_severity only; the
     # incoming-webhook URL is env-only (same posture as webhook secret).
     google_chat = alerts.get("google_chat") or {}
     if google_chat.get("enabled"):
@@ -1693,7 +1693,7 @@ def notifiers_from_config(alerts: dict, env: dict | None = None) -> list:
             triage_base_url=env.get("AIM_BASE_URL") or "",
         ))
 
-    # AIM-583: Slack. Feature flag first (default off); policy owns enable +
+    # Slack. Feature flag first (default off); policy owns enable +
     # min_severity; webhook URL is env-only.
     slack = alerts.get("slack") or {}
     if slack.get("enabled") and slack_feature_enabled(env):
@@ -1703,7 +1703,7 @@ def notifiers_from_config(alerts: dict, env: dict | None = None) -> list:
             triage_base_url=env.get("AIM_BASE_URL") or "",
         ))
 
-    # AIM-699: PagerDuty. Policy owns enable + min_severity; routing key is
+    # PagerDuty. Policy owns enable + min_severity; routing key is
     # env-only (ALERT_PAGERDUTY_ROUTING_KEY). Typically listed in a later
     # escalation stage rather than fired on every finding.
     pagerduty = alerts.get("pagerduty") or {}
@@ -1722,14 +1722,14 @@ def notifiers_from_config(alerts: dict, env: dict | None = None) -> list:
     if bus.get("enabled") and env.get("ALERT_BUS_URL"):
         notifiers.append(bus_notifier(env))
 
-    # AIM-324: SIEM exporters. identity_map (the admin's explicit
+    # SIEM exporters. identity_map (the admin's explicit
     # pseudonym -> identity mapping) is honored only here, in policy-as-code.
     from .siem import siem_notifiers_from_config
 
     notifiers.extend(siem_notifiers_from_config(alerts, env))
 
 
-    # AIM-582: email. Policy owns enable + min_severity + recipients; SMTP
+    # email. Policy owns enable + min_severity + recipients; SMTP
     # host/from/credentials stay env-managed.
     email = alerts.get("email") or {}
     if email.get("enabled"):

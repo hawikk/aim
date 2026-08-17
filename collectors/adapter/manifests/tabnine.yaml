@@ -1,4 +1,4 @@
-# Tabnine — named unsanctioned presence (AIM-1185).
+# Tabnine — named unsanctioned presence.
 # Inspected codota/tabnine-vscode (2026-08-14):
 #   Config: ~/.config/TabNine/tabnine_config.json
 #   Cloud token: ~/.config/TabNine/.refresh_token_v2 (credential — refuse)

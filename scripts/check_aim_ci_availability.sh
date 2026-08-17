@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-454 / AIM-521: loud availability check for the aim-ci PR security runner pool.
+# loud availability check for the aim-ci PR security runner pool.
 #
 # Why this exists:
 #   When zero runners with the `aim-ci` label are online, every PR gate
@@ -18,7 +18,7 @@
 #   3  — fewer than MIN_ONLINE online (degraded / single-host risk)
 #   4  — auth failure listing runners (401/403) — observability gap, NOT capacity
 #
-# Auth note (AIM-521):
+# Auth note:
 #   Listing self-hosted runners is an admin-class API. Actions' GITHUB_TOKEN
 #   cannot call it (no administration permission on job tokens). Prefer a
 #   dedicated PAT (AIM_CI_RUNNER_LIST_TOKEN / GH_TOKEN) or host `gh auth`.

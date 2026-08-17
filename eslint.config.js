@@ -68,7 +68,7 @@ export default tseslint.config(
     },
   },
   {
-    // Landing sample demo (AIM-1073) is pure browser JS (document/window).
+    // Landing sample demo is pure browser JS (document/window).
     // Without browser globals, default node env fails static checks on main.
     files: ["apps/landing/**/*.js"],
     languageOptions: {
@@ -78,7 +78,7 @@ export default tseslint.config(
     },
   },
   {
-    // Playwright screenshot helper evaluates browser code strings (AIM-515).
+    // Playwright screenshot helper evaluates browser code strings.
     // page.evaluate bodies touch browser APIs; the runner itself is Node.
     files: ["apps/web/scripts/**/*.{js,mjs,cjs}"],
     languageOptions: {

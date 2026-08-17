@@ -1,4 +1,4 @@
-/* AIM-704 — Destination health: failed delivery SLO for webhook/email/Slack.
+/* — Destination health: failed delivery SLO for webhook/email/Slack.
  *
  * Self-contained module view (install-health pattern). Activates for
  * roles with capabilities.findingsConsole (analyst+), matching

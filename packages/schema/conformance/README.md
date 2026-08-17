@@ -2,8 +2,8 @@
 
 Every consumer of the alert bus replays this corpus in one test. It converts
 D3.1 §7 ("what a consumer must never assume") from prose into CI, and it is an
-acceptance criterion on the inbox ([AIM-160](/AIM/issues/AIM-160)) and the
-sentinel ([AIM-165](/AIM/issues/AIM-165)).
+acceptance criterion on the inbox and the
+sentinel.
 
 ## Files
 

@@ -1,4 +1,4 @@
-/* AIM-1070 — Navigation information architecture.
+/* — Navigation information architecture.
  *
  * The product accreted ~28 top-level tabs (12 static + 16 capability-gated
  * modules). Operators asked for a single main page plus far fewer permanent

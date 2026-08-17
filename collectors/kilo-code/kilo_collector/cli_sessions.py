@@ -6,7 +6,7 @@ VS Code ``globalStorage`` (see ``tasks.py``). The CLI stores sessions in
 ``~/.local/share/kilo/kilo.db`` (XDG data home) with token/cost columns
 on the ``session`` table — there is no hook API.
 
-Metadata only (AIM-16):
+Metadata only:
 
 - Read ``session`` token/cost/model/version/directory columns.
 - Locally scan ``message`` / ``part`` text for secret/PII matchers, then

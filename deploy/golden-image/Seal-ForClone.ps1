@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  AIM-745 — strip per-device identity before Sysprep / golden VHD capture.
+  strip per-device identity before Sysprep / golden VHD capture.
 
 .DESCRIPTION
   Removes host_id + device_token under the machine state dir and per-user

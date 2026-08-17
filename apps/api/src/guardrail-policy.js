@@ -1,4 +1,4 @@
-// Guardrail policy reader + humanizer (AIM-81).
+// Guardrail policy reader + humanizer.
 //
 // Reads the SAME YAML policy files the guardrail engine (services/guardrail)
 // loads, straight from disk on every request — the rules viewer can never
@@ -11,7 +11,7 @@
 // services/guardrail/src/guardrail/conditions.py — when a new op is added
 // there, add it here (unknown ops fail loud, not silent).
 //
-// Top-level rule_overrides maps (AIM-94, machine-owned ui-overrides.yaml) are
+// Top-level rule_overrides maps (machine-owned ui-overrides.yaml) are
 // collected from every file and applied to threshold rules after parsing —
 // unknown rule ids or keys throw, matching the duplicate-id posture.
 import { createHash } from 'node:crypto';
@@ -44,7 +44,7 @@ export function loadPolicy(path = policyPath()) {
   const rules = [];
   let version = null;
   const seen = new Set();
-  // Top-level rule_overrides maps from every file (AIM-94 UI-tunable rules),
+  // Top-level rule_overrides maps from every file (UI-tunable rules),
   // merged per-rule per-key — later file wins per key.
   const ruleOverrides = {};
 
@@ -75,7 +75,7 @@ export function loadPolicy(path = policyPath()) {
   return { version, settings, rules, ruleOverrides, contentHash: hasher.digest('hex'), sources: files };
 }
 
-// Keys a UI override may touch on a threshold rule (AIM-94). Everything else
+// Keys a UI override may touch on a threshold rule. Everything else
 // (metric, group_by, filters) stays PR-managed in the core policy files.
 const OVERRIDE_KEYS = ['gt', 'gte', 'window_seconds', 'severity'];
 
@@ -134,7 +134,7 @@ function offHoursText(settings) {
   return `off-hours (${String(start).padStart(2, '0')}:00–${String(end).padStart(2, '0')}:00, endpoint-local when available)`;
 }
 
-/** AIM-690: ABAC attribute leaves use ``attr:`` instead of ``field:``. */
+/**: ABAC attribute leaves use ``attr:`` instead of ``field:``. */
 function describeAttrLeaf(cond, settings = {}) {
   const attr = cond.attr;
   const ops = Object.keys(cond).filter((k) => k !== 'attr');
@@ -156,7 +156,7 @@ function describeAttrLeaf(cond, settings = {}) {
 }
 
 export function describeLeaf(cond, settings = {}) {
-  // AIM-690: ABAC attribute conditions (user / group / repo_class / tool).
+  // ABAC attribute conditions (user / group / repo_class / tool).
   if (cond && Object.prototype.hasOwnProperty.call(cond, 'attr')) {
     return describeAttrLeaf(cond, settings);
   }
@@ -245,7 +245,7 @@ export function describeRule(rule, settings = {}) {
   return { conditionText: null, thresholdText: lines.join('\n') };
 }
 
-/* ---------- AIM-441 rule posture (active / inert / discovery) ----------
+/* ---------- rule posture (active / inert / discovery) ----------
  * Never ship a permanently silent control without a dashboard label. Rules
  * may declare inert_until: [keys]; we also auto-detect restricted-repo
  * dependencies from the condition tree. */
@@ -320,7 +320,7 @@ export function rulePosture(rule, settings = {}, env = process.env) {
   }
 
   // MCP allowlist: discovery mode is a labelled active posture (every call
-  // flags) — distinct from inert. AIM-441 closed discovery → deny_unlisted.
+  // flags) — distinct from inert. closed discovery → deny_unlisted.
   const mcpMode = settings.mcp_allowlist_mode ?? 'deny_unlisted';
   const mcpEmpty = !Array.isArray(settings.approved_mcp_servers) || settings.approved_mcp_servers.length === 0;
   const mcpRule = rule.id === 'unapproved-mcp-server' || rule.id === 'unapproved-mcp-server-configured';

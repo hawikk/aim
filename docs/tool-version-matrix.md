@@ -1,11 +1,11 @@
-# Tool-version compatibility matrix (AIM-648)
+# Tool-version compatibility matrix
 
 Continuous CI proof that every supported coding-agent collector still:
 
 1. **Discovers** a pinned tool version from a recorded fixture, and
 2. **Emits** a schema-valid usage event carrying that `tool_version`.
 
-This is the path-to-10 residual for *Continuous tool-version matrix CI* under AIM-624 (coding-agent runtime telemetry).
+This is the path-to-10 residual for *Continuous tool-version matrix CI* (coding-agent runtime telemetry).
 
 ## Source of truth
 

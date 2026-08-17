@@ -1,4 +1,4 @@
-"""AIM API session-revoke client (AIM-714).
+"""AIM API session-revoke client.
 
 When directory sync marks a user suspended (leaver / IdP disable), call the
 platform API so live HMAC sessions are force-denied before AIM_SESSION_TTL_HOURS.

@@ -3,7 +3,7 @@
 **Audience:** an external engineer or small security team evaluating AI Monitoring  
 **Goal:** clone → minimal config → **one command** → working dashboard  
 **Time-to-green target:** ≤ 30 minutes on a clean laptop with Docker already installed  
-**Issue:** AIM-1035 (soft commercial self-hosted launch)
+(soft commercial self-hosted launch)
 
 This is the supported **happy path** for the Unified Security Stack compose
 layout used for AIM (and optional Gatehouse / CNAPP pointers). It is not a
@@ -92,7 +92,7 @@ SEED_BASE_URL=http://127.0.0.1:8080 ./scripts/seed-pilot-cohort.sh
 ## Production / private-network pilot
 
 Laptop demo defaults bind **127.0.0.1** and seed fixture seats. For a private
-EC2/VM pilot over NetBird/VPN use the dedicated entrypoint (AIM-1123):
+EC2/VM pilot over NetBird/VPN use the dedicated entrypoint:
 
 ```bash
 ./scripts/install-pilot.sh
@@ -142,7 +142,7 @@ With **no** `AIM_OIDC_*` variables set (compose default), the dashboard runs in
 
 This mode is **localhost-only by design**. Do not set `AIM_BIND_ADDR=0.0.0.0`
 without turning on real SSO (Enterprise). Every published port already binds
-`127.0.0.1` by default (AIM-184).
+`127.0.0.1` by default.
 
 ### Even lighter path (no Docker)
 
@@ -319,12 +319,12 @@ docker compose down -v    # also delete local Postgres / MinIO data
 | Clone | 1–3 min | Depends on network |
 | Preflight (`--preflight-only`) | &lt; 10 s | Docker + ports |
 | First `compose build` + pull | 10–20 min | Dominant; cache helps re-runs |
-| **Prebuilt pull path (AIM-1126)** | **≤ 15 min** target | `./scripts/install-pilot.sh --pull` when GHCR images available — see [`prebuilt-images.md`](./prebuilt-images.md) |
+| **Prebuilt pull path** | **≤ 15 min** target | `./scripts/install-pilot.sh --pull` when GHCR images available — see [`prebuilt-images.md`](./prebuilt-images.md) |
 | Health wait after images exist | 1–3 min | Migrations + ready probes |
 | Seed pilot cohort | &lt; 1 min | Deterministic event_ids |
 | **Total target** | **≤ 30 min** (build) / **≤ 15 min** (pull) | Re-run without rebuild if over |
 
-**Dry-run / measured notes (AIM-1035 agent host, 2026-08-02):**
+**Dry-run / measured notes (agent host, 2026-08-02):**
 
 | Check | Result |
 | --- | --- |
@@ -341,6 +341,6 @@ Full cold build time is host-dependent; if wall time exceeds 30 minutes, the scr
 ## Related docs
 
 - Root [`README.md`](../../README.md) — personal mode + link to this guide  
-- [`prebuilt-images.md`](./prebuilt-images.md) — AIM-1126 GHCR pull path + digest pins for pilot cold install  
+- [`prebuilt-images.md`](./prebuilt-images.md) — GHCR pull path + digest pins for pilot cold install
 - [`air-gapped-install.md`](./air-gapped-install.md) — offline media  
 - Soft-launch landing stub: [`site/index.html`](../../site/index.html)

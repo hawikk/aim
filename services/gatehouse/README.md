@@ -1,7 +1,7 @@
 # gatehouse
 
 PR-time security scanning — free **PR-security pillar** of the stack
-([AIM-161](/AIM/issues/AIM-161)). **Not** a CI/CD product.
+. **Not** a CI/CD product.
 
 Runs Semgrep (SAST), Gitleaks (secrets), Checkov (IaC) and Trivy (deps) against
 the lines a pull request changed, posts **one** check run and **one** comment,
@@ -58,23 +58,23 @@ skippable in the image.
 | `checkrun.py` | Pure rendering of the check run and the one comment. |
 | `cache.py` | Blob-SHA delta cache and the 30-day retention sweep. |
 | `orchestrator.py` | The pipeline that wires the above together. |
-| `aireview/` | AI/LLM security reviewer: bundle building, repo-graph, providers, validation ([AIM-162], [AIM-233]). |
-| `suggest.py` / `fix_patch.py` / `catalogue/` | One-click suggested fixes on PR findings ([AIM-234]). |
+| `aireview/` | AI/LLM security reviewer: bundle building, repo-graph, providers, validation. |
+| `suggest.py` / `fix_patch.py` / `catalogue/` | One-click suggested fixes on PR findings. |
 | `eval/` | Eval harness + fixtures for the AI reviewer (stub or live endpoint). |
-| `benchmark/` | Gate precision corpus + harness (AIM-334): per-gate FP/FN rates, FP budgets, auto-observe. |
+| `benchmark/` | Gate precision corpus + harness: per-gate FP/FN rates, FP budgets, auto-observe. |
 
-## One-click suggested fixes (AIM-234)
+## One-click suggested fixes
 
 For corroborated scanner findings with a reviewed catalogue patch, gatehouse
 self-scans the fix and posts a committable GitHub ```suggestion (small) or a
-sentinel draft-PR note (large, AIM-185 allowlist). Advisory only — never blocks.
+sentinel draft-PR note (large, allowlist). Advisory only — never blocks.
 Opt out per repo with `suggested_fixes.enabled: false` in `.gatehouse.yml`.
 
-## AI reviewer (AIM-162 + AIM-233 repo-graph)
+## AI reviewer (+ repo-graph)
 
 An optional second opinion over the same diff: added hunks plus ±20 lines of
 context, plus a bounded call-graph of caller/callee *signatures* for symbols
-the PR touched (AIM-233 / Greptile parity). Capped at 8 KB per file, 16 KB for
+the PR touched (Greptile parity). Capped at 8 KB per file, 16 KB for
 the graph slice, and 96 KB total. Sent to any OpenAI-compatible endpoint; the
 response is validated, anchored to the diff, and merged into the same check
 and comment. **Advisory by default** — AI findings never fail a check unless
@@ -103,7 +103,7 @@ python services/gatehouse/eval/run.py --provider http --markdown
 `gatehouse scan --no-ai` skips the reviewer even when configured; `--json`
 includes `ai_stats` (tokens, estimated cost, drops) per run.
 
-## Precision benchmark (AIM-334)
+## Precision benchmark
 
 Every gate ships with a measured precision/recall on a versioned corpus
 (≥50 seeded findings across secret/SAST/IaC/SCA + clean controls). CI runs the
@@ -119,9 +119,3 @@ python services/gatehouse/benchmark/run.py --require-scanners --markdown \
 
 See [`benchmark/README.md`](benchmark/README.md) and
 [`docs/gate-precision-scorecard.md`](../../docs/gate-precision-scorecard.md).
-
-[AIM-161]: /AIM/issues/AIM-161
-[AIM-162]: /AIM/issues/AIM-162
-[AIM-334]: /AIM/issues/AIM-334
-[AIM-233]: /AIM/issues/AIM-233
-[AIM-234]: /AIM/issues/AIM-234

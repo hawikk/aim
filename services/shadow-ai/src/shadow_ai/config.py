@@ -21,7 +21,7 @@ def resolve_data_path(
     After ``pip install`` in the Docker image, ``__file__`` lives under
     ``site-packages/shadow_ai/``, so ``parents[2]`` is
     ``/usr/local/lib/python3.12`` — not ``/app`` where the image copies
-    catalogue/fixtures and where compose bind-mounts them (AIM-1032).
+    catalogue/fixtures and where compose bind-mounts them.
 
     Prefer an existing file under (1) the container data root, then
     (2) the editable/source-tree service root (``parents[2]`` of this
@@ -84,12 +84,12 @@ class Settings(BaseSettings):
     # In prod this points at the ingest event store (read-only user).
     events_database_url: str = ""
 
-    # Process/binary signal for coding-tool auto-discovery (AIM-644):
+    # Process/binary signal for coding-tool auto-discovery:
     # fixture | postgres | none.
     process_source: str = "fixture"
     process_fixture_path: str = str(_DEFAULT_PROCESS_FIXTURE)
 
-    # Retention (AIM-300 privacy boundary): revoked grants are purged this
+    # Retention (privacy boundary): revoked grants are purged this
     # many days after their last sighting. Active grants persist while active.
     revoked_retention_days: int = 90
 
@@ -106,7 +106,6 @@ class Settings(BaseSettings):
         # create_engine() then raises NoSuchModuleError. Coerce it to the
         # canonical `postgresql://` so every consumer (env, compose default,
         # sqlite fallback) yields a driver SQLAlchemy can load.
-        # (AIM-1061)
         if value.startswith("postgres://"):
             return "postgresql://" + value[len("postgres://") :]
         return value

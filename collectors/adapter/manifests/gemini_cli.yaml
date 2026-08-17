@@ -1,4 +1,4 @@
-# NEW TOOL via contract — no core/surface code changes (AIM-304).
+# NEW TOOL via contract — no core/surface code changes.
 # Primary signal: local session / usage JSONL under ~/.gemini.
 # Secondary: provider API domain presence.
 id: gemini_cli

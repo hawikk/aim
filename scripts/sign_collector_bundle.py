@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sign a collector config or enforcement JSON as aim.signed-bundle/v1 (AIM-639).
+"""Sign a collector config or enforcement JSON as aim.signed-bundle/v1.
 
 Ops / CI usage (private key never deployed to endpoints)::
 

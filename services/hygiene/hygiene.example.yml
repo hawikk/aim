@@ -1,4 +1,4 @@
-# hygiene.yml — pillar 4 configuration (AIM-163).
+# hygiene.yml — pillar 4 configuration.
 #
 # Mount read-only and point HYGIENE_CONFIG at it. No credential is ever read
 # from this file: tokens come from the environment, because a file describing

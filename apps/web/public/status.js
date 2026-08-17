@@ -1,4 +1,4 @@
-/* AIM-290 — one screen: "is it working and is it covering everything?"
+/* — one screen: "is it working and is it covering everything?"
  *
  * Self-contained module view (findings/inbox pattern). Activates for any
  * role that can see pipeline liveness (capabilities.userLevel — auditor+

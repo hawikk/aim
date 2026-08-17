@@ -1,5 +1,5 @@
 /**
- * AIM-702 — auto-triage hints from policy_hash + historical outcomes.
+ * auto-triage hints from policy_hash + historical outcomes.
  *
  * ML-light, metadata-only. Never reads prompt/response/matched content.
  * Pure + DOM-free so node:test can exercise the heuristic without a browser.
@@ -17,7 +17,7 @@
  * and a sample-size dampener so n=3 cannot claim "high confidence".
  */
 
-// XSS boundary: import even when callers pass their own esc (AIM-523 guard).
+// XSS boundary: import even when callers pass their own esc (guard).
 import { esc as defaultEsc } from './dom.js';
 
 /** Terminal dispositions we treat as historical outcomes. */
@@ -285,7 +285,7 @@ export function hintTitle(hint) {
     ? `policy_hash + rule ${hint.ruleId}`
     : `rule ${hint.ruleId} (any policy)`;
   const counts = `history: ${hint.counts.false_positive} false_positive, ${hint.counts.resolved} resolved (n=${hint.sampleSize})`;
-  return `Auto-triage hint (AIM-702): likely ${label} · ${conf} confidence from ${match}. ${counts}. Metadata-only — no content.`;
+  return `Auto-triage hint: likely ${label} · ${conf} confidence from ${match}. ${counts}. Metadata-only — no content.`;
 }
 
 /**

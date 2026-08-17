@@ -1,4 +1,4 @@
-/* AIM-693: auditor offline pack panel (AIM-1172 split).
+/*: auditor offline pack panel (split).
  * Assembles the offline pack from the existing report endpoints and downloads
  * a ZIP. Fails closed — any missing artifact aborts the download with a clear
  * status (never a partial silent pack). */

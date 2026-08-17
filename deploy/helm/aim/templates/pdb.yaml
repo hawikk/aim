@@ -1,5 +1,5 @@
 {{- /*
-PodDisruptionBudgets for multi-replica stateless services (AIM-553).
+PodDisruptionBudgets for multi-replica stateless services.
 Single-replica components (postgres, minio) skip PDBs — minAvailable:1 on a
 single pod would block voluntary drain forever.
 Nil-safe: missing podDisruptionBudgets key → disabled.

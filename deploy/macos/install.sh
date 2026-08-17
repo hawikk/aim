@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — collector installer for macOS (AIM-743 / Jamf MDM).
+# AI Monitoring — collector installer for macOS (Jamf MDM).
 #
 # Idempotent, non-interactive. Run as root (Jamf policy / pkg postinstall):
 #   sudo AIM_INGEST_URL=https://ingest.corp.example \

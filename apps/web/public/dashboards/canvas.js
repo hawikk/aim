@@ -1,4 +1,4 @@
-/* Canvas layout for the custom dashboards builder (AIM-1162 split).
+/* Canvas layout for the custom dashboards builder (split).
  * Paints the active dashboard's widgets (KPI rows + full/half blocks) and
  * dispatches each placement to the widget renderer for its kind. */
 import { esc } from '../lib/dom.js';

@@ -11,7 +11,7 @@ Field leaves (``field:`` + one op):
   configured_mcp_server_unapproved, mcp_call_to_unapproved_tool.
 
 Attribute leaves (``attr:`` + one of eq/neq/in/not_in) — ABAC-style
-dimensions (AIM-690):
+dimensions:
   user, group, repo_class, tool
 
 Evaluation returns (matched: bool, detail: dict) — detail records WHY it
@@ -33,11 +33,11 @@ _CACHE_KEY = "_restricted_repo_refs_cache"
 _REPO_CLASS_CACHE_KEY = "_repo_class_index_cache"
 _USER_LIST_CACHE_KEY = "_user_list_cache"
 
-# AIM-690: ABAC attribute dimensions. Validated at ruleset load time.
+# ABAC attribute dimensions. Validated at ruleset load time.
 KNOWN_ATTRS = frozenset({"user", "group", "repo_class", "tool"})
 ATTR_OPS = frozenset({"eq", "neq", "in", "not_in"})
 
-# AIM-572: token-needle FP suppressions for tool_call_name_matches.
+# token-needle FP suppressions for tool_call_name_matches.
 # Usage/pagination/tokenizer segments make bare "token" a false positive for
 # credential-shaped intent; credential co-segments re-enable the match.
 _TOKEN_BENIGN_SEGS = frozenset({
@@ -56,7 +56,7 @@ _TOKEN_SUPPRESS_SEGS = frozenset({
 
 # Every leaf op eval_leaf implements. rules.py validates condition trees
 # against this at ruleset load time — an unknown op must fail fast at deploy,
-# not silently kill the rule per-event at runtime (AIM-102 adversarial finding).
+# not silently kill the rule per-event at runtime (adversarial finding).
 KNOWN_OPS = frozenset({
     "eq", "neq", "in", "not_in", "contains", "contains_detector",
     "gt", "gte", "lt", "lte",
@@ -108,7 +108,7 @@ def _token_needle_matches(segs: list[str]) -> bool:
 
 
 def tool_name_matches_needle(name: str, needle: str) -> bool:
-    """Return True if ``name`` matches a credential-shaped needle (AIM-572).
+    """Return True if ``name`` matches a credential-shaped needle.
 
     Matching is segment-aware (camelCase + snake_case) so short needles like
     ``vault`` do not fire on ``envault_backup``, while ``GetAccessToken`` still
@@ -230,7 +230,7 @@ def _event_user_idents(event: dict) -> set[str]:
     """Identity tokens present on the event for ABAC user matching.
 
     Prefer both collector ``user_ref`` (when set) and the identity-sync
-    ``user_pseudonym`` column reattached by the DB runner (AIM-49 / AIM-383).
+    ``user_pseudonym`` column reattached by the DB runner.
     """
     idents: set[str] = set()
     for key in ("user_ref", "user_pseudonym"):
@@ -347,7 +347,7 @@ def _match_set_attr(op: str, actual: set[str], expected: Any) -> bool:
 def eval_attr(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
     """Evaluate an ABAC attribute leaf (``attr:`` + one of eq/neq/in/not_in).
 
-    Dimensions (AIM-690):
+    Dimensions:
       user       — event.user_ref / user_pseudonym vs policy list (HMAC cleartext)
       group      — event.team ∪ event.groups ∪ settings.group_members
       repo_class — settings.repo_classes (+ restricted_repos → 'restricted')
@@ -478,7 +478,7 @@ def _in_off_hours(hour: int | None, settings: dict) -> bool:
 
 
 def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
-    # AIM-690: ABAC attribute leaves use ``attr:`` instead of ``field:``.
+    # ABAC attribute leaves use ``attr:`` instead of ``field:``.
     if "attr" in cond:
         return eval_attr(cond, event, settings)
     field = cond.get("field")
@@ -528,12 +528,12 @@ def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
         approved = (settings.get("approved_providers") or {}).get(tool)
         ok = actual is not None and bool(approved) and actual not in approved
     elif op == "not_in_approved_models_for":
-        # AIM-383: model must be in approved_models[tool]. Empty/missing = OK.
+        # model must be in approved_models[tool]. Empty/missing = OK.
         tool = event.get(expected)
         approved = (settings.get("approved_models") or {}).get(tool)
         ok = actual is not None and bool(approved) and actual not in approved
     elif op == "model_provider_not_permitted_for_scope":
-        # AIM-383: model/provider not permitted for the event's scope.
+        # model/provider not permitted for the event's scope.
         # Team allowlist (settings.team_approved_models[team][tool]) wins over
         # global approved_models[tool]; else fall back to approved_providers.
         # Empty configuration = degrade open (does not fire).
@@ -597,12 +597,12 @@ def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
         if refs is None:
             expected = f"{expected} (disabled: {REPO_REF_SALT_ENV} not set)"
     elif op == "mcp_call_to_unapproved_server":
-        # Settings-driven (AIM-86 / AIM-441): fires when any tool_calls[]
+        # Settings-driven: fires when any tool_calls[]
         # entry is an MCP call (action_class == "mcp_call") to a server
         # outside settings['approved_mcp_servers']. A null/missing
         # mcp_server counts as unapproved (unknown server). An EMPTY
         # approved list fires on every MCP call — formal deny-unlisted
-        # allowlist after AIM-441 inventory (mcp_allowlist_mode:
+        # allowlist inventory (mcp_allowlist_mode:
         # deny_unlisted), not open-ended discovery. See core.yaml.
         # The recorded `actual` is metadata-only: the offending
         # {tool_name, mcp_server} pairs, never counts/durations/args.
@@ -617,7 +617,7 @@ def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
         ]
         ok = bool(expected) and bool(actual)
     elif op == "tool_call_action_class_in":
-        # Tool_calls-aware (AIM-97): fires when any tool_calls[] entry on a
+        # Tool_calls-aware: fires when any tool_calls[] entry on a
         # tool_use event has an action_class in the operand list (e.g.
         # ["shell"], ["network"]). Missing/null tool_calls never matches.
         # The recorded `actual` is metadata-only: the matching
@@ -631,7 +631,7 @@ def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
         ]
         ok = bool(classes) and bool(actual)
     elif op == "tool_call_name_matches":
-        # AIM-441 / AIM-572: credential-shaped / sensitive tool names on
+        # credential-shaped / sensitive tool names on
         # tool_calls[]. Operand is a list of case-insensitive needles, or a
         # settings list name (e.g. credential_tool_name_substrings).
         # Matching is segment-aware (camel + snake) with token FP suppression
@@ -657,7 +657,7 @@ def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
         ok = bool(needles) and bool(actual)
 
     elif op == "mcp_call_to_unapproved_tool":
-        # AIM-627: per-(server, tool) allowlist on top of server allowlist.
+        # per-(server, tool) allowlist on top of server allowlist.
         # settings.approved_mcp_tools is a list of "server/tool_name" strings
         # (exact match, case-sensitive). EMPTY list = no tool-level restriction
         # (server allowlist alone still applies via mcp_call_to_unapproved_server).
@@ -693,11 +693,11 @@ def eval_leaf(cond: dict, event: dict, settings: dict) -> tuple[bool, dict]:
             ok = bool(expected) and bool(actual)
 
     elif op == "configured_mcp_server_unapproved":
-        # Settings-driven (AIM-97 / AIM-441): fires when any
+        # Settings-driven: fires when any
         # configured_mcp_servers[] entry on an inventory event names a
         # server outside settings['approved_mcp_servers']. An EMPTY
         # approved list fires on every configured server — formal
-        # deny-unlisted allowlist (discovery mode closed after AIM-441
+        # deny-unlisted allowlist (discovery mode closed after
         # inventory; see core.yaml mcp_allowlist_mode).
         # The recorded `actual` is metadata-only: the offending
         # {name, scope} pairs, nothing else from the inventory entry.

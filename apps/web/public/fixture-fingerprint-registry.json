@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Non-reversible fixture fingerprint allowlist (AIM-541). Stores detector+fingerprint+label+source only \u2014 never raw secrets or unsalted digests. Fingerprint \u2208 registry \u2192 suggest incident cluster A (known synthetic / dead-key fixture).",
+  "description": "Non-reversible fixture fingerprint allowlist. Stores detector+fingerprint+label+source only \u2014 never raw secrets or unsalted digests. Fingerprint \u2208 registry \u2192 suggest incident cluster A (known synthetic / dead-key fixture).",
   "salt_id": "ci-fixture-registry-v1",
   "algorithm": "HMAC-SHA256(key=AIM_HASH_SALT, msg='fp1|'+detector+'|'+NFKC_whitespace_stripped) hexdigest[:16]",
   "domain_separator": "fp1",

@@ -1,6 +1,6 @@
 {
   "schema": "security.alert/v1.1",
-  "source": "AIM-157 decision record D3.1 revision 6, \u00a77 + \u00a712 item 9",
+  "source": "Decision record D3.1 revision 6, \u00a77 + \u00a712 item 9",
   "entries": [
     {
       "line": 1,
@@ -109,7 +109,7 @@
     {
       "line": 14,
       "case": "prompt injection in evidence.summary",
-      "rule": "\u00a77.9 / AIM-165",
+      "rule": "\u00a77.9",
       "validity": "publisher-valid",
       "disposition": "accept-delimited",
       "note": "The sentinel feeds this to a model. Alert text is DATA, not instruction, and the prompt must say so."

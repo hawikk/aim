@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * AIM-709 — performance budget measurement under synthetic 700-seat load.
+ * performance budget measurement under synthetic 700-seat load.
  *
  * Measures:
  *  1. Gzip transfer sizes for critical path + eager index.html modules
@@ -154,7 +154,7 @@ export function synthUsers(n) {
   }
   return {
     rangeDays: 30,
-    note: 'Synthetic 700-seat fixture (AIM-709); pseudonymous only.',
+    note: 'Synthetic 700-seat fixture; pseudonymous only.',
     users,
   };
 }
@@ -503,7 +503,7 @@ function printReport(evalResult, assets, renders, browser) {
     const b = c.unit === 'B' ? `${(c.budget / 1024).toFixed(1)} KB` : `${c.budget}${c.unit}`;
     return `  [${mark}] ${c.name}: ${a} (budget ${b})`;
   };
-  console.log('\n=== AIM-709 performance budget (700 seats) ===');
+  console.log('\n=== performance budget (700 seats) ===');
   console.log(`Critical shell gzip: ${(assets.shellGzip / 1024).toFixed(1)} KB`);
   console.log(`Chart vendor gzip:   ${(assets.chart.gzip / 1024).toFixed(1)} KB`);
   console.log(`Critical path total: ${(assets.criticalPathTotalGzip / 1024).toFixed(1)} KB`);
@@ -540,7 +540,6 @@ async function main() {
   printReport(evalResult, assets, renders, browser);
 
   const report = {
-    issue: 'AIM-709',
     measuredAt: new Date().toISOString(),
     scaleModel: { pilotSeats: 700, pathTo: 5000 },
     budgets: { '700': BUDGETS_700, '5k': BUDGETS_5K },

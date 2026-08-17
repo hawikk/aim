@@ -1,5 +1,5 @@
 {
-  "$schema_note": "Operator reference for Microsoft Intune Win32 app fields (AIM-742). Not consumed by IntuneWinAppUtil; copy values into the portal or Graph API payload.",
+  "$schema_note": "Operator reference for Microsoft Intune Win32 app fields. Not consumed by IntuneWinAppUtil; copy values into the portal or Graph API payload.",
   "displayName": "AI Monitoring Collector",
   "description": "Endpoint collector for AI coding-tool telemetry (Claude Code). Installs payload under Program Files, machine config under ProgramData (ACL SYSTEM+Admins), and a SYSTEM scheduled task every 5 minutes for scan/flush/heartbeat.",
   "publisher": "AI Monitoring",

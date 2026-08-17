@@ -2,17 +2,17 @@
 #
 # Persistent storage, two replicas for the stateless services, resource
 # requests, and in-app OIDC SSO — the API terminates the authorization code
-# flow itself and maps IdP groups to roles (AIM-95 / AIM-302). Client-supplied
+# flow itself and maps IdP groups to roles. Client-supplied
 # identity headers are never trusted; there is no proxy-auth mode. Fill in
 # api.oidc for your IdP per docs/deployment/hosted-preview-sso-runbook.md.
 #
 # REQUIRED before use: set secrets.existingSecret (recommended) or override
 # every value under `secrets:` — the defaults are local-only.
-# `scripts/aim-553-helm-security-audit.sh` fails if this profile still carries
+# `scripts/helm-security-audit.sh` fails if this profile still carries
 # localdev-only secrets or enables authDev.
 
-# Fail-closed security posture for pilot / on-prem (AIM-553).
-# REQUIRED before use (AIM-601 fail-closed):
+# Fail-closed security posture for pilot / on-prem.
+# REQUIRED before use (fail-closed):
 #   - security.allowInsecureDefaults is false here — helm refuses local-only
 #     secrets, authDev, missing OIDC, public data-store services, and
 #     ingress without TLS. See docs/security/helm-values-security-defaults.md.
@@ -20,12 +20,12 @@
 #     value away from the documented local-only placeholders
 #   - set api.oidc.issuer + clientId + client secret
 #
-# AIM-557: requireSso=true + authDev=false so pilot cannot enable personal
+# requireSso=true + authDev=false so pilot cannot enable personal
 # mode or /auth/dev/* without an explicit chart override. The API also
 # fails closed at boot if AIM_REQUIRE_SSO=1 without complete OIDC.
 #
-# AIM-553: multi-replica + PDBs; audit script:
-# scripts/aim-553-helm-security-audit.sh
+# multi-replica + PDBs; audit script:
+# scripts/helm-security-audit.sh
 
 security:
   allowInsecureDefaults: false
@@ -37,7 +37,7 @@ podDisruptionBudgets:
 
 api:
   replicas: 2
-  # Pilot identity posture (AIM-545 / AIM-557): OIDC-only; no personal/dev auth.
+  # Pilot identity posture: OIDC-only; no personal/dev auth.
   authDev: false
   requireSso: true
   oidc:

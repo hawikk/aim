@@ -1,4 +1,4 @@
--- 003_findings.sql — AIM-32: guardrail findings storage + triage state.
+-- 003_findings.sql — guardrail findings storage + triage state.
 --
 -- Columns mirror the guardrail.finding/v1 schema emitted by the guardrail
 -- engine (services/guardrail/src/guardrail/engine.py). Findings are produced

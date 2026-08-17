@@ -1,8 +1,8 @@
 /**
- * CEF (Common Event Format) formatter for guardrail findings (AIM-585).
+ * CEF (Common Event Format) formatter for guardrail findings.
  * Format: CEF:0|Vendor|Product|Version|SignatureID|Name|Severity|Extension
  *
- * Metadata-only: pattern ids / pseudonyms / hashes — never prompt content (AIM-16).
+ * Metadata-only: pattern ids / pseudonyms / hashes — never prompt content.
  *
  * Custom-string keys (cs1–cs7) always ship with matching *Label fields so
  * Sentinel / ArcSight parsers and SOC KQL can resolve meaning without a
@@ -25,7 +25,7 @@ export interface CefFinding {
   tool: string;
   model?: string;
   repo?: string;
-  /** Pattern ids only — never content (metadata-only policy, AIM-16). */
+  /** Pattern ids only — never content (metadata-only policy). */
   matchFlags?: string;
   runbookUrl?: string;
   /** Team slug for SOC routing (JSON Team already existed; CEF was missing it). */
@@ -37,7 +37,7 @@ export interface CefFinding {
   /**
    * Engine severity band (critical|high|medium|low|informational). Distinct from
    * the CEF/Sentinel taxonomy severity — Sentinel has no Critical; SLA rules
-   * (AIM-442) key off the engine band.
+   * key off the engine band.
    */
   engineSeverity?: string;
   /**
@@ -100,7 +100,7 @@ export function toCef(finding: CefFinding, { severity }: { severity: number }): 
     ['msg', name],
     // Stable category for SIEM filtering / ASIM custom mappings.
     ['cat', 'ai-security'],
-    // Custom strings — ALWAYS paired with labels (AIM-585 critical gap).
+    // Custom strings — ALWAYS paired with labels (critical gap).
     ['cs1Label', 'AITool'],
     ['cs1', finding.tool],
     ['cs2Label', 'Model'],

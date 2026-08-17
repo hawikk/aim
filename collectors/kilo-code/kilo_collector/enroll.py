@@ -1,4 +1,4 @@
-"""Fleet enrollment + heartbeat client (AIM-80).
+"""Fleet enrollment + heartbeat client.
 
 One-line install (``python -m <collector> install --ingest-url URL
 --enroll-token TOKEN``) enrolls the device with the ingestion service and
@@ -30,7 +30,7 @@ _TIMEOUT = 10
 DEFAULT_INTERVAL = 300  # matches the ingest default heartbeat_interval_sec
 
 
-# --- TLS + split-horizon transport (AIM-238) --------------------------------
+# --- TLS + split-horizon transport --------------------------------
 #
 # Fleet enroll/heartbeat talk to an ingest URL that may present a private CA
 # (stack gateway) and may not resolve on the collector host (*.localhost is
@@ -254,7 +254,7 @@ def enroll(ingest_url: str, enroll_token: str, ring: str | None = None) -> dict:
     the local device_token is already present. If the local token is missing
     (host wipe, deleted state dir) we ask the server to rotate via
     ``reissue: true`` using the same enroll bearer — that is the deliberate
-    admin-equivalent recovery path (AIM-166 dogfood).
+    admin-equivalent recovery path (dogfood).
     """
     payload = {
         "host_id": state.host_id(),
@@ -264,7 +264,7 @@ def enroll(ingest_url: str, enroll_token: str, ring: str | None = None) -> dict:
     }
     if ring:
         payload["ring"] = ring
-    # AIM-868: when the local state still knows a previous enrollment id but
+    # when the local state still knows a previous enrollment id but
     # the server mints a new one (devices table recreated, host_id row lost),
     # ingest rebinds identity-sync join keys so service_identity / mapping
     # rows are not left pointing at the obsolete device_id.
@@ -317,7 +317,7 @@ def heartbeat() -> dict:
     })
     if 200 <= status < 300:
         _record_heartbeat()
-        # AIM-1114: heal a missing local device_id from the heartbeat response.
+        # heal a missing local device_id from the heartbeat response.
         # clear_device_token() wipes device_id with the token; if only the token
         # is restored (or the file is lost), batches fall back to os_user-only
         # and device_id-keyed service_identities resolve as principal_kind=unknown.
@@ -366,7 +366,7 @@ def _counters() -> dict:
         except OSError:
             pass
     c = {"events_spooled": spooled}
-    # Events ingest refused inside a 2xx (AIM-200). Reported on every
+    # Events ingest refused inside a 2xx. Reported on every
     # heartbeat so the fleet view can attribute a rejection spike to this
     # device and build — the server-side `rejected_events` table knows the
     # count but not who lost them.
@@ -434,7 +434,7 @@ def write_config(
     token goes to a 0600 file referenced by ``token_file`` — never plaintext
     in the JSON we write.
 
-    ``ca_bundle`` and ``resolve`` (AIM-238) are persisted so the watch
+    ``ca_bundle`` and ``resolve`` are persisted so the watch
     daemon reuses the same private-CA / split-horizon settings that made
     ``aim join`` work — without requiring ambient SSL_CERT_FILE forever.
     """

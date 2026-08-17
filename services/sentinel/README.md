@@ -1,4 +1,4 @@
-# sentinel — the triage agent (AIM-165)
+# sentinel — the triage agent
 
 Reads the unified alert bus, decides what a human needs to know, and says it
 once, with a fix attached.

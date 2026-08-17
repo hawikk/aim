@@ -1,4 +1,4 @@
-"""MCP server config inventory (AIM-97, schema v1.2).
+"""MCP server config inventory (schema v1.2).
 
 Reports which MCP servers are CONFIGURED in Kilo Code — name and scope
 only, never commands, args, URLs, or env values (env may hold secrets).

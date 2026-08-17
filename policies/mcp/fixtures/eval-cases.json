@@ -1,5 +1,5 @@
 {
-  "description": "AIM-664 evaluation cases against valid-policy-full.json. Call inputs use shape metadata only (or tool_input that is shaped away before assert).",
+  "description": "Evaluation cases against valid-policy-full.json. Call inputs use shape metadata only (or tool_input that is shaped away before assert).",
   "policy_fixture": "valid-policy-full.json",
   "cases": [
     {

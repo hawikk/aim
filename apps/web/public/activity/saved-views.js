@@ -1,4 +1,4 @@
-/* Saved views panel for the Activity trail (AIM-587; AIM-1163 split, extracted
+/* Saved views panel for the Activity trail (split, extracted
  * from activity.js): /api/views CRUD for activity filter sets — save, rename,
  * update filters, two-step delete, and the select that applies a saved view.
  *

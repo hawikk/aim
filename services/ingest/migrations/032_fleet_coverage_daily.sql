@@ -1,12 +1,12 @@
--- 032_fleet_coverage_daily.sql — AIM-619: daily fleet coverage history.
+-- 032_fleet_coverage_daily.sql — daily fleet coverage history.
 --
--- Powers optional `trend` on GET /api/fleet (AIM-588 Fleet coverage chart).
+-- Powers optional `trend` on GET /api/fleet (Fleet coverage chart).
 -- devices only holds a live snapshot (last_heartbeat_at); fabricating a
 -- multi-day series from that alone would lie. This table stores one real
 -- daily rollup per UTC calendar day, written by the API scheduler (and
 -- refreshed for "today" on fleet reads).
 --
--- Columns match the AIM-588 fixture contract (FLEET.trend):
+-- Columns match the fixture contract (FLEET.trend):
 --   day, deployed, healthy, stale, dead, never_seen, coverageGaps, healthyPct
 -- plus silent/dropping for parity with the live fleet summary.
 --

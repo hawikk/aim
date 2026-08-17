@@ -15,7 +15,7 @@ from pathlib import Path
 SETTINGS_PATH = "~/.claude/settings.json"
 
 # Events we register for. PostToolUse remains the telemetry rail for tool
-# calls (fire-and-forget). PreToolUse was added for AIM-110 Phase 1: it is
+# calls (fire-and-forget). PreToolUse was added Phase 1: it is
 # the only hook that can DENY a tool call, and we need it to block MCP calls
 # to unapproved servers. It spawns a process per tool call, so the hook does
 # no telemetry work on this event — decision logic only, fail-open, and
@@ -118,7 +118,7 @@ def _write(path: Path, cfg: dict) -> None:
 
 
 def main(args: list) -> int:
-    """One-line install UX (AIM-80): register hooks, then — when
+    """One-line install UX: register hooks, then — when
     --ingest-url/--enroll-token are given — write config, enroll the
     device, and verify connectivity end-to-end."""
     from . import enroll

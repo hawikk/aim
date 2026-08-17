@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Prove backup → restore into a clean environment preserves row counts and a
-# sample of audit/finding records (AIM-291 AC3).
+# sample of audit/finding records (AC3).
 #
 # What this exercises (compose-shaped, no live stack required):
 #   1. Empty Postgres + all SQL migrations (fresh install)

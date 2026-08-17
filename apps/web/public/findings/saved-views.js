@@ -1,5 +1,5 @@
-/* Findings saved views (AIM-94 / AIM-587) + hash filter round-trip
- * (AIM-1140 split of findings.js). Per-user filter presets via /api/views and
+/* Findings saved views + hash filter round-trip
+ * (split of findings.js). Per-user filter presets via /api/views and
  * the #/findings?status=&severity= URL contract the rest of the dashboard
  * hops into. setupSavedViews() wires the controls and returns the entry
  * points the orchestrator needs (activate on route, mark-custom on manual

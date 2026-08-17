@@ -1,4 +1,4 @@
-/* Users list honesty helpers (AIM-865 / AIM-709 §4.2).
+/* Users list honesty helpers (§4.2).
  *
  * Production GET /api/users hard-caps at 500 rows. At a 700-seat pilot that
  * can hide 200 active users. The API now prefers { total, limit, truncated };

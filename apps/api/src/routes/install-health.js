@@ -1,4 +1,4 @@
-// Install health / time-to-first-evidence SLO (AIM-746).
+// Install health / time-to-first-evidence SLO.
 //
 // Ops answer: "after a collector enrolls, how long until we have evidence it
 // is working — and are any enrollments past the SLO with nothing back?"
@@ -221,7 +221,7 @@ export function assembleInstallHealth({
   } else if (!hasEvents && oldestEnrollAgeSec != null && oldestEnrollAgeSec >= sloSec) {
     // Devices heartbeating is not enough for the *usage* half of the SLO:
     // if the install has ever enrolled and never produced a usage event past
-    // the SLO window, Ops still has a broken pipeline (AIM-215 no-events).
+    // the SLO window, Ops still has a broken pipeline (no-events).
     overall = 'broken';
     overallMessage = `Collectors enrolled but no usage events have ever arrived (fleet past ${formatDuration(sloSec)} SLO).`;
   } else if (

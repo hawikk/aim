@@ -1,5 +1,5 @@
 /* MCP server inventory + allowlist + runtime-deny override UX. Orchestrator only.
- * (AIM-505 / AIM-547 / AIM-592 / AIM-667 / AIM-800).
+ *.
  *
  * Self-contained module, same pattern as rules.js / findings.js: injects its
  * own nav tab, view section and stylesheet at runtime, activates on the
@@ -7,13 +7,13 @@
  * MCP inventory is security-relevant: it answers "who has what MCP server
  * configured" and is where unapproved-MCP findings correlate).
  *
- * Split (AIM-1157, mirroring the AIM-1140 findings split) — the panels live
+ * Split (mirroring the findings split) — the panels live
  * in sibling modules with clear ownership:
  *   ./mcp/state.js      shared view-private fctx + reset
  *   ./mcp/inventory.js  fleet catalogue table, KPI cards, filters, install drill-down
- *   ./mcp/allowlist.js  approved-server manage panel (AIM-547)
- *   ./mcp/override.js   runtime-denials panel, override-deny form (AIM-667), override audit
- *   ./mcp/session.js    session chain panel + #/mcp?session=<id> deep link (AIM-800)
+ * ./mcp/allowlist.js approved-server manage panel
+ * ./mcp/override.js runtime-denials panel, override-deny form, override audit
+ * ./mcp/session.js session chain panel + #/mcp?session=<id> deep link
  *
  * This file wires the capability gate, tab/section injection, element refs,
  * the router activation, and the panels in order. Keep it thin — new panel
@@ -26,16 +26,16 @@
  * scope as users wrote them; commands, URLs and env values are never
  * collected.
  *
- * AIM-547: analyst+admin manage settings.approved_mcp_servers via
+ * analyst+admin manage settings.approved_mcp_servers via
  * GET/PUT /api/mcp-allowlist (audited machine-owned mcp-allowlist.yaml).
  *
- * AIM-667: when MCP enforce denies (or would deny) an unapproved server,
+ * when MCP enforce denies (or would deny) an unapproved server,
  * the analyst override path is permanent allowlist approve with required
  * reason, optional dual-control second approver, and full audit
- * (mcp.allowlist_update). No browser modal (AIM-151) — inline panel.
+ * (mcp.allowlist_update). No browser modal — inline panel.
  *
- * AIM-800: session chain panel loads GET /api/mcp-sessions/:sessionId
- * (AIM-627). Deep link: #/mcp?session=<id>. Never displays args/results.
+ * session chain panel loads GET /api/mcp-sessions/:sessionId
+ *. Deep link: #/mcp?session=<id>. Never displays args/results.
  *
  * Row click drills into per-installation rows (user pseudonyms, hosts) via
  * the gated ?server= endpoint; a role without user-level access sees the
@@ -59,7 +59,7 @@ export { statusPill, filterServers, activeFilterLabels } from './mcp/inventory.j
 
 /* ---------- Gate: server-computed capability (analyst + admin) ----------
  * /api/me.capabilities.findingsConsole is the API's role-computed gate for
- * security surfaces (AIM-95). Do not reintroduce client-side group-name
+ * security surfaces. Do not reintroduce client-side group-name
  * sniffing — it misfires on any group whose name merely contains "security". */
 const me = await api('/api/me').catch((err) => {
   // SSO mode with no session → full-page redirect to the login flow. Personal
@@ -88,7 +88,7 @@ async function init() {
   });
 
   const section = moduleSection({ view: 'mcp', html: `
-    <div class="banner info">Fleet MCP catalogue (AIM-505 / AIM-547 / AIM-667): <b>configured</b> ∪ <b>discovered</b> MCP servers. Approval is <code>settings.approved_mcp_servers</code> under <code>deny_unlisted</code>. When endpoint enforce denies an unapproved server, use <b>Override deny</b> — permanent allowlist approve with required reason, optional dual-control, full audit. Metadata only — never commands, URLs, env, args, or results.</div>
+    <div class="banner info">Fleet MCP catalogue: <b>configured</b> ∪ <b>discovered</b> MCP servers. Approval is <code>settings.approved_mcp_servers</code> under <code>deny_unlisted</code>. When endpoint enforce denies an unapproved server, use <b>Override deny</b> — permanent allowlist approve with required reason, optional dual-control, full audit. Metadata only — never commands, URLs, env, args, or results.</div>
     <div class="cards" id="mcp-cards" aria-busy="true">${skeletonCards(7)}</div>
 
     <div class="panel" id="mcp-allowlist-panel">
@@ -172,7 +172,7 @@ async function init() {
       <div id="mcp-detail-body"></div>
     </div>
     <div class="panel" id="mcp-session-panel">
-      <h2>Session chain <span class="hint">AIM-800 · tool_calls + agent_handoffs (metadata only)</span></h2>
+      <h2>Session chain <span class="hint">tool_calls + agent_handoffs (metadata only)</span></h2>
       <form id="mcp-session-form" class="mcp-session-form" autocomplete="off">
         <label class="mcp-session-label" for="mcp-session-input">Session id
           <input type="text" id="mcp-session-input" name="session" maxlength="128"
@@ -217,7 +217,7 @@ async function init() {
   // Panels derived from the allowlist reload together after a write.
   fctx.refreshDerived = () => Promise.all([loadInventory(), loadDenials(), loadOverrideAudit()]);
 
-  // AIM-153: `#/mcp` is a real route — the tab is an ordinary data-view button
+  // `#/mcp` is a real route — the tab is an ordinary data-view button
   // handled by app.js, and route() calls this to render.
   registerModuleView('mcp', {
     // Return the promise so app.js showError can attach the view-level Retry banner.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AIM-209: execute .github/workflows/ci.yml on this host, because Actions is off.
+"""execute .github/workflows/ci.yml on this host, because Actions is off.
 
 GitHub Actions is disabled at the repo level on all three hawikk repos for the
 Actions blackout, so no PR gets checks and auto-merge.yml never fires. This is
@@ -606,7 +606,7 @@ def build_attestation(results: list[JobResult], event: str, notes: list[str]) ->
 
     return {
         "schema": "aim.ci-local.attestation/v1",
-        "_comment": "Produced by scripts/ci_local.py during the AIM-209 Actions "
+        "_comment": "Produced by scripts/ci_local.py during the Actions "
                     "blackout. This is NOT a GitHub check run. `degraded` means "
                     "some required verification did not happen here -- read "
                     "required_checks.not_covered before merging on it.",

@@ -6,8 +6,8 @@ the hostname itself never crosses the wire. What we corroborate here is:
 which detected-but-unsanctioned tools appeared, when, and from how many
 distinct host pseudonyms.
 
-Attribution honesty (AIM-300 acceptance criterion 3): proxy events are stored
-UNATTRIBUTED by contract (AIM-58 — no OS identity at the network layer), so
+Attribution honesty (acceptance criterion 3): proxy events are stored
+UNATTRIBUTED by contract (— no OS identity at the network layer), so
 proxy-sourced rows carry attributed=False and identity_count=None. We say so
 explicitly instead of guessing.
 

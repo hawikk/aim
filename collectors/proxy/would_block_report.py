@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Would-block report (AIM-113): what traffic WOULD have been blocked if the
+"""Would-block report: what traffic WOULD have been blocked if the
 exported blocklist (export_blocklist.py) had been enforced on the corporate
 proxy during the observation window.
 
@@ -13,7 +13,7 @@ than a big number):
 
   enforce      — rule is in the default blocklist export (employee-tool
                  categories): this traffic WOULD have been blocked.
-  review       — rule is provider-api (AIM-103: shared with company-built
+  review — rule is provider-api (shared with company-built
                  apps): blocked only after IT/Security confirm no app
                  dependency. Reported as "would block pending review".
   not-covered  — flagged traffic that maps to NO rule in endpoints.json
@@ -181,7 +181,7 @@ def build_report(events, db, by_provider, by_tool, since=None, until=None):
 def render_markdown(rep):
     L = []
     w = rep["window"]
-    L.append("# Would-block report — corporate proxy blocklist (AIM-113)")
+    L.append("# Would-block report — corporate proxy blocklist")
     L.append("")
     L.append(f"Window: `{w['first_event']}` → `{w['last_event']}`"
              + (f" (filtered ≥ {w['since_filter']})" if w.get("since_filter") else ""))
@@ -225,7 +225,7 @@ def iter_events(fp):
 
 def main(argv=None):
     p = argparse.ArgumentParser(
-        description="Would-block report for the AIM-113 proxy blocklist")
+        description="Would-block report for the proxy blocklist")
     p.add_argument("--input", default="-",
                    help="JSONL events file (default: stdin)")
     p.add_argument("--detections", default=DEFAULT_DETECTIONS,

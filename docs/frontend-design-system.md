@@ -1,7 +1,7 @@
 # Frontend design system
 
 Source of truth: `apps/web/public/styles.css`. This document describes the token
-layers, the component catalog, and the theming decision (AIM-69). Keep the two
+layers, the component catalog, and the theming decision. Keep the two
 in sync — if you change one, change the other.
 
 The dashboard is a no-build static app (plain CSS + ES modules + vendored
@@ -9,7 +9,7 @@ Chart.js), so the design system is intentionally CSS-only: custom properties
 for tokens, BEM-ish flat class names for components. No framework, no
 preprocessor.
 
-Adding a new view? Follow `docs/how-to-add-dashboard-view.md` (AIM-453 Phase
+Adding a new view? Follow `docs/how-to-add-dashboard-view.md` (Phase
 2) — the router/module wiring checklist, the shared-kernel import rule, and
 the smoke guard that enforces both.
 
@@ -26,13 +26,13 @@ the smoke guard that enforces both.
   `prefers-reduced-motion` kills animation, status is never color-only
   (pills carry a dot + label, toasts carry text).
 
-## AIM-151 retoken: what changed and why
+## retoken: what changed and why
 
-The AIM-68/69 system was structurally sound (tokens, semantic layer, light
+The system was structurally sound (tokens, semantic layer, light
 override) but its surface read as a consumer AI product rather than a security
 console: a blue→violet brand gradient, gradient-clipped stat numerals, an
 ambient page glow, a backdrop-blurred top bar, 14px card radii, pill buttons,
-and emoji in every empty state. AIM-151 kept the architecture and replaced the
+and emoji in every empty state. kept the architecture and replaced the
 surface. The rules below are enforced by tests in `apps/web/test/smoke.test.js`
 — violating them fails CI, which is deliberate: each one is cheap to
 reintroduce a single component at a time.
@@ -59,7 +59,7 @@ timestamps, detector names and collector versions render in `--mono` with
 `tabular-nums`. Sans is for chrome only. This single rule does most of the work
 of making the console read as instrumentation.
 
-**One timestamp vocabulary (AIM-533).** Every analyst-facing timestamp
+**One timestamp vocabulary.** Every analyst-facing timestamp
 renders through `fmtTs` in `apps/web/public/lib/format.js`. The shape is
 fixed:
 
@@ -78,7 +78,7 @@ Do **not** reimplement `fmtTs` in a view module. Local copies historically
 drifted to minutes+`Z` (`coverage.js`, `shadow-ai.js`) or seconds without `Z`
 (`compliance.js`); the same instant then read differently depending on which
 tab an analyst was on. Smoke test `one timestamp vocabulary via lib/format.js
-fmtTs (AIM-533)` fails CI if a local copy returns.
+fmtTs` fails CI if a local copy returns.
 
 **Pseudonyms are a feature, not a defect.** `refCell()` renders a salted-HMAC
 ref in mono, truncated to 10 characters, with the full value on the clipboard
@@ -112,14 +112,14 @@ zero prior period reads "no prior period data" rather than a fabricated +100%;
 an unchanged metric says so rather than "0.0%"; and direction is colored only
 where direction has meaning (cost rising is bad, token volume rising is not).
 
-## Theming decision (AIM-69): `data-theme` attribute, dark default
+## Theming decision: `data-theme` attribute, dark default
 
 **Decision: support a light theme via `<html data-theme="light">`; dark stays
 the default. Not dark-only.**
 
 Rationale:
 
-- All colors were already custom properties after the AIM-68 redesign, so the
+- All colors were already custom properties after the redesign, so the
   marginal cost of light mode is a single override block (~50 lines), not a
   parallel stylesheet. That is cheap enough to be worth it.
 - The dashboard is projected in ops/security review settings and embedded in
@@ -140,7 +140,7 @@ How it works:
   `PALETTE` by index. Nothing captures a hex at import, which is what makes a
   runtime switch possible.
 
-### Switching themes at runtime (AIM-514)
+### Switching themes at runtime
 
 The top bar carries a theme toggle (`#theme-toggle`), so an analyst switches
 theme without a reload and without the host page's involvement.
@@ -213,7 +213,7 @@ have a single place to point at.
 rings; `--warn-text`, `--info-soft`, `--info-border`, `--info-text` for
 banners. Light theme re-tunes all of these for contrast on white.
 
-### Severity — the one scale (AIM-524)
+### Severity — the one scale
 
 Severity/criticality is the product's primary axis. There is **one** definition
 of it, in `apps/web/public/lib/severity.js`, and every place that shows a
@@ -253,7 +253,7 @@ channels — the **band name in text**, always, and a **per-band shape**
 (`[data-sev]::before`: triangle critical, diamond high, square medium, dot low,
 hollow ring informational). Do not build a severity affordance that drops both.
 
-*Open question for the CTO:* a ramp built from unrelated hues would validate,
+*Open question: a ramp built from unrelated hues would validate,
 but would stop reading as an ordinal risk scale to everyone else. That trade is
 a design-system decision, not a refactor's to make — raised here, not taken.
 
@@ -266,7 +266,7 @@ a design-system decision, not a refactor's to make — raised here, not taken.
 | medium | 5.84:1 | 4.95:1 |
 | low / informational | 5.33:1 | 5.50:1 |
 
-AIM-524 retuned two light-theme steps to get there: `--sev-high`
+retuned two light-theme steps to get there: `--sev-high`
 `#b4530f → #9a3412` (the high/medium pair was ΔE 2.3 — indistinguishable) and
 `--sev-medium` off `--warn` to `#8a5a05` (its pill text was 4.29:1, under AA).
 `--sev-medium` is deliberately no longer an alias of `--warn`.
@@ -312,7 +312,7 @@ Weights in use: 400 (body), 500 (nav/inputs), 600 (labels/buttons), 650
 ### Spacing scale
 
 `--space-1..6` = 4 / 8 / 12 / 16 / 20 / 24px. Use the scale for **new**
-components. Legacy AIM-68 components keep their tuned values (e.g. panel
+components. Legacy components keep their tuned values (e.g. panel
 padding `18px 20px`); migrate opportunistically, don't churn.
 
 ### Radii, elevation, motion, z-index
@@ -386,7 +386,7 @@ Variants `ok` / `bad` / `warn` recolor the left edge; default (no variant) is
 neutral accent. Toasts auto-dismiss in JS — the CSS intentionally has no
 timeout.
 
-### Existing AIM-68 components (unchanged API)
+### Existing components (unchanged API)
 
 - **Topbar** `.topbar` > `.brand` (`.brand-mark`, `.brand-name`, `.tag`),
   `nav button` (`.active`), `.controls` (`.me`, `.updated`).
@@ -402,7 +402,7 @@ timeout.
 - **Banners** `.banner.warn|info` inline notices (privacy/policy context).
 - **Skeletons** `.skel` + `.panel.loading` for fetch states.
 
-### Empty & error states (AIM-72)
+### Empty & error states
 
 ```html
 <div class="empty-state" role="status">
@@ -427,7 +427,7 @@ timeout.
 - **A11y helpers** `.sr-only` (visually hidden, screen-reader only) and
   `.skip-link` (first tab stop, jumps to `#main`).
 
-### Accessibility baseline (AIM-72 audit)
+### Accessibility baseline (audit)
 
 - Text on tinted surfaces must hold WCAG AA (4.5:1 normal, 3:1 large/UI).
   Token values were tuned to pass in both themes — check contrast before
@@ -437,7 +437,7 @@ timeout.
   `<caption>`; canvases are `role="img"` with a data-summary `aria-label`;
   scrollable `.table-wrap` is a focusable labelled `role="region"`.
 
-### WCAG target and keyboard investigation path (AIM-711)
+### WCAG target and keyboard investigation path
 
 **Agreed target: WCAG 2.1 Level AA** for the shipped analyst UI in `apps/web`.
 This is a shipping requirement, not a stretch goal. Scope notes:
@@ -463,7 +463,7 @@ This is a shipping requirement, not a stretch goal. Scope notes:
    still in the filter, otherwise on the findings tabpanel — never `<body>`.
 
 DOM tests in `apps/web/test/a11y.test.js` (`a11y — findings keyboard path
-(AIM-711)`) are the regression gate for steps 3–6. Shared primitives live in
+`) are the regression gate for steps 3–6. Shared primitives live in
 `public/lib/a11y.js` (`moduleTab`, `moduleSection`, `announce`, `focusInto`,
 `setExpanded`, `preservingFocus`).
 
@@ -478,5 +478,5 @@ DOM tests in `apps/web/test/a11y.test.js` (`a11y — findings keyboard path
    re-declare the band order, or hand-write a severity pill in a view.
 5. Verify both themes when touching component CSS: click the top-bar theme
    toggle. No reload — if something only looks right after one, it captured a
-   token value instead of reading it (see AIM-514).
+   token value instead of reading it.
 6. This file and `styles.css` change together, in the same PR.

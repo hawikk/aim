@@ -1,7 +1,7 @@
-/* Findings triage + list interactions (AIM-1140 split of findings.js).
- * Owns the disclosure open/close path (AIM-711 keyboard investigation), the
- * single-finding triage mutation (AIM-223 reason enforcement), and bulk
- * selection / bulk triage (AIM-94). Row markup lives in ./row.js, shared
+/* Findings triage + list interactions (split of findings.js).
+ * Owns the disclosure open/close path (keyboard investigation), the
+ * single-finding triage mutation (reason enforcement), and bulk
+ * selection / bulk triage. Row markup lives in ./row.js, shared
  * state in ./state.js. */
 import { STATUS_LABEL, fctx } from './state.js';
 import { renderHistory } from './row.js';
@@ -10,7 +10,7 @@ import { announce, focusInto, setExpanded } from '../lib/a11y.js';
 import { api } from '../lib/api.js';
 import { withBusy } from '../lib/form.js';
 
-/* ---------- Bulk selection (AIM-94) ---------- */
+/* ---------- Bulk selection ---------- */
 
 export function syncBulkUI() {
   const { section, list, selected, currentIds } = fctx;
@@ -51,7 +51,7 @@ export function bindBulkBar() {
     if (!btn || selected.size === 0) return;
     const status = btn.dataset.bulk;
     const note = section.querySelector('#find-bulk-note').value;
-    // AIM-223: refuse early rather than round-trip the API's 400.
+    // refuse early rather than round-trip the API's 400.
     const blocker = triageBlocker(status, note);
     if (blocker) {
       toast(blocker, 'bad');
@@ -77,9 +77,9 @@ export function bindBulkBar() {
   });
 }
 
-/* ---------- Disclosure + triage (AIM-711 / AIM-223) ---------- */
+/* ---------- Disclosure + triage ---------- */
 
-/* AIM-711: open/close a finding disclosure without stranding the keyboard.
+/*: open/close a finding disclosure without stranding the keyboard.
  * setExpanded owns aria-expanded / aria-controls / hidden; we own focus and
  * the live-region announcement (rules.js uses the same pattern). */
 export function findingTitle(el) {
@@ -94,7 +94,7 @@ export function setFindingOpen(el, open, { focus = true } = {}) {
   setExpanded(rowBtn, detail, open);
   el.classList.toggle('open', open);
   if (open) {
-    renderHistory(el); // AIM-223: fresh trail on expand
+    renderHistory(el); // fresh trail on expand
     announce(`Finding detail open: ${findingTitle(el)}. Escape closes.`);
     if (focus) {
       // Prefer the triage note — the SOC path is read evidence → act.
@@ -119,7 +119,7 @@ export function closeOpenFindings({ except = null, focus = false } = {}) {
 export async function triage(id, status, el) {
   const { toast, list, section } = fctx;
   const note = el.querySelector('.f-note')?.value;
-  // AIM-223: refuse early rather than round-trip the API's 400.
+  // refuse early rather than round-trip the API's 400.
   const blocker = triageBlocker(status, note);
   if (blocker) {
     toast(blocker, 'bad');
@@ -186,7 +186,7 @@ export function bindFindingsList() {
     }
   });
 
-  // AIM-711: Escape collapses the open finding and returns focus to its row.
+  // Escape collapses the open finding and returns focus to its row.
   // Scoped to the findings panel so it does not fight other modals/editors.
   section.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;

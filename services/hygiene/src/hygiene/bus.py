@@ -1,4 +1,4 @@
-"""Pillar 4's publisher onto the cross-pillar alert bus (D3.1 / AIM-158).
+"""Pillar 4's publisher onto the cross-pillar alert bus (D3.1 /).
 
 Deliberately the same shape as `gatehouse/bus.py` and `guardrail/bus.py`: map at
 the construction site, validate strictly before the XADD, and raise rather than
@@ -11,7 +11,7 @@ What is specific to this pillar:
   A secret in history is `high`: real, needs rotating, not a 3am page. A secret
   that answered an identity call in the last few seconds is `critical`, because
   the window between "we know" and "someone else uses it" is open right now.
-  Sentinel pages on `critical` (AIM-165), so this mapping is the load-bearing
+  Sentinel pages on `critical`, so this mapping is the load-bearing
   half of the acceptance criterion — it is asserted directly in the tests.
 
 * **`alert_id` is derived, not random.** This scan runs nightly over the same
@@ -41,7 +41,7 @@ PRODUCER_NAME = "hygiene"
 STREAM_KEY = os.environ.get("HYGIENE_ALERT_STREAM", "secstack:alerts:v1")
 STREAM_MAXLEN = 50_000
 # Wire field name, owned by packages/schema/conformance/security-alert-wire.json
-# and pinned by tests/test_wire_contract.py. AIM-392: publishing under any
+# and pinned by tests/test_wire_contract.py. publishing under any
 # other name is a silent 100% drop — the consumer counts it malformed and every
 # health check stays green.
 WIRE_FIELD = "alert"
@@ -381,7 +381,7 @@ def _redis_publish(stream_key: str, alert: dict) -> str:
     """XADD one alert. Wire field is ``alert`` (security.alert/v1.1 JSON),
     matching guardrail + cnapp + sentinel. MAXLEN-capped on write (§4.3).
 
-    Historical note (AIM-392): this used to XADD field ``payload``. Sentinel
+    Historical note: this used to XADD field ``payload``. Sentinel
     only reads ``alert``, so hygiene pages never landed. Do not reintroduce
     ``payload``.
     """

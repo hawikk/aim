@@ -1,4 +1,4 @@
-# Vendored semgrep pack — injection (AIM-328).
+# Vendored semgrep pack — injection.
 #
 # Data-driven: add a rule here, not in runner/scanner code. The scanner points
 # at this directory; every *.yaml is loaded.

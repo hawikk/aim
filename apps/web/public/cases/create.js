@@ -1,4 +1,4 @@
-/* "Open case" create form (AIM-1186 split): toggle, cancel, validated submit.
+/* "Open case" create form (split): toggle, cancel, validated submit.
  * A successful create drills straight into the new case via nav.js goCase(). */
 
 import { validateCreate } from '../lib/cases.js';

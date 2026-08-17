@@ -1,4 +1,4 @@
-"""gatehouse's publisher adapter for the cross-pillar alert bus (D3.1 / AIM-158).
+"""gatehouse's publisher adapter for the cross-pillar alert bus (D3.1 /).
 
 The pillar-3 counterpart of `guardrail/bus.py`, and deliberately the same shape:
 map at the construction site, **validate strictly before the XADD**, and raise
@@ -38,7 +38,7 @@ PRODUCER_NAME = "gatehouse"
 STREAM_KEY = os.environ.get("GATEHOUSE_ALERT_STREAM", "secstack:alerts:v1")
 STREAM_MAXLEN = 50_000
 # Wire field name, owned by packages/schema/conformance/security-alert-wire.json
-# and pinned by tests/test_wire_contract.py. AIM-392: publishing under any
+# and pinned by tests/test_wire_contract.py. publishing under any
 # other name is a silent 100% drop — the consumer counts it malformed and every
 # health check stays green.
 WIRE_FIELD = "alert"
@@ -95,7 +95,7 @@ def to_alert(finding: Finding, target: ScanTarget, *, now: str, status: str = "n
              history: dict | None = None, producer_version: str = "0.1.0",
              check_run_id: int | str = 0, suppression_reason: str = "") -> dict:
     """Map one normalized finding onto a security.alert/v1.1 alert."""
-    # Repo-scoped identity (AIM-299 AC#3). The PR lives on resource.ref + labels.
+    # Repo-scoped identity (AC#3). The PR lives on resource.ref + labels.
     dedupe = dedupe_key(finding, target.identity_ref)
     history = history or {}
     labels = dict(finding.labels)
@@ -103,7 +103,7 @@ def to_alert(finding: Finding, target: ScanTarget, *, now: str, status: str = "n
     if finding.rule_id and "rule" not in labels:
         labels["rule"] = finding.rule_id
     labels["head_sha"] = (target.head_sha or "")[:12]
-    # Action context (AIM-299 AC#4): repo is resource.account_ref + resource.ref,
+    # Action context (AC#4): repo is resource.account_ref + resource.ref,
     # PR/file/line/commit/author/rule/severity are labels + top-level fields.
     # Author is the public GitHub *login*, never an email and never subject_ref
     # (subject_ref is the monitored-person pseudonym channel; a PR author is not).
@@ -120,7 +120,7 @@ def to_alert(finding: Finding, target: ScanTarget, *, now: str, status: str = "n
 
     # The file location, machine-readable. `evidence.summary` has carried it as
     # prose since v1, but prose is not a coordinate: sentinel's draft-PR
-    # remediation (AIM-185) needs the path and line as fields it can act on, and
+    # remediation needs the path and line as fields it can act on, and
     # parsing them back out of a human sentence is the kind of coupling that
     # breaks the moment someone improves the wording. Emitted only when they
     # survive intact — a path longer than the contract's 128-char label limit is
@@ -132,7 +132,7 @@ def to_alert(finding: Finding, target: ScanTarget, *, now: str, status: str = "n
             labels["line"] = str(finding.line)
 
     location = f"{finding.path}:{finding.line}" if finding.line else finding.path
-    # AIM-327: SCA reachability + dependency path belong in evidence.summary so
+    # SCA reachability + dependency path belong in evidence.summary so
     # they survive the 10-label cap. Labels still carry the short verdict for
     # machine filters (reachable / unreachable / unknown).
     evidence_summary = f"{finding.scanner}/{finding.rule_id} at {location}."
@@ -163,7 +163,7 @@ def to_alert(finding: Finding, target: ScanTarget, *, now: str, status: str = "n
         "first_seen_at": history.get("first_seen_at") or now,
         "last_seen_at": now,
         # Honest because the store counts open PR *occurrences* of this key
-        # (§3.1.1(e) / AIM-299 AC#3); omitted rather than faked to 1 when there
+        # (§3.1.1(e) / AC#3); omitted rather than faked to 1 when there
         # is no history row to read it from.
         **({"observed_count": history["observed_count"]} if history.get("observed_count") else {}),
         "resource": {
@@ -198,9 +198,9 @@ def _cap_labels(labels: dict) -> dict:
     # suppressed_reason ranks with the coordinates: why a finding is muted is
     # governance data, not context — an alert that says "suppressed" but cannot
     # say why is exactly what a reviewer must never see.
-    # cnapp_rule / would_be_cloud: AIM-329 code-to-cloud parity labels — keep
+    # cnapp_rule / would_be_cloud: code-to-cloud parity labels — keep
     # them over cosmetic keys so the bus still names the would-be cloud finding.
-    # AIM-327: reachability + dep_path outrank cosmetic context so SCA alerts
+    # reachability + dep_path outrank cosmetic context so SCA alerts
     # stay filterable after the 10-label contract cap.
     priority = ["scanner", "rule", "suppressed_reason", "check", "path", "line",
                 "pr", "branch", "author", "head_sha", "cnapp_rule", "cnapp_sev",
@@ -301,7 +301,7 @@ def _redis_publish(stream_key: str, alert: dict) -> str:
     """XADD one alert. Wire field is ``alert`` (security.alert/v1.1 JSON),
     matching guardrail + cnapp + sentinel. MAXLEN-capped on write (§4.3).
 
-    Historical note (AIM-392): this used to XADD field ``payload``. Sentinel
+    Historical note: this used to XADD field ``payload``. Sentinel
     only reads ``alert``, so 100% of pr_security pages were dropped as
     malformed while health stayed green. Do not reintroduce ``payload``.
     """

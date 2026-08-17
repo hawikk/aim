@@ -22,7 +22,7 @@ global:
 # site-internal IdP), real secrets via existingSecret. There is no
 # proxy-auth mode; client-supplied identity headers are never trusted.
 #
-# AIM-601: fail-closed the same way as values-standard.yaml. You still need
+# fail-closed the same way as values-standard.yaml. You still need
 # to pass real secrets + api.oidc (or secrets.existingSecret) at install time.
 
 security:

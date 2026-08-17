@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Multi-vendor proxy fixture matrix (AIM-1118 / AIM-1111 / AIM-50).
+"""Multi-vendor proxy fixture matrix.
 
-Keeps Squid + ≥3 enterprise proxy formats green on every PR so the AIM-50
+Keeps Squid + ≥3 enterprise proxy formats green on every PR so the
 live-export flip stays a config change, not a rediscovery.
 
 Checks (each fixture):

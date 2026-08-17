@@ -1,4 +1,4 @@
-# Vendored semgrep pack — AI / LLM code risk (AIM-445).
+# Vendored semgrep pack — AI / LLM code risk.
 #
 # Differentiation thesis: upstream p/security packs cover classic SAST
 # (injection, crypto, authz). They do not systematically flag *how application
@@ -6,7 +6,7 @@
 # agent/tool remote-code paths. That is the content generic scanners miss and
 # where an AI-monitoring CI product earns its keep.
 #
-# Metadata contract (same as AIM-328 packs):
+# Metadata contract (same as packs):
 #   gatehouse_type, remediation, category: ai_llm, confidence
 # Rules stay high-precision (literal dangerous APIs / flags). FP rate is
 # measured on sast_eval/cases.json before the pack may remain in enforce.

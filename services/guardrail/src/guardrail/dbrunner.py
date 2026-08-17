@@ -1,4 +1,4 @@
-"""Post-ingest evaluation runner (AIM-32).
+"""Post-ingest evaluation runner.
 
 Evaluates stored events from the ingest Postgres database against the policy
 ruleset and writes guardrail.finding/v1 rows into the findings table.
@@ -8,7 +8,7 @@ the engine; findings are inserted ON CONFLICT (rule_id, event_id) DO NOTHING,
 so re-running is always safe. Threshold-rule sliding windows are in-memory
 per run (same as the streaming CLI) — events are fed oldest-first.
 
-Alert delivery (AIM-76): findings that were newly inserted in a batch (the
+Alert delivery: findings that were newly inserted in a batch (the
 conflict no-ops excluded — insert_finding's return value is the edge trigger)
 are forwarded to the configured notifiers (see notify.py) after that batch's
 commit. A delivery failure never rolls back the finding insert and never
@@ -59,10 +59,10 @@ INSERT INTO evaluated_events (event_id) VALUES (%s)
 ON CONFLICT (event_id) DO NOTHING
 """
 
-# AIM-76: one row per finding per destination, recording whether the alert
+# one row per finding per destination, recording whether the alert
 # reached the receiver. UNIQUE (finding_id, destination) keeps re-runs safe.
 #
-# AIM-158 made the row upgradable: the bus sweeper re-publishes findings that
+# made the row upgradable: the bus sweeper re-publishes findings that
 # committed but never reached the bus, so a 'failed' row must be able to
 # become 'delivered'. The WHERE clause makes 'delivered' terminal — a later
 # failure can never downgrade a delivery that actually happened.
@@ -79,13 +79,13 @@ ON CONFLICT (finding_id, destination) DO UPDATE SET
 WHERE finding_deliveries.status <> 'delivered'
 """
 
-# AIM-158 (D3.1 §4.5, §12 item 6): findings that committed but never reached
+# (D3.1 §4.5, §12 item 6): findings that committed but never reached
 # a destination. `deliver_batch` only ever sees findings inserted in the
 # current batch, so without this a receiver outage during one guardrail cycle
 # would drop those alerts permanently. Ordered oldest-first so a replaying
 # consumer sees them in detection order.
 #
-# AIM-324: the attempt cap (%s, nullable) bounds re-drive. Destinations that
+# the attempt cap (%s, nullable) bounds re-drive. Destinations that
 # declare a sweep_attempt_cap (the SIEM exporters) stop being picked up once
 # the accumulated attempts reach it — the sweeper dead-letters those rows
 # instead (DEAD_LETTER_UPDATE). NULL means uncapped (the bus, whose redrive
@@ -103,7 +103,7 @@ ORDER BY f.ts ASC
 LIMIT %s
 """
 
-# AIM-324: failed -> dead once the accumulated attempts reach the
+# failed -> dead once the accumulated attempts reach the
 # destination's cap. Terminal, but operator-reversible (delete the 'dead'
 # rows and the anti-join picks the findings up again) — the same trade
 # 'rejected' made in 016, for the same reason: an endlessly-retried row
@@ -115,7 +115,7 @@ WHERE destination = %s AND status = 'failed' AND attempts >= %s
 RETURNING finding_id
 """
 
-# AIM-324: visible lag. Per destination: how many findings within the sweep
+# visible lag. Per destination: how many findings within the sweep
 # lookback are still pending (never delivered or failed-and-retryable), how
 # many are dead-lettered, and the age of the oldest pending finding — the
 # numbers a SOC watches to know "the SIEM is behind" before alerts go stale.
@@ -154,16 +154,16 @@ class RunSummary:
     alerts_failed: int = 0
     alerts_swept: int = 0
     # Findings dead-lettered this run (failed -> dead at the destination's
-    # attempt cap, AIM-324). Terminal, operator-reversible — see migration 019.
+    # attempt cap). Terminal, operator-reversible — see migration 019.
     alerts_dead_lettered: int = 0
     # Findings whose alert could not be built validly. Terminal, not pending —
     # counted separately so "we published nothing" and "we could not build
     # anything publishable" are distinguishable in the run log.
     alerts_rejected: int = 0
-    # AIM-383: team budget evaluator (0 when no budgets / migration missing).
+    # team budget evaluator (0 when no budgets / migration missing).
     budget_evaluated: int = 0
     budget_findings_inserted: int = 0
-    # AIM-699: multi-stage escalation advances this run.
+    # multi-stage escalation advances this run.
     escalations_advanced: int = 0
     escalations_enrolled: int = 0
     escalations_stopped: int = 0
@@ -172,12 +172,12 @@ class RunSummary:
 def row_to_event(row: Any) -> dict:
     """Reconstruct the canonical event dict from an events table row.
 
-    The ingest service stores the validated AIM-18 event verbatim in the
+    The ingest service stores the validated event verbatim in the
     payload JSONB column, so the engine sees exactly what the collector sent.
 
     Team / user_pseudonym are stamped at ingest by identity enrichment
-    (AIM-49) as columns, not collector payload fields. Merge them so
-    team-scoped budget and model-allowlist rules can group/match (AIM-383).
+    as columns, not collector payload fields. Merge them so
+    team-scoped budget and model-allowlist rules can group/match.
     """
     if len(row) >= 4:
         event_id, payload, team, user_pseudonym = row[0], row[1], row[2], row[3]
@@ -384,7 +384,7 @@ def sweep_undelivered(conn: Any, notifiers: list, summary: RunSummary) -> None:
     Only destinations that opt in are swept: re-driving an HTTPS webhook or
     the Sentinel forwarder would re-page a SOC for old findings, whereas the
     bus is a replayable log whose consumers are required to be idempotent on
-    alert_id (§7.2). AIM-324 extends the opt-in to the SIEM exporters
+    alert_id (§7.2). extends the opt-in to the SIEM exporters
     (splunk_hec, syslog_cef): a SIEM intake is a dedup-able log, not a pager —
     the stable finding id (OCSF finding_info.uid / CEF externalId) is the
     receiver's dedupe key — and the charter requires at-least-once export.
@@ -443,7 +443,7 @@ def sweep_undelivered(conn: Any, notifiers: list, summary: RunSummary) -> None:
 
 
 def delivery_lag(conn: Any, destinations: Iterable[str]) -> list[dict]:
-    """Per-destination delivery lag over the sweep lookback window (AIM-324).
+    """Per-destination delivery lag over the sweep lookback window.
 
     Returns one dict per destination: ``pending`` (never delivered or
     failed-and-retryable), ``dead`` (dead-lettered), and
@@ -490,9 +490,9 @@ def log_delivery_lag(conn: Any, notifiers: list) -> None:
 
 
 def notifiers_from_ruleset(ruleset: Ruleset) -> list:
-    """AIM-94: alert destinations come from the ruleset's ``settings.alerts``
+    """alert destinations come from the ruleset's ``settings.alerts``
     when the policy defines them; otherwise fall back to the legacy env
-    config (AIM-76). Logs the chosen source and enabled destinations (never
+    config. Logs the chosen source and enabled destinations (never
     secrets)."""
     alerts = ruleset.settings.get("alerts")
     if alerts is not None:
@@ -516,7 +516,7 @@ def deliver_findings(
     *,
     policies: list | None = None,
 ) -> None:
-    """Forward findings with optional multi-stage escalation (AIM-699).
+    """Forward findings with optional multi-stage escalation.
 
     Without policies, identical to ``deliver_batch`` (all notifiers). With
     policies, stage-0 destinations fire now; later stages are enrolled and
@@ -570,10 +570,10 @@ def run(
     """Evaluate every unevaluated event and store findings. Idempotent.
 
     `notifiers` (see notify.py) receive each batch of newly inserted findings
-    after that batch commits (AIM-76); the default empty tuple disables
+    after that batch commits; the default empty tuple disables
     delivery. `ruleset` may be passed pre-loaded (run_dsn does, so alert
     config and evaluation share one load/hash); otherwise it is loaded from
-    `rules_path`. `policies` are AIM-699 escalation policies; when omitted
+    `rules_path`. `policies` are escalation policies; when omitted
     they are loaded from the ruleset's settings.alerts.
     """
     loaded = ruleset or load_ruleset(rules_path)
@@ -597,7 +597,7 @@ def run(
     # that committed findings it could not publish (D3.1 §4.5).
     if notifiers:
         sweep_undelivered(conn, notifiers, summary)
-        # AIM-699: fire due escalation stages (Slack → PagerDuty timers).
+        # fire due escalation stages (Slack → PagerDuty timers).
         advance_escalations(conn, notifiers, policies, summary)
     while True:
         rows = fetch_unevaluated(conn, batch_size)
@@ -619,17 +619,17 @@ def run(
         if new_findings and notifiers:
             deliver_findings(conn, notifiers, new_findings, summary, policies=policies)
 
-    # AIM-383: team budget thresholds (80/100%) after the event pass.
+    # team budget thresholds (80/100%) after the event pass.
     # Missing tables or empty team_budgets → no-op (degrade open).
     _run_budget_evaluation(conn, engine, notifiers, summary, policies=policies)
-    # AIM-575: App-LLM new-sources signal → SOC alert destinations.
+    # App-LLM new-sources signal → SOC alert destinations.
     # First-ever proxy provider-API (host_ref, provider) inside lookback →
     # finding → existing webhook/Sentinel/Google Chat path.
     _run_new_source_evaluation(conn, engine, notifiers, summary, policies=policies)
-    # AIM-738: catalogue completeness — new uncatalogued providers/models.
+    # catalogue completeness — new uncatalogued providers/models.
     _run_catalogue_drift_evaluation(conn, engine, notifiers, summary)
     if notifiers:
-        # AIM-324: visible lag — one line per run with per-destination
+        # visible lag — one line per run with per-destination
         # pending/dead counts and the age of the oldest pending finding.
         log_delivery_lag(conn, notifiers)
     return summary
@@ -762,7 +762,7 @@ def _run_new_source_evaluation(
 def _run_catalogue_drift_evaluation(
     conn: Any, engine: Engine, notifiers: list, summary: RunSummary
 ) -> None:
-    """Evaluate uncatalogued providers/models (AIM-738); never raise into evaluate-db."""
+    """Evaluate uncatalogued providers/models; never raise into evaluate-db."""
     try:
         from . import catalogue_drift as drift_mod
 
@@ -830,7 +830,7 @@ def run_dsn(
     notifiers: Iterable[Any] | None = None,
 ) -> RunSummary:
     """notifiers=None (the production default) builds them from the ruleset's
-    settings.alerts when the policy defines them, else from env (AIM-76);
+    settings.alerts when the policy defines them, else from env;
     pass an explicit list (empty to disable) in tests."""
     ruleset = load_ruleset(rules_path)
     if notifiers is None:

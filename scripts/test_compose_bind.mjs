@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * AIM-184: the compose stacks must not publish anything on 0.0.0.0 by default.
+ * the compose stacks must not publish anything on 0.0.0.0 by default.
  *
  * A `ports:` entry written "5432:5432" has no interface, so Docker binds it to
  * every address the host has — and because publishing is done with DNAT rules

@@ -1,4 +1,4 @@
-// MCP server / tool-call inventory API (AIM-97 + AIM-505 + AIM-547 + AIM-667).
+// MCP server / tool-call inventory API.
 //
 // Two complementary rails feed the catalogue (metadata only — never commands,
 // URLs, env, args, or results):
@@ -11,11 +11,11 @@
 //      MCP invocations even when config inventory is missing for a collector.
 //
 // Approval status is evaluated against settings.approved_mcp_servers from the
-// same guardrail policy the engine hashes into findings.policy_hash. AIM-441:
+// same guardrail policy the engine hashes into findings.policy_hash.:
 // empty allowlist under mcp_allowlist_mode=deny_unlisted is a formal deny-all
 // (not open-ended discovery). discoveryMode is only true when mode=discovery.
 //
-// AIM-547: GET/PUT /api/mcp-allowlist lets analyst+admin manage the allowlist
+// GET/PUT /api/mcp-allowlist lets analyst+admin manage the allowlist
 // without hand-editing core.yaml. Writes land in machine-owned
 // mcp-allowlist.yaml (same pattern as ui-overrides.yaml / alerts.yaml) and
 // are audited. Endpoint enforce flip stays PR-managed in core.yaml.
@@ -32,7 +32,7 @@ import { loadPolicy, policyPath } from '../guardrail-policy.js';
 
 const ALLOWLIST_FILE = 'mcp-allowlist.yaml';
 const ALLOWLIST_HEADER =
-  '# Managed by the dashboard MCP allowlist UI (AIM-547). Do not edit by hand —\n' +
+  '# Managed by the dashboard MCP allowlist UI. Do not edit by hand —\n' +
   '# changes here are written by PUT /api/mcp-allowlist and audited.\n' +
   '# Merged after core.yaml: settings.approved_mcp_servers (array replace) and\n' +
   '# settings.enforcement.approved_mcp_servers (shallow key on enforcement).\n';
@@ -90,7 +90,7 @@ const NOTE =
   'union discovered (tool_use mcp_call metadata). Metadata only — server names, ' +
   'tool names, scopes, counts; never commands, URLs, env, args, or results. ' +
   'status is evaluated against settings.approved_mcp_servers in the live ' +
-  'guardrail policy (empty deny_unlisted allowlist = all unapproved; AIM-441).';
+  'guardrail policy (empty deny_unlisted allowlist = all unapproved).';
 
 // Latest config snapshot per (host_ref, tool). $1 = day range.
 const LATEST_CTE = `
@@ -141,7 +141,7 @@ function approvalMeta(policyLoader) {
     const approved = Array.isArray(policy.settings?.approved_mcp_servers)
       ? policy.settings.approved_mcp_servers.filter((s) => typeof s === 'string' && s.trim())
       : [];
-    // AIM-441: discovery mode is an explicit setting, not "empty list".
+    // discovery mode is an explicit setting, not "empty list".
     // Empty list under deny_unlisted is a formal allowlist (deny all).
     const mode = policy.settings?.mcp_allowlist_mode ?? 'deny_unlisted';
     const discoveryMode = mode === 'discovery' && approved.length === 0;
@@ -283,7 +283,7 @@ export async function mcpRoutes(fastify, opts) {
   const anyRole = requireRoles('admin', 'analyst', 'auditor', 'viewer');
   const userLevel = requireRoles('analyst', 'admin');
 
-  // ---- AIM-547: allowlist read/write (analyst can manage) ----------------
+  // ---- allowlist read/write (analyst can manage) ----------------
   fastify.get('/api/mcp-allowlist', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
     let policy;
@@ -316,7 +316,7 @@ export async function mcpRoutes(fastify, opts) {
     };
   });
 
-  // AIM-667: analyst override path — allowlist write is the permanent
+  // analyst override path — allowlist write is the permanent
   // override of runtime MCP deny. Optional reason + dualControl ride along
   // for full audit (dual control is optional; when present, approver is required).
   fastify.put('/api/mcp-allowlist', async (req, reply) => {
@@ -445,7 +445,7 @@ export async function mcpRoutes(fastify, opts) {
       removed,
       reason,
       dualControl,
-      // AIM-569: surface actor for the UI status line (audit may be no-op in tests).
+      // surface actor for the UI status line (audit may be no-op in tests).
       actor,
       note: 'Allowlist updated and audited. Endpoint collectors pick up enforcement.approved_mcp_servers on next bundle refresh.',
     };
@@ -544,7 +544,7 @@ export async function mcpRoutes(fastify, opts) {
     };
   });
 
-  // ---- AIM-665 / AIM-627: session chain tracing (metadata only) ----------
+  // ---- session chain tracing (metadata only) ----------
   // Reconstruct request→tool→result timeline for one session_id from
   // tool_use events. Optional chain fields + agent_handoffs surface when
   // collectors emit schema v1.10. Never prompt bodies, args, or results.
@@ -616,7 +616,7 @@ export async function mcpRoutes(fastify, opts) {
       sessionId,
       rangeDays: days,
       note:
-        'MCP session chain (AIM-665): tool_calls + agent_handoffs metadata only. ' +
+        'MCP session chain: tool_calls + agent_handoffs metadata only. ' +
         'Never arguments, results, prompts, or command lines. Chain edges require ' +
         'schema v1.10 call_id/parent_call_id when collectors emit them.',
       eventCount: rows.length,
@@ -641,7 +641,7 @@ export async function mcpRoutes(fastify, opts) {
     };
   });
 
-  // ---- AIM-627 / AIM-668: threat catalogue + allowlist recommendations --
+  // ---- threat catalogue + allowlist recommendations --
   function loadThreatCatalogue() {
     const candidates = [
       resolve(process.cwd(), 'policies/mcp/threat-catalogue.yaml'),
@@ -734,7 +734,7 @@ export async function mcpRoutes(fastify, opts) {
       cveResponseBusinessDays: rec.cve_response_business_days ?? null,
       liveApprovedServerCount: approved.length,
       note:
-        'Recommendations only (AIM-668). Apply via policy PR or PUT /api/mcp-allowlist; ' +
+        'Recommendations only. Apply via policy PR or PUT /api/mcp-allowlist; ' +
         'this endpoint never mutates the live allowlist.',
     };
   }
@@ -755,7 +755,7 @@ export async function mcpRoutes(fastify, opts) {
     const meta = approvalMeta(policyLoader);
     return {
       note:
-        'MCP threat catalogue (AIM-627/668): continuous-update threat classes for ' +
+        'MCP threat catalogue: continuous-update threat classes for ' +
         'MCP/tool-call governance + allowlist recommendations. Metadata-only — no customer payloads.',
       path: pathUsed,
       version: parsed?.version ?? null,

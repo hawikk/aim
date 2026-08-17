@@ -1,4 +1,4 @@
-// Flexible aggregation API (AIM-82): one endpoint that answers ad-hoc
+// Flexible aggregation API: one endpoint that answers ad-hoc
 // "metrics by X × Y per bucket" questions (e.g. "tokens by team × tool per
 // day") without exposing arbitrary SQL. Group-by fields come from a small
 // allowlist mapping to fixed SQL expressions — user input never reaches the

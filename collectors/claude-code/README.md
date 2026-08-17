@@ -1,4 +1,4 @@
-# aim-collector — Claude Code endpoint collector (AIM-20)
+# aim-collector — Claude Code endpoint collector
 
 Metadata-only usage collector for Claude Code on Windows / WSL / Linux.
 Pure Python 3.9+ stdlib. No third-party dependencies — deliberate, so the
@@ -6,18 +6,17 @@ endpoint package stays trivially auditable and easy to ship via Intune.
 
 ## What it collects (and what it never collects)
 
-Collects **metadata only**, per the locked content policy (AIM-16) and the
-ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`,
-AIM-18):
+Collects **metadata only**, per the locked content policy and the
+ratified event schema (`packages/schema/schema/v1/ai-usage-event.schema.json`):
 
 - model, token usage (`tokens_in`/`tokens_out`; cache-read folds into
   `tokens_in` in schema v1), pseudonymized repo/cwd/host refs
   (HMAC-SHA256), tool version, timestamps
 - `session_id` re-hashed per UTC day — `HMAC(utc-date || raw_id)` — so a
-  long-lived Claude Code session cannot be profiled across days (AIM-61)
+  long-lived Claude Code session cannot be profiled across days
 - `match_flags` set by local secret/PII pattern matchers
 - per-session tool-call aggregates as `event_type="tool_use"` events
-  (schema v1.1, AIM-86 — see below)
+  (schema v1.1 — see below)
 - cost is computed platform-side from the price table — the collector does
   not send cost
 
@@ -26,10 +25,10 @@ transcript content. Secret/PII matching runs on the endpoint; only
 detector names leave the machine. Ingest rejects out-of-schema fields
 whole, so a content leak would fail closed, not land in storage.
 
-Schema gaps raised on AIM-18 that remain open: no cache-token split
+Schema gaps raised on that remain open: no cache-token split
 (cache_read still folds into `tokens_in`).
 
-## Tool-call capture (AIM-86)
+## Tool-call capture
 
 The transcript watcher also counts tool invocations and emits one
 `event_type="tool_use"` event (schema v1.1) per session per scan when
@@ -56,7 +55,7 @@ read; `input` is never touched. The schema's
 attach arguments fail validation at ingest, and `events.validate()`
 rejects them locally first.
 
-## MCP config inventory (AIM-97 / AIM-570)
+## MCP config inventory
 
 On each transcript scan the collector also reads Claude Code MCP config
 and emits one `event_type="inventory"` event (schema v1.2) when the
@@ -107,20 +106,20 @@ python -m aim_collector flush      # drain spool to ingestion
 | `AIM_STATE_DIR` | `~/.aim-collector` | spool, checkpoint, host-id, config |
 | `AIM_DEVICE_ID` | (auto-detect) | Intune/Entra device id override (dev/test) |
 
-## Endpoint identity attestation (AIM-58)
+## Endpoint identity attestation
 
 Every flush attests endpoint identity once per batch in the POST
 `/v1/events` envelope (`collector: {device_id, os_user}` — never inside
 event payloads). Ingest resolves it to `user_pseudonym`/`team` via
-identity-sync (AIM-49). `device_id` resolution order: `AIM_DEVICE_ID` env →
+identity-sync. `device_id` resolution order: `AIM_DEVICE_ID` env →
 `device_id` key in the managed config file (the pilot path — Intune/SCCM
 drops it alongside `config.json` at install time) → `dsregcmd /status`
 DeviceId on enrolled Windows hosts. `os_user` is the OS login name; on
 WSL/Linux it is the only attested field and identity-sync falls back to its
-os_user/heuristic rules (AIM-24 ADR-001). If neither is attestable the block
+os_user/heuristic rules (ADR-001). If neither is attestable the block
 is omitted and events are stored unattributed.
 
-## Packaging / deployment (handoff to AIM-28 / AIM-42)
+## Packaging / deployment (handoff)
 
 - v1: Intune package wraps a pinned CPython embeddable distro + this
   source, or PyInstaller single binary per OS. Version-pinned; update path

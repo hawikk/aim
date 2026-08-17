@@ -9,7 +9,7 @@ import type { UsageEventV1 } from "./schema";
 import { fingerprintPayload, type RejectedRecord } from "./sink";
 
 /**
- * Raw-batch archive (AIM-83): every accepted batch is written to the object
+ * Raw-batch archive: every accepted batch is written to the object
  * store as an immutable NDJSON object, so batches can be replayed or
  * re-examined forensically even if the row-level schema changes or data is
  * lost.
@@ -23,7 +23,7 @@ import { fingerprintPayload, type RejectedRecord } from "./sink";
  *               * schema-valid events, verbatim
  *               * a {"_rejected": {...}} fingerprint stub for everything else
  *
- * PRIVACY (no-content-egress invariant, AIM-650): the archive is written
+ * PRIVACY (no-content-egress invariant): the archive is written
  * AFTER schema validation and only ever holds events the canonical
  * metadata-only schema accepted. The schema (`additionalProperties: false`)
  * is the control that rejects content-bearing fields, so archiving the body
@@ -43,7 +43,7 @@ export interface BatchArchive {
   put(key: string, body: string): Promise<void>;
 }
 
-/** Object-store retention lifecycle (AIM-143). The raw batch archive is
+/** Object-store retention lifecycle. The raw batch archive is
  *  event-class data, so its expiry mirrors the events retention window. */
 export interface RetentionLifecycle {
   applyRetentionPolicy(eventWindowDays: number): Promise<void>;

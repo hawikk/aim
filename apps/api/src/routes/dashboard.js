@@ -1,11 +1,11 @@
-// Dashboard read API (AIM-25), reading the canonical event store (AIM-34/AIM-23,
-// unified on AIM-57). Events live in the ingest schema: keyed by event_id,
+// Dashboard read API, reading the canonical event store (
+// unified). Events live in the ingest schema: keyed by event_id,
 // pseudonymous host_ref/user_ref (HMAC), source in {proxy, endpoint}, nullable
 // tokens/model/provider. Network-path (proxy) events have no resolved user, so
 // no query here may depend on a NOT-NULL user identity.
 //
 // All endpoints are metadata-only aggregates. No prompt/response content exists
-// in the DB by design (content policy, AIM-16).
+// in the DB by design (content policy).
 import { query } from '../db.js';
 import { COST_SQL } from '../pricing.js';
 import { isSanctioned, listSanctionedToolNames } from '../sanctioned.js';
@@ -24,7 +24,7 @@ function parseDays(q, def = 30, max = 365) {
   return Math.min(Math.floor(d), max);
 }
 
-// AIM-866: offset pagination for /api/users (path-to-5k). UI default ≤ 100;
+// offset pagination for /api/users (path-to-5k). UI default ≤ 100;
 // higher limits only on the already-gated CSV export path.
 const USERS_DEFAULT_LIMIT = 100;
 const USERS_MAX_LIMIT = 100;
@@ -55,7 +55,7 @@ function sourceFilter(q, paramIndex) {
 
 const num = (v) => Number(v ?? 0);
 
-// CSV column layouts (AIM-82). Keys match the JSON field names of each
+// CSV column layouts. Keys match the JSON field names of each
 // endpoint's row objects so the export mirrors the on-screen table.
 const TOOLS_CSV_COLS = [
   { key: 'tool', label: 'tool' },
@@ -82,14 +82,14 @@ const PROVIDERS_CSV_COLS = [
   { key: 'lastSeen', label: 'last_seen' },
 ];
 // Providers whose direct API is matched by `provider-api` rules in
-// collectors/proxy/endpoints.json (AIM-103 / AIM-576): usable by BOTH
+// collectors/proxy/endpoints.json: usable by BOTH
 // employee tools and company-built applications — attribution comes from
 // traffic_class. Keep in sync with category=provider-api rule providers
 // (see docs/app-llm-provider-catalogue.md). Sorted for stable API output.
 const PROVIDER_API_PROVIDERS = new Set([
   // Keep sorted by product priority, then alpha. CI:
   // scripts/check_provider_catalogue_drift.py fails when this set drifts from
-  // collectors/proxy/endpoints.json category=provider-api (AIM-738).
+  // collectors/proxy/endpoints.json category=provider-api.
   'anthropic',
   'openai',
   'azure_openai',
@@ -199,7 +199,7 @@ const REPOS_CSV_COLS = [
 // opts.db is injectable for tests; defaults to the real pg pool.
 export async function dashboardRoutes(fastify, opts) {
   const db = opts?.db ?? { query };
-  // Role gates (AIM-95): org-level aggregates are open to all three roles,
+  // Role gates: org-level aggregates are open to all three roles,
   // user-level rows stay analyst+, repo label writes are admin only.
   const anyRole = requireRoles('admin', 'analyst', 'auditor', 'viewer');
   const userLevel = requireRoles('analyst', 'admin');
@@ -213,7 +213,7 @@ export async function dashboardRoutes(fastify, opts) {
     const sf = sourceFilter(req.query, 2);
     const params = sf.param ? [days, sf.param] : [days];
     const range = `e.ts >= now() - ($1 || ' days')::interval`;
-    // AIM-151: the KPI strip shows a delta vs. the immediately preceding window
+    // the KPI strip shows a delta vs. the immediately preceding window
     // of equal length. Distinct counts (users, hosts, sessions) cannot be
     // derived by subtracting a wider window, so the prior period is its own
     // aggregate rather than arithmetic on the current one.
@@ -228,7 +228,7 @@ export async function dashboardRoutes(fastify, opts) {
            COALESCE(SUM(e.tokens_out),0) AS tokens_output,
            COALESCE(SUM(${COST_SQL}),0)  AS cost
          FROM events e`;
-    // AIM-452: attributed vs unattributed is a first-class Overview metric.
+    // attributed vs unattributed is a first-class Overview metric.
     // Same range as the usage KPIs so the numbers answer the same window the
     // operator is looking at. Split by tool and host so a single dark tool
     // or host cannot hide inside a green fleet average.
@@ -320,7 +320,7 @@ export async function dashboardRoutes(fastify, opts) {
       costUsd: num(r.cost),
       firstSeen: r.first_seen,
     }));
-    // CSV export (AIM-82): the on-screen "Tools in use" table, verbatim.
+    // CSV export: the on-screen "Tools in use" table, verbatim.
     if (wantsCsv(req)) {
       return sendCsv(reply, `aim-overview-tools-${days}d.csv`, TOOLS_CSV_COLS, toolRows);
     }
@@ -337,7 +337,7 @@ export async function dashboardRoutes(fastify, opts) {
     return {
       rangeDays: days,
       source: sf.param ?? 'all',
-      // AIM-452 auditability: when this response's coverage numbers were
+      // auditability: when this response's coverage numbers were
       // verified end-to-end against the event store.
       lastVerifiedAt,
       totals: {
@@ -370,7 +370,7 @@ export async function dashboardRoutes(fastify, opts) {
         tokens: num(r.tokens),
         costUsd: num(r.cost),
       })),
-      // First-class identity coverage (AIM-452). Threshold matches the
+      // First-class identity coverage. Threshold matches the
       // pipeline/system-status alert (ATTRIBUTION_TARGET_PCT).
       attribution: {
         lastVerifiedAt,
@@ -403,7 +403,7 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- org-level provider view (AIM-57; AIM-19 AC2): volumes by AI provider,
+  // ---- org-level provider view: volumes by AI provider,
   // filterable by collection path (proxy = network, endpoint = device agent).
   // This is the day-1 pilot view: it works with proxy-only data, no endpoint
   // agent and no identity resolution required.
@@ -491,13 +491,13 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- app-LLM view (AIM-103, approved AIM-101 phase 1) ----
+  // ---- app-LLM view (approved phase 1) ----
   // Provider-API metering with source-class attribution: which company
   // applications vs employee tools call OpenAI/Anthropic/Azure/OpenRouter,
   // with volume (bytes), status mix, and time patterns. Metadata only — no
   // tokens/models at the network path (phase 2 / OTel covers those).
   // The provider set mirrors the `provider-api` rules in
-  // collectors/proxy/endpoints.json (AIM-576 + AIM-738 catalogue: OpenAI/
+  // collectors/proxy/endpoints.json (catalogue: OpenAI/
   // Anthropic/Azure OpenAI/Bedrock/Vertex+Gemini API/Mistral/Cohere/Groq/
   // xAI/OpenRouter/Moonshot/Together/Fireworks). traffic_class is NULL on
   // events predating schema v1.4 and on endpoint/otel events — bucketed as
@@ -541,7 +541,7 @@ export async function dashboardRoutes(fastify, opts) {
          ORDER BY 1`,
         [days, [...PROVIDER_API_PROVIDERS]]
       ),
-      // Key signal (AIM-103): a source whose FIRST-EVER provider-API call
+      // Key signal: a source whose FIRST-EVER provider-API call
       // falls inside the window — shadow-AI in built software. host_ref is a
       // pseudonym; the security group pivots on it via existing workflows.
       db.query(
@@ -595,9 +595,9 @@ export async function dashboardRoutes(fastify, opts) {
   });
 
   // ---- per-team breakdown: usage, cost, sanctioned vs unsanctioned ----
-  // Team attribution comes from ingest-time identity enrichment (AIM-49);
+  // Team attribution comes from ingest-time identity enrichment;
   // events without a resolved identity bucket into '(unattributed)'. Display
-  // names come from team_aliases (AIM-483) — the attribution key stays stable
+  // names come from team_aliases — the attribution key stays stable
   // in drill-down URLs; renames never rewrite historical events.
   fastify.get('/api/teams', async (req, reply) => {
     if (!anyRole(req, reply)) return reply;
@@ -661,7 +661,7 @@ export async function dashboardRoutes(fastify, opts) {
     const unattributedPct = events > 0 ? Math.round((1000 * unattributed) / events) / 10 : 0;
     return {
       rangeDays: days,
-      note: 'Team attribution requires identity resolution (AIM-49); unresolved events bucket into (unattributed). Display names are operator aliases (AIM-483) and do not rewrite event history.',
+      note: 'Team attribution requires identity resolution; unresolved events bucket into (unattributed). Display names are operator aliases and do not rewrite event history.',
       attribution: {
         events,
         unattributed,
@@ -677,7 +677,7 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- team detail + members (AIM-483) ----
+  // ---- team detail + members ----
   // Members are pseudonyms observed on events in range, with optional
   // team_member_overrides applied for display. Overrides never rewrite events.
   fastify.get('/api/teams/:team', async (req, reply) => {
@@ -893,7 +893,7 @@ export async function dashboardRoutes(fastify, opts) {
     return { pseudonym, team: null, cleared: Boolean(prev) };
   });
 
-  // ---- tools list (AIM-483): clickable inventory with metadata, no dead-end rows ----
+  // ---- tools list: clickable inventory with metadata, no dead-end rows ----
   fastify.get('/api/tools', async (req, reply) => {
     if (!anyRole(req, reply)) return reply;
     if (!checkFormat(req, reply)) return reply;
@@ -952,7 +952,7 @@ export async function dashboardRoutes(fastify, opts) {
     if (!checkFormat(req, reply)) return reply;
     const days = parseDays(req.query);
     const tool = req.params.tool;
-    await listSanctionedToolNames(db); // keep isSanctioned current (AIM-484)
+    await listSanctionedToolNames(db); // keep isSanctioned current
     const [summary, models, trend, versions] = await Promise.all([
       db.query(
         `SELECT
@@ -1041,7 +1041,7 @@ export async function dashboardRoutes(fastify, opts) {
   // ---- unapproved-tool discovery: new/unsanctioned tools on the network ----
   // Deliberately shows counts only, NOT user pseudonyms (privacy gate).
   // Grouped by tool_raw when present: network-path events carry tool='other'
-  // with the detected tool name in tool_raw (AIM-19 collector contract), so
+  // with the detected tool name in tool_raw (collector contract), so
   // grouping by tool alone would collapse every unsanctioned tool into one row.
   fastify.get('/api/unapproved', async (req, reply) => {
     if (!anyRole(req, reply)) return reply;
@@ -1095,7 +1095,7 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- guardrail match flags by detector (AIM-39 security view) ----
+  // ---- guardrail match flags by detector (security view) ----
   // Aggregate counts only — no user attribution here (privacy gate); matched
   // content is never stored by design. match_flags entries are objects
   // ({detector, category, severity}); the detector id looks like
@@ -1104,7 +1104,7 @@ export async function dashboardRoutes(fastify, opts) {
     if (!anyRole(req, reply)) return reply;
     if (!checkFormat(req, reply)) return reply;
     const days = parseDays(req.query, 30);
-    /* AIM-482: optional detector drill-down for the Security detail panel.
+    /*: optional detector drill-down for the Security detail panel.
        Aggregate list stays anyRole; per-user rows stay analyst+ (same bar as
        /api/users). Matched content is never returned — only refs + counts. */
     const detectorFilter = typeof req.query?.detector === 'string' ? req.query.detector.trim() : '';
@@ -1116,7 +1116,7 @@ export async function dashboardRoutes(fastify, opts) {
         /* severity_rank: the WORST severity ever recorded for this detector in
            the window, not an average — a detector that fired 'critical' once
            must not be softened by a hundred 'low' hits. Severity is optional
-           in the event schema (AIM-151), so 0 means "no event carried one" and
+           in the event schema, so 0 means "no event carried one" and
            the client falls back to a category default rather than inventing a
            measured-looking value. */
         `SELECT flag ->> 'detector' AS detector,
@@ -1249,7 +1249,7 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- repo-level visibility (AIM-78) ----
+  // ---- repo-level visibility ----
   // repo_ref is a salted-HMAC pseudonym (schema v1), so per-repo aggregates are
   // the same privacy tier as team/provider views — any authenticated employee.
   // The optional repo_labels mapping (migration 006) is the ONLY
@@ -1312,7 +1312,7 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- per-repo drill-down (AIM-78): same gating as /api/repos ----
+  // ---- per-repo drill-down: same gating as /api/repos ----
   fastify.get('/api/repos/:repoRef', async (req, reply) => {
     if (!anyRole(req, reply)) return reply;
     const repoRef = req.params.repoRef;
@@ -1423,9 +1423,9 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- repo label mapping: the ONLY de-pseudonymization write path (AIM-78).
+  // ---- repo label mapping: the ONLY de-pseudonymization write path.
   // GATED to admin; every set/remove hits the immutable audit
-  // trail (AIM-27). Body: { label: string } to set, { label: null } to remove.
+  // trail. Body: { label: string } to set, { label: null } to remove.
   fastify.put('/api/repos/:repoRef/label', async (req, reply) => {
     if (!adminOnly(req, reply)) return reply;
     const repoRef = req.params.repoRef;
@@ -1453,11 +1453,11 @@ export async function dashboardRoutes(fastify, opts) {
   });
 
   // ---- user-level usage: GATED to the security group (privacy gate) ----
-  // Pseudonyms only (user_pseudonym from AIM-49 enrichment, else the raw HMAC
+  // Pseudonyms only (user_pseudonym enrichment, else the raw HMAC
   // user_ref). Real identity reveal stays behind identity-sync's role-gated
-  // endpoint (AIM-24) — the dashboard never joins a cleartext directory.
+  // endpoint — the dashboard never joins a cleartext directory.
   //
-  // AIM-866: limit/offset + total (path-to-5k). Replaces silent LIMIT 500 with
+  // limit/offset + total (path-to-5k). Replaces silent LIMIT 500 with
   // honest pagination. Default page ≤ 100 for JSON/UI; CSV keeps a higher
   // gated export cap. p95 latency budget ≤ 400 ms @ 700 seats / page
   // (docs/frontend-performance-budget.md §4.1; docs/api-read-path-pagination.md).
@@ -1526,18 +1526,18 @@ export async function dashboardRoutes(fastify, opts) {
       limit,
       offset,
       truncated: offset + userRows.length < total,
-      note: 'Pseudonymous identifiers only; identity reveal is role-gated in identity-sync (AIM-24).',
+      note: 'Pseudonymous identifiers only; identity reveal is role-gated in identity-sync.',
       users: userRows,
     };
   });
 
-  // ---- per-user drill-down (AIM-79): GATED to the security group, same as
+  // ---- per-user drill-down: GATED to the security group, same as
   // /api/users. This is the triage view behind a pseudonym: sessions over time,
   // tools/models, token volume, the match-flag timeline, and linked findings.
   // Findings link via their triggering event's user (findings.subject holds the
   // raw user_ref; the events join also covers user_pseudonym-keyed users).
   // Still metadata-only: detector names, never matched content. Every access
-  // (including 403s) hits the global audit hook in server.js (AIM-27).
+  // (including 403s) hits the global audit hook in server.js.
   fastify.get('/api/users/:pseudonym', async (req, reply) => {
     if (!userLevel(req, reply)) return reply;
     const days = parseDays(req.query);
@@ -1637,7 +1637,7 @@ export async function dashboardRoutes(fastify, opts) {
       pseudonym: s.canonical ?? pseudonym,
       requestedPseudonym: pseudonym,
       rangeDays: days,
-      note: 'Pseudonymous identifier; metadata only — matched content is never stored. Identity reveal is role-gated in identity-sync (AIM-24).',
+      note: 'Pseudonymous identifier; metadata only — matched content is never stored. Identity reveal is role-gated in identity-sync.',
       summary: {
         team: s.team,
         sessions: num(s.sessions),
@@ -1699,7 +1699,7 @@ export async function dashboardRoutes(fastify, opts) {
     };
   });
 
-  // ---- tool-call mix (AIM-86): aggregates over schema v1.1 tool_use events.
+  // ---- tool-call mix: aggregates over schema v1.1 tool_use events.
   // Rows with event_type='tool_use' carry tool_calls[] aggregates for one
   // session window; entries are metadata-only by ingest contract (tool name,
   // action class, count, duration — never arguments/paths/output, enforced by

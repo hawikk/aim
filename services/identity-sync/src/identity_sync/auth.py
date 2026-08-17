@@ -1,4 +1,4 @@
-"""Caller authentication for the gated endpoints (AIM-306).
+"""Caller authentication for the gated endpoints.
 
 The bug this replaces: ``POST /reveal`` and ``POST /service-identities`` used
 to derive the authorisation decision and the audit actor from the

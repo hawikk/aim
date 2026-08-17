@@ -1,4 +1,4 @@
-/* Findings export (AIM-590, AIM-1140 split of findings.js). CSV/JSON export
+/* Findings export (split of findings.js). CSV/JSON export
  * mirrors the visible filters and is metadata-only — no prompt/response/
  * matched content. JSON is stripped to the metadata column set client-side
  * and scanned for privacy leaks before the download triggers. */
@@ -14,7 +14,7 @@ import {
 import { api } from '../lib/api.js';
 import { withBusy } from '../lib/form.js';
 
-/* AIM-590: keep export targets in lockstep with visible filters (status,
+/*: keep export targets in lockstep with visible filters (status,
  * severity, rule_id from saved views). CSV goes through the API attachment
  * path; JSON is fetched and stripped to the metadata column set client-side
  * so evidence blobs never leave with the handoff file. */

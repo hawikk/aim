@@ -1,6 +1,6 @@
 # Identity mapping: Google Workspace users/teams — design
 
-Issue: AIM-24 · Owner: Founding Engineer · Status: implemented (dev), pending prod wiring
+Issue: · Owner: engineering · Status: implemented (dev), pending prod wiring
 Code: `services/identity-sync/`
 
 ## 1. Purpose
@@ -76,18 +76,18 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
   for the default views at all.
 - User-level drill-down goes through `POST /reveal`, which requires:
   the `security-analyst` group on a bearer JWT the service verifies itself
-  (AIM-306: IdP JWKS in prod, HS256 shared secret for in-network/dev callers —
+  (IdP JWKS in prod, HS256 shared secret for in-network/dev callers
   client-supplied headers are never trusted), and a
   free-text justification (min length enforced).
 - **Every** reveal attempt — allowed or denied — is appended to `audit_log`
   (actor, role, pseudonym, reason, outcome, timestamp). The table has no
   update/delete path in the API. Denied attempts are a detection signal and feed
-  Sentinel alerting (AIM-27/AIM-41).
+  Sentinel alerting.
 - Reveal is deliberately O(directory size) — pseudonym→email mappings are not
   persisted, so a bulk de-anonymization dump is not a single query away. At ~1k
   users this is milliseconds; revisit only if the directory grows 10x.
 
-## 6. Privacy notes (feeds the DPIA pack, AIM-29/AIM-43)
+## 6. Privacy notes (feeds the DPIA pack)
 
 - Collected identity data: work email, name, org unit, device↔user mapping. No
   prompt content anywhere in this service (metadata-only policy, per epic).
@@ -100,9 +100,9 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
 
 ## 7. Open items / follow-ups
 
-- Intune enrollment feed populating `device_mappings` (depends on AIM-28/AIM-42
+- Intune enrollment feed populating `device_mappings` (depends on
   Intune packaging; until then `os_user` + heuristic rules carry the pilot).
 - Prod wiring: Cloud Scheduler, managed Postgres, secret manager, gateway JWT
-  validation (belongs to AIM-17/AIM-33 foundation).
-- Retention decision for suspended-user rows (Legal/HR — will raise via AIM-29).
+  validation (belongs to foundation).
+- Retention decision for suspended-user rows (Legal/HR — will raise).
 - Re-key runbook for pseudonym secret rotation.

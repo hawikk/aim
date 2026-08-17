@@ -1,4 +1,4 @@
-/* AIM-746 / AIM-928 / AIM-933 — Install health: enroll → first evidence SLO.
+/* — Install health: enroll → first evidence SLO.
  *
  * Self-contained module view (status/onboarding pattern). Activates for
  * roles with capabilities.fleet (analyst+), matching GET /api/install-health.
@@ -8,7 +8,7 @@
  *   - How long from first enroll to first usage event on the fleet?
  *   - Which OS cohorts (Windows / Linux / macOS) meet or miss the SLO?
  *   - Which enrollments are past the SLO with nothing back (breach alerts)?
- *   - What is the Intune / Jamf / Linux zero-touch admin path (AIM-933)?
+ * - What is the Intune / Jamf / Linux zero-touch admin path?
  *   - What to do on delayed first evidence or missing collector?
  *
  * Metadata-only: hostnames, OS, latency, SLO state — never tokens/prompts.
@@ -202,7 +202,7 @@ async function init() {
   ` });
   main.appendChild(section);
 
-  // Static runbook cards — no secrets, no live data required (AIM-933).
+  // Static runbook cards — no secrets, no live data required.
   section.querySelector('#ih-runbook-grid').innerHTML = listMdmAdminPaths()
     .map((path) => mdmPathHtml(path))
     .join('');

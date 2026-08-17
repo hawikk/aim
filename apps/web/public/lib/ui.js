@@ -1,5 +1,5 @@
-/* Cross-view UI helpers pure-moved from app.js (AIM-527). */
-/* Import path must contain `lib/dom.js` so the AIM-523 import guard matches. */
+/* Cross-view UI helpers pure-moved from app.js. */
+/* Import path must contain `lib/dom.js` so the import guard matches. */
 import { esc, $ } from '../lib/dom.js';
 import { state, setStatus } from './runtime.js';
 import {
@@ -14,7 +14,7 @@ export {
   compareSeverity, worstSeverity, exposureBadge, sevPill,
 };
 
-/* AIM-782 union repair: views/* still import the pre-split underscore aliases
+/* union repair: views/* still import the pre-split underscore aliases
  * that app.js used as module-private names. Re-export so DOM mounts do not
  * die on missing `_SEVERITY_RANK` / `_delta` (blocks every MODULE_SCRIPTS test). */
 export {

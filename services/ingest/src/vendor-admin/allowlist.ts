@@ -1,5 +1,5 @@
 /**
- * Privacy boundary for vendor admin JSON (AIM-1168).
+ * Privacy boundary for vendor admin JSON.
  *
  * Only allowlisted keys are copied. Content-bearing names (prompt, email,
  * path, repo URL, raw username) are counted as dropped and never returned.

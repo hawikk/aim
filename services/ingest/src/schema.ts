@@ -4,9 +4,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 /**
- * AI usage event, schema v1 — the AIM-18 metadata-only contract
+ * AI usage event, schema v1 — the metadata-only contract
  * (packages/schema/schema/v1/ai-usage-event.schema.json). This is the shape
- * collectors (AIM-20) emit. No field may carry prompt/response text or code.
+ * collectors emit. No field may carry prompt/response text or code.
  */
 export interface UsageEventV1 {
   schema_version: string;
@@ -26,33 +26,33 @@ export interface UsageEventV1 {
   repo_ref?: string | null;
   match_flags: MatchFlag[];
   source: "proxy" | "endpoint" | "otel";
-  /** Application identity (schema v1.3, AIM-105); required when source is "otel". */
+  /** Application identity (schema v1.3); required when source is "otel". */
   service_name?: string;
-  /** LLM call wall time in ms (schema v1.3, AIM-105), from OTel span duration. */
+  /** LLM call wall time in ms (schema v1.3), from OTel span duration. */
   duration_ms?: number;
-  /** LLM call outcome (schema v1.3, AIM-105): never carries an error message. */
+  /** LLM call outcome (schema v1.3): never carries an error message. */
   status?: "ok" | "error";
-  /** Source-class attribution (schema v1.4, AIM-103), proxy events only. */
+  /** Source-class attribution (schema v1.4), proxy events only. */
   traffic_class?: "application" | "employee" | "unknown";
-  /** Request/response volume in bytes (schema v1.4, AIM-103). */
+  /** Request/response volume in bytes (schema v1.4). */
   bytes_up?: number | null;
   bytes_down?: number | null;
-  /** HTTP status of the proxied transaction (schema v1.4, AIM-103). */
+  /** HTTP status of the proxied transaction (schema v1.4). */
   http_status?: number | null;
   /** Event kind (schema v1.1/v1.2). Absent means "usage". */
   event_type?: "usage" | "tool_use" | "inventory";
   /** Tool-call aggregates; required when event_type is "tool_use". */
   tool_calls?: ToolCall[];
-  /** Configured MCP servers; required when event_type is "inventory" (v1.2, AIM-97). */
+  /** Configured MCP servers; required when event_type is "inventory" (v1.2). */
   configured_mcp_servers?: ConfiguredMcpServer[];
-  /** Endpoint enforcement audit record (v1.5, AIM-110; v1.6 AIM-111). Rides in the payload JSONB. */
+  /** Endpoint enforcement audit record (v1.5; v1.6). Rides in the payload JSONB. */
   enforcement?: EnforcementRecord;
-  /** Endpoint enforcement coverage marker (v1.7, AIM-110): the shadow bake's denominator. */
+  /** Endpoint enforcement coverage marker (v1.7): the shadow bake's denominator. */
   enforcement_posture?: EnforcementPosture;
 }
 
 /**
- * Endpoint enforcement coverage marker (schema v1.7, AIM-110). Emitted on
+ * Endpoint enforcement coverage marker (schema v1.7). Emitted on
  * every event by an enforcement-aware hook, decision or not. Without it a
  * zero `enforcement` count cannot be distinguished from an endpoint that
  * never ran the rules, which is why the shadow-bake report reads a missing
@@ -66,9 +66,9 @@ export interface EnforcementPosture {
 }
 
 /**
- * Endpoint inline-enforcement audit record (schema v1.5, AIM-110).
+ * Endpoint inline-enforcement audit record (schema v1.5).
  * Metadata-only: action + rule id + policy hash — never the blocked payload.
- * 'confirmed' (v1.6, AIM-111): a confirm-prompt rule (pii-in-prompt)
+ * 'confirmed' (v1.6): a confirm-prompt rule (pii-in-prompt)
  * challenged and the user resubmitted to confirm; the prompt proceeded.
  */
 export interface EnforcementRecord {
@@ -78,7 +78,7 @@ export interface EnforcementRecord {
 }
 
 /**
- * One tool-call aggregate entry (schema v1.1, AIM-86). Metadata-only: the
+ * One tool-call aggregate entry (schema v1.1). Metadata-only: the
  * schema forbids arguments/paths/output via additionalProperties:false.
  */
 export interface ToolCall {
@@ -90,7 +90,7 @@ export interface ToolCall {
 }
 
 /**
- * One configured MCP server entry (schema v1.2, AIM-97). Metadata-only:
+ * One configured MCP server entry (schema v1.2). Metadata-only:
  * server name + config scope; commands/args/env are forbidden by
  * additionalProperties:false.
  */
@@ -111,14 +111,14 @@ export interface ValidationResult {
   errors: string[];
 }
 
-// The AIM-18 schema file is the single source of truth; the service reads it
+// The schema file is the single source of truth; the service reads it
 // from the repo checkout. Deployments outside the repo set SCHEMA_PATH.
 const schemaPath =
   process.env.SCHEMA_PATH ??
   join(__dirname, "..", "..", "..", "packages", "schema", "schema", "v1", "ai-usage-event.schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf8")) as Record<string, unknown>;
 
-// strictRequired off: the AIM-18 schema uses if/then with cross-subschema
+// strictRequired off: the schema uses if/then with cross-subschema
 // `required` (valid JSON Schema), which strict mode would reject at compile.
 const ajv = new Ajv({ allErrors: true, strict: true, strictRequired: false });
 addFormats(ajv);

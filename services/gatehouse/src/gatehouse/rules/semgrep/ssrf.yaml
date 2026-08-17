@@ -1,4 +1,4 @@
-# Vendored semgrep pack — SSRF / untrusted URL fetch (AIM-445 depth).
+# Vendored semgrep pack — SSRF / untrusted URL fetch (depth).
 #
 # Complements injection/authz with a high-signal network-egress class that
 # upstream packs often bury in noisy rules. Kept narrow: user-controlled URL

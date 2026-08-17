@@ -1,4 +1,4 @@
-"""Thin OTLP/HTTP-JSON exporter for GenAI spans (AIM-736 / AIM-115 pattern).
+"""Thin OTLP/HTTP-JSON exporter for GenAI spans (pattern).
 
 Stdlib-only OTLP/HTTP JSON exporter matching docs/otel-genai-integration-guide.md
 §2b and the guardrail reference (`services/guardrail/.../telemetry.py`). The

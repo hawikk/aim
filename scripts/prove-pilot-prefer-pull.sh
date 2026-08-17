@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# AIM-1148 — Prove cold pilot --prefer-pull / --pull path after release-images.
+# — Prove cold pilot --prefer-pull / --pull path after release-images.
 #
 # Contract (fail closed):
 #   1. AIM_IMAGE_TAG (or AIM_*_IMAGE pins) resolves all four pilot pillar images
 #   2. install-pilot uses pull path (mode=pull) — NOT source build fallback
 #   3. ingest /healthz + dashboard /api/health → HTTP 200
-#   4. mint → aim join token_file → doctor config healthy (AIM-1136 parity)
+# 4. mint → aim join token_file → doctor config healthy (parity)
 #   5. wall-clock recorded; warn if pull path > 15 min
 #
 # Usage:
@@ -91,7 +91,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-info "AIM-1148 prove cold pull path"
+info "Prove cold pull path"
 info "  project=${COMPOSE_PROJECT_NAME}"
 info "  mode_flag=--${IMAGE_MODE}"
 info "  AIM_IMAGE_TAG=${AIM_IMAGE_TAG:-<pins>}"
@@ -281,7 +281,7 @@ pass "aim doctor --fix left token_file healthy"
 
 TOTAL=$((SECONDS - STARTED_AT))
 echo
-green "AIM-1148 cold prefer-pull / pull path GREEN"
+green "Cold prefer-pull / pull path GREEN"
 echo "  project=${COMPOSE_PROJECT_NAME}"
 echo "  AIM_IMAGE_TAG=${AIM_IMAGE_TAG:-<pins>}"
 echo "  mode=pull"

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "updated": "2026-08-01",
-  "notes": "Shadow-AI discovery tool catalogue (AIM-300/AIM-504/AIM-552/AIM-594). DATA, NOT CODE: adding a newly-discovered AI SaaS is a catalogue entry + PR review, never a code change. Matching: IdP OAuth grants match on oauth.client_ids (exact) then oauth.app_name_patterns (case-insensitive substring of the IdP app display name); proxy domain observations match on domains (suffix). data_access_class drives risk scoring. sanctioned reflects the AIM-16 locked policy list; changes are a Security/Legal decision, not an engineering one. AIM-504: Claude web, Midjourney, Microsoft Copilot. AIM-552/594: breadth residual \u2014 coding-agent parity with endpoints.json, GenAI-in-SaaS products (domain/OAuth not DOM), multi-model gateways.",
+  "notes": "Shadow-AI discovery tool catalogue. DATA, NOT CODE: adding a newly-discovered AI SaaS is a catalogue entry + PR review, never a code change. Matching: IdP OAuth grants match on oauth.client_ids (exact) then oauth.app_name_patterns (case-insensitive substring of the IdP app display name); proxy domain observations match on domains (suffix). data_access_class drives risk scoring. sanctioned reflects the locked policy list; changes are a Security/Legal decision, not an engineering one. Claude web, Midjourney, Microsoft Copilot. breadth residual \u2014 coding-agent parity with endpoints.json, GenAI-in-SaaS products (domain/OAuth not DOM), multi-model gateways.",
   "tools": [
     {
       "id": "claude_code",
@@ -94,7 +94,7 @@
           "openai chatgpt"
         ]
       },
-      "notes": "Primary AIM-504 account-layer signal: work-email ChatGPT signup / OAuth grant."
+      "notes": "Primary account-layer signal: work-email ChatGPT signup / OAuth grant."
     },
     {
       "id": "github_copilot",
@@ -135,7 +135,7 @@
           "365 copilot"
         ]
       },
-      "notes": "AIM-552: removed bare bing.com (too broad for domain matching)."
+      "notes": "removed bare bing.com (too broad for domain matching)."
     },
     {
       "id": "gemini",
@@ -407,7 +407,7 @@
           "ghostwriter"
         ]
       },
-      "notes": "AIM-594/AIM-552: Replit Agent + Ghostwriter surface as Replit."
+      "notes": "Replit Agent + Ghostwriter surface as Replit."
     },
     {
       "id": "kimi_code",
@@ -598,7 +598,7 @@
           "notion"
         ]
       },
-      "notes": "AIM-552 GenAI-in-SaaS: shared origin with docs. OAuth app name is stronger than domain. Page feature use = accepted residual."
+      "notes": "GenAI-in-SaaS: shared origin with docs. OAuth app name is stronger than domain. Page feature use = accepted residual."
     },
     {
       "id": "grammarly",

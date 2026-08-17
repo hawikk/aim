@@ -1,5 +1,5 @@
--- 033_session_revocations.sql — AIM-613/AIM-714: server-side session revoke watermarks.
--- 033_session_revocations.sql — AIM-613: server-side session revoke watermarks.
+-- 033_session_revocations.sql — server-side session revoke watermarks.
+-- 033_session_revocations.sql — server-side session revoke watermarks.
 --
 -- Stateless HMAC session cookies embed role at login. Without a server check,
 -- a leaver keeps access until AIM_SESSION_TTL_HOURS. This table stores the
@@ -8,8 +8,8 @@
 --   * Any session with iat <= extract(epoch from revoked_at) is denied.
 --   * A successful re-login after re-provision issues iat > watermark and works.
 --   * Writers: human admin playbook, or identity-sync deprovision automation
---     (POST /api/admin/sessions/revoke via service token, AIM-714).
---   * Full SCIM User lifecycle remains optional product work (AIM-713).
+-- (POST /api/admin/sessions/revoke via service token).
+-- * Full SCIM User lifecycle remains optional product work.
 --   * SCIM User lifecycle is still not implemented; operators (or future
 --     automation) call POST /api/admin/sessions/revoke.
 --

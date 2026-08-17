@@ -1,4 +1,4 @@
-# Blue Coat / Symantec ProxySG bcreportermain_v1 — synthetic subset (AIM-1111).
+# Blue Coat / Symantec ProxySG bcreportermain_v1 — synthetic subset.
 # Sanitized RFC1918 clients, fake usernames, no real customer data.
 # Field map (space-separated, quoted multi-token fields):
 #   date time time-taken c-ip cs-username cs-auth-group x-exception-id

@@ -1,4 +1,4 @@
--- 004_devices.sql — AIM-28: collector enrollment + heartbeat registry.
+-- 004_devices.sql — collector enrollment + heartbeat registry.
 --
 -- Backs POST /v1/enroll and POST /v1/heartbeat (contract:
 -- docs/deployment/enrollment-and-heartbeat.md) and the coverage dashboard

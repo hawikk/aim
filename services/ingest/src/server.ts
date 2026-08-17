@@ -34,7 +34,7 @@ const BODY_LIMIT_BYTES = 5 * 1024 * 1024;
 const MAX_ERROR_LENGTH = 500;
 
 /**
- * Admission control (AIM-127). Above the measured within-SLO throughput ceiling
+ * Admission control. Above the measured within-SLO throughput ceiling
  * the ingest service was observed to *queue-and-hold* — 200 with unbounded p99
  * latency growth — instead of shedding. This caps concurrent in-flight
  * /v1/events work so a much larger fleet, a misbehaving collector, or a retry
@@ -54,7 +54,7 @@ export interface AdmissionControl {
 const ADMISSION_OFF: AdmissionControl = { mode: "off", maxInflight: 0, retryAfterSeconds: 1 };
 
 /**
- * How static INGEST_TOKENS authorize POST /v1/events (AIM-319).
+ * How static INGEST_TOKENS authorize POST /v1/events.
  * Deprecation path: full → bootstrap → disabled (device tokens only).
  */
 export type SharedTokenMode = "full" | "bootstrap" | "disabled";
@@ -70,76 +70,76 @@ export interface ServerOptions {
   sink: EventSink;
   /**
    * Shared fleet / bootstrap bearer tokens (from INGEST_TOKENS env).
-   * Device tokens (DB-backed) are first-class for /v1/events (AIM-217/307/319).
+   * Device tokens (DB-backed) are first-class for /v1/events.
    */
   tokens: string[];
   /**
-   * How shared env tokens authorize /v1/events (AIM-319). Default `full`
+   * How shared env tokens authorize /v1/events. Default `full`
    * with deprecation counters; set `disabled` to refuse shared tokens on
    * the events path entirely (device tokens only).
    */
   sharedTokenMode?: SharedTokenMode;
-  /** Identity resolver (AIM-49). Defaults to a no-op: all batches unattributed. */
+  /** Identity resolver. Defaults to a no-op: all batches unattributed. */
   resolver?: IdentityResolver;
   /**
-   * Collector enrollment/heartbeat registry (AIM-28). When unset, the
+   * Collector enrollment/heartbeat registry. When unset, the
    * /v1/enroll, /v1/heartbeat and /v1/coverage routes respond 503.
    */
   deviceStore?: DeviceStore;
   /**
    * Admin-issued, per-ring enrollment tokens (from ENROLL_TOKENS env). Legacy
    * path for POST /v1/enroll — kept for dev compose, deprecated in favour of
-   * DB-backed minted tokens (AIM-131). Not shipped in the collector package.
+   * DB-backed minted tokens. Not shipped in the collector package.
    */
   enrollTokens?: string[];
   /**
-   * DB-backed enrollment-token registry (AIM-131). When set, POST /v1/enroll
+   * DB-backed enrollment-token registry. When set, POST /v1/enroll
    * redeems dashboard-minted tokens (named, scoped, revocable) in addition to
    * the legacy env tokens above. Enrollment-only: these never authorize
    * /v1/events. (Enrollment-issued *device* tokens do authorize /v1/events —
-   * see DeviceStore.authenticate / AIM-217 / AIM-307.)
+   * see DeviceStore.authenticate /.)
    */
   enrollTokenStore?: EnrollTokenStore;
   /**
-   * AIM-455: when a minted enroll token carries bound_email, register
+   * when a minted enroll token carries bound_email, register
    * device_id → email with identity-sync after a new device is created.
    * Fail-open — mapping errors must not undo enrollment.
    */
   deviceMappingRegistrar?: DeviceMappingRegistrar;
   /**
-   * Raw-batch archive (AIM-83). When set, every accepted batch is written as
+   * Raw-batch archive. When set, every accepted batch is written as
    * an NDJSON object BEFORE the Postgres insert. Archival is fail-open: an
    * archive error is logged and counted (ingest_archive_errors_total) but the
    * batch is still stored — Postgres remains the system of record.
    */
   archive?: BatchArchive;
   /**
-   * HMAC salt for deriving host_ref from OTel service names (AIM-105).
+   * HMAC salt for deriving host_ref from OTel service names.
    * Falls back to a development default when unset.
    */
   otelHostSalt?: string;
   /**
-   * AIM-1168 vendor admin daily rollups (Cursor / Copilot pull, Claude OTel
+   * vendor admin daily rollups (Cursor / Copilot pull, Claude OTel
    * loc extras). Unset = metrics events still store; rollups are skipped.
    */
   vendorAdminStore?: VendorAdminStore;
   /** Enable pino request logging. Payloads are never logged — ids/counts only. */
   logger?: boolean;
   /**
-   * Overload admission control for /v1/events (AIM-127). Defaults to off:
+   * Overload admission control for /v1/events. Defaults to off:
    * unbounded in-flight, no backpressure signal. Production sets `shadow` to
    * observe, then `enforce` to shed with 429/Retry-After above the cap.
    */
   admission?: AdmissionControl;
   /**
-   * Signed collector build identity (AIM-646). Defaults to off so pilot
+   * Signed collector build identity. Defaults to off so pilot
    * fleets without release embeds keep working. Shadow measures unsigned
    * rate; enforce rejects with 403.
    */
   attestation?: AttestationControl;
 }
 
-/** Off by default — no verification, no rejection (AIM-646 pilot path). */
+/** Off by default — no verification, no rejection (pilot path). */
 const ATTESTATION_OFF: AttestationControl = { mode: "off", publicKeys: new Map() };
 
 interface BatchBody {
@@ -157,13 +157,13 @@ const metrics = {
   eventsUnresolvedTotal: 0,
   identityErrorsTotal: 0,
   /**
-   * AIM-1114: batches stored unattributed because resolve had no enrolled
+   * batches stored unattributed because resolve had no enrolled
    * device_id (wire + auth). Typical residual: shared-token auth + collector
    * that only attests os_user while service_identities are device_id-keyed.
    */
   identityUnresolvedMissingDeviceIdTotal: 0,
   /**
-   * AIM-1114: enrolled device token present but /resolve still returned
+   * enrolled device token present but /resolve still returned
    * unresolved — service_identity / device_mapping orphan or directory miss.
    */
   identityUnresolvedEnrolledDeviceTotal: 0,
@@ -176,18 +176,18 @@ const metrics = {
   otelMetricRequestsTotal: 0,
   otelMetricDatapointsMappedTotal: 0,
   otelMetricDatapointsSkippedTotal: 0,
-  // Admission control (AIM-127).
+  // Admission control.
   admissionInflight: 0,
   admissionInflightHighWater: 0,
   admissionShedTotal: 0,
   admissionShadowSheddableTotal: 0,
-  // Auth-layer rejections on /v1/events (AIM-307). Previously invisible:
+  // Auth-layer rejections on /v1/events. Previously invisible:
   // 401s never reached rejected_events and the DLQ looked empty.
   authRejectedTotal: 0,
-  // Auth path counters (AIM-319): which credential class authorized events.
+  // Auth path counters: which credential class authorized events.
   authDeviceTokenTotal: 0,
   authSharedTokenTotal: 0,
-  // Build attestation (AIM-646).
+  // Build attestation.
   attestationValidTotal: 0,
   attestationUnsignedTotal: 0,
   attestationInvalidTotal: 0,
@@ -214,16 +214,16 @@ function renderMetrics(admission: AdmissionControl, attestation: AttestationCont
     "# HELP ingest_identity_errors_total Batches where identity resolution failed (stored unattributed).",
     "# TYPE ingest_identity_errors_total counter",
     `ingest_identity_errors_total ${metrics.identityErrorsTotal}`,
-    "# HELP ingest_identity_unresolved_missing_device_id_total Batches stored unattributed with no enrolled device_id on the resolve path (AIM-1114).",
+    "# HELP ingest_identity_unresolved_missing_device_id_total Batches stored unattributed with no enrolled device_id on the resolve path.",
     "# TYPE ingest_identity_unresolved_missing_device_id_total counter",
     `ingest_identity_unresolved_missing_device_id_total ${metrics.identityUnresolvedMissingDeviceIdTotal}`,
-    "# HELP ingest_identity_unresolved_enrolled_device_total Batches where an enrolled device_id still resolved unattributed (orphan/mapping miss, AIM-1114).",
+    "# HELP ingest_identity_unresolved_enrolled_device_total Batches where an enrolled device_id still resolved unattributed (orphan/mapping miss).",
     "# TYPE ingest_identity_unresolved_enrolled_device_total counter",
     `ingest_identity_unresolved_enrolled_device_total ${metrics.identityUnresolvedEnrolledDeviceTotal}`,
     "# HELP ingest_archive_errors_total Batches that could not be written to the raw-batch object store (still stored in Postgres).",
     "# TYPE ingest_archive_errors_total counter",
     `ingest_archive_errors_total ${metrics.archiveErrorsTotal}`,
-    "# HELP ingest_otel_requests_total OTLP trace export requests processed (AIM-105).",
+    "# HELP ingest_otel_requests_total OTLP trace export requests processed.",
     "# TYPE ingest_otel_requests_total counter",
     `ingest_otel_requests_total ${metrics.otelRequestsTotal}`,
     "# HELP ingest_otel_spans_mapped_total GenAI spans mapped to canonical events.",
@@ -238,7 +238,7 @@ function renderMetrics(admission: AdmissionControl, attestation: AttestationCont
     "# HELP ingest_otel_attributes_dropped_total Span/resource attributes dropped by the receiver allowlist (privacy audit signal).",
     "# TYPE ingest_otel_attributes_dropped_total counter",
     `ingest_otel_attributes_dropped_total ${metrics.otelAttributesDroppedTotal}`,
-    "# HELP ingest_otel_metric_requests_total OTLP metric export requests processed (AIM-1168 Claude Code).",
+    "# HELP ingest_otel_metric_requests_total OTLP metric export requests processed (Claude Code).",
     "# TYPE ingest_otel_metric_requests_total counter",
     `ingest_otel_metric_requests_total ${metrics.otelMetricRequestsTotal}`,
     "# HELP ingest_otel_metric_datapoints_mapped_total Claude Code metric datapoints mapped to events or rollups.",
@@ -265,32 +265,32 @@ function renderMetrics(admission: AdmissionControl, attestation: AttestationCont
     "# HELP ingest_auth_rejected_total /v1/events requests rejected at the auth layer (401/403).",
     "# TYPE ingest_auth_rejected_total counter",
     `ingest_auth_rejected_total ${metrics.authRejectedTotal}`,
-    "# HELP ingest_auth_device_token_total /v1/events authorized by a DB-backed device token (AIM-319).",
+    "# HELP ingest_auth_device_token_total /v1/events authorized by a DB-backed device token.",
     "# TYPE ingest_auth_device_token_total counter",
     `ingest_auth_device_token_total ${metrics.authDeviceTokenTotal}`,
-    "# HELP ingest_auth_shared_token_total /v1/events authorized by a static INGEST_TOKENS entry (deprecated path, AIM-319).",
+    "# HELP ingest_auth_shared_token_total /v1/events authorized by a static INGEST_TOKENS entry (deprecated path).",
     "# TYPE ingest_auth_shared_token_total counter",
     `ingest_auth_shared_token_total ${metrics.authSharedTokenTotal}`,
-    "# HELP ingest_attestation_mode Collector build attestation mode (0=off 1=shadow 2=enforce, AIM-646).",
+    "# HELP ingest_attestation_mode Collector build attestation mode (0=off 1=shadow 2=enforce).",
     "# TYPE ingest_attestation_mode gauge",
     `ingest_attestation_mode ${attestation.mode === "off" ? 0 : attestation.mode === "shadow" ? 1 : 2}`,
-    "# HELP ingest_attestation_valid_total Batches with a valid signed build identity (AIM-646).",
+    "# HELP ingest_attestation_valid_total Batches with a valid signed build identity.",
     "# TYPE ingest_attestation_valid_total counter",
     `ingest_attestation_valid_total ${metrics.attestationValidTotal}`,
-    "# HELP ingest_attestation_unsigned_total Batches missing a build signature (AIM-646).",
+    "# HELP ingest_attestation_unsigned_total Batches missing a build signature.",
     "# TYPE ingest_attestation_unsigned_total counter",
     `ingest_attestation_unsigned_total ${metrics.attestationUnsignedTotal}`,
-    "# HELP ingest_attestation_invalid_total Batches with a bad/unknown build signature (AIM-646).",
+    "# HELP ingest_attestation_invalid_total Batches with a bad/unknown build signature.",
     "# TYPE ingest_attestation_invalid_total counter",
     `ingest_attestation_invalid_total ${metrics.attestationInvalidTotal}`,
-    "# HELP ingest_attestation_rejected_total Batches rejected by enforce-mode build attestation (AIM-646).",
+    "# HELP ingest_attestation_rejected_total Batches rejected by enforce-mode build attestation.",
     "# TYPE ingest_attestation_rejected_total counter",
     `ingest_attestation_rejected_total ${metrics.attestationRejectedTotal}`,
     "",
   ].join("\n");
 }
 
-/** Reason string written to rejected_events for auth-layer denials (AIM-307). */
+/** Reason string written to rejected_events for auth-layer denials. */
 export const AUTH_REJECT_REASON = "auth_rejected: invalid_or_missing_bearer";
 
 /**
@@ -364,7 +364,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       await recordAuthRejection(options.sink, req.log);
       return reply.code(401).send({ error: "unauthorized" });
     }
-    // Auth order (AIM-217 / AIM-307 / AIM-319):
+    // Auth order:
     // 1. Live enrollment-issued device token (DB) — primary, survives
     //    INGEST_TOKENS rotation and stack recreation.
     // 2. Shared INGEST_TOKENS env entry — bootstrap/managed fleets only,
@@ -372,7 +372,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
     // Enroll tokens themselves never authorize events.
     const sharedMode = options.sharedTokenMode ?? "full";
     let authorized = false;
-    // AIM-455: the enrollment-issued device token is the authoritative
+    // the enrollment-issued device token is the authoritative
     // join key for identity resolution. Capture it at auth so we resolve
     // even when the batch omits `collector.device_id` (or sends a stale one).
     // Client-supplied device_id is never trusted over a verified token.
@@ -396,7 +396,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
               sharedTokenMode: sharedMode,
               uses: metrics.authSharedTokenTotal,
               deprecation:
-                "INGEST_TOKENS on /v1/events is bootstrap-only (AIM-319); prefer enrollment device tokens",
+                "INGEST_TOKENS on /v1/events is bootstrap-only; prefer enrollment device tokens",
             },
             "deprecated shared INGEST_TOKENS authorized /v1/events",
           );
@@ -410,7 +410,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       return reply.code(401).send({ error: "unauthorized" });
     }
 
-    // Admission control (AIM-127): cap concurrent in-flight work. Checked after
+    // Admission control: cap concurrent in-flight work. Checked after
     // auth (unauthorized noise never counts) and before any archival/DB work, so
     // a shed costs almost nothing. Shadow counts-only; enforce sheds with 429.
     if (admission.mode !== "off" && metrics.admissionInflight >= admission.maxInflight) {
@@ -467,7 +467,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       ...(authenticatedDeviceId ? { device_id: authenticatedDeviceId } : {}),
     };
 
-    // Signed build identity (AIM-646). Flag-gated: off (default) / shadow /
+    // Signed build identity. Flag-gated: off (default) / shadow /
     // enforce. Rejects with 403 in enforce when signature is missing/invalid.
     const { verdict: attestVerdict, rejectReason: attestReject } = evaluateAttestation(
       collectorIdentity.build,
@@ -519,12 +519,12 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       }
     });
 
-    // Raw-batch archival (AIM-83): persist the batch before any database
+    // Raw-batch archival: persist the batch before any database
     // write, keyed by UTC date/batch-id, for replay and forensics. Fail-open:
     // an archive error never blocks ingestion.
     //
     // Runs AFTER validation, to hold the no-content-egress invariant
-    // (AIM-650) on this path too. The canonical schema is the control that
+    // on this path too. The canonical schema is the control that
     // rejects content-bearing fields, so archiving the raw body first let a
     // buggy or malicious collector land prompt text in object storage that
     // Postgres would have refused. Only schema-valid events are written
@@ -557,7 +557,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       }
     }
 
-    // Identity enrichment (AIM-49): one /resolve call per batch, stamped onto
+    // Identity enrichment: one /resolve call per batch, stamped onto
     // every accepted event. Fail-open — resolution errors store the batch
     // unattributed rather than dropping it.
     let resolution: Resolution = UNRESOLVED;
@@ -570,7 +570,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
         metrics.identityErrorsTotal += 1;
       }
     }
-    // AIM-1114: unattributed batches from registered service hosts must not be
+    // unattributed batches from registered service hosts must not be
     // silent. Count missing-device_id vs enrolled-but-unresolved separately so
     // dogfood residual (os_user-only on a device_id-keyed service principal)
     // pages operators instead of washing into generic unresolved totals.
@@ -588,7 +588,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
             principal_kind: resolution.principal_kind,
             event_count: valid.length,
           },
-          "identity unresolved without device_id; service hosts keyed only by device_id will fall through to principal_kind=unknown (AIM-1114)",
+          "identity unresolved without device_id; service hosts keyed only by device_id will fall through to principal_kind=unknown",
         );
       } else {
         metrics.identityUnresolvedEnrolledDeviceTotal += 1;
@@ -601,7 +601,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
             has_device_id: true,
             auth_device: Boolean(authenticatedDeviceId),
           },
-          "identity unresolved for enrolled device_id; check service_identities / device_mappings join keys (AIM-1114)",
+          "identity unresolved for enrolled device_id; check service_identities / device_mappings join keys",
         );
       }
     }
@@ -612,7 +612,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       principal_kind: resolution.principal_kind,
     }));
     // Service principals may carry a pseudonym; also treat principal_kind=service
-    // as attributed (Epic A / AIM-487 gate: user_pseudonym OR principal_kind=service).
+    // as attributed (Epic A gate: user_pseudonym OR principal_kind=service).
     const unresolved = attributed ? 0 : accepted.length;
 
     let inserted = 0;
@@ -645,7 +645,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
     });
   }
 
-  // --- OTLP receiver: OTel GenAI spans from first-party apps (AIM-105) -------
+  // --- OTLP receiver: OTel GenAI spans from first-party apps -------
   // Contract: docs/otel-genai-integration-guide.md.
   //
   // PRIVACY: the allowlist in otel.ts is enforced inside mapOtlpTraceRequest
@@ -749,7 +749,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
     });
   });
 
-  // --- OTLP metrics: Claude Code first-party counters (AIM-1168) -----------
+  // --- OTLP metrics: Claude Code first-party counters -----------
   // Same auth as /v1/traces. Body is never archived (may carry emails).
   app.post("/v1/metrics", async (req, reply) => {
     const token = bearerToken(req.headers.authorization);
@@ -838,7 +838,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
     });
   });
 
-  // Optional fixture / offline replay of vendor admin JSON (AIM-1168).
+  // Optional fixture / offline replay of vendor admin JSON.
   // Same bearer as OTLP. Mapper allowlist runs before storage.
   const writeVendorFeed = async (
     feed: "copilot_metrics" | "cursor_analytics",
@@ -894,11 +894,11 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
     });
   });
 
-  // --- Collector enrollment & heartbeat (AIM-28) ---------------------------
+  // --- Collector enrollment & heartbeat ---------------------------
   // Contract: docs/deployment/enrollment-and-heartbeat.md.
 
   // POST /v1/enroll — installer registers a device with an enrollment token
-  // and receives a per-device token (once). Two token sources (AIM-131):
+  // and receives a per-device token (once). Two token sources:
   //   * DB-backed minted tokens (dashboard onboarding) — named, scoped,
   //     revocable; redeemed via enrollTokenStore.
   //   * legacy ENROLL_TOKENS env — kept for dev compose, deprecation-warned.
@@ -920,7 +920,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
     if (legacyMatch) {
       // Deprecated path: works, but nudge operators toward minted tokens.
       req.log.warn(
-        "enroll via legacy ENROLL_TOKENS env var — deprecated (AIM-131); mint a scoped token from the dashboard onboarding view instead",
+        "enroll via legacy ENROLL_TOKENS env var — deprecated; mint a scoped token from the dashboard onboarding view instead",
       );
     } else if (enrollTokenStore) {
       const check = await enrollTokenStore.validate(token);
@@ -950,7 +950,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
         collector_version: strOrUndef(body.collector_version),
         // Explicit reissue only — never implied. Callers that lost the local
         // device_token (host wipe / missing state dir) pass reissue:true with
-        // a still-valid enroll bearer (AIM-166 dogfood recovery path).
+        // a still-valid enroll bearer (dogfood recovery path).
         reissue: body.reissue === true,
       });
       // Count the enrollment against a minted token only for a new device;
@@ -964,7 +964,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
           req.log.warn({ err }, "enroll token counter update failed");
         }
       }
-      // AIM-868: collector may present the previously stored enrollment id.
+      // collector may present the previously stored enrollment id.
       // When ingest minted a new device_id (stack recreate / host_id row lost),
       // rebind identity-sync join keys so service_identity / device_mapping
       // rows do not silently orphan attribution on the next batch.
@@ -991,7 +991,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
               service_identities_updated: rebound.serviceIdentitiesUpdated,
               device_mappings_updated: rebound.deviceMappingsUpdated,
             },
-            "identity join keys rebound at enroll (AIM-868)",
+            "identity join keys rebound at enroll",
           );
         } catch (err) {
           req.log.warn(
@@ -1000,7 +1000,7 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
           );
         }
       }
-      // AIM-455: if the mint bound this token to a directory human, register
+      // if the mint bound this token to a directory human, register
       // the join key so the next event batch resolves. Fail-open: never undo
       // a successful enroll because identity-sync is down.
       // Also re-register after a device_id rebind so the new id is mapped.

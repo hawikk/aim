@@ -1,6 +1,6 @@
-/* AIM-796 — fleet enforce coverage pure helpers.
+/* — fleet enforce coverage pure helpers.
  *
- * Renders GET /api/enforcement/coverage (AIM-789 contract) for the Security
+ * Renders GET /api/enforcement/coverage (contract) for the Security
  * panel. Honesty rules are load-bearing:
  *   * installPath.covered === false → explicit NO COVERAGE empty state
  *   * null rates → '—', never invented 0% / 100%

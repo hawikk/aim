@@ -1,4 +1,4 @@
-/* Shared view-private state for the Policy editor view (AIM-1177 split).
+/* Shared view-private state for the Policy editor view (split).
  * polCtx is view-private: zero cross-view surface. The orchestrator
  * (public/policy.js) calls resetPolicyCtx() at the top of init() and every
  * sibling module imports polCtx — never re-create it locally. */

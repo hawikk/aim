@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""AIM-456 — prove gate vs auditor failure domains are split (local-only).
+"""Prove gate vs auditor failure domains are split (local-only).
 
 Checks (fail-closed; exit 1 on any miss):
 
 1. merge-audit.yml jobs pin runs-on labels that include aim-ops and never
    aim-ci (Actions auditor must survive aim-ci drain).
-2. merge-audit.yml never pins ubuntu-latest (board: no billable cloud).
+2. merge-audit.yml never pins ubuntu-latest (policy: no billable cloud).
 3. PR security workflows still target aim-ci (gates stay on the gate pool).
 4. Optional live checks when env allows:
    - GITHUB_TOKEN / gh: at least one online runner with aim-ops and one with
@@ -190,12 +190,12 @@ def main() -> int:
         errors.extend(check_live_oob())
 
     if errors:
-        print("AIM-456 domain split VERIFY FAILED:", file=sys.stderr)
+        print("Domain split VERIFY FAILED:", file=sys.stderr)
         for e in errors:
             print(f"  - {e}", file=sys.stderr)
         return 1
 
-    print("AIM-456 domain split OK")
+    print("Domain split OK")
     print("  - merge-audit.yml → aim-ops only (no aim-ci, no ubuntu-latest)")
     print("  - gate workflows still reference aim-ci")
     if args.live:

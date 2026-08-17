@@ -1,4 +1,4 @@
-# Metadata source of truth for the packaged `aim` CLI (AIM-135 / AIM-489).
+# Metadata source of truth for the packaged `aim` CLI.
 #
 # The authoritative, dependency-free build is `scripts/build_aim_cli.py`,
 # which reads name/version/entry-point from this file and emits a wheel + sdist

@@ -1,4 +1,4 @@
-/* Apps view (AIM-105 / AIM-574 / AIM-737) — pure-moved from app.js (AIM-527).
+/* Apps view — pure-moved from app.js.
  *
  * OTel GenAI application telemetry: model distribution, token metering (in/out),
  * estimated cost by service and by model, exportable CSV. Metadata only —
@@ -94,12 +94,12 @@ export async function loadApps() {
   renderFleetModels(d);
 }
 
-/** Fleet-wide model distribution: table + cost + bar chart (AIM-574 / AIM-737). */
+/** Fleet-wide model distribution: table + cost + bar chart. */
 export function renderFleetModels(d) {
   return renderAppsModelDistribution(d);
 }
 
-/** Alias kept for AIM-574 static contract tests and callers. */
+/** Alias kept static contract tests and callers. */
 export function renderAppsModelDistribution(d) {
   const models = fleetModels(d);
   const totTokens = models.reduce((sum, m) => sum + modelTokens(m), 0);

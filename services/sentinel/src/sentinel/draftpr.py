@@ -1,6 +1,6 @@
 """Open one draft pull request carrying a catalogue fix — or say, out loud, why not.
 
-Board answer Q7 allows this and requires it to be opt-in and off by default, so
+This is allowed only as an opt-in and is required to be opt-in and off by default, so
 every step below is a gate that fails *closed and loudly*:
 
     enabled?  ->  repo in the config allowlist?  ->  App installed on that repo?
@@ -37,7 +37,7 @@ from .github import Client, GitHubError, NotInstalled
 from .patch import PatchRefused
 
 BRANCH_PREFIX = "sentinel/fix"
-# AIM-330: every autofix PR is labelled agent-generated for auditability.
+# every autofix PR is labelled agent-generated for auditability.
 # machine-generated is kept for backward compatibility with existing repo
 # rules; sentinel-remediation names the system that opened it.
 PR_LABELS = ("agent-generated", "machine-generated", "sentinel-remediation")
@@ -106,7 +106,7 @@ class DraftPROpener:
     copy-paste fix, which is the trade in the right direction.
 
     ``store`` is optional: when present, every opened PR is recorded for the
-    AIM-330 fix-acceptance-rate metric (opened vs merged vs closed).
+    fix-acceptance-rate metric (opened vs merged vs closed).
     """
 
     def __init__(self, cfg, client: Client | None = None, *, clock=None,
@@ -129,7 +129,7 @@ class DraftPROpener:
         self._started = self.clock()
         finding_link = _finding_link(alert, evidence_url)
 
-        # AIM-330: secret / guided classes never get an autofix PR — not even
+        # secret / guided classes never get an autofix PR — not even
         # when a repo is allowlisted. History rewrite requires human approval.
         if getattr(proposal, "autofix_mode", "") == "guided":
             return PROutcome(
@@ -298,7 +298,7 @@ class DraftPROpener:
 
     def _record_opened(self, *, alert, proposal, incident, target: RepoTarget,
                        outcome: PROutcome) -> None:
-        """Persist the opened PR for acceptance-rate tracking (AIM-330)."""
+        """Persist the opened PR for acceptance-rate tracking."""
         if self.store is None or not outcome.url:
             return
         try:
@@ -348,7 +348,7 @@ class DraftPROpener:
         return ref, self.client.ref_sha(target.repo, f"heads/{ref}", token=token)
 
 
-# Lockfile basename → preferred sibling manifest for dep-bump (AIM-330).
+# Lockfile basename → preferred sibling manifest for dep-bump.
 _LOCKFILE_TO_MANIFEST = {
     "package-lock.json": "package.json",
     "yarn.lock": "package.json",
@@ -403,7 +403,7 @@ def _finding_link(alert: dict, evidence_url: str = "") -> str:
 
 
 def _changelog_excerpt(alert: dict) -> str:
-    """Best-effort changelog / advisory excerpt for dep-bump PRs (AIM-330)."""
+    """Best-effort changelog / advisory excerpt for dep-bump PRs."""
     labels = alert.get("labels") or {}
     evidence = alert.get("evidence") or {}
     bits = []

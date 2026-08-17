@@ -1,4 +1,4 @@
-/* AIM-160 — pure logic for the unified alert inbox (public/inbox.js).
+/* — pure logic for the unified alert inbox (public/inbox.js).
  * DOM-free by design, same split as lib/triage.js: inbox.js renders and
  * fetches, this module decides — so the security-sensitive parts (evidence
  * URL resolution above all) are unit-testable under node:test. */
@@ -50,13 +50,13 @@ export function resolveEvidenceUrl(sourceUri, gatewayHost) {
 /* The four bands the inbox filter bar offers, in display order. The API
  * matches on the band as well as the label (§7.4 rev 6), so an
  * out-of-vocabulary severity label is still caught by these filters.
- * AIM-524: the vocabulary is lib/severity.js's — the inbox no longer keeps
+ * the vocabulary is lib/severity.js's — the inbox no longer keeps
  * its own copy of the bands, the ordering or the severity_id mapping. */
 export const SEVERITIES = SEVERITY_FILTER_BANDS;
 
 /* The contract's pillar enum, in display order (cloud posture, AI usage,
  * PR security, secrets hygiene, the sentinel itself). Wire values stay
- * snake_case for the bus; UI labels are in PILLAR_LABELS (AIM-482). */
+ * snake_case for the bus; UI labels are in PILLAR_LABELS. */
 export const PILLARS = ['cloud_posture', 'ai_usage', 'pr_security', 'secrets_hygiene', 'sentinel'];
 
 /* Friendly filter labels — never render raw pillar enums as card chrome. */
@@ -94,7 +94,7 @@ export function buildFilterParams({ severities, pillars } = {}) {
   return params;
 }
 
-/* AIM-482: map a bus alert onto AI-tool-governance presentation fields.
+/*: map a bus alert onto AI-tool-governance presentation fields.
  * The contract still carries CNAPP-era pillars/resource shapes for wire
  * compatibility; the Alerts surface must not render those as the primary
  * card vocabulary. Prefer labels/subject, fall back carefully, never invent
@@ -170,7 +170,7 @@ export function alertDomainFields(alert) {
     repo = null;
   }
 
-  /* AIM-702: optional policy_hash label for auto-triage keying (metadata only). */
+  /*: optional policy_hash label for auto-triage keying (metadata only). */
   const policyHash = labelOf(alert, 'policy_hash', 'policyHash');
 
   return {

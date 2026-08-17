@@ -1,5 +1,5 @@
 """The finding shape for pillar 4, and the two functions that decide what a
-secret is allowed to turn into (AIM-163).
+secret is allowed to turn into.
 
 Everything this service produces passes through `Finding`. The rule that makes
 that worth enforcing in one place: **a secret value never becomes a field.**

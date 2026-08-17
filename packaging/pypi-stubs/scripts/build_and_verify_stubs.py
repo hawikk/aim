@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build AIM-510 PyPI stub(s) and verify the security acceptance gates.
+"""Build PyPI stub(s) and verify the security acceptance gates.
 
 Gates (must all pass before upload):
 1. Package builds to sdist + wheel at version 0.0.1.
@@ -25,7 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]  # repo root
 STUBS = ROOT / "packaging" / "pypi-stubs"
-# Board-configured name after PyPI similarity block on aimonitoring/aim-monitoring.
+# Configured name after PyPI similarity block on aimonitoring/aim-monitoring.
 PACKAGES = ("aimonitoring-security",)
 # Import / distribution names used in the clean-install gate.
 PRIMARY_DIST = "aimonitoring-security"

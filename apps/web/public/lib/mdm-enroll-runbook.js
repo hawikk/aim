@@ -1,5 +1,5 @@
 /**
- * AIM-933 — Zero-touch / MDM enroll admin runbook + install-health copy.
+ * Zero-touch / MDM enroll admin runbook + install-health copy.
  *
  * Pure, DOM-free catalog so unit tests can lock wording without mounting the
  * Install health view. Surfaces Intune (Windows) and Jamf (macOS) admin paths

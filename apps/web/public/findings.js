@@ -1,4 +1,4 @@
-/* AIM-70 — Security findings triage console. Orchestrator only.
+/* — Security findings triage console. Orchestrator only.
  *
  * Self-contained module: injects its own nav tab, view section, stylesheet,
  * toast stack and polling loop at runtime. Kept separate from app.js so the
@@ -6,13 +6,13 @@
  * state and polling) can evolve without touching the dashboard core — and so
  * parallel frontend work on app.js/index.html cannot clobber it.
  *
- * Split (AIM-1140, mirroring the AIM-1135 security split) — the panels live
+ * Split (mirroring the security split) — the panels live
  * in sibling modules with clear ownership:
  *   ./findings/state.js        shared view-private fctx + constants + rule/evidence caches
- *   ./findings/row.js          inbox row markup + disposition history (AIM-223)
- *   ./findings/triage.js       disclosure keyboard path (AIM-711), triage + bulk mutations (AIM-94)
- *   ./findings/saved-views.js  saved filter views (AIM-94/587) + hash round-trip
- *   ./findings/export.js       CSV/JSON metadata-only export (AIM-590)
+ * ./findings/row.js inbox row markup + disposition history
+ * ./findings/triage.js disclosure keyboard path, triage + bulk mutations
+ * ./findings/saved-views.js saved filter views + hash round-trip
+ * ./findings/export.js CSV/JSON metadata-only export
  *
  * This file wires bootstrap, fetches, paints the KPI cards, and calls the
  * panels in order. Keep it thin — new panel code goes in a sibling module.
@@ -20,10 +20,10 @@
  * Privacy gate mirrors the API: /api/findings is restricted to the security
  * group, so this module only activates for those users. Triage transitions go
  * through PATCH /api/findings/:id and are recorded in the immutable audit
- * trail (AIM-27). Findings carry detector metadata and pseudonyms only —
+ * trail. Findings carry detector metadata and pseudonyms only
  * matched content is never stored or displayed.
  *
- * AIM-481: Overview was the universal post-login front page. AIM-707 lets the
+ * Overview was the universal post-login front page. lets the
  * SOC home persona land bare arrivals on Findings via app.js + home-role.js —
  * this module itself must still never steal an explicit destination.
  */
@@ -58,7 +58,7 @@ import { syncExportLinks, bindExport } from './findings/export.js';
  * /api/me.capabilities.findingsConsole is the API's exact SECURITY_GROUP
  * match surfaced to the UI. Do not reintroduce client-side group-name
  * sniffing (g.includes('security')) — it misfires on any unrelated group
- * whose name merely contains "security". Gate helper: lib/form.js (AIM-1113). */
+ * whose name merely contains "security". Gate helper: lib/form.js. */
 await requireCapability('findingsConsole', init, 'findings console');
 
 async function init() {
@@ -70,7 +70,7 @@ async function init() {
   link.href = '/findings.css';
   document.head.appendChild(link);
 
-  // AIM-541: optional fixture fingerprint allowlist for cluster-A triage hints.
+  // optional fixture fingerprint allowlist for cluster-A triage hints.
   // Registry is static JSON (HMAC fingerprints only). Dogfood/prod must deploy
   // a fleet-salt-generated copy — the committed CI salt_id will not match live
   // events. Failure to load is non-fatal; hints simply stay off.
@@ -121,7 +121,7 @@ async function init() {
   }
   fctx.toast = toast;
 
-  // AIM-1070: moduleTab places into the primary rail via nav-ia.
+  // moduleTab places into the primary rail via nav-ia.
   const btn = moduleTab({
     view: 'findings',
     label: 'Findings ',
@@ -185,24 +185,24 @@ async function init() {
   fctx.list = section.querySelector('#findings-list');
   const { state, list } = fctx;
 
-  /* AIM-153: `#/findings` is a real route. The tab above is an ordinary
+  /*: `#/findings` is a real route. The tab above is an ordinary
    * data-view button — app.js's delegated #tabs handler navigates it like any
    * static tab — and route() calls this to render. Nothing here touches
    * `.active` classes: showing the section is the router's job, and the two
-   * disagreeing about what was on screen is what produced AIM-152. */
+   * disagreeing about what was on screen is what produced. */
 
   async function loadFindings() {
     const rules = await ruleMap();
-    // Export links track status + severity + rule_id (AIM-590).
+    // Export links track status + severity + rule_id.
     syncExportLinks();
     // Cards always reflect the full open inbox, independent of the filters,
     // so posture stays glanceable while you slice the list below.
-    // AIM-442: summary endpoint is the source of truth for unhandled criticals,
+    // summary endpoint is the source of truth for unhandled criticals,
     // age buckets, and SLA breaches — limit=200 list samples can under-count.
     const [newRes, ackRes, closedRes, summary] = await Promise.all([
       api('/api/findings?status=new&limit=200'),
       api('/api/findings?status=acknowledged&limit=200'),
-      // AIM-702: closed outcomes for auto-triage hints (metadata only).
+      // closed outcomes for auto-triage hints (metadata only).
       api('/api/findings?status=resolved,false_positive&limit=200').catch(() => ({ findings: [] })),
       api('/api/findings/summary').catch(() => null),
     ]);
@@ -236,7 +236,7 @@ async function init() {
     findings.sort(
       (a, b) => (SEV_RANK[a.severity] ?? 9) - (SEV_RANK[b.severity] ?? 9) || new Date(b.detectedAt) - new Date(a.detectedAt)
     );
-    // AIM-925: hydrate rule→control index when any high/critical row needs it
+    // hydrate rule→control index when any high/critical row needs it
     // and the API has not already attached complianceEvidence on the finding.
     const needsIndex = findings.some(
       (f) =>
@@ -253,7 +253,7 @@ async function init() {
       : state.fstatus === 'open' && state.fsev === 'all'
         ? emptyState(EMPTY.findingsOpen)
         : emptyState(EMPTY.findingsFiltered);
-    // AIM-710: checkbox progress for guided playbooks (delegation, once per list).
+    // checkbox progress for guided playbooks (delegation, once per list).
     bindPlaybookProgress(list);
   }
   fctx.loadFindings = loadFindings;
@@ -313,6 +313,6 @@ async function init() {
   views.loadViews(); // pre-warm saved views (silent on failure)
   pollCritical();
   setInterval(pollCritical, POLL_MS);
-  // AIM-481: do not land security-group users on Findings. Overview is the
+  // do not land security-group users on Findings. Overview is the
   // guaranteed post-login front page; Findings is reached via the nav or KPI.
 }

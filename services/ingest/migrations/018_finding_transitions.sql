@@ -1,12 +1,12 @@
--- 018_finding_transitions.sql — AIM-223: append-only disposition transition
--- log for security findings (the "security events" of the AIM-94 triage
+-- 018_finding_transitions.sql — append-only disposition transition
+-- log for security findings (the "security events" of the triage
 -- inbox).
 --
--- Closes the auditability gap found in the AIM-223 delta audit: findings
+-- Closes the auditability gap found in the delta audit: findings
 -- carry only the LATEST disposition (status/triage_note/triaged_by/
 -- triaged_at are UPDATEd in place, migration 003), so "who moved this, from
 -- what, when, and why" was unanswerable from the database — it survived only
--- in the JSONL audit trail (AIM-27), which is not queryable per finding.
+-- in the JSONL audit trail, which is not queryable per finding.
 --
 -- Lifecycle vocabulary is unchanged: new / acknowledged / resolved /
 -- false_positive, a superset of the reference Open / Under Review / Resolved
@@ -21,7 +21,7 @@
 --
 -- NOT backfilled: pre-migration triage actions were never recorded per
 -- transition, and synthesizing rows for them would fabricate actor history.
--- The JSONL audit trail (AIM-27) remains the retroactive record for those.
+-- The JSONL audit trail remains the retroactive record for those.
 --
 -- Retention: transition rows are disposition metadata (actor + reason, no
 -- finding content beyond the join key) and are purged with the findings data
@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS finding_transitions (
   -- the failure mode this table exists to close.
   actor         TEXT NOT NULL,
   -- Free-text reason. NULL except where the lifecycle demands one: the API
-  -- rejects a transition to 'resolved' without a non-empty reason (AIM-223
-  -- acceptance criterion), so resolved rows always carry one.
+  -- rejects a transition to 'resolved' without a non-empty reason,
+  -- so resolved rows always carry one.
   reason        TEXT,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );

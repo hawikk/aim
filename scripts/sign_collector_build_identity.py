@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sign collector build identity blobs for release embeds (AIM-646).
+"""Sign collector build identity blobs for release embeds.
 
 Produces ``build_attestation.json`` files that collectors load at runtime.
 Signing uses OpenSSL Ed25519 (no Python crypto deps) so air-gapped / CI

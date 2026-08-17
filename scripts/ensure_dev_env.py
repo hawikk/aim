@@ -3,7 +3,7 @@
 
 Parity with dogfood `./stack init`: gatehouse fails closed without
 `GATEHOUSE_WEBHOOK_SECRET`, so bare `docker compose up` / `make dev` must
-land a real value in `.env` rather than interpolating empty (AIM-437 / AIM-213).
+land a real value in `.env` rather than interpolating empty.
 
 Mechanism only — never print secret values.
 """
@@ -55,7 +55,7 @@ def _set_or_append(path: Path, key: str, value: str) -> None:
             if text and not text.endswith("\n"):
                 text += "\n"
             text += (
-                f"\n# Minted by scripts/ensure_dev_env.py (AIM-437); do not commit.\n"
+                f"\n# Minted by scripts/ensure_dev_env.py; do not commit.\n"
                 f"{key}={value}\n"
             )
     else:

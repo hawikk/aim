@@ -1,6 +1,6 @@
-// Authn/z (AIM-95, unified role model AIM-384/AIM-302, fine-grained RBAC
-// + optional ABAC AIM-717, multi-IdP OIDC AIM-716). In-app OIDC and/or
-// SAML 2.0 SP (AIM-715) single sign-on with a four-role model that expands
+// Authn/z (unified role model, fine-grained RBAC
+// + optional ABAC, multi-IdP OIDC). In-app OIDC and/or
+// SAML 2.0 SP single sign-on with a four-role model that expands
 // into a permission matrix:
 //
 //   admin     full access (user-level data, guardrail, labels, admin)
@@ -22,7 +22,7 @@
 //   sso       — one or more complete OIDC providers: authorization code
 //               flow with PKCE, sessions in an HMAC-signed cookie.
 //               Legacy single-IdP: AIM_OIDC_ISSUER + CLIENT_ID + CLIENT_SECRET.
-//               Multi-IdP (AIM-716): AIM_OIDC_PROVIDERS=google,entra,okta with
+// Multi-IdP: AIM_OIDC_PROVIDERS=google,entra,okta with
 //               AIM_OIDC_<ID>_{ISSUER,CLIENT_ID,CLIENT_SECRET} per entry.
 //               Concurrent providers share one redirect URI; login picks via
 //               ?provider= or the HTML picker when multiple are configured.
@@ -30,7 +30,7 @@
 //               as a local admin. AIM_AUTH_DEV=1 adds /auth/dev/*
 //               role-switch endpoints (built-in secret, localhost only).
 //
-// Pilot / production graduation (AIM-545):
+// Pilot / production graduation:
 //   AIM_REQUIRE_SSO=1 refuses personal mode and refuses AIM_AUTH_DEV. Partial
 //   AIM_OIDC_* (any of issuer/id/secret without all three, or incomplete
 //   multi-provider entry) always fails closed at boot — never silently
@@ -42,13 +42,13 @@
 // Fail closed: an authenticated user whose groups map to no configured role
 // gets role null — zero capabilities, every gated route 403s.
 //
-// AIM-613/AIM-714: server-side session revoke. HMAC cookies stay stateless,
+// server-side session revoke. HMAC cookies stay stateless,
 // but each request also checks an email revoke watermark
 // (session-revocation.js). Sessions with iat <= watermark are treated as
 // unauthenticated — leaver force-deny without waiting for
 // AIM_SESSION_TTL_HOURS. Watermarks come from admin playbook or identity-sync
 // deprovision automation (designated service token).
-// AIM-613: server-side session revoke. HMAC cookies stay stateless, but each
+// server-side session revoke. HMAC cookies stay stateless, but each
 // request also checks an email revoke watermark (session-revocation.js).
 // Sessions with iat <= watermark are treated as unauthenticated — leaver
 // force-deny without waiting for AIM_SESSION_TTL_HOURS or secret rotation.
@@ -98,7 +98,7 @@ function splitCsv(value) {
     .filter(Boolean);
 }
 
-// Pilot Google Workspace group inventory (AIM-556). Exact claim strings must
+// Pilot Google Workspace group inventory. Exact claim strings must
 // match the IdP `groups` claim — short names below are the pilot defaults;
 // operators override via AIM_ROLE_GROUPS_* / AIM_REVEAL_GROUPS when the IdP
 // emits email-form group ids (e.g. ai-monitoring-analysts@examplecorp.com).
@@ -113,7 +113,7 @@ export const DEFAULT_REVEAL_GROUPS = Object.freeze(['ai-monitoring-revealers']);
 // Highest rank wins when a principal is in several AIM groups.
 export const ROLE_PRECEDENCE = Object.freeze(['admin', 'analyst', 'auditor', 'viewer']);
 
-/* ---------- Multi-IdP OIDC providers (AIM-716) ----------
+/* ---------- Multi-IdP OIDC providers ----------
  *
  * Production-ready Google Workspace + Microsoft Entra ID + Okta, either
  * concurrently (login picker / ?provider=) or as a single-IdP switch
@@ -200,7 +200,7 @@ export function parseOidcProviders(env = process.env) {
     return out;
   }
 
-  // Legacy single-provider (pre-AIM-716).
+  // Legacy single-provider (earlier).
   const issuer = env.AIM_OIDC_ISSUER || '';
   const clientId = env.AIM_OIDC_CLIENT_ID || '';
   const clientSecret = env.AIM_OIDC_CLIENT_SECRET || '';
@@ -243,7 +243,7 @@ function parseScimGroupRoleMap(raw) {
 const oidcProviders = parseOidcProviders();
 
 const config = {
-  // AIM-716: ordered provider list (empty = personal mode).
+  // ordered provider list (empty = personal mode).
   oidcProviders,
   baseUrl: process.env.AIM_BASE_URL ?? 'http://localhost:8080',
   redirectUri:
@@ -260,7 +260,7 @@ const config = {
     auditor: splitCsv(process.env.AIM_ROLE_GROUPS_AUDITOR ?? DEFAULT_ROLE_GROUPS.auditor.join(',')),
     viewer: splitCsv(process.env.AIM_ROLE_GROUPS_VIEWER ?? DEFAULT_ROLE_GROUPS.viewer.join(',')),
   },
-  // The reveal grant (AIM-302 §1): a separate capability, not a role and not
+  // The reveal grant (§1): a separate capability, not a role and not
   // bundled into admin. Membership in one of these IdP groups sets the
   // `reveal` bit on the session; identity-sync gates POST /reveal on the same
   // group name (services/identity-sync config.py reveal_role).
@@ -268,14 +268,14 @@ const config = {
   sessionSecret: process.env.AIM_SESSION_SECRET,
   sessionTtlHours: Number(process.env.AIM_SESSION_TTL_HOURS ?? 8) || 8,
   dev: process.env.AIM_AUTH_DEV === '1',
-  // AIM-545 / AIM-557: pilot and values-standard set this so a missing OIDC
+  // pilot and values-standard set this so a missing OIDC
   // secret never silently reopens personal-mode local-admin.
   requireSso: process.env.AIM_REQUIRE_SSO === '1',
-  // Machine credentials for headless consumers (the sentinel, AIM-165). A
+  // Machine credentials for headless consumers (the sentinel). A
   // file rather than an env var: env vars are visible in `docker inspect` and
   // are inherited by child processes, and this one gates the alert inbox.
   serviceTokensFile: process.env.AIM_SERVICE_TOKENS_FILE,
-  // AIM-713 SCIM: when a bearer token is configured, the directory is live.
+  // SCIM: when a bearer token is configured, the directory is live.
   // Soft mode (default): provisioned users with active=false are denied on
   // every request. Enforce mode (AIM_SCIM_ENFORCE=1): only active SCIM users
   // may hold an SSO session (unknown emails denied).
@@ -283,7 +283,7 @@ const config = {
     process.env.AIM_SCIM_BEARER_TOKEN && String(process.env.AIM_SCIM_BEARER_TOKEN).length >= 16,
   ),
   scimEnforce: process.env.AIM_SCIM_ENFORCE === '1',
-  // AIM-720: JIT provision into SCIM directory on first SSO login (default on
+  // JIT provision into SCIM directory on first SSO login (default on
   // when SCIM is configured; AIM_JIT_PROVISIONING=0 disables).
   jitProvisioning: isJitEnabled({
     scimEnabled: Boolean(
@@ -293,11 +293,11 @@ const config = {
   // Optional JSON map of SCIM group displayName → AIM role, merged with
   // AIM_ROLE_GROUPS_* (display names that match role groups still work).
   scimGroupRoleMap: parseScimGroupRoleMap(process.env.AIM_SCIM_GROUP_ROLE_MAP),
-  // AIM-717: optional OIDC claim names whose values become principal ABAC
+  // optional OIDC claim names whose values become principal ABAC
   // attributes (CSV of claim keys). Empty = only derived attrs (teams from
   // groups, email, role). Example: AIM_OIDC_ATTR_CLAIMS=department,cost_center
   attrClaims: splitCsv(process.env.AIM_OIDC_ATTR_CLAIMS ?? ''),
-  // SAML 2.0 SP (AIM-715) — parallel to OIDC; see docs/deployment/saml-sso-runbook.md
+  // SAML 2.0 SP — parallel to OIDC; see docs/deployment/saml-sso-runbook.md
   saml: readSamlEnv(process.env),
 };
 
@@ -349,7 +349,7 @@ const PERSONAL_IDENTITY = {
   role: 'admin',
   // Personal mode is a single local operator; the reveal grant is theirs.
   reveal: true,
-  // AIM-717: empty attributes — personal mode has no team scope.
+  // empty attributes — personal mode has no team scope.
   attributes: {},
   permissionGrants: [],
   mode: 'personal',
@@ -363,7 +363,7 @@ const NO_CAPS = {
 // Server-computed capabilities per role; the UI must gate privileged
 // surfaces on these, never on client-side group-name sniffing. The
 // findingsConsole/userLevel flags keep their old privacy-gate semantics.
-// `coverage` (AIM-278) is analyst+ like fleet: coverage gaps are an
+// `coverage` is analyst+ like fleet: coverage gaps are an
 // attacker's roadmap, so the screen is not in the all-roles dashboard tier.
 // `viewer` is the aggregate-only tier: dashboards and compliance evidence,
 // no per-engineer rows, no findings, no audit trail. `reveal` is NOT set
@@ -382,7 +382,7 @@ const COOKIE_OPTS = {
   secure: config.baseUrl.startsWith('https://'),
 };
 
-/* ---------- public host guard (AIM-468) ----------
+/* ---------- public host guard ----------
  *
  * OIDC state/PKCE live in a host-only Secure cookie. If /auth/login is hit on
  * a side-channel host (direct container port :8085, bare localhost, etc.) the
@@ -499,7 +499,7 @@ function authErrorPage({
 </body></html>`;
 }
 
-/* AIM-479: signed-out landing. Clearing the app session then immediately
+/*: signed-out landing. Clearing the app session then immediately
  * redirecting to /auth/login re-triggers OIDC against a still-valid IdP
  * session and lands the user back on `/` — a sign-out loop. This page
  * ends the app session and waits for an explicit re-login click. */
@@ -534,7 +534,7 @@ function signedOutPage({ loginHref }) {
 }
 
 
-/** AIM-716: multi-IdP chooser when concurrent providers are configured. */
+/**: multi-IdP chooser when concurrent providers are configured. */
 function providerPickerPage({ providers, baseUrl }) {
   const esc = (s) =>
     String(s ?? '')
@@ -619,7 +619,7 @@ function parseCookies(header) {
   return out;
 }
 
-/* ---------- CSRF protection for cookie sessions (AIM-207) ----------
+/* ---------- CSRF protection for cookie sessions ----------
  *
  * Applies only to cookie-authenticated sessions. Bearer-authenticated
  * requests already return before this check is reached. Personal mode
@@ -654,7 +654,7 @@ function csrfAllowed(req) {
   return true;
 }
 
-/* ---------- group -> role mapping (AIM-556) ----------
+/* ---------- group -> role mapping ----------
  *
  * Fail closed. Exact string match against configured IdP group names only.
  * Unknown / company-wide groups (engineering, all-staff, …) never grant a
@@ -720,7 +720,7 @@ function scimBlocksIdentity(email) {
 }
 
 /**
- * AIM-720: after SCIM deprovision gate, JIT-upsert the principal so first
+ * after SCIM deprovision gate, JIT-upsert the principal so first
  * login provisions within SLA and enforce mode works without pre-push.
  * Returns a fail descriptor when enforce mode must deny; otherwise null/ok.
  */
@@ -766,7 +766,7 @@ export function hasRevealGrant(groups, revealGroups = config.revealGroups) {
   return (revealGroups ?? []).some((g) => have.has(g));
 }
 
-/** Boot-time fail-closed checks (AIM-545 / AIM-715). Exported for unit tests. */
+/** Boot-time fail-closed checks. Exported for unit tests. */
 export function assertAuthBootPolicy({
   ssoEnabled = SSO_ENABLED,
   anyOidc = ANY_OIDC,
@@ -792,7 +792,7 @@ export function assertAuthBootPolicy({
         hint,
     );
   }
-  // Partial SAML: any of entry/issuer/cert without the full set (AIM-715).
+  // Partial SAML: any of entry/issuer/cert without the full set.
   if (anySaml && !samlEnabled) {
     throw new Error(
       'partial AIM_SAML_* configuration: set AIM_SAML_IDP_ENTRY_POINT, AIM_SAML_IDP_ISSUER, and AIM_SAML_IDP_CERT (or AIM_SAML_IDP_CERT_FILE) together, or leave all unset',
@@ -815,7 +815,7 @@ export function assertAuthBootPolicy({
 
 // Product docs/routes sometimes say "security-admin"; the session role id is
 // `admin`. Alias so requireRoles('security-admin') matches an admin session
-// and dev-login can accept either label (AIM-436 gate unblock).
+// and dev-login can accept either label (gate unblock).
 const ROLE_ALIASES = Object.freeze({ 'security-admin': 'admin' });
 function normalizeRole(role) {
   if (role == null) return role;
@@ -869,7 +869,7 @@ export function requireRoles(...roles) {
 }
 
 /**
- * Fine-grained permission gate (AIM-717). Prefer this over requireRoles for
+ * Fine-grained permission gate. Prefer this over requireRoles for
  * new routes. Optional ABAC conditions are pure-RBAC when omitted.
  *
  *   requirePermission('findings.read')
@@ -922,7 +922,7 @@ export function canSeeUsers(req) {
 
 // /api/me payload — exact contract the web app gates its surfaces on.
 // capabilities.reveal comes from the session's reveal grant, not the role.
-// AIM-717 adds permissions[] (fine-grained matrix) and attributes (ABAC).
+// adds permissions[] (fine-grained matrix) and attributes (ABAC).
 export function mePayload(req) {
   const id = req.identity;
   return {
@@ -930,9 +930,9 @@ export function mePayload(req) {
     name: id?.name ?? null,
     role: id?.role ?? null,
     mode: id?.mode ?? null,
-    // AIM-719: present when session was minted via emergency break-glass admin.
+    // present when session was minted via emergency break-glass admin.
     breakGlass: id?.breakGlass ?? null,
-    // AIM-716: which OIDC provider issued the session (null in personal mode).
+    // which OIDC provider issued the session (null in personal mode).
     idp: id?.idp ?? null,
     capabilities: { ...(ROLE_CAPS[id?.role] ?? { ...NO_CAPS }), reveal: Boolean(id?.reveal) },
     permissions: permissionList(id),
@@ -941,7 +941,7 @@ export function mePayload(req) {
 }
 
 /**
- * AIM-719 — mint a short-lived emergency admin session cookie.
+ * mint a short-lived emergency admin session cookie.
  * role is always admin; reveal is always false (least privilege for outage path).
  * mode is `break_glass` so UI/audit can distinguish from normal SSO.
  *
@@ -1018,7 +1018,7 @@ async function issueSsoSession(reply, {
   externalId = null,
   req = null,
 }) {
-  // AIM-720: JIT before group merge so SCIM membership (if any) is visible.
+  // JIT before group merge so SCIM membership (if any) is visible.
   const jitGate = await runJitProvision(req, {
     email,
     displayName: name,
@@ -1104,7 +1104,7 @@ function wrongHostLoginReply(req, reply, path) {
 let samlSp = null;
 
 export async function authPlugin(fastify) {
-  // Fail closed before any request path can open (AIM-545 / AIM-557).
+  // Fail closed before any request path can open.
   assertAuthBootPolicy();
 
   if (OIDC_ENABLED) {
@@ -1162,7 +1162,7 @@ export async function authPlugin(fastify) {
   }
 
   // Cookie support at root so OIDC routes *and* break-glass admin ceremony
-  // (AIM-719, registered outside this scope) can set aim_session.
+  // (registered outside this scope) can set aim_session.
   await fastify.register(fastifyCookie);
 
   /* ----- auth endpoints ----- */
@@ -1184,7 +1184,7 @@ export async function authPlugin(fastify) {
       // Start the authorization-code flow: redirect to the IdP with PKCE;
       // state/nonce/verifier ride along in a short-lived signed cookie.
       scope.get('/auth/login', async (req, reply) => {
-        // AIM-468: refuse login starts on the wrong host so the state cookie
+        // refuse login starts on the wrong host so the state cookie
         // cannot be bound to :8085 / bare localhost while Authelia returns to
         // AIM_BASE_URL.
         if (!isPublicHost(req)) {
@@ -1221,16 +1221,16 @@ export async function authPlugin(fastify) {
           });
         }
 
-        // AIM-715: SAML-only installs use /auth/login as the canonical entry.
+        // SAML-only installs use /auth/login as the canonical entry.
         // Multi-IdP OIDC picker below only applies when OIDC is configured;
         // without this branch, zero oidcProviders falls through to a 200
-        // provider_required JSON body (regression after AIM-929 multi-IdP).
+        // provider_required JSON body (regression multi-IdP).
         if (SAML_ENABLED && !OIDC_ENABLED) {
           const authorizeUrl = await samlSp.getAuthorizeUrlAsync('', undefined, {});
           return reply.redirect(authorizeUrl);
         }
 
-        // AIM-716: pick provider. Single-IdP auto-selects; multi requires
+        // pick provider. Single-IdP auto-selects; multi requires
         // ?provider= or shows the HTML picker / JSON provider list.
         const requested = typeof req.query?.provider === 'string' ? req.query.provider.trim().toLowerCase() : '';
         let providerId = requested;
@@ -1314,7 +1314,7 @@ export async function authPlugin(fastify) {
         return reply.redirect(url.href);
       });
 
-      // AIM-716: public provider inventory for SPA / ops (no secrets).
+      // public provider inventory for SPA / ops (no secrets).
       scope.get('/auth/providers', async (_req, reply) => {
         const providers = config.oidcProviders.map((p) => ({
           id: p.id,
@@ -1329,7 +1329,7 @@ export async function authPlugin(fastify) {
 
       // IdP redirect target: exchange the code, validate the ID token
       // (signature/iss/aud/exp via openid-client, nonce via expectedNonce),
-      // map groups to a role, and open the session. OIDC-only (AIM-715 SAML uses ACS).
+      // map groups to a role, and open the session. OIDC-only (SAML uses ACS).
       if (OIDC_ENABLED) scope.get('/auth/callback', async (req, reply) => {
         const rawStateCookie = parseCookies(req.headers.cookie)[OIDC_STATE_COOKIE];
         const flow = decodeToken(rawStateCookie, config.sessionSecret);
@@ -1341,7 +1341,7 @@ export async function authPlugin(fastify) {
             requestHost: requestPublicHost(req) || null,
             hasStateCookie: Boolean(rawStateCookie),
           });
-          // AIM-989: operator-visible titles + runbook for JIT / SCIM failures.
+          // operator-visible titles + runbook for JIT / SCIM failures.
           const presented = loginErrorPresentation(error, detail);
           const resolvedDetail =
             presented.detail ||
@@ -1405,7 +1405,7 @@ export async function authPlugin(fastify) {
           });
           const claims = tokens.claims();
           if (!claims?.email) return fail(401, 'login_failed', 'Identity provider did not return an email claim.');
-          // AIM-713/AIM-720: soft deprovision deny before JIT (never revive).
+          // soft deprovision deny before JIT (never revive).
           // Enforce unknown-user deny runs *after* JIT so first login can provision.
           if (scimDirectory.isDeprovisioned(claims.email)) {
             audit(claims.email, 'auth.login.failed', 'auth/callback', {
@@ -1419,7 +1419,7 @@ export async function authPlugin(fastify) {
               'SCIM has deprovisioned this user (active=false).',
             );
           }
-          // AIM-720: first login provisions into SCIM directory within SLA.
+          // first login provisions into SCIM directory within SLA.
           const jitGate = await runJitProvision(req, {
             email: claims.email,
             displayName: claims.name ?? null,
@@ -1457,7 +1457,7 @@ export async function authPlugin(fastify) {
           const groups = mergeScimGroups(claims.email, normalizeGroups(claims[groupsClaim]));
           const role = mapGroupsToRole(groups);
           const now = Math.floor(Date.now() / 1000);
-          // AIM-613: if this email was force-revoked in the same second, bump
+          // if this email was force-revoked in the same second, bump
           // iat past the watermark so a legitimate re-login (re-hire / group
           // restore) is not immediately denied while older cookies still fail.
           const watermark = sessionRevocations.get(claims.email);
@@ -1470,7 +1470,7 @@ export async function authPlugin(fastify) {
             groups,
             role,
             reveal: hasRevealGrant(groups),
-            // AIM-717: optional ABAC attributes from configured OIDC claims.
+            // optional ABAC attributes from configured OIDC claims.
             attributes: attributesFromClaims(claims),
             idp: entry.provider.id,
             iat,
@@ -1494,8 +1494,8 @@ export async function authPlugin(fastify) {
                 }
               : {}),
           });
-          // AIM-481: post-login always lands on Overview. A bare `/` left the
-          // SPA free to re-claim the hash for Findings (AIM-94) or a stale
+          // post-login always lands on Overview. A bare `/` left the
+          // SPA free to re-claim the hash for Findings or a stale
           // client-side destination; `#/overview` is the guaranteed front page.
           return reply.redirect('/#/overview');
         } catch (err) {
@@ -1534,7 +1534,7 @@ export async function authPlugin(fastify) {
               error,
               requestHost: requestPublicHost(req) || null,
             });
-            // AIM-989: operator-visible titles + runbook for JIT / SCIM failures.
+            // operator-visible titles + runbook for JIT / SCIM failures.
             const presented = loginErrorPresentation(error, detail);
             const resolvedDetail =
               presented.detail ||
@@ -1640,7 +1640,7 @@ export async function authPlugin(fastify) {
         });
       }
 
-    /* AIM-479: logout ends the app session and stops. GET serves a signed-out
+    /*: logout ends the app session and stops. GET serves a signed-out
      * HTML page (browser "Sign out" link); POST keeps the JSON shape for API
      * clients. Neither path auto-redirects to /auth/login — that was the
      * SSO re-auth loop. */
@@ -1686,7 +1686,7 @@ export async function authPlugin(fastify) {
         const iat = watermark && now <= watermark.revokedAtSec
           ? watermark.revokedAtSec + 1
           : now;
-        // AIM-717: optional ABAC attrs for local tests.
+        // optional ABAC attrs for local tests.
         //   &attrs={"teams":["secops"],"department":"security"}
         //   &teams=secops,platform   (shorthand list → attributes.teams)
         let attributes = {};
@@ -1726,7 +1726,7 @@ export async function authPlugin(fastify) {
           exp: iat + 12 * 3600,
         };
         reply.setCookie(SESSION_COOKIE, encodeToken(session, DEV_SESSION_SECRET), { ...COOKIE_OPTS, maxAge: 12 * 3600 });
-        // AIM-557: every dev/break-glass role switch is auditable.
+        // every dev/break-glass role switch is auditable.
         audit(session.email, 'auth.dev.login', 'auth/dev/login', {
           role: session.role,
           reveal: session.reveal,
@@ -1750,7 +1750,7 @@ export async function authPlugin(fastify) {
     // must not be treated as a service token (Bearer would 401 here).
     if (path === '/api/health' || path.startsWith('/auth/') || path.startsWith('/scim/')) return;
 
-    // ----- machine credentials (AIM-165) -----
+    // ----- machine credentials -----
     // An Authorization: Bearer header is an explicit claim of service
     // identity, so it is AUTHORITATIVE: resolve it or 401. It deliberately
     // does not fall through to the cookie/personal paths below.
@@ -1791,7 +1791,7 @@ export async function authPlugin(fastify) {
         }
         return;
       }
-      // AIM-613: email revoke watermark force-denies mid-TTL sessions.
+      // email revoke watermark force-denies mid-TTL sessions.
       if (sessionRevocations.isSessionRevoked(session)) {
         if (path.startsWith('/api/')) {
           audit(session.email, 'authz.deny', path, {
@@ -1807,8 +1807,8 @@ export async function authPlugin(fastify) {
         audit(session.email, 'authz.deny', path, { requiredRoles: ['authenticated'], role: session.role ?? null, reason: 'csrf' });
         return reply.code(403).send({ error: 'forbidden', detail: 'cross-origin request rejected' });
       }
-      // AIM-713: mid-session SCIM deprovision (active=false) or enforce deny.
-      // Immediate — does not wait for cookie exp / AIM-714 revoke watermark.
+      // mid-session SCIM deprovision (active=false) or enforce deny.
+      // Immediate — does not wait for cookie exp revoke watermark.
       if (scimBlocksIdentity(session.email)) {
         audit(session.email, 'authz.deny', path, {
           requiredRoles: ['authenticated'],
@@ -1820,7 +1820,7 @@ export async function authPlugin(fastify) {
           detail: 'user deprovisioned via SCIM',
         });
       }
-      // AIM-719: emergency admin sessions keep fixed admin role + no reveal;
+      // emergency admin sessions keep fixed admin role + no reveal;
       // do not re-map from IdP groups (IdP may be the outage).
       if (session.mode === 'break_glass') {
         req.identity = {
@@ -1869,7 +1869,7 @@ export async function authPlugin(fastify) {
           audit(dev.email, 'authz.deny', path, { requiredRoles: ['authenticated'], role: dev.role ?? null, reason: 'csrf' });
           return reply.code(403).send({ error: 'forbidden', detail: 'cross-origin request rejected' });
         }
-        // AIM-719 break-glass sessions in local/dev also use DEV_SESSION_SECRET.
+        // break-glass sessions in local/dev also use DEV_SESSION_SECRET.
         if (dev.mode === 'break_glass') {
           req.identity = {
             email: dev.email,

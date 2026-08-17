@@ -1,8 +1,8 @@
--- 027_chat_alert_destinations.sql — AIM-485 / AIM-583: Google Chat + Slack
+-- 027_chat_alert_destinations.sql — Google Chat + Slack
 -- as first-class finding_deliveries destinations.
 --
--- AIM-485 shipped GoogleChatNotifier (destination = 'google_chat') and
--- AIM-583 ships SlackNotifier (destination = 'slack') behind
+-- shipped GoogleChatNotifier (destination = 'google_chat') and
+-- ships SlackNotifier (destination = 'slack') behind
 -- ALERT_SLACK_ENABLED. Both reuse the same delivery accounting contract as
 -- webhook / sentinel / bus / SIEM: one row per finding per destination.
 --

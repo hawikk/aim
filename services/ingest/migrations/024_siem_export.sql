@@ -1,4 +1,4 @@
--- 024_siem_export.sql — AIM-324: first-class SIEM export destinations and
+-- 024_siem_export.sql — first-class SIEM export destinations and
 -- dead-lettering on the finding_deliveries machinery.
 --
 -- Two changes to the delivery vocabulary:
@@ -9,10 +9,10 @@
 --    reuse the exact accounting contract webhook/sentinel/bus already have:
 --    one row per finding per destination, written by dbrunner.record_deliveries.
 --
--- 2. A fourth status: 'dead' — the dead-letter state. AIM-76/AIM-158 gave us
+-- 2. A fourth status: 'dead' — the dead-letter state. gave us
 --    'delivered' (terminal success), 'failed' (retryable), and 'rejected'
 --    (terminal, unbuildable). The SIEM exporters are swept like the bus
---    (at-least-once, AIM-324), which forces the question the bus never had to
+-- (at-least-once), which forces the question the bus never had to
 --    answer: when does a 'failed' row stop being retried? 'dead' is that
 --    answer — a failed delivery whose attempts reached the destination's
 --    sweep cap (dbrunner, per-notifier sweep_attempt_cap) is transitioned

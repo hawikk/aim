@@ -1,4 +1,4 @@
-/* Locale picker for admin/analyst chrome (AIM-917).
+/* Locale picker for admin/analyst chrome.
  *
  * Lists only registered catalogs (never LOCALES_AWAITING_SECURITY tags).
  * Preference path matches the scaffold: localStorage aim.locale → navigator → en.

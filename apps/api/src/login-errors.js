@@ -1,10 +1,10 @@
-// AIM-989 — first-login / JIT failure presentation for SSO HTML + JSON replies.
+// — first-login / JIT failure presentation for SSO HTML + JSON replies.
 // Pure map: no Fastify deps so unit tests and auth.js share one source of truth.
 
 export const JIT_RUNBOOK_PATH = 'docs/security/jit-provisioning-sla.md';
 
 /**
- * Operator-facing copy for login failure error codes (AIM-720 / AIM-989).
+ * Operator-facing copy for login failure error codes.
  * Returns null fields where the caller should keep its generic defaults.
  *
  * @param {string} error

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-743 — stage (and optionally pkgbuild) the Jamf macOS collector package.
+# — stage (and optionally pkgbuild) the Jamf macOS collector package.
 #
 # Always produces a staging tree under dist/macos/stage/. On macOS with
 # pkgbuild available, also emits dist/macos/AIMonitoringCollector-<version>.pkg.

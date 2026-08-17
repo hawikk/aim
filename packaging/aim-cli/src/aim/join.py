@@ -106,7 +106,7 @@ def _write_user_config(state_dir, url, *, ca_bundle=None, resolve=None):
     We write the per-user config explicitly rather than via the collector's
     managed-path search order so `join` can never target a root path.
 
-    ``ca_bundle`` / ``resolve`` (AIM-238) are persisted so post-join
+    ``ca_bundle`` / ``resolve`` are persisted so post-join
     heartbeats and spool flushes keep working without ambient env vars.
     """
     path = state_dir / "config.json"
@@ -128,7 +128,6 @@ def _write_user_config(state_dir, url, *, ca_bundle=None, resolve=None):
     # succeeded — a collector that looked healthy but shipped zero events. The
     # path is written declaratively: the token file is created by the enroll
     # step just after this first call, and the spool client reads it lazily.
-    # (AIM-1061)
     cfg["token_file"] = str((state_dir / "device_token").expanduser())
     if ca_bundle:
         from pathlib import Path
@@ -203,12 +202,12 @@ def cmd_join(args) -> int:
     canonical = tools.canonical_state_dir()
 
     # Enroll BEFORE any hook is written. Write the canonical config first so
-    # the verification heartbeat can resolve the ingest URL (and so AIM-238
+    # the verification heartbeat can resolve the ingest URL (and so
     # ca_bundle/resolve are already in place for the enroll + heartbeat POSTs).
     # A bad/revoked token or unreachable endpoint aborts here with nothing hooked.
     _write_user_config(canonical, url, ca_bundle=ca_bundle, resolve=resolve)
 
-    # AIM-440: seed the endpoint enforcement bundle so policy mode:enforce is
+    # seed the endpoint enforcement bundle so policy mode:enforce is
     # real on this host. Without a delivered bundle the collector fail-opens
     # to observe and every finding stays decision=observe forever.
     try:
@@ -292,7 +291,7 @@ def cmd_join(args) -> int:
 
 def _register_autostart():
     """Register the per-user auto-start service so the watcher survives a
-    reboot (AIM-139). Best-effort and non-fatal: a machine without a usable
+    reboot. Best-effort and non-fatal: a machine without a usable
     per-user service manager still has working hooks + spool, so a failure
     here degrades to 'collection works while logged in' rather than aborting
     the join. Prints a one-line result."""
@@ -376,7 +375,7 @@ def cmd_status(args) -> int:
               "refresh the collector.")
 
     # A rejection is telemetry that left the spool and was never stored — the
-    # endpoint is the only place that knows (AIM-200). Never print it as a
+    # endpoint is the only place that knows. Never print it as a
     # clean send.
     lost = _print_rejections(ledgers)
 
@@ -395,7 +394,7 @@ def _rejections(tool) -> dict:
     """The tool's local rejection ledger, tagged with its path for dedupe.
 
     A ledger we cannot read is reported as unknown, never as zero. A collector
-    predating AIM-200 has no `rejections()` at all, and answering "0 rejected"
+    predating has no `rejections()` at all, and answering "0 rejected"
     for it would recreate the very bug this ledger exists to expose.
     """
     try:

@@ -1,4 +1,4 @@
-"""Durable gate verdict evidence (AIM-446).
+"""Durable gate verdict evidence.
 
 An enforcement claim we cannot demonstrate months later is not an enforcement
 claim. This store keeps, per merged commit / PR head SHA:

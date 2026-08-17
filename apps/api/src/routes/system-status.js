@@ -1,4 +1,4 @@
-// Product system status (AIM-290): one API that answers "is it working and is
+// Product system status: one API that answers "is it working and is
 // it covering everything?" across both pillars.
 //
 // Design constraints from the charter:
@@ -39,8 +39,8 @@ import {
 } from './enforcement-coverage.js';
 
 // Device silence + DLQ summary live here rather than pipeline.js so this
-// feature lands on main without depending on AIM-293 export surface. Semantics
-// match the AIM-293 pure evaluators when both are present.
+// feature lands on main without depending on export surface. Semantics
+// match the pure evaluators when both are present.
 
 const MAX_SILENT_DEVICES = 50;
 const MAX_DROPPING_DEVICES = 50;
@@ -107,7 +107,7 @@ export function evaluateRejections({ total, byReason, recent }) {
 }
 
 /**
- * Pure (AIM-439): collector-side drop health from heartbeat counters.
+ * Pure: collector-side drop health from heartbeat counters.
  *
  * Server DLQ (`rejected_events`) only sees what reached ingest. Client-side
  * loss — schema skew, full spool drain after 4xx — lives in each device's
@@ -179,10 +179,10 @@ const DEFAULT_THROUGHPUT_MIN_PER_HOUR = 1; // any live fleet should move
 const DEFAULT_DLQ_WARN = 1;
 const DEFAULT_DLQ_HARD = 50;
 const DEFAULT_CNAPP_STALE_HOURS = 48;
-// AIM-645 path-to-10: ≥99% enrolled endpoints reporting healthy collectors.
+// path-to-10: ≥99% enrolled endpoints reporting healthy collectors.
 // Env: SYSTEM_STATUS_DEVICE_HEALTHY_MIN_PCT (align with COLLECTOR_COVERAGE_SLO_TARGET_PCT).
 const DEFAULT_DEVICE_HEALTHY_MIN_PCT = DEFAULT_COVERAGE_SLO_TARGET_PCT;
-// AIM-297: PR CI runner queue / health SLOs for the D2 status screen.
+// PR CI runner queue / health SLOs for the D2 status screen.
 const DEFAULT_CI_RUNNER_QUEUE_WARN = 3;
 const DEFAULT_CI_RUNNER_QUEUE_HARD = 10;
 const DEFAULT_CI_RUNNER_STALE_SEC = 300;
@@ -460,7 +460,7 @@ export function tileDlq(rejections) {
 }
 
 /**
- * AIM-439 tile: collector-side event loss. Distinct from server DLQ —
+ * tile: collector-side event loss. Distinct from server DLQ
  * batches the collector discarded after a schema/auth rejection never create
  * a rejected_events row, so dlq_depth can be green while the fleet bleeds.
  */
@@ -524,13 +524,13 @@ export function tileCollectorDrops(drops) {
 }
 
 export function tileDeviceLiveness(liveness, silence, coverageSlo = null) {
-  // Prefer explicit SYSTEM_STATUS_DEVICE_HEALTHY_MIN_PCT; else AIM-645 fleet SLO.
+  // Prefer explicit SYSTEM_STATUS_DEVICE_HEALTHY_MIN_PCT; else fleet SLO.
   const envOverride = process.env.SYSTEM_STATUS_DEVICE_HEALTHY_MIN_PCT;
   const minHealthyPct = envOverride != null && envOverride !== ''
     ? envInt('SYSTEM_STATUS_DEVICE_HEALTHY_MIN_PCT', DEFAULT_DEVICE_HEALTHY_MIN_PCT)
     : (coverageSlo?.targetPct ?? coverageSloTargetPct());
   const slo = {
-    text: `≥${minHealthyPct}% of enrolled endpoints healthy (version + last_event_at + no active errors; AIM-645)`,
+    text: `≥${minHealthyPct}% of enrolled endpoints healthy (version + last_event_at + no active errors)`,
     minHealthyPct,
     windowSeconds: coverageSlo?.windowSeconds ?? null,
   };
@@ -597,7 +597,7 @@ export function tileDeviceLiveness(liveness, silence, coverageSlo = null) {
       message: 'Enrolled devices have never heartbeated',
     });
   }
-  // Prefer the AIM-645 evaluator when present; otherwise fall back to
+  // Prefer the evaluator when present; otherwise fall back to
   // healthy/enrolled point-in-time share (legacy pipeline counts).
   let pct;
   if (coverageSlo && coverageSlo.healthyPct != null) {
@@ -672,7 +672,7 @@ export function tileAttribution(attribution) {
     attributedEvents: attribution.attributedEvents,
     unattributedEvents: attribution.unattributedEvents,
     serviceAttributedEvents: attribution.serviceAttributedEvents,
-    // AIM-452: every coverage claim carries when it was last verified e2e.
+    // every coverage claim carries when it was last verified e2e.
     lastVerifiedAt: attribution.lastVerifiedAt ?? null,
   };
   if (attribution.status === 'no_events') {
@@ -766,7 +766,7 @@ export function tileServiceProbe(name, pillar, title, probeResult, { required = 
 }
 
 /**
- * CNAPP coverage + scan freshness (A3 / AIM-278 contract).
+ * CNAPP coverage + scan freshness (A3 contract).
  * `coverage` is GET /accounts/coverage shape; `posture` is optional
  * /accounts/posture with per-account last_scan ages.
  */
@@ -947,7 +947,7 @@ export function tileGuardrail({ probeResult, rulesLoaded, lastFindingAt } = {}) 
 }
 
 /**
- * AIM-297: self-hosted PR security runner health + queue depth.
+ * self-hosted PR security runner health + queue depth.
  *
  * Input shape (from file, URL, or live GitHub Actions API snapshot):
  *   {
@@ -1177,12 +1177,12 @@ export function alertCandidatesFromTiles(tiles, { now = new Date() } = {}) {
     if (t.state === 'ok' || t.state === 'never_configured') continue;
     if (!t.breach) continue;
     const severity = t.state === 'broken' ? 'high' : 'medium';
-    // AIM-452: unattributed rate is a first-class finding_type so Sentinel /
+    // unattributed rate is a first-class finding_type so Sentinel /
     // the inbox can route it without parsing free-text tile titles. Other
     // tiles keep the generic system_* leaf.
     const isAttribution = t.id === 'attribution_coverage';
     const isEnforce = t.id === 'enforce_coverage';
-    // AIM-645: first-class finding_type for collector coverage SLO breaches.
+    // first-class finding_type for collector coverage SLO breaches.
     const isCoverageSlo = t.id === 'device_liveness';
     const findingType = isAttribution
       ? 'ai_usage.unattributed_rate'
@@ -1264,7 +1264,7 @@ export function alertCandidatesFromTiles(tiles, { now = new Date() } = {}) {
         isAttribution
           ? 'Open #/overview attribution panel and #/status Identity coverage. Check identity-sync directory coverage and device_mappings; a high unattributed rate is a coverage gap, not an ingest outage.'
           : isEnforce
-            ? 'Open #/fleet enforce coverage panel. Fail-open hosts need enforcement.json delivered (AIM-440 install path / aim doctor --fix). Zero blocks without posture is coverage-absent, not clean.'
+            ? 'Open #/fleet enforce coverage panel. Fail-open hosts need enforcement.json delivered (install path / aim doctor --fix). Zero blocks without posture is coverage-absent, not clean.'
             : isCoverageSlo
               ? 'Open #/fleet. SLO-healthy requires collector_version, last_event_at (heartbeat within 1× interval), and drop_active=false. Run aim doctor on silent hosts.'
               : (t.state === 'broken'
@@ -1309,7 +1309,7 @@ export function assembleStatus({
   const drops = collectorDrops
     ?? liveness?.collectorDrops
     ?? evaluateCollectorDrops({ devices: [] });
-  // AIM-645: prefer caller-provided coverageSlo; else derive from liveness.coverageSlo.
+  // prefer caller-provided coverageSlo; else derive from liveness.coverageSlo.
   const slo = coverageSlo ?? liveness?.coverageSlo ?? null;
 
   const minEnforcePct = envInt('ENFORCE_COVERAGE_MIN_PCT', DEFAULT_MIN_COVERAGE_PCT);
@@ -1320,7 +1320,7 @@ export function assembleStatus({
     tileCollectorDrops(drops),
     tileDeviceLiveness(liveness, silence, slo),
     tileAttribution(attribution),
-    // AIM-781: fleet enforce install-path coverage (pilot SLO).
+    // fleet enforce install-path coverage (pilot SLO).
     tileEnforceCoverage(enforceCoverage, { minCoveragePct: minEnforcePct }),
     tileCnappCoverage(cnapp),
     tileServiceProbe('gatehouse', 'aim', 'Gatehouse (PR gate)', probes.gatehouse),
@@ -1352,7 +1352,7 @@ export function assembleStatus({
   return {
     overall,
     generatedAt,
-    // AIM-452: same stamp as tile coverage claims so UI can render
+    // same stamp as tile coverage claims so UI can render
     // "last verified" next to every figure without inventing a time.
     lastVerifiedAt: generatedAt,
     gatewayHost: gatewayHost(),
@@ -1374,7 +1374,7 @@ export function assembleStatus({
 // ---- data gathering -----------------------------------------------------
 
 /**
- * Load self-hosted PR runner status for the D2 health tile (AIM-297).
+ * Load self-hosted PR runner status for the D2 health tile.
  *
  * Priority:
  *   1. AIM_CI_RUNNER_STATUS_FILE — JSON written by deploy/runner/health-report.sh
@@ -1559,7 +1559,7 @@ async function gatherStatus(db, { fetchImpl = fetch } = {}) {
           AND last_heartbeat_at IS NOT NULL
         ORDER BY last_heartbeat_at ASC`,
     ),
-    // AIM-439 + AIM-645: full counter rows for drop detection and coverage SLO.
+    // full counter rows for drop detection and coverage SLO.
     db.query(
       `SELECT device_id, host_id, hostname, collector_version, enrolled_at,
               last_heartbeat_at, last_counters, heartbeat_interval_sec
@@ -1623,7 +1623,7 @@ async function gatherStatus(db, { fetchImpl = fetch } = {}) {
     devices: dropRows.rows ?? [],
   });
 
-  // AIM-645: same SLO definition as GET /api/fleet (version + last_event_at + errors).
+  // same SLO definition as GET /api/fleet (version + last_event_at + errors).
   const nowMs = Date.now();
   const coverageDevices = (dropRows.rows ?? []).map((r) => {
     const intervalSec = Number(r.heartbeat_interval_sec) || 300;
@@ -1699,7 +1699,7 @@ async function gatherStatus(db, { fetchImpl = fetch } = {}) {
   const [cnapp, ciRunner, enforceCoverage] = await Promise.all([
     fetchCnappCoverage(fetchImpl),
     loadCiRunnerStatus({ fetchImpl }),
-    // AIM-781: pilot enforce install-path SLO. Failures must not break the
+    // pilot enforce install-path SLO. Failures must not break the
     // rest of system status — tile becomes never_configured/broken via null.
     loadEnforceCoverageSummary(db).catch(() => null),
   ]);

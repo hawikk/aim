@@ -1,4 +1,4 @@
-// AIM-383 / AIM-326: team cost budgets + model/provider allowlist APIs.
+// team cost budgets + model/provider allowlist APIs.
 // Tables: team_budgets, model_provider_allowlist (migration 019).
 // Cost figures are estimates — every response carries estimateNote.
 import { query } from '../db.js';

@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS incident_alerts (
   resource_ref TEXT NOT NULL,
   severity     TEXT NOT NULL,
   received_at  REAL NOT NULL,
-  -- AIM-700 child-link metadata: which tool/user produced this child finding.
+  -- child-link metadata: which tool/user produced this child finding.
   -- Empty strings mean "unknown / not on the wire", never invented.
   tool         TEXT NOT NULL DEFAULT '',
   user_ref     TEXT NOT NULL DEFAULT '',
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS outbox (
 );
 CREATE INDEX IF NOT EXISTS outbox_pending ON outbox(delivered_at, at);
 
--- AIM-330: autofix PR outcomes. Acceptance rate = merged / terminal.
+-- autofix PR outcomes. Acceptance rate = merged / terminal.
 -- state: opened | merged | closed | superseded
 CREATE TABLE IF NOT EXISTS autofix_prs (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -153,7 +153,7 @@ RETAIN_OUTBOX_SECONDS = 30 * 86400
 
 
 def child_link_fields(alert: dict) -> dict[str, str]:
-    """Extract AIM-700 child-link fields from a security.alert/v1 payload.
+    """Extract child-link fields from a security.alert/v1 payload.
 
     Tool comes from ``labels.tool`` (publishers that care about attribution put
     it there). User/host come from ``subject_ref`` when the alert is attributed;
@@ -176,7 +176,7 @@ def child_link_fields(alert: dict) -> dict[str, str]:
     }
 
 
-# AIM-700 columns added after the original schema. CREATE TABLE IF NOT EXISTS
+# columns added after the original schema. CREATE TABLE IF NOT EXISTS
 # will not widen an existing table, so open() applies these idempotently.
 _INCIDENT_ALERT_COLUMNS = (
     ("tool", "TEXT NOT NULL DEFAULT ''"),
@@ -200,7 +200,7 @@ class Store:
         self.db.commit()
 
     def _migrate(self) -> None:
-        """Widen incident_alerts for AIM-700 child links on existing state DBs."""
+        """Widen incident_alerts child links on existing state DBs."""
         existing = {
             row["name"]
             for row in self.db.execute("PRAGMA table_info(incident_alerts)").fetchall()
@@ -331,7 +331,7 @@ class Store:
         return [dict(r) for r in rows]
 
     def incident_children(self, incident_id: str) -> list[dict]:
-        """AIM-700: child findings under a parent incident, oldest first.
+        """child findings under a parent incident, oldest first.
 
         Each row is one alert that collapsed into the parent — tool, user, host,
         resource, and the pillar evidence ref so an analyst can open every child
@@ -345,7 +345,7 @@ class Store:
         return [dict(r) for r in rows]
 
     def get_parent_incident(self, incident_id: str) -> dict | None:
-        """Parent incident plus child links (AIM-700 acceptance shape)."""
+        """Parent incident plus child links (acceptance shape)."""
         row = self.get_incident(incident_id)
         if row is None:
             return None
@@ -445,7 +445,7 @@ class Store:
                         (error[:500], outbox_id))
         self.db.commit()
 
-    # ---- autofix acceptance (AIM-330) ------------------------------------
+    # ---- autofix acceptance ------------------------------------
 
     def record_autofix_pr(self, *, repo: str, pr_number: int, pr_url: str,
                           branch: str = "", alert_id: str = "", finding_type: str = "",

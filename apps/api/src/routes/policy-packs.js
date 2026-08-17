@@ -1,4 +1,4 @@
-// Versioned signed policy packs API (AIM-688).
+// Versioned signed policy packs API.
 //
 //   GET  /api/policy/packs           — list registered packs
 //   GET  /api/policy/packs/active    — active pack + provenance + live verify

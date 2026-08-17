@@ -55,7 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git ca-certific
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /install /usr/local
 COPY --from=scanners /usr/local/bin/gitleaks /usr/local/bin/trivy /usr/local/bin/
-# Alert bus contract (AIM-158) — every publish is validated against this file
+# Alert bus contract — every publish is validated against this file
 # before it reaches the stream. Shipped in the image and pointed at explicitly,
 # because bus.load_validator() returning None is treated as a rejection.
 COPY packages/schema/schema/v1/security-alert.schema.json /app/schema/security-alert.schema.json

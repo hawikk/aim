@@ -1,4 +1,4 @@
-"""`aim policy …` — control-plane policy operations (AIM-686).
+"""`aim policy …` — control-plane policy operations.
 
 Subcommands:
   simulate   dry-run a candidate policy against the last N days of historical
@@ -53,7 +53,7 @@ def cmd_policy(args: list[str]) -> int:
 def cmd_simulate(argv: list[str]) -> int:
     p = argparse.ArgumentParser(
         prog="aim policy simulate",
-        description="Dry-run a candidate policy against historical findings (AIM-686).",
+        description="Dry-run a candidate policy against historical findings.",
     )
     p.add_argument("--days", type=int, default=7, help="lookback window (default 7, max 90)")
     p.add_argument("--pack-id", dest="pack_id", default=None, help="candidate signed pack id")

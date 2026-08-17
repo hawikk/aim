@@ -1,4 +1,4 @@
-// AIM-687 — canary policy rollout + auto-rollback on FP spike.
+// — canary policy rollout + auto-rollback on FP spike.
 //
 //   GET  /api/policy/canary           — current canary state + active pack
 //   GET  /api/policy/canary/ladder    — default progressive ladder
@@ -142,8 +142,8 @@ export async function policyCanaryRoutes(fastify, opts = {}) {
       defaultFpSloPct: defaultCanaryFpSloPct(),
       defaultMinSessions: DEFAULT_MIN_SESSIONS,
       notes: [
-        'Ladder steps are cohort percents (AIM-793): hosts under the canary pack.',
-        'Expand/rollback is a policy_hash bump via the active pack pointer (AIM-688).',
+        'Ladder steps are cohort percents: hosts under the canary pack.',
+        'Expand/rollback is a policy_hash bump via the active pack pointer.',
         'Auto-rollback fires when session FP rate exceeds canary FP SLO with enough sessions.',
       ],
     };

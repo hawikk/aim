@@ -1,4 +1,4 @@
-/* Shared view-private state for the Live Activity trail (AIM-1163 split).
+/* Shared view-private state for the Live Activity trail (split).
  * actx is view-private: zero cross-view surface. The orchestrator
  * (public/activity.js) calls resetActivityCtx() at the top of init() and every
  * sibling module imports actx — never re-create it locally. */

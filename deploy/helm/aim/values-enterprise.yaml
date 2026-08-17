@@ -1,7 +1,7 @@
-# Enterprise multi-AZ production profile (AIM-722 / AIM-635 package A).
-# Prior chart work also tracked as AIM-769; this profile is the package-A
+# Enterprise multi-AZ production profile (package).
+# Prior chart work also tracked as; this profile is the package-A
 # multi-AZ topology deliverable for deploy maturity 8 → 9.
-# Enterprise multi-AZ production profile (AIM-769 / AIM-635 package A).
+# Enterprise multi-AZ production profile (package).
 #
 # Use on multi-zone clusters with managed Postgres + object store:
 #
@@ -19,15 +19,15 @@
 #     INGEST_TOKENS, ENROLL_TOKENS, AIM_HASH_SALT, AIM_SESSION_SECRET
 #     (+ AIM_OIDC_CLIENT_SECRET when OIDC is configured)
 #
-# Render + local failover proof: scripts/aim-722-topology-failover-proof.sh
-# (helm-only subset: scripts/aim-769-topology-render-proof.sh)
+# Render + local failover proof: scripts/topology-failover-proof.sh
+# (helm-only subset: scripts/topology-render-proof.sh)
 # Operator guide: docs/deployment/enterprise-topology.md
 
-# Fail-closed security posture (inherits AIM-553 hardening).
-# Render proof (no cluster): scripts/aim-769-topology-render-proof.sh
+# Fail-closed security posture (inherits hardening).
+# Render proof (no cluster): scripts/topology-render-proof.sh
 # Operator guide: docs/deployment/enterprise-topology.md
 
-# Fail-closed security posture (AIM-553 PDBs + AIM-601 gates).
+# Fail-closed security posture (PDBs + gates).
 # allowInsecureDefaults=false requires real secrets + OIDC at install time.
 security:
   allowInsecureDefaults: false

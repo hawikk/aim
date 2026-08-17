@@ -1,4 +1,4 @@
-/* AIM-1007 — mount helper for the live Attribution health panel.
+/* — mount helper for the live Attribution health panel.
  *
  * Shared by Overview (SOC/Admin home) and Fleet so neither view imports the
  * other. Fetches GET /api/pipeline/attribution-health and paints the shell.

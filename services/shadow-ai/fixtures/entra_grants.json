@@ -1,5 +1,5 @@
 {
-  "comment": "Synthetic Entra/Okta-normalized grant inventory for AIM-504 dogfood. No real identities. Used when SHADOW_AI_GRANT_FIXTURE_PATH points here, or as the multi-source fixture half.",
+  "comment": "Synthetic Entra/Okta-normalized grant inventory dogfood. No real identities. Used when SHADOW_AI_GRANT_FIXTURE_PATH points here, or as the multi-source fixture half.",
   "grants": [
     {
       "user_email": "rpatel@example.com",

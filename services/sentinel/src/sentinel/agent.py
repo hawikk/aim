@@ -49,7 +49,7 @@ class Agent:
         self.clock = clock
         # Constructed only when the feature is on, so a deployment that leaves
         # draft PRs off never builds a GitHub client and never reads a key.
-        # Store is threaded through so opened PRs feed the AIM-330 acceptance
+        # Store is threaded through so opened PRs feed the acceptance
         # rate metric (merged / terminal).
         self.opener = opener if opener is not None else (
             DraftPROpener(cfg, store=store)
@@ -98,7 +98,7 @@ class Agent:
             actions[action] = actions.get(action, 0) + 1
             self.store.set_cursor(entry_id)
 
-        # AIM-736: export any GenAI spans produced by triage this batch.
+        # export any GenAI spans produced by triage this batch.
         try:
             telemetry.flush()
         except Exception:  # noqa: BLE001 — telemetry loss must never stall the agent
@@ -159,7 +159,7 @@ class Agent:
 
     def _page(self, alert: dict, routing, incident: dict, now: float) -> str:
         resources = self.store.incident_resources(routing.incident_id)
-        # AIM-700: every attached finding is a child link under the parent
+        # every attached finding is a child link under the parent
         # incident (tool / user / host / evidence), including the paged one.
         children = self.store.incident_children(routing.incident_id)
         # The alert being paged is already attached, so it has to be excluded
@@ -219,7 +219,7 @@ class Agent:
         return "page"
 
     def _maybe_draft_pr(self, alert: dict, proposal, incident: dict):
-        """The draft-PR attempt, or None when the feature is off (AIM-185).
+        """The draft-PR attempt, or None when the feature is off.
 
         `None` means "print nothing about pull requests"; every other outcome
         renders a sentence. The distinction matters: with the feature disabled
@@ -318,7 +318,7 @@ class Agent:
         if self.store.meta_get("last_digest_date") == today:
             return False
         # A failed digest backs off instead of retrying on every poll pass
-        # (AIM-250): with no channel configured, an unthrottled retry is a
+        #: with no channel configured, an unthrottled retry is a
         # ~12k-rows/day `delivery_failed` storm in the decision log.
         retry_not_before = float(self.store.meta_get("digest_retry_not_before", "0") or 0)
         if now < retry_not_before:
@@ -391,7 +391,7 @@ class Agent:
         bus_age = now - self.last_bus_ok
         channels = [c.name for c in self.notifier.enabled_channels]
         # `detail` is the human sentence the stack health strip surfaces
-        # (AIM-250). "No channel configured" is a first-class degraded state:
+        #. "No channel configured" is a first-class degraded state:
         # before any notification is attempted the outbox is still empty, so
         # `undelivered` alone would report this deployment as healthy while
         # every page goes nowhere.
@@ -420,7 +420,7 @@ class Agent:
             summary = self.poll_once()
             if summary.get("processed") or summary.get("read_error"):
                 log(f"sentinel poll: {summary}")
-            # AIM-392: a wire-field mismatch is only visible as malformed=N unless
+            # a wire-field mismatch is only visible as malformed=N unless
             # we name the fields we saw. Surface them once per poll so the next
             # contract break is one log line, not a database excavation.
             samples = summary.get("malformed_samples") or []
@@ -429,7 +429,7 @@ class Agent:
                     "WARNING: sentinel saw stream entries without the canonical "
                     f"wire field (samples={samples}); publishers must XADD "
                     "packages/schema/conformance/security-alert-wire.json field "
-                    "(AIM-392)."
+                    "."
                 )
             if self.store.stats()["undelivered"]:
                 self.retry_outbox()

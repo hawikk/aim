@@ -1,4 +1,4 @@
-/* Shared accessibility primitives for feature-module views (AIM-515).
+/* Shared accessibility primitives for feature-module views.
  *
  * index.html builds its twelve static views by hand and gets the ARIA tabs
  * pattern right: every tab is `role="tab"` with `aria-selected`/`aria-controls`,
@@ -22,7 +22,7 @@
  * of re-deriving it. They deliberately mirror index.html exactly — if the
  * static markup and these helpers ever disagree, that is the bug.
  *
- * AIM-1070: moduleTab() also places the button via lib/nav-ia.js so modules no
+ * moduleTab() also places the button via lib/nav-ia.js so modules no
  * longer need bespoke insertBefore chains (and so utilities land under the
  * collapsible groups instead of growing a 30-tab primary rail).
  */
@@ -35,7 +35,7 @@ const STATIC_VIEW_IDS = new Set(['overview', 'security', 'activity', 'fleet', 'u
 
 /**
  * Build a nav tab that satisfies the ARIA tabs pattern `#tabs` declares, then
- * place it into its AIM-1070 group (primary rail or collapsible utility).
+ * place it into its group (primary rail or collapsible utility).
  *
  * Callers may still call placeNavTab themselves; a second place is a no-op
  * reorder. Prefer leaving placement to this helper.

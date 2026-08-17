@@ -69,7 +69,7 @@ CHECKOV_HIGH = {
 CHECKOV_CRITICAL = {
     # Secret material in IaC is the same class as a secret in code: rotate now.
     "CKV_SECRET_6": "Base64 high-entropy string committed in infrastructure code",
-    # AIM-329: CNAPP-critical posture prevented by these Checkov rules.
+    # CNAPP-critical posture prevented by these Checkov rules.
     "CKV_AWS_24": "Security group allows SSH from 0.0.0.0/0",
     "CKV_AWS_25": "Security group allows RDP from 0.0.0.0/0",
     "CKV_AWS_1": "IAM policy uses Action * and Resource *",

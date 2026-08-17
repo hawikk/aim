@@ -21,7 +21,7 @@ ENV_FILE="$RUNNER_HOME/.env"
 if ! grep -q 'ACTIONS_RUNNER_HOOK_JOB_COMPLETED' "$ENV_FILE" 2>/dev/null; then
   {
     echo ""
-    echo "# AIM-308 / D-C2: wipe workspace between jobs"
+    echo "# / D-C2: wipe workspace between jobs"
     echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=$HOOK_DST"
   } >>"$ENV_FILE"
   echo "appended ACTIONS_RUNNER_HOOK_JOB_COMPLETED to $ENV_FILE"

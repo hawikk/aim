@@ -1,4 +1,4 @@
-/* AIM-707 — Role-based home (SOC vs Security Eng vs Admin).
+/* — Role-based home (SOC vs Security Eng vs Admin).
  *
  * Personas are operator-facing home layouts, not API roles. API roles
  * (admin / analyst / auditor / viewer) still gate data and capabilities;
@@ -35,7 +35,7 @@ export const HOME_TITLES = Object.freeze({
 });
 
 /* Widget ids match data-home-widget on Overview panels. Order = visual order.
- * AIM-1070 follow-up: Home is signals only (KPIs / alerts / tools / coverage) —
+ * follow-up: Home is signals only (KPIs / alerts / tools / coverage)
  * not a second tile-rail of every utility. Utilities stay in collapsible nav. */
 export const HOME_WIDGETS = Object.freeze({
   soc: Object.freeze(['kpis', 'alerts', 'spark', 'tools', 'attribution']),

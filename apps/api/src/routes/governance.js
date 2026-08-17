@@ -1,4 +1,4 @@
-// Executive AI-governance report routes (AIM-325 / AIM-382).
+// Executive AI-governance report routes.
 //
 // Scheduled + on-demand reports answering "what did AI tools do last month?"
 // as stored, hashed, HTML/PDF-exportable, and diffable artifacts. Built only
@@ -14,7 +14,7 @@
 //   POST /api/governance/reports         store an on-demand report
 //   GET  /api/governance/reports/:id     one stored report (+ format=)
 //   GET  /api/governance/reports/:id/diff?against=:otherId
-//   GET  /api/governance/enforcement-latency  endpoint decision latency p50/p95 (AIM-790)
+// GET /api/governance/enforcement-latency endpoint decision latency p50/p95
 //
 // Schedulers (restart-safe, state in the table):
 //   weekly  — every 7 days when GOVERNANCE_REPORTS is not 'off'
@@ -76,7 +76,7 @@ function filenameFor(report, ext) {
 
 export async function governanceRoutes(fastify, opts) {
   const db = opts?.db ?? { query };
-  // Same audience as compliance evidence (AIM-95).
+  // Same audience as compliance evidence.
   const anyRole = requireRoles('security-admin', 'analyst', 'auditor');
   const adminOnly = requireRoles('security-admin');
   const verifyChain = opts?.verifyChain ?? verifyAuditChain;
@@ -210,7 +210,7 @@ export async function governanceRoutes(fastify, opts) {
   /* ---------- routes ---------- */
 
 
-  // AIM-790: endpoint enforcement decision-path latency rollup.
+  // endpoint enforcement decision-path latency rollup.
   // Reads metadata-only enforcement_posture.enforcement_latency_ms samples
   // (schema v1.10) from events.payload JSONB. Surfaces p50/p95 against the
   // 200 ms design SLO so breaches are visible without a content field.
@@ -264,7 +264,7 @@ export async function governanceRoutes(fastify, opts) {
       breaches,
       withinSlo,
       note: samples === 0
-        ? 'No endpoint events carried enforcement_latency_ms in this window — not a clean result; collectors may predate AIM-790 or the decision path did not run.'
+        ? 'No endpoint events carried enforcement_latency_ms in this window — not a clean result; collectors may predate or the decision path did not run.'
         : withinSlo
           ? `p95 ${p95} ms ≤ ${sloMs} ms design budget over ${samples} evaluated samples.`
           : `p95 ${p95} ms exceeds ${sloMs} ms design budget (${breaches} sample(s) over budget). Fail-open hard timeout (${500} ms) is a separate budget.`,

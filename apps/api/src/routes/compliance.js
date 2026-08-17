@@ -1,4 +1,4 @@
-// Compliance evidence report (AIM-87, extended by AIM-99).
+// Compliance evidence report (extended).
 //
 // Maps live guardrail findings onto compliance framework controls
 // (EU AI Act articles, OWASP LLM Top 10, NIST AI RMF subcategories,
@@ -10,11 +10,10 @@
 // AI Act high-risk system).
 //
 // GATED to the security group like /api/findings — the report aggregates
-// the same findings. ?format=csv exports the same numbers (AIM-82
-// pattern). Generating a report runs a full audit-chain verification and
+// the same findings. ?format=csv exports the same numbers. Generating a report runs a full audit-chain verification and
 // records that run in the audit trail itself (audit.verify action).
 //
-// AIM-99 additions:
+// additions:
 //   * ?format=bundle — signed, immutable JSON evidence bundle hash-linked
 //     to the audit chain (see compliance-bundle.js for the construction).
 //   * Weekly posture snapshots persisted to compliance_snapshots so
@@ -22,7 +21,7 @@
 //     on-demand snapshots (POST /api/compliance/snapshots). Snapshot
 //     retention is purged per the retention: section of the framework map.
 //
-// AIM-694 continuous control monitoring:
+// continuous control monitoring:
 //   * Every mapped framework control carries live status pass|fail|unknown
 //     (see control-status.js). Report rollup is controlStatus.
 //   * Weekly + on-demand snapshots still store the full report (including
@@ -78,7 +77,7 @@ const CONTROL_COLS = [
 export async function complianceRoutes(fastify, opts) {
   const db = opts?.db ?? { query };
   // Compliance evidence reads are open to all three roles (auditors included,
-  // AIM-95); snapshot writes stay admin only.
+  //); snapshot writes stay admin only.
   const anyRole = requireRoles('admin', 'analyst', 'auditor', 'viewer');
   const adminOnly = requireRoles('admin');
   const getPolicy = () => loadPolicy(opts?.policyPath ?? policyPath());
@@ -128,7 +127,7 @@ export async function complianceRoutes(fastify, opts) {
       a.open += b.open;
       for (const s of SEVERITIES) a.bySeverity[s] += b.bySeverity[s];
     };
-    // AIM-694: every catalogued control gets a live pass/fail/unknown status
+    // every catalogued control gets a live pass/fail/unknown status
     // from mapped rules + open findings. Snapshots store this report as-is.
     const frameworks = Object.values(map.frameworks).map((fw) => {
       const controls = Object.values(fw.controls).map((ctrl) => {
@@ -165,7 +164,7 @@ export async function complianceRoutes(fastify, opts) {
       mapping: { version: map.version, contentHash: map.contentHash, source: map.source.split('/').slice(-3).join('/') },
       auditChain,
       coverage: { ok: gaps.length === 0, rules: liveRuleIds.length, checks: coverageRows.length, gaps },
-      // Live continuous-monitoring rollup (AIM-694); weekly snapshots still run.
+      // Live continuous-monitoring rollup; weekly snapshots still run.
       controlStatus,
       frameworks,
       rules: policy.rules.map((r) => ({
@@ -184,7 +183,7 @@ export async function complianceRoutes(fastify, opts) {
     return { ...report.auditChain, headSeq: head.headSeq, headSeal: head.headSeal };
   }
 
-  /* ---------- snapshots: store, purge, scheduler (AIM-99) ---------- */
+  /* ---------- snapshots: store, purge, scheduler ---------- */
 
   async function takeSnapshot(kind, period, actor) {
     const report = await buildReport(period, actor);
@@ -266,11 +265,11 @@ export async function complianceRoutes(fastify, opts) {
     if (wantsCsv(req)) {
       // Regulator-ready CSV: a metadata header block (period, hashes,
       // audit-chain verdict) followed by the findings-by-control table —
-      // same numbers as the JSON, per the AIM-82 no-drift rule.
+      // same numbers as the JSON, per the no-drift rule.
       const auditChain = report.auditChain;
       const gaps = report.coverage.gaps;
       const meta = [
-        { key: 'report', value: 'AI Monitoring — compliance evidence report (AIM-87/AIM-99)' },
+        { key: 'report', value: 'AI Monitoring — compliance evidence report' },
         { key: 'generated_at', value: report.generatedAt },
         { key: 'period_from', value: report.period.from },
         { key: 'period_to', value: report.period.to },
@@ -314,7 +313,7 @@ export async function complianceRoutes(fastify, opts) {
     }
 
     if (req.query?.format === 'bundle') {
-      // Signed, immutable evidence bundle (AIM-99) — hash-linked into the
+      // Signed, immutable evidence bundle — hash-linked into the
       // audit chain. Verify offline with scripts/verify-compliance-bundle.mjs.
       const bundle = buildBundle({
         report,
@@ -332,7 +331,7 @@ export async function complianceRoutes(fastify, opts) {
     return report;
   });
 
-  // Snapshot history (AIM-99): most recent first, summaries only.
+  // Snapshot history: most recent first, summaries only.
   fastify.get('/api/compliance/snapshots', async (req, reply) => {
     if (!anyRole(req, reply)) return reply;
     const limit = Math.min(Math.max(Number(req.query?.limit) || 52, 1), 200);
@@ -384,7 +383,7 @@ export async function complianceRoutes(fastify, opts) {
     };
   });
 
-  // On-demand snapshot (AIM-99): same builder as the weekly job, kind
+  // On-demand snapshot: same builder as the weekly job, kind
   // 'on_demand', shorter retention per the framework-map retention policy.
   fastify.post('/api/compliance/snapshots', async (req, reply) => {
     if (!adminOnly(req, reply)) return reply;

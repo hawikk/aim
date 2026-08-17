@@ -1,4 +1,4 @@
-# Compliance framework mapping v2 (AIM-87, extended by AIM-99).
+# Compliance framework mapping v2 (extended).
 #
 # Maps every live guardrail rule and every audit event class to the
 # compliance frameworks the evidence supports:
@@ -162,7 +162,7 @@ frameworks:
           Mechanisms exist to supersede or disengage AI usage that is
           inconsistent with intended use. Exposure findings with human
           triage are the response record (enforcement itself is a policy
-          decision, AIM-15).
+          decision).
       manage-4.1:
         ref: "MANAGE 4.1"
         title: Post-deployment monitoring
@@ -255,7 +255,7 @@ rules:
       risk management system (Art. 9), deployer monitoring (Art. 26),
       third-party risk management (GOVERN 6.1 / A.10.2) and the impact /
       security assessment record (A.5.2 / MEASURE 2.7).
-  # AIM-383 model allow-list: fires when a non-empty per-team/org allow-list
+  # model allow-list: fires when a non-empty per-team/org allow-list
   # is configured and the observed model is outside it (distinct from the
   # provider-endpoint matrix above).
   model-provider-not-permitted:
@@ -346,10 +346,10 @@ rules:
       (MEASURE 2.7), policy enforcement (GOVERN 1.2) and responsible-use /
       impact processes (A.9.2 / A.5.2).
   unapproved-mcp-tool:
-    # AIM-627 tool-level MCP matrix: server approved but a specific tool denied.
+    # tool-level MCP matrix: server approved but a specific tool denied.
     # Same evidence chain as unapproved-mcp-server (supply-chain + agency),
     # scoped to tool granularity. Fixed from a non-schema stub so the map
-    # loader (and AIM-696 high-sev attachment) can load the live file.
+    # loader (and high-sev attachment) can load the live file.
     eu_ai_act: [art-9, art-26]
     owasp_llm: [llm03, llm06]
     nist_ai_rmf: [govern-6.1, measure-2.7]
@@ -414,7 +414,7 @@ rules:
 # Audit event classes (packages/audit action families) mapped to the
 # record-keeping / oversight controls they evidence. Keys are action
 # prefixes; `finding.*` covers finding.open|ack|resolve|triage.
-  # AIM-441 additions — map entries required for compliance coverage AC
+  # additions — map entries required for compliance coverage AC
   # (apps/api/test/compliance.test.js: every live rule → every framework).
   credential-shaped-tool-call:
     eu_ai_act: [art-9, art-26]
@@ -532,7 +532,7 @@ audit_events:
       and logged (Art. 12 record-keeping / Clause 7.5 documented
       information around pseudonymized data).
 
-# Evidence retention policy per report type (AIM-99). Parsed by
+# Evidence retention policy per report type. Parsed by
 # compliance-map.js; enforced by the snapshot store in the API
 # (purge runs on every snapshot). Day counts are calendar days.
 retention:
@@ -549,7 +549,7 @@ retention:
     on-demand snapshots in compliance_snapshots, purged per the day
     counts above whenever a snapshot runs; (2) the compliance.export /
     compliance.snapshot audit events sealing each artifact's hash, which
-    live as long as the audit trail itself (AIM-27).
+    live as long as the audit trail itself.
 
 scoping_note: >-
   AI Monitoring is a monitoring and oversight tool operated by the

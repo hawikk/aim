@@ -1,6 +1,6 @@
 -- Local dev schema bootstrap for Postgres.
 -- Creates the application schema. Migrations will take over once the
--- ingestion service lands (see AIM-16 epic); this is the minimum for
+-- ingestion service lands; this is the minimum for
 -- `docker compose up` to yield a usable database.
 
 CREATE SCHEMA IF NOT EXISTS aim;

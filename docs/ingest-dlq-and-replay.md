@@ -1,4 +1,4 @@
-# Ingest pipeline: DLQ, replay, and backpressure (AIM-23)
+# Ingest pipeline: DLQ, replay, and backpressure
 
 Operational runbook for `services/ingest`. Audience: on-call engineer / security ops.
 
@@ -10,7 +10,7 @@ Operational runbook for `services/ingest`. Audience: on-call engineer / security
 
 ## Dead-letter handling
 
-Every event that fails edge validation (`src/schema.ts`, AIM-18 contract) is recorded:
+Every event that fails edge validation (`src/schema.ts`, contract) is recorded:
 
 ```sql
 SELECT received_at, batch_index, error, payload_hash, payload_keys
@@ -38,7 +38,7 @@ SELECT error, count(*) FROM rejected_events GROUP BY error ORDER BY count DESC;
    SELECT count(*) AS stored, count(DISTINCT event_id) AS distinct_ids FROM events;
    ```
 
-   `stored = distinct_ids` and the count matches the spooled total. The acceptance suite (`scripts/aim-23-ingest-acceptance.mjs`) automates this check, including a replay-fallback path when the DB is not directly reachable.
+   `stored = distinct_ids` and the count matches the spooled total. The acceptance suite (`scripts/ingest-acceptance.mjs`) automates this check, including a replay-fallback path when the DB is not directly reachable.
 4. **DLQ reprocessing**: after fixing a collector that emitted invalid events, re-send the corrected events with their **original `event_id`s**. Events that were never inserted land exactly once; no manual DLQ draining is needed. `rejected_events` rows are an audit trail, not a queue — they are not deleted on successful reprocessing.
 
 ## Backpressure and rate limiting (v0)
@@ -50,9 +50,9 @@ SELECT error, count(*) FROM rejected_events GROUP BY error ORDER BY count DESC;
 
 ## Retention
 
-Retention TTLs are defined by the privacy pack (AIM-29). Enforcement is a scheduled `DELETE ... WHERE received_at < now() - interval '<TTL>'` job against `events` and `rejected_events`; the job ships with the pilot deployment tooling. The schema is metadata-only by contract, so retention applies to pseudonymized metadata only — no content stores exist to purge.
+Retention TTLs are defined by the privacy pack. Enforcement is a scheduled `DELETE ... WHERE received_at < now() - interval '<TTL>'` job against `events` and `rejected_events`; the job ships with the pilot deployment tooling. The schema is metadata-only by contract, so retention applies to pseudonymized metadata only — no content stores exist to purge.
 
 ## Verification
 
 - Unit/integration: `pnpm --filter @aimon/ingest test` (31 tests: auth, schema validation, mixed batches, idempotent replay, DLQ privacy, identity enrichment, observability).
-- End-to-end acceptance incl. 5k events/min load test and zero-loss check: `INGEST_TOKEN=... node scripts/aim-23-ingest-acceptance.mjs` (requires the local `aim-local` compose stack).
+- End-to-end acceptance incl. 5k events/min load test and zero-loss check: `INGEST_TOKEN=... node scripts/ingest-acceptance.mjs` (requires the local `aim-local` compose stack).

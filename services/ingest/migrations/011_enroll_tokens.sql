@@ -1,4 +1,4 @@
--- 011_enroll_tokens.sql — AIM-131: admin-minted, scoped enrollment tokens.
+-- 011_enroll_tokens.sql — admin-minted, scoped enrollment tokens.
 --
 -- Replaces the hand-edited ENROLL_TOKENS env var (docker-compose.yml) with a
 -- DB-backed onboarding flow. The dashboard (security-admin only) mints named,
@@ -22,7 +22,7 @@
 --   * Revocation (revoked_at) blocks new enrollments immediately without
 --     touching already-issued per-device tokens (device blast radius
 --     unchanged — revoking a mint token never de-enrolls its devices).
---   * Every mint/revoke is recorded in the immutable audit trail (AIM-27) by
+-- * Every mint/revoke is recorded in the immutable audit trail by
 --     the API, with actor identity (created_by / revoked_by mirror it here).
 
 CREATE TABLE IF NOT EXISTS enroll_tokens (

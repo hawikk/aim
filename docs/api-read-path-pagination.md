@@ -1,7 +1,7 @@
 # API read-path pagination (`/api/users`, `/api/fleet`)
 
-**Issue:** AIM-866 (gap from AIM-709)  
-**Owner:** Founding Engineer 2 (API) · Frontend consumes in a follow-up  
+(gap)
+**Owner:** engineering (API) · Frontend consumes in a follow-up
 **Status:** Implemented — offset pagination with `total`
 
 ---
@@ -84,7 +84,7 @@ JSON response fields (additions):
 
 ---
 
-## 3. p95 latency budgets (from AIM-709 §4.1)
+## 3. p95 latency budgets
 
 Warm Postgres, 700-seat synthetic or pilot volume. Implementing pagination
 keeps these achievable at 5k when clients request ≤ 100 rows:
@@ -99,7 +99,7 @@ keeps these achievable at 5k when clients request ≤ 100 rows:
 | `GET /api/flags?days=30` | ≤ 300 ms | ≤ 150 KB |
 | `GET /api/unapproved?days=30` | ≤ 250 ms | ≤ 50 KB |
 
-Honesty rule (unchanged from AIM-709): never imply full coverage from a
+Honesty rule (unchanged): never imply full coverage from a
 truncated page — UI must surface `total` ("showing N of M").
 
 ---

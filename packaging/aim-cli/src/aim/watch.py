@@ -1,6 +1,6 @@
 """`aim watch` — the one background loop the auto-start service runs.
 
-Before AIM-139 the watcher was a per-collector foreground daemon
+Before the watcher was a per-collector foreground daemon
 (`python -m aim_collector watch`), so it covered only Claude Code and died
 with the terminal. This is the unified loop: one process that, every
 `interval` seconds, scans + drains the spool for *every* installed tool and
@@ -21,7 +21,7 @@ Design notes:
   * A failure in any single tool is swallowed and recorded in the summary;
     the loop must never crash, or a reboot-surviving service would silently
     stop collecting — the exact failure mode this issue exists to kill.
-  * Honours ingest backpressure (AIM-127): if a flush returns a
+  * Honours ingest backpressure: if a flush returns a
     `retry_after`, the next sleep is at least that long.
 """
 

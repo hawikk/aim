@@ -1,7 +1,7 @@
 """Canonical event construction, conforming to the ratified schema:
-packages/schema/schema/v1/ai-usage-event.schema.json (AIM-18).
+packages/schema/schema/v1/ai-usage-event.schema.json.
 
-Content policy (locked, AIM-16): no prompt text, tool input/output, file
+Content policy (locked): no prompt text, tool input/output, file
 contents, or code on an event. Ingest rejects out-of-schema fields whole,
 so everything emitted here must validate against the schema.
 
@@ -24,7 +24,7 @@ import unicodedata
 import uuid
 from datetime import datetime, timezone
 
-SCHEMA_VERSION = "1.10"  # AIM-627: chain fields + agent_handoffs (was 1.1)
+SCHEMA_VERSION = "1.10" # chain fields + agent_handoffs (was 1.1)
 TOOL_NAME = "cursor"
 MODEL_UNKNOWN = "unknown"  # schema requires `model` for source=endpoint
 
@@ -39,7 +39,7 @@ _AGENT_HANDOFF_KEYS = {
 _HANDOFF_KINDS = ("subagent", "task", "delegate", "other")
 _HANDOFF_STATUSES = ("started", "completed", "failed", "cancelled")
 
-# Tools that spawn sub-agents / Task loops (AIM-627 A2A handoffs).
+# Tools that spawn sub-agents / Task loops (A2A handoffs).
 # Cursor Task tool + common composer aliases — name only, never args.
 _HANDOFF_TOOL_KIND = {
     "task": "task",
@@ -97,7 +97,7 @@ def tool_call_entry(
     names are looked up in _TOOL_CLASS; unknown -> "other". Only the name
     is consumed — arguments/output never reach this function.
 
-    AIM-627 chain fields (optional): call_id / parent_call_id / result_status /
+    chain fields (optional): call_id / parent_call_id / result_status /
     seq — opaque ids + coarse enums only; never args or result bodies.
     """
     name = raw_name.strip()
@@ -157,7 +157,7 @@ def _salt() -> bytes:
     read from AIM_HASH_SALT env or the managed config file (`hash_salt`
     key — the Intune-deployable distribution channel); if neither is set,
     fall back to a per-install random salt in the state dir (stable per
-    device, not company-wide). Tracked as an integration item for AIM-23
+    device, not company-wide). Tracked as an integration item for
     (enrollment must distribute the real salt or move pseudonymization
     ingest-side).
     """
@@ -220,14 +220,14 @@ def derive_provider(model: str | None) -> str | None:
     return None
 
 
-# Categories whose matches get a redacted fingerprint (AIM-225). Injection
+# Categories whose matches get a redacted fingerprint. Injection
 # detectors are prose patterns — fingerprinting phrasings adds no dedupe
 # value, so they stay name-only.
 _FP_CATEGORIES = ("secret", "pii")
 
 
 def _fingerprint(detector: str, matched: str) -> str:
-    """Redacted per-occurrence fingerprint (AIM-225): keyed, truncated HMAC of
+    """Redacted per-occurrence fingerprint: keyed, truncated HMAC of
     the NFKC-folded, whitespace-stripped match, domain-separated ("fp1") from
     the pseudonym HMACs so a fingerprint can never be cross-correlated with a
     host_ref/repo_ref of the same string. Stable while the company salt is
@@ -243,7 +243,7 @@ def make_flags(flags: list) -> list[dict]:
 
     Accepts detector-name strings (enforcement path, tests) or
     matchers.Match occurrences. A Match from a secret/pii detector also
-    carries fingerprint + offset + surface (schema v1.8, AIM-225) — enough to
+    carries fingerprint + offset + surface (schema v1.8) — enough to
     prove and dedupe the finding without storing the matched content.
     Pre-built entry dicts (personal-mode checkpoint deltas) pass through.
     Duplicates collapse on (detector, fingerprint)."""
@@ -298,7 +298,7 @@ def _base_event(
         "event_id": str(uuid.uuid4()),
         "ts": _now_iso(),
         "host_ref": host_ref(),
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": model,
@@ -348,7 +348,7 @@ def new_tool_use_event(
     tool_version: str | None = None,
     agent_handoffs: list[dict] | None = None,
 ) -> dict:
-    """event_type='tool_use' event (schema v1.10, AIM-86/AIM-627). tool_calls
+    """event_type='tool_use' event (schema v1.10). tool_calls
     entries must come from tool_call_entry() — names/classes/counts/durations
     + optional chain fields only. No token/cost fields: tool-call volume is
     not usage volume. agent_handoffs is metadata-only Task/subagent linkage."""
@@ -391,7 +391,7 @@ def new_inventory_event(
     configured_mcp_servers: list[dict],
     tool_version: str | None = None,
 ) -> dict:
-    """event_type='inventory' (schema v1.2, AIM-97/AIM-570): MCP servers
+    """event_type='inventory' (schema v1.2): MCP servers
     present in Cursor config files. Emitted only when the configured set
     changes (change detection lives in mcp_inventory). Metadata-only: name
     + scope, never commands, args, URLs, or env values."""
@@ -463,7 +463,7 @@ def validate(event: dict) -> None:
 
 
 def _validate_tool_calls(tool_calls) -> None:
-    """Mirror the schema's tool_calls item constraints (v1.1, AIM-86):
+    """Mirror the schema's tool_calls item constraints (v1.1):
     additionalProperties:false per entry, required keys, enums, bounds."""
     if not isinstance(tool_calls, list) or not tool_calls:
         raise ValueError("event_type=tool_use requires a non-empty tool_calls")
@@ -489,7 +489,7 @@ def _validate_tool_calls(tool_calls) -> None:
         if dur is not None and (not isinstance(dur, int) or isinstance(dur, bool) or dur < 0):
             raise ValueError("tool_calls.duration_ms must be null or an int >= 0")
 
-        # AIM-627 / schema v1.10 chain metadata (optional; never arguments/results).
+        # / schema v1.10 chain metadata (optional; never arguments/results).
         for _ck, _mx in (("call_id", 64), ("parent_call_id", 64)):
             _cv = entry.get(_ck)
             if _cv is not None and (not isinstance(_cv, str) or len(_cv) > _mx):

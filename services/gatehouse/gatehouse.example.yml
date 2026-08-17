@@ -35,16 +35,16 @@ scanners:
   gitleaks: true
   checkov: true
 
-# AIM-298: per-repo severity threshold for which findings fail the check.
+# per-repo severity threshold for which findings fail the check.
 # Service default is GATEHOUSE_FAIL_ON (compose ships `high`). Uncomment to
-# override for this repo only. Security/CEO owns the value; engineering owns
+# override for this repo only. Security owns the value; engineering owns
 # the mechanism. See docs/security/enforcing-ci-gates.md.
 # enforcement:
 #   # One of: critical | high | medium | low | informational
 #   # Start narrow (critical) when precision is unmeasured; widen on evidence.
 #   block_on: critical
 
-# The AI reviewer (AIM-162). Runs only when the service has a provider
+# The AI reviewer. Runs only when the service has a provider
 # configured (GATEHOUSE_AI_PROVIDER); this block is per-repo policy on top.
 # ai_review:
 #   # Opt this repository out of AI review entirely. Default: follow the
@@ -54,10 +54,10 @@ scanners:
 #   # Default false: the AI section is advisory and can never block a merge.
 #   blocking: false
 
-# One-click suggested fixes (AIM-234). Default on. Gatehouse posts a GitHub
+# One-click suggested fixes. Default on. Gatehouse posts a GitHub
 # ```suggestion review comment for small, self-scanned catalogue patches;
 # larger fixes route to the sentinel draft-PR path only when the repo is on
-# the AIM-185 allowlist (GATEHOUSE_DRAFT_PR_REPOS / remediation.draft_pr.repos).
+# the allowlist (GATEHOUSE_DRAFT_PR_REPOS / remediation.draft_pr.repos).
 # suggested_fixes:
 #   # Opt this repository out of suggestion comments. Findings still report.
 #   enabled: true

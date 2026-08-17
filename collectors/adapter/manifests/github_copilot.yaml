@@ -1,5 +1,5 @@
-# Presence via adapter contract (AIM-304). Depth lives in
-# collectors/github-copilot (AIM-1167) — chat session files contain
+# Presence via adapter contract. Depth lives in
+# collectors/github-copilot — chat session files contain
 # prompt/completion text, so a generic json_session glob is unsafe.
 id: github_copilot
 display_name: GitHub Copilot
@@ -38,5 +38,5 @@ notes: >
   ts, day-hashed session id, selected model when a settings/session metadata
   key names one, and chat/agent/inline turn counts. GitHub does not persist
   suggestion-accept or token counters locally — do not invent them. Org
-  Metrics API is the sibling first-party ingest path (AIM-1168). Default
+  Metrics API is the sibling first-party ingest path. Default
   unsanctioned until Security promotes Copilot.

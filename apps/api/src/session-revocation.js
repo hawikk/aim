@@ -1,5 +1,5 @@
-// Session revocation store (AIM-613 / AIM-714).
-// Session revocation store (AIM-613).
+// Session revocation store.
+// Session revocation store.
 //
 // AIM SSO cookies are stateless HMAC tokens: role/groups are embedded at
 // login and re-validated only for signature + exp. Without a server-side
@@ -18,8 +18,8 @@
 // and is hydrated at boot when a db client is wired. Multi-replica deploys
 // should share the DB and call loadFromDb on each instance after writes
 // (or accept sticky sessions). Full SCIM User lifecycle remains residual
-// (AIM-713); identity-sync suspend → revoke is the automatic deprovision
-// path for pilot (AIM-714).
+//; identity-sync suspend → revoke is the automatic deprovision
+// path for pilot.
 // (or accept sticky sessions); SCIM push remains a separate residual.
 //
 // Pure enough to unit-test without Fastify or Postgres.

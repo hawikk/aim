@@ -14,7 +14,7 @@ On-disk layout per task (Roo Code/Cline lineage):
         API messages incl. an ``<environment_details>`` block with the
         workspace path. Content-bearing: read locally only, never emitted.
 
-Tool-call capture (AIM-97, AIM-86 pattern): tool activity shows up in
+Tool-call capture (pattern): tool activity shows up in
 ui_messages.json as ``say == "tool"`` entries whose ``text`` JSON names
 the tool in a ``tool`` field (Roo Code/Cline lineage names: ``readFile``,
 ``writeToFile``, ``executeCommand``, ``browserAction``, ``useMcpTool``,
@@ -30,7 +30,7 @@ api_conversation_history.json are NOT read (would double-count).
 
 Content policy: the ``request`` prompt text is scanned by the local
 matchers for secret/PII flags and then discarded; only detector metadata
-(names + redacted fingerprints, AIM-225) goes on the event. The workspace
+(names + redacted fingerprints) goes on the event. The workspace
 path is HMAC-pseudonymized before it leaves this module's caller.
 """
 
@@ -143,7 +143,7 @@ def _first_str(payload: dict, keys) -> str | None:
 
 def _extract_tool_calls(ui_messages, calls: dict) -> int | float | None:
     """Fold tool/MCP activity entries from ui_messages into the per-task
-    aggregate ``calls`` (AIM-97). Returns the max entry ts seen.
+    aggregate ``calls``. Returns the max entry ts seen.
 
     Only name fields are read: the ``tool`` field of ``say == "tool"``
     payloads, and the server/tool name fields of MCP request payloads. The
@@ -292,7 +292,7 @@ def collect_task(task_dir: Path, task_state: dict, tool_version: str | None) -> 
 
     state_out["processed"] = processed
 
-    # Tool-call deltas (AIM-97), emitted independently of the request
+    # Tool-call deltas, emitted independently of the request
     # cursor: a tool_use event goes out even when no request completed or
     # a request is still in-flight. ui_messages.json is re-read in full
     # every pass, so the aggregate is rebuilt fresh each time and diffed
@@ -303,7 +303,7 @@ def collect_task(task_dir: Path, task_state: dict, tool_version: str | None) -> 
     last_ts = _extract_tool_calls(ui_messages, tool_calls)
     state_out["tool_calls"] = tool_calls  # latest snapshot, for observability
     delta_calls = []
-    # AIM-627: progressive chain fields on aggregates. Aggregate collectors
+    # progressive chain fields on aggregates. Aggregate collectors
     # lack discrete tool-call ids; mint an opaque call_id from task + key +
     # end watermark so each delta window is addressable in session chains.
     # result_status is "unknown" — ui_messages lack clean result pairing.

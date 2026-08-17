@@ -1,5 +1,5 @@
 /**
- * Severity taxonomy v1 (DRAFT — pending Security sign-off, tracked on AIM-27).
+ * Severity taxonomy v1 (DRAFT — pending Security sign-off).
  *
  * Maps guardrail finding types to Microsoft Sentinel alert severities.
  * Sentinel severities: Informational, Low, Medium, High.
@@ -7,7 +7,7 @@
  *
  * CEF numeric severity (0-10) is derived for the CEF payload.
  *
- * NOTE: observe-only posture (per epic AIM-16). Severity drives SOC triage
+ * NOTE: observe-only posture. Severity drives SOC triage
  * order and notification routing, not automated blocking.
  */
 
@@ -64,7 +64,7 @@ export const TAXONOMY: Record<string, TaxonomyEntry> = {
     runbook: 'rb-pii-exposure',
     rationale: 'Possible personal-data egress; EU/works-council sensitivity.',
   },
-  // AI tool used against a restricted repository (AIM-78). Engine severity is
+  // AI tool used against a restricted repository. Engine severity is
   // critical; Sentinel tops out at High.
   restricted_repo_access: {
     severity: SENTINEL_SEVERITY.HIGH,
@@ -90,21 +90,21 @@ export const TAXONOMY: Record<string, TaxonomyEntry> = {
     runbook: 'rb-policy-violation',
     rationale: 'Deliberate or negligent breach of an approved policy.',
   },
-  // Per-tool-call rail (AIM-97): shell/command-execution tool used against a
+  // Per-tool-call rail: shell/command-execution tool used against a
   // restricted repository. Same triage path as restricted_repo_access.
   shell_tool_restricted_repo: {
     severity: SENTINEL_SEVERITY.HIGH,
     runbook: 'rb-restricted-repo',
     rationale: 'Autonomous command execution inside a secrets-heavy or regulated repo.',
   },
-  // Per-tool-call rail (AIM-97): network-egress tool (web fetch/search)
+  // Per-tool-call rail: network-egress tool (web fetch/search)
   // against a restricted repository — possible data movement, lower confidence.
   network_tool_restricted_repo: {
     severity: SENTINEL_SEVERITY.MEDIUM,
     runbook: 'rb-restricted-repo',
     rationale: 'Possible data egress from a restricted repo; may be benign research.',
   },
-  // Per-tool-call rail (AIM-97): an MCP server outside the approved list is
+  // Per-tool-call rail: an MCP server outside the approved list is
   // present in an AI tool's configuration (inventory event). Intent-to-use,
   // not observed traffic — same triage path as an unapproved tool.
   unapproved_mcp_server_configured: {
@@ -118,44 +118,44 @@ export const TAXONOMY: Record<string, TaxonomyEntry> = {
     runbook: 'rb-telemetry-gap',
     rationale: 'Visibility loss; not a user-security event.',
   },
-  // AIM-383: team token/cost budget threshold (80% warn / 100% critical).
+  // team token/cost budget threshold (80% warn / 100% critical).
   // Cost figures are estimates — see docs/cost-attribution-accuracy.md.
   team_budget_threshold: {
     severity: SENTINEL_SEVERITY.MEDIUM,
     runbook: 'rb-usage-anomaly',
     rationale: 'Team AI spend or token volume crossed a configured budget threshold.',
   },
-  // AIM-383: model/provider not on the scoped allowlist.
+  // model/provider not on the scoped allowlist.
   model_provider_not_permitted: {
     severity: SENTINEL_SEVERITY.MEDIUM,
     runbook: 'rb-unapproved-tool',
     rationale: 'Model or provider outside the allowlist for the event scope.',
   },
-  // AIM-441: tool_calls[] tool_name looks credential-shaped (metadata only).
+  // tool_calls[] tool_name looks credential-shaped (metadata only).
   credential_shaped_tool_call: {
     severity: SENTINEL_SEVERITY.HIGH,
     runbook: 'rb-secret-exposure',
     rationale: 'Agent invoked a credential-shaped tool name; review before enforce.',
   },
-  // AIM-441: high network tool volume against one repo.
+  // high network tool volume against one repo.
   high_volume_repo_egress: {
     severity: SENTINEL_SEVERITY.HIGH,
     runbook: 'rb-usage-anomaly',
     rationale: 'Bulk network-class tool use against one repository (egress proxy).',
   },
-  // AIM-441: bulk shell tool activity per user/hour.
+  // bulk shell tool activity per user/hour.
   bulk_shell_hourly: {
     severity: SENTINEL_SEVERITY.MEDIUM,
     runbook: 'rb-usage-anomaly',
     rationale: 'Unattended agent loops or bulk shell automation.',
   },
-  // AIM-441: high token volume against one repository.
+  // high token volume against one repository.
   high_volume_repo_tokens: {
     severity: SENTINEL_SEVERITY.MEDIUM,
     runbook: 'rb-usage-anomaly',
     rationale: 'Bulk codebase ingest or large responses against one repo.',
   },
-  // App-LLM phase-1 new-source signal (AIM-575): first-ever proxy provider-API
+  // App-LLM phase-1 new-source signal: first-ever proxy provider-API
   // call from a host_ref. Shadow-AI-in-built-software triage path.
   app_llm_new_source: {
     severity: SENTINEL_SEVERITY.MEDIUM,
@@ -163,7 +163,7 @@ export const TAXONOMY: Record<string, TaxonomyEntry> = {
     rationale:
       'A source made its first-ever call to a direct LLM provider API; may be sanctioned app rollout or shadow AI.',
   },
-  // AIM-738: provider catalogue completeness — provider string not in
+  // provider catalogue completeness — provider string not in
   // endpoints.json (all rule providers). Catalogue-ops, not user security.
   app_llm_new_provider: {
     severity: SENTINEL_SEVERITY.LOW,
@@ -171,7 +171,7 @@ export const TAXONOMY: Record<string, TaxonomyEntry> = {
     rationale:
       'First-ever observation of a provider id outside the domain catalogue; add a rule or accept as residual.',
   },
-  // AIM-738: model catalogue completeness — model id not in PRICE_PER_MTOK.
+  // model catalogue completeness — model id not in PRICE_PER_MTOK.
   app_llm_new_model: {
     severity: SENTINEL_SEVERITY.LOW,
     runbook: 'rb-app-llm-catalogue-drift',
@@ -198,34 +198,34 @@ export const RULE_ID_ALIASES: Record<string, string> = {
   'unapproved-provider-or-model': 'unapproved_provider_or_model',
   'restricted-repo-access': 'restricted_repo_access',
   'pii-in-prompt': 'pii_pattern_detected',
-  // AIM-86: MCP call to an unapproved server classifies as a generic policy
-  // violation — a dedicated finding type would be a taxonomy change (AIM-27).
+  // MCP call to an unapproved server classifies as a generic policy
+  // violation — a dedicated finding type would be a taxonomy change.
   'unapproved-mcp-server': 'policy_violation',
-  // AIM-96: prompt-injection detector fired — generic policy violation, same
+  // prompt-injection detector fired — generic policy violation, same
   // rationale as unapproved-mcp-server (a dedicated type is Security's call).
   'injection-attempt-in-prompt': 'policy_violation',
-  // AIM-97 per-tool-call rail: dedicated finding types (see TAXONOMY).
+  // per-tool-call rail: dedicated finding types (see TAXONOMY).
   'shell-tool-restricted-repo': 'shell_tool_restricted_repo',
   'network-tool-restricted-repo': 'network_tool_restricted_repo',
   'unapproved-mcp-server-configured': 'unapproved_mcp_server_configured',
-// AIM-627: MCP tool-name allowlist (was mapped in notify.py, missing here — breaks unit tests on main).
+// MCP tool-name allowlist (was mapped in notify.py, missing here — breaks unit tests on main).
   'unapproved-mcp-tool': 'policy_violation',
   'anomalous-volume-hourly': 'usage_anomaly',
   'off-hours-bulk-usage': 'usage_anomaly',
-  // AIM-383 model/cost governance.
+  // model/cost governance.
   'model-provider-not-permitted': 'model_provider_not_permitted',
   'team-budget-tokens-warn': 'team_budget_threshold',
   'team-budget-tokens-critical': 'team_budget_threshold',
   'team-budget-cost-warn': 'team_budget_threshold',
   'team-budget-cost-critical': 'team_budget_threshold',
-  // AIM-441 expanded detection depth.
+  // expanded detection depth.
   'credential-shaped-tool-call': 'credential_shaped_tool_call',
   'high-volume-repo-egress': 'high_volume_repo_egress',
   'bulk-shell-hourly': 'bulk_shell_hourly',
   'high-volume-repo-tokens': 'high_volume_repo_tokens',
-  // AIM-575 App-LLM new-sources → SOC.
+  // App-LLM new-sources → SOC.
   'app-llm-new-source': 'app_llm_new_source',
-  // AIM-738 catalogue completeness / drift.
+  // catalogue completeness / drift.
   'app-llm-new-provider': 'app_llm_new_provider',
   'app-llm-new-model': 'app_llm_new_model',
 };

@@ -1,6 +1,6 @@
--- 016_bus_deliveries.sql — AIM-158: the alert bus as a delivery destination.
+-- 016_bus_deliveries.sql — the alert bus as a delivery destination.
 --
--- Two changes, both required by decision record D3.1 §4.5 (AIM-157).
+-- Two changes, both required by decision record D3.1 §4.5.
 --
 -- 1. `bus` joins the destination vocabulary. The guardrail publisher
 --    (services/guardrail/src/guardrail/bus.py) records one row per finding
@@ -8,7 +8,7 @@
 --    "did this finding reach the unified inbox?" is answerable from the same
 --    table that already answers it for the SOC forwarders.
 --
--- 2. The delivery row becomes *upgradable*. AIM-76 wrote these rows with
+-- 2. The delivery row becomes *upgradable*. wrote these rows with
 --    ON CONFLICT DO NOTHING because a finding was only ever forwarded on the
 --    run that inserted it — one attempt, one outcome, done. The bus breaks
 --    that assumption: D3.1 §4.5 requires a run-start sweeper that

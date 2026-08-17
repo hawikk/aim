@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Seed a synthetic 12-seat cross-team pilot cohort (AIM-31, extended in AIM-114)
-# through the real ingest API. Events conform to the canonical AIM-18 schema v1
+# Seed a synthetic 12-seat cross-team pilot cohort (extended)
+# through the real ingest API. Events conform to the canonical schema v1
 # (packages/schema/schema/v1/ai-usage-event.schema.json) — metadata-only,
 # salted-HMAC-style pseudonyms, second-precision UTC timestamps.
 #
 # Each seat maps to a user in the identity-sync dev fixture directory
 # (services/identity-sync/fixtures) and posts its own batch with a
 # `collector: { os_user }` identity block, so ingest resolves every event to a
-# pseudonym + fixture team (AIM-49). The 12 seats span all 12 fixture teams —
+# pseudonym + fixture team. The 12 seats span all 12 fixture teams
 # /api/teams shows real team rows instead of one (unattributed) bucket.
 #
 # The cohort is deterministic (fixed pseudonyms, seeded PRNG) so re-runs are

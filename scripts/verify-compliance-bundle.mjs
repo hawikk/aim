@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Offline verifier for AIM-99 compliance evidence bundles.
+// Offline verifier compliance evidence bundles.
 //
 // An auditor (or CI) runs this against an exported bundle to prove:
 //   1. the bundle's content hash matches its report + chain anchor,

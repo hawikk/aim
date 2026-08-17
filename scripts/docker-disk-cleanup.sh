@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # docker-disk-cleanup.sh — reclaim local Docker disk safely.
 #
-# Default policy (AIM-1041):
+# Default policy:
 #   1. Prune stopped containers
 #   2. Prune dangling images
 #   3. Keep the N newest tags per repository (default 2); never delete an

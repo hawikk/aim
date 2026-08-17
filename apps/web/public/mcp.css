@@ -18,7 +18,7 @@
 
 #view-mcp #mcp-detail-panel h2 code { font-size: 13px; }
 
-/* AIM-505: status/source pills on the inventory table */
+/*: status/source pills on the inventory table */
 #view-mcp .pill.good {
   background: color-mix(in srgb, var(--good, #16a34a) 18%, transparent);
   color: var(--good, #16a34a);
@@ -33,7 +33,7 @@
 }
 #view-mcp td.mono.muted { opacity: 0.85; font-size: var(--text-xs); }
 
-/* AIM-592: filter bar aligns with Security #sec-filters (controls-row + picker). */
+/*: filter bar aligns with Security #sec-filters (controls-row + picker). */
 #view-mcp #mcp-filters {
   display: flex;
   flex-wrap: wrap;
@@ -48,7 +48,7 @@
 }
 #view-mcp #mcp-detail-panel .sec-detail-head h2 { margin: 0; }
 
-/* AIM-547 / AIM-667: allowlist chips + override form */
+/*: allowlist chips + override form */
 #view-mcp .chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -126,7 +126,7 @@
 }
 #view-mcp .req { color: var(--bad, #dc2626); }
 
-/* AIM-800: session chain panel */
+/*: session chain panel */
 #view-mcp .mcp-session-form {
   display: flex;
   flex-wrap: wrap;

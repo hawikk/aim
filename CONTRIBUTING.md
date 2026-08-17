@@ -113,15 +113,15 @@ in the pull request how you tested them.
   contract — the shipped wheel has zero runtime dependencies), type hints on
   new functions, and a module docstring saying what the file is for.
 - **Comments** should explain intent or a constraint, not restate the code.
-  Where the codebase references an internal ticket (`AIM-1125`), leave it; it
-  is often the only pointer to why something is the way it is.
+  A comment that records why a constraint exists is worth keeping even when
+  it is long; one that restates the next line is not.
 
 Do not add runtime dependencies without discussing it in an issue first.
 
 ## Commits and pull requests
 
-Internal commits are prefixed with an issue key (`AIM-1013: public README ...`)
-that refers to a private tracker. You will not have one of those, so:
+This snapshot is exported from a private monorepo, so its history does not
+match the upstream one. For contributions here:
 
 - Write a short imperative subject line, ideally under ~70 characters, e.g.
   `fix cursor collector crash on empty state.vscdb`.

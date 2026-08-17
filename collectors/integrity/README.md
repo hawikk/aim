@@ -1,4 +1,4 @@
-# Collector integrity — independence from the agent loop (AIM-639)
+# Collector integrity — independence from the agent loop
 
 Reference implementation for scorecard **Dimension 16**.
 

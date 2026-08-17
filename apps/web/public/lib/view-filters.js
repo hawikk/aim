@@ -1,4 +1,4 @@
-/* AIM-94 / AIM-587 — saved-view filter mapping, pure and DOM-free.
+/* — saved-view filter mapping, pure and DOM-free.
  * findings.js and activity.js own UI state; these functions translate between
  * that state and the /api/views filters contract, and validate a filters object
  * client-side before it is POSTed. Dependency-free so node:test can import it
@@ -159,7 +159,7 @@ export function validateFilters(obj) {
   return { ok: errors.length === 0, errors };
 }
 
-/* ---------- AIM-587: shareable findings deep-links ----------
+/* ---------- shareable findings deep-links ----------
  * Query keys owned by the findings console:
  *   view      — saved-view id (wins over status/severity)
  *   status    — findings status filter
@@ -189,7 +189,7 @@ export function parseFindingsHash(hash = '') {
 /**
  * Build a shareable findings hash. Defaults (status=open, severity=all, days=30) omitted.
  * When viewId is set it alone is written — the saved view owns the filter set.
- * Optional `days` keeps the global range on cross-module hops (AIM-589 + AIM-587).
+ * Optional `days` keeps the global range on cross-module hops.
  */
 export function findingsHash({ viewId = null, fstatus = null, fsev = null, days = null } = {}) {
   const q = new URLSearchParams();

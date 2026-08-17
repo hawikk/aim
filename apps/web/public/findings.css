@@ -1,4 +1,4 @@
-/* AIM-70 — findings triage console. Loaded by findings.js at runtime.
+/* — findings triage console. Loaded by findings.js at runtime.
  * Reuses the design tokens from styles.css :root (with fallbacks so a token
  * rename in parallel design-system work degrades gracefully instead of
  * breaking the console). */
@@ -41,7 +41,7 @@
 /* ---------- Inbox ---------- */
 .find-controls { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 
-/* AIM-590: CSV + JSON export cluster for SOC handoff */
+/*: CSV + JSON export cluster for SOC handoff */
 .find-export {
   display: inline-flex;
   gap: 8px;
@@ -140,11 +140,11 @@ button.btn-export:disabled {
   letter-spacing: 0.06em;
 }
 .f-fields dd { margin: 3px 0 0; font-size: 13px; word-break: break-word; }
-/* AIM-81: human-readable rule condition in the finding detail */
+/*: human-readable rule condition in the finding detail */
 .f-why { white-space: pre-line; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.55; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
 
-/* AIM-696: compliance control evidence chips on high-sev findings */
+/*: compliance control evidence chips on high-sev findings */
 .f-controls {
   display: flex;
   flex-wrap: wrap;
@@ -189,7 +189,7 @@ button.btn-export:disabled {
   word-break: break-word;
 }
 
-/* AIM-925 / AIM-696: compliance control evidence links on high-sev findings */
+/*: compliance control evidence links on high-sev findings */
 .f-compliance {
   display: grid;
   gap: 6px;
@@ -242,7 +242,7 @@ button.btn-export:disabled {
   outline: none;
 }
 
-/* AIM-223: disposition transition history in the finding detail */
+/*: disposition transition history in the finding detail */
 .f-history { display: grid; gap: 6px; }
 .f-history h3 {
   margin: 0;
@@ -296,7 +296,7 @@ button.btn-export:disabled {
 
 .find-empty { color: var(--muted); text-align: center; padding: 28px 0; font-size: var(--text-sm); }
 
-/* ---------- Saved views (AIM-94 / AIM-587) ---------- */
+/* ---------- Saved views ---------- */
 .find-views { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .find-views .btn { padding: 5px 10px; font-size: 12px; }
 .find-view-form {
@@ -318,7 +318,7 @@ button.btn-export:disabled {
 #find-view-name:focus, #act-view-name:focus { border-color: var(--accent, #2dd4a8); outline: none; }
 .find-form-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
 
-/* ---------- Bulk triage (AIM-94) ---------- */
+/* ---------- Bulk triage ---------- */
 .find-bulkbar {
   display: flex;
   align-items: center;
@@ -415,7 +415,7 @@ button.btn-export:disabled {
   50% { opacity: 0.4; }
 }
 
-/* AIM-541: fixture fingerprint allowlist → suggest incident cluster A */
+/*: fixture fingerprint allowlist → suggest incident cluster A */
 .pill.cluster-a {
   background: color-mix(in srgb, var(--good, #45d483) 18%, transparent);
   color: var(--good, #45d483);
@@ -429,7 +429,7 @@ button.btn-export:disabled {
   font-family: inherit;
 }
 
-/* AIM-702: auto-triage disposition hints from policy_hash + history */
+/*: auto-triage disposition hints from policy_hash + history */
 .pill.auto-triage {
   font-size: 10.5px;
   font-weight: 600;

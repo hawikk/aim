@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — collector uninstaller for Linux / WSL (AIM-28).
+# AI Monitoring — collector uninstaller for Linux / WSL.
 # Idempotent. Removes scheduler, hooks, payload, and config; then verifies
 # no residue remains and exits non-zero if anything is left behind.
 #

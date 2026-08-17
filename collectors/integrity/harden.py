@@ -1,4 +1,4 @@
-"""Harden-mode load path for signed collector config / enforcement (AIM-639).
+"""Harden-mode load path for signed collector config / enforcement.
 
 In harden mode the collector refuses to apply unsigned or tampered managed
 JSON. This is the control that makes independence *provable*: an agent
@@ -8,7 +8,7 @@ or point ingest at an attacker by rewriting a local config file.
 Fail-open vs fail-closed:
 
 - **Policy decisions** (block a prompt): still fail-open on internal errors
-  (existing AIM-110 contract — never break the tool on our outage).
+  (existing contract — never break the tool on our outage).
 - **Config *updates* and harden loads**: fail-closed. A tampered signed
   bundle yields an empty payload + a ``TamperEvent``; the previous good
   config (if any) is retained by the caller. Unsigned bare JSON is only
@@ -212,7 +212,7 @@ def load_managed_config(
     expected_key_id: str | None = None,
     env: dict[str, str] | None = None,
 ) -> dict:
-    """Collector-facing load helper (AIM-749).
+    """Collector-facing load helper.
 
     Returns the config payload dict, or ``{}`` when the file is missing or
     refused under harden. On tamper, optionally appends a metadata-only
@@ -253,7 +253,7 @@ def verify_signed_artifact(
 ) -> HardenResult:
     """Refuse unsigned/mismatched binary (or any file) updates in harden mode.
 
-    Two equivalent proof paths (AIM-749 acceptance — config **and** binary):
+    Two equivalent proof paths (acceptance — config **and** binary):
 
     1. ``expected_sha256`` — direct digest check of ``artifact_path``.
     2. ``manifest_path`` — signed envelope whose payload lists digests::
@@ -419,7 +419,7 @@ def tamper_to_alert_finding(
     tool: str = "aim-collector",
     finding_id: str | None = None,
 ) -> dict[str, Any]:
-    """Map a tamper event to a metadata-only alert finding (AIM-750).
+    """Map a tamper event to a metadata-only alert finding.
 
     Shape matches ``packages/alerting`` Finding fields so a future spool
     forwarder can hand these to Sentinel without re-encoding. No file

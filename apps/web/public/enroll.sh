@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-1124 — one-shot device enroll (install CLI + aim join + doctor + status).
+# — one-shot device enroll (install CLI + aim join + doctor + status).
 #
 # Served by the dashboard as a public static asset:
 #   curl -fsSL http://<aim-host>:8081/enroll.sh | bash -s -- \
@@ -49,7 +49,7 @@ Options:
   --token, --enroll-token T Enrollment secret (also AIM_ENROLL_TOKEN)
   --ring RING               Optional rollout ring label
   --ca-bundle, --ca-cert P  PEM trust bundle for private ingest CA
-  --resolve HOST:PORT:IP    Split-horizon dial (repeatable; AIM-238)
+  --resolve HOST:PORT:IP Split-horizon dial (repeatable)
   --skip-install            Assume `aim` is already on PATH
   -y, --yes                 Non-interactive (reserved; default is non-interactive)
   -h, --help                Show this help

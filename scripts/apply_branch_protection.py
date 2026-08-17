@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply or verify declarative branch protection (AIM-298).
+"""Apply or verify declarative branch protection.
 
 `.github/branch-protection.json` is the desired state. This script is the only
 supported way to push it to GitHub, so the 403-configured-by-hand situation
@@ -149,7 +149,7 @@ def _repo_url(cfg: dict) -> str:
 def check_repo_settings(cfg: dict, token: str) -> tuple[int, dict]:
     """Verify repo-level settings that remain enforceable without branch protection.
 
-    AIM-404: native ``allow_auto_merge`` must stay false on free private repos —
+    native ``allow_auto_merge`` must stay false on free private repos
     without required status checks, GitHub auto-merge lands the moment the PR
     is conflict-free (PR #96). The labeled ``auto-merge.yml`` workflow is the
     only approved automated merge path.
@@ -194,13 +194,13 @@ def check_repo_settings(cfg: dict, token: str) -> tuple[int, dict]:
 
 def check(cfg: dict, token: str) -> int:
     # Always evaluate repo_settings first — these work even when branch
-    # protection is a plan-tier 403 (AIM-404 residual control).
+    # protection is a plan-tier 403 (residual control).
     settings_code, settings_report = check_repo_settings(cfg, token)
     if settings_code != 0:
         print(json.dumps({"repo_settings": settings_report}, indent=2), file=sys.stderr)
         if settings_report.get("state") == "drift":
             print(
-                "AIM-404 control drift: repo_settings do not match policy "
+                "Control drift: repo_settings do not match policy "
                 f"({settings_report.get('mismatches')}).",
                 file=sys.stderr,
             )
@@ -307,10 +307,10 @@ def self_test() -> int:
     })
     assert body["required_status_checks"]["contexts"] == ["secret scan"]
 
-    # AIM-404: shipped config declares allow_auto_merge=false (no network).
+    # shipped config declares allow_auto_merge=false (no network).
     shipped = _load(DEFAULT_CONFIG)
     assert shipped.get("repo_settings", {}).get("allow_auto_merge") is False, (
-        "AIM-404: branch-protection.json must pin allow_auto_merge=false"
+        "branch-protection.json must pin allow_auto_merge=false"
     )
 
     print("self-test ok")

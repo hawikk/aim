@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AI Monitoring — out-of-band host health signal (AIM-639 / AIM-752).
+# AI Monitoring — out-of-band host health signal.
 #
 # Runs as root via systemd timer, independent of any coding-agent process and
 # of the per-user collector watch daemon. Touches a root-owned heartbeat file

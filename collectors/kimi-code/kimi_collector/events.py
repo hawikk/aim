@@ -1,7 +1,7 @@
 """Canonical event construction, conforming to the ratified schema:
-packages/schema/schema/v1/ai-usage-event.schema.json (AIM-18).
+packages/schema/schema/v1/ai-usage-event.schema.json.
 
-Content policy (locked, AIM-16): no prompt text, conversation content, or
+Content policy (locked): no prompt text, conversation content, or
 file contents on an event. Kimi Code session data (state.json, wire.jsonl)
 contains all of these; wire.jsonl is parsed locally for token/model metadata
 and match-flag scanning, and only metadata ever leaves the endpoint. Ingest
@@ -18,8 +18,8 @@ Differences vs the Kilo Code collector (same schema):
   per the schema's session_id rule they are re-hashed per UTC day.
 
 Schema v1.1/v1.2 (landed, additive): `event_type` ("usage" | "tool_use" |
-"inventory"), `tool_calls` aggregates (AIM-97, mirroring the Claude Code
-collector's AIM-86) — tool names, MCP server ids, action classes, counts,
+"inventory"), `tool_calls` aggregates (mirroring the Claude Code
+collector's) — tool names, MCP server ids, action classes, counts,
 durations; NEVER arguments, file paths, command lines, or tool output — and
 `configured_mcp_servers` inventory entries (names + scope only; NEVER
 commands, args, URLs, or env values).
@@ -35,15 +35,15 @@ import re
 import uuid
 from datetime import datetime, timezone
 
-SCHEMA_VERSION = "1.10"  # v1.10: chain + agent_handoffs (AIM-627/799)
+SCHEMA_VERSION = "1.10" # v1.10: chain + agent_handoffs
 TOOL_NAME = "kimi_code"
 
-# tool_calls entry contract (schema v1.1, AIM-86/AIM-97)
+# tool_calls entry contract (schema v1.1)
 ACTION_CLASSES = ("fs_read", "fs_write", "shell", "network", "mcp_call", "other")
-_TOOL_CALL_KEYS = {"tool_name", "mcp_server", "action_class", "count", "duration_ms", "call_id", "parent_call_id", "result_status", "seq"}  # chain fields AIM-665 / schema v1.10
+_TOOL_CALL_KEYS = {"tool_name", "mcp_server", "action_class", "count", "duration_ms", "call_id", "parent_call_id", "result_status", "seq"} # chain fields / schema v1.10
 _TOOL_CALL_KEYS = {"tool_name", "mcp_server", "action_class", "count", "duration_ms", "call_id", "parent_call_id", "result_status", "seq"}
 
-# configured_mcp_servers entry contract (schema v1.2, AIM-97)
+# configured_mcp_servers entry contract (schema v1.2)
 _MCP_SERVER_KEYS = {"name", "scope"}
 _MCP_SCOPES = ("user", "project")
 
@@ -91,7 +91,7 @@ def format_ts(epoch_ms: int | float | None) -> str:
 def _salt() -> bytes:
     """HMAC salt for pseudonymization. Same resolution as the Claude Code
     collector: AIM_HASH_SALT env > managed config `hash_salt` > per-install
-    random salt in the state dir (dev/pilot deviation, tracked on AIM-23)."""
+    random salt in the state dir (dev/pilot deviation)."""
     s = os.environ.get("AIM_HASH_SALT")
     if s:
         return s.encode()
@@ -136,7 +136,7 @@ def daily_session_id(raw_session_id: str, epoch_ms: int | float | None) -> str:
 
 
 def opaque_call_id(raw_id: str, epoch_ms: int | float | None = None) -> str:
-    """Daily-stable opaque call id from a framework toolCallId (AIM-627/799)."""
+    """Daily-stable opaque call id from a framework toolCallId."""
     return daily_session_id(f"call|{raw_id}", epoch_ms)[:32]
 
 
@@ -152,14 +152,14 @@ def derive_provider(model: str | None) -> str | None:
     return None
 
 
-# Categories whose matches get a redacted fingerprint (AIM-225). Injection
+# Categories whose matches get a redacted fingerprint. Injection
 # detectors are prose patterns — fingerprinting phrasings adds no dedupe
 # value, so they stay name-only.
 _FP_CATEGORIES = ("secret", "pii")
 
 
 def _fingerprint(detector: str, matched: str) -> str:
-    """Redacted per-occurrence fingerprint (AIM-225): keyed, truncated HMAC of
+    """Redacted per-occurrence fingerprint: keyed, truncated HMAC of
     the NFKC-folded, whitespace-stripped match, domain-separated ("fp1") from
     the pseudonym HMACs so a fingerprint can never be cross-correlated with a
     host_ref/repo_ref of the same string. Stable while the company salt is
@@ -175,7 +175,7 @@ def make_flags(flags: list) -> list[dict]:
 
     Accepts detector-name strings (enforcement path, tests) or
     matchers.Match occurrences. A Match from a secret/pii detector also
-    carries fingerprint + offset + surface (schema v1.8, AIM-225) — enough to
+    carries fingerprint + offset + surface (schema v1.8) — enough to
     prove and dedupe the finding without storing the matched content.
     Pre-built entry dicts (personal-mode checkpoint deltas) pass through.
     Duplicates collapse on (detector, fingerprint)."""
@@ -233,7 +233,7 @@ def new_event(
         "event_id": str(uuid.uuid4()),
         "ts": format_ts(ts_epoch_ms),
         "host_ref": host_ref(),
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": (model or "")[:128] or None,
@@ -266,13 +266,13 @@ def new_tool_use_event(
     tool_version: str | None = None,
     agent_handoffs: list[dict] | None = None,
 ) -> dict:
-    """event_type='tool_use' (schema v1.1/v1.10, AIM-97/627): per-session
+    """event_type='tool_use' (schema v1.1/v1.10/627): per-session
     tool-call aggregates or discrete call_id rows for one scan window. Same
     pseudonymization as new_event (the caller passes the daily-rehashed
     session id). Metadata-only: entries carry tool name, MCP server id,
     action class, count, duration, optional chain fields — never arguments,
     file paths, command lines, or tool output (enforced by _check_tool_calls).
-    agent_handoffs is metadata-only (AIM-799)."""
+    agent_handoffs is metadata-only."""
     _check_tool_calls(tool_calls)
     if agent_handoffs:
         _check_agent_handoffs(agent_handoffs)
@@ -281,7 +281,7 @@ def new_tool_use_event(
         "event_id": str(uuid.uuid4()),
         "ts": format_ts(ts_epoch_ms),
         "host_ref": host_ref(),
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": (model or "")[:128] or None,
@@ -336,7 +336,7 @@ def new_inventory_event(
     configured_mcp_servers: list[dict],
     tool_version: str | None = None,
 ) -> dict:
-    """event_type='inventory' (schema v1.2, AIM-97): the MCP servers present
+    """event_type='inventory' (schema v1.2): the MCP servers present
     in the tool's config, emitted only when the set changes. model/provider
     are null and tokens are omitted — this is not LLM traffic. The session
     id is synthetic (``inv_<utc-date>_<host_ref[:12]>``): there is no tool
@@ -351,7 +351,7 @@ def new_inventory_event(
         "event_id": str(uuid.uuid4()),
         "ts": format_ts(None),
         "host_ref": host,
-        "user_ref": None,  # identity mapping not yet approved (AIM-24/38)
+        "user_ref": None, # identity mapping not yet approved
         "tool": TOOL_NAME,
         "tool_version": (tool_version or "")[:64] or None,
         "model": None,
@@ -397,7 +397,7 @@ def _check_tool_calls(tool_calls: list) -> None:
         if dur is not None and (not isinstance(dur, int) or dur < 0):
             raise ValueError("duration_ms must be an int >= 0 or null")
 
-        # AIM-627 / schema v1.10 chain metadata (optional; never arguments/results).
+        # / schema v1.10 chain metadata (optional; never arguments/results).
         for _ck, _mx in (("call_id", 64), ("parent_call_id", 64)):
             _cv = tc.get(_ck)
             if _cv is not None and (not isinstance(_cv, str) or len(_cv) > _mx):

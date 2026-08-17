@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import type { PoolLike } from "./migrate";
 
 /**
- * DB-backed enrollment-token registry (AIM-131).
+ * DB-backed enrollment-token registry.
  *
  * Backs the admin onboarding flow: the dashboard mints scoped enrollment
  * tokens (see apps/api/src/routes/onboarding.js and migration 011), and
@@ -27,7 +27,7 @@ export type EnrollTokenValidation =
       ok: true;
       tokenId: string;
       /**
-       * Directory email this token attributes new devices to (AIM-455).
+       * Directory email this token attributes new devices to.
        * When set, POST /v1/enroll registers device_id → email with identity-sync
        * so resolver rules 1–2 can fire. Null/undefined = unbound bootstrap token.
        */

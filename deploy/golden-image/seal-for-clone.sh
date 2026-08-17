@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AIM-745 — strip per-device identity before generalizing a golden image.
+# — strip per-device identity before generalizing a golden image.
 #
 # MUST run on the template host after prepare-image (or any install that may
 # have enrolled during bake) and BEFORE sysprep / machine-id reset / AMI

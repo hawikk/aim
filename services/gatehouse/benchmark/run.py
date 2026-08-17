@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate precision benchmark harness (AIM-334).
+"""Gate precision benchmark harness.
 
 Runs every corpus case against the real scanners (gitleaks / semgrep /
 checkov / trivy), scores precision / recall per gate, enforces published FP

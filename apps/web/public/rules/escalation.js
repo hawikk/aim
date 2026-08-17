@@ -1,6 +1,6 @@
-/* Escalation policy editor markup (AIM-1147) — pure-moved from rules.js.
+/* Escalation policy editor markup — pure-moved from rules.js.
  *
- * The AIM-990 multi-stage escalation ladder editor: stage rows, policy cards,
+ * The multi-stage escalation ladder editor: stage rows, policy cards,
  * and the panel-level empty state. HTML builders only — the add/remove/save
  * interaction handlers live in ./alerts-panel.js, the policy model in
  * ../lib/escalation-policies.js.

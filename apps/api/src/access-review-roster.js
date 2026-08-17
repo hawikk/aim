@@ -1,4 +1,4 @@
-// Build the live AIM-role access roster (AIM-718).
+// Build the live AIM-role access roster.
 //
 // Source of truth for *who holds a role* is the SCIM directory when it is
 // live: group membership → mapGroupsToRole / hasRevealGrant. When SCIM is
@@ -135,7 +135,7 @@ export function buildAccessRoster(opts) {
   if (!scimEnabled) {
     note =
       'SCIM directory is not configured. Roster lists role-group configuration only; ' +
-      'IdP group membership is the live source of truth until SCIM is enabled (AIM-713).';
+      'IdP group membership is the live source of truth until SCIM is enabled.';
   } else if (principals.length === 0) {
     note =
       'SCIM is live but no provisioned users map to AIM role groups or the reveal grant. ' +

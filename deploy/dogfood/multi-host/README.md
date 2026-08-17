@@ -1,7 +1,7 @@
-# Dogfood multi-host fleet (AIM-1057)
+# Dogfood multi-host fleet
 
 Restores trailing-7d **≥20 distinct `host_ref`** coverage on `stack-aim` for
-Epic A / [AIM-487](../../../docs/) gate measurement.
+Epic A gate measurement.
 
 ## Why coverage collapsed
 
@@ -13,14 +13,13 @@ Live inventory on 2026-08-06 (`stack-aim-postgres`):
 | Post-rebind (≥2026-08-01T20:07:08Z) | 1 | Service principal on `Hawik` only |
 | Enrolled `devices` | 1 | Single WSL2 laptop |
 
-Historical multi-host rows were one-shot seed / e2e batches (`seed-pilot-cohort`,
-AIM-443, load harnesses). No durable multi-host collectors kept heartbeating
+Historical multi-host rows were one-shot seed / e2e batches (`seed-pilot-cohort`, load harnesses). No durable multi-host collectors kept heartbeating
 after those runs. After unbound washout (~2026-08-08), attribution recovers but
 host diversity collapses to **1** without this fleet.
 
 ## Approach (constraints-compliant)
 
-Hard constraints from AIM-1057:
+Hard constraints:
 
 - Do **not** invent identities / backfill pre-binding events
 - Do **not** store emails in the event store
@@ -94,6 +93,6 @@ WHERE ts >= '2026-08-01T20:07:08Z';
 
 ## What this is not
 
-- Not identity invention for historical unbound bulk (out of scope; AIM-487).
+- Not identity invention for historical unbound bulk (out of scope).
 - Not laptop re-enrollment games.
 - Not email storage in `events` / findings.

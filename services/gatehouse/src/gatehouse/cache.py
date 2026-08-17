@@ -14,7 +14,7 @@ yes, code no):
 | `blob_sha` | Cache key. A hash of content, not content. | 30 days |
 | finding rows | The finding *is* the record this product produces. | 30 days |
 | `first_seen_at` | Stable first sighting across every PR that has carried this finding. | 30 days |
-| per-(repo, pr, key) rows | One *occurrence* of a finding on one open PR. `observed_count` on the bus is the COUNT of these rows for a key (AIM-299 AC#3: five PRs → one issue, five occurrences). | 30 days |
+| per-(repo, pr, key) rows | One *occurrence* of a finding on one open PR. `observed_count` on the bus is the COUNT of these rows for a key (AC#3: five PRs → one issue, five occurrences). | 30 days |
 
 No source text, no diffs, no secrets — `snippet_digest` is one-way. `prune()`
 enforces the 30 days on the same clock as the bus's retention (D3.1 §5), so a
@@ -53,13 +53,13 @@ CREATE TABLE IF NOT EXISTS pr_findings (
   updated_at    INTEGER NOT NULL,
   PRIMARY KEY (repo, pr, dedupe_key)
 );
--- AIM-297: durable webhook delivery ids so a runner restart cannot re-scan
+-- durable webhook delivery ids so a runner restart cannot re-scan
 -- a delivery that already completed. In-memory alone is not crash-safe.
 CREATE TABLE IF NOT EXISTS webhook_deliveries (
   delivery_id TEXT PRIMARY KEY,
   seen_at     INTEGER NOT NULL
 );
--- AIM-332: per-repo gate ledger. One row per completed (or failed-to-complete)
+-- per-repo gate ledger. One row per completed (or failed-to-complete)
 -- gate run so coverage can answer "when did this repo last run, at what mode,
 -- with what result?" without inventing green from silence.
 CREATE TABLE IF NOT EXISTS gate_runs (
@@ -114,7 +114,7 @@ class Store:
              int(time.time())))
         self.conn.commit()
 
-    # ---- finding lifecycle (multi-PR occurrences, AIM-299) --------------
+    # ---- finding lifecycle (multi-PR occurrences) --------------
 
     def seen(self, repo: str, pr: int) -> dict[str, dict]:
         """Every dedupe_key previously reported on this PR, with its history.
@@ -191,7 +191,7 @@ class Store:
         those are the ones the bus should emit as `resolved`. Keys that still
         live on another open PR stay open (updated on the next scan of that
         PR); that is the no-zombie / no-silent-reopen rule for multi-PR
-        findings (AIM-299 AC#5).
+        findings (AC#5).
         """
         if not dedupe_keys:
             return []
@@ -206,7 +206,7 @@ class Store:
                 fully_gone.append(key)
         return fully_gone
 
-    # ---- gate-run ledger (AIM-332) ---------------------------------------
+    # ---- gate-run ledger ---------------------------------------
 
     def record_gate_run(
         self,
@@ -264,7 +264,7 @@ class Store:
             }
         return out
 
-    # ---- webhook delivery idempotency (AIM-297) --------------------------
+    # ---- webhook delivery idempotency --------------------------
 
     def claim_delivery(self, delivery_id: str, *, now: int | None = None) -> bool:
         """Atomically claim a GitHub delivery id.

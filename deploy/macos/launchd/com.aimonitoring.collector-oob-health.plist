@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- AIM-743 / AIM-639: OOB host health independent of agent user process. -->
+<!--: OOB host health independent of agent user process. -->
 <plist version="1.0">
 <dict>
   <key>Label</key>

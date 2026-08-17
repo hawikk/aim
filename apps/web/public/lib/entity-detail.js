@@ -1,4 +1,4 @@
-/* Entity detail-panel shell (AIM-1131; AIM-453 assessment Phase 3).
+/* Entity detail-panel shell (assessment Phase 3).
  *
  * The five drill-down panels (providers, apps, teams, repos, users) were
  * near-isomorphic copies: an entity guard that hides the box, a back-linked
@@ -27,7 +27,7 @@
  * emits in-app `#/…` routes.
  *
  * Import path uses `../lib/dom.js` (even though we live under lib/) so the
- * AIM-523 import guard, which matches the substring `lib/dom.js`, still
+ * import guard, which matches the substring `lib/dom.js`, still
  * passes — same convention as lib/components.js.
  */
 import { esc } from '../lib/dom.js';
@@ -55,7 +55,7 @@ export function hideEntityDetail(el, onClear) {
 /**
  * Render the failure state of a detail panel: back link + error message.
  * Used for both "entity not in this range/filter" and fetch rejections; the
- * box stays visible so the failure is never a silent blank (AIM-475).
+ * box stays visible so the failure is never a silent blank.
  *
  * @param {Element|null} el
  * @param {object} spec

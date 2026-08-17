@@ -1,4 +1,4 @@
-/* Shared view-private state for the Cases view (AIM-1186 split).
+/* Shared view-private state for the Cases view (split).
  * casesCtx is view-private: zero cross-view surface. The orchestrator
  * (public/cases.js) calls resetCasesCtx() at the top of init() and every
  * sibling module imports casesCtx — never re-create it locally. */

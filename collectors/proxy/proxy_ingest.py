@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""Proxy/network log ingestion connector for AI tool detection (AIM-19).
+"""Proxy/network log ingestion connector for AI tool detection.
 
 Reads existing network telemetry (no endpoint agent required), detects AI
 coding tool usage via the endpoint detection database, normalizes hits into
 the canonical AI Usage Event schema
-(packages/schema/schema/v1/ai-usage-event.schema.json, AIM-34), and
-forwards to the AIM-23 ingestion API (POST /v1/events, bearer auth).
+(packages/schema/schema/v1/ai-usage-event.schema.json), and
+forwards to the ingestion API (POST /v1/events, bearer auth).
 
-Privacy posture (per AIM-16 locked decisions):
+Privacy posture:
   - Metadata only. We extract the destination hostname and immediately
     discard URL paths, query strings, and credentials. Hostnames only, ever.
   - No payload or TLS content is touched.
   - Identity is pseudonymized: host_ref is HMAC-SHA256 of the most stable
     host identifier the source provides (src_ip for proxy logs; the schema
     field is named for hostname — the endpoint hostname is not visible at
-    the proxy). user_ref stays null until identity mapping (AIM-24/38).
+    the proxy). user_ref stays null until identity mapping.
     Salt comes from AIM_HASH_SALT (KMS-distributed in production) or a
     local 0600 state file in dev/pilot, same pattern as the Claude Code
     endpoint collector.
 
-Source-class attribution (AIM-103): each event's src_ip is classified
+Source-class attribution: each event's src_ip is classified
 BEFORE pseudonymization against the subnet inventory (subnets.json) into
 'application' (server/DC + CI-runner ranges), 'employee' (endpoint ranges),
 or 'unknown'. Application traffic on provider-api rules (direct LLM APIs:
@@ -72,7 +72,7 @@ SCHEMA_VERSION = "1.8"
 SOURCE = "proxy"
 USER_AGENT = "aim-proxy-ingest/0.5"
 
-# Policy-approved tools (CEO AIM-16). Separate from the schema enum: a tool
+# Policy-approved tools (Security). Separate from the schema enum: a tool
 # can be first-class (named in events) without being policy-approved.
 SANCTIONED_TOOLS = {"claude_code", "cursor", "kilo_code"}
 
@@ -133,7 +133,7 @@ TRAFFIC_CLASSES = ("application", "employee", "unknown")
 
 
 class SourceClassifier:
-    """Classify a src_ip into a source class (AIM-103) from the subnet
+    """Classify a src_ip into a source class from the subnet
     inventory (subnets.json): server/DC + CI-runner ranges → 'application'
     (company-built software); endpoint ranges → 'employee'; anything else
     → 'unknown'.
@@ -205,7 +205,7 @@ def extract_host(url_or_authority):
 
 
 def _iso_z(dt):
-    # Canonical schema (AIM-34) enforces second-level precision, no
+    # Canonical schema enforces second-level precision, no
     # fractional seconds — same as the Claude Code endpoint collector.
     return dt.isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -333,7 +333,7 @@ def parse_jsonl(line):
     Client IP aliases: src_ip, client, client_ip, clientip, cip, csip,
     srcip, sourceip, source_ip.
     Identity-bearing user aliases (coverage / future mapping only;
-    user_ref stays null until AIM-24/38): user, login, username,
+    user_ref stays null): user, login, username,
     user_name, authenticated_user, srcuser, useremail, email.
     Timestamp aliases: ts, timestamp, datetime, time, stime, eventtime,
     event_time, logtime.
@@ -392,7 +392,7 @@ def parse_jsonl(line):
 
 # Explicit production pin for Zscaler NSS JSON — same code path as jsonl
 # after alias expansion; kept as a named format so IT can pin without
-# relying on auto-sniff once the live export is confirmed (AIM-50).
+# relying on auto-sniff once the live export is confirmed.
 parse_zscaler_nss = parse_jsonl
 
 
@@ -801,7 +801,7 @@ class Pseudonymizer:
     """HMAC-SHA256 with a company salt (AIM_HASH_SALT) or a dev/pilot
     per-install salt file. Mirrors collectors/claude-code/aim_collector/
     events.py so proxy and endpoint refs join on the same pseudonyms once
-    the real KMS-distributed salt is in place (tracked on AIM-23)."""
+    the real KMS-distributed salt is in place."""
 
     def __init__(self, salt_file):
         s = os.environ.get("AIM_HASH_SALT")
@@ -826,7 +826,7 @@ class Pseudonymizer:
 def to_event(rec, rule, pseudo, traffic_class="unknown"):
     """Build a canonical AI Usage Event (v1) from a parsed record + rule.
 
-    traffic_class (AIM-103): source-class attribution of the src_ip —
+    traffic_class: source-class attribution of the src_ip
     'application' (server/DC/CI subnet), 'employee' (endpoint subnet), or
     'unknown' (no inventory match). Application traffic on provider-api rules
     (direct LLM APIs used by both employee tools and company-built software)
@@ -838,7 +838,7 @@ def to_event(rec, rule, pseudo, traffic_class="unknown"):
 
     if rule.tool in FIRST_CLASS_TOOLS:
         # First-class schema tools keep their name even when not policy-
-        # approved (AIM-271: grok_build is reportable without being sanctioned).
+        # approved (grok_build is reportable without being sanctioned).
         tool, tool_raw = rule.tool, None
     else:
         # Unknown tool: tool='other', name it in tool_raw.
@@ -859,7 +859,7 @@ def to_event(rec, rule, pseudo, traffic_class="unknown"):
     host_ref = pseudo.hmac64(rec["src_ip"])
 
     # Synthetic daily correlation id: groups one source's activity per UTC
-    # day. Not a tool session; not stable across days (documented on AIM-19).
+    # day. Not a tool session; not stable across days (documented).
     day = rec["ts"][:10]
     session_id = pseudo.hmac64(f"proxy|{rec['src_ip']}|{rec.get('user')}|{day}")[:32]
 
@@ -868,7 +868,7 @@ def to_event(rec, rule, pseudo, traffic_class="unknown"):
         "event_id": event_id,
         "ts": rec["ts"],
         "host_ref": host_ref,
-        "user_ref": None,  # identity mapping lands with AIM-24/38
+        "user_ref": None, # identity mapping lands with
         "tool": tool,
         "model": None,     # not observable at network level
         "provider": rule.provider[:64],
@@ -933,7 +933,7 @@ def validate(event):
 # ------------------------------------------------------------------ sink ----
 
 class HttpSink:
-    """Batch POST {"events": [...]} to the AIM-23 ingestion API
+    """Batch POST {"events": [...]} to the ingestion API
     (/v1/events). Bearer auth, 3 retries with backoff."""
 
     def __init__(self, url, token, batch_size=500):
@@ -1020,7 +1020,7 @@ class Coverage:
         seen = len(self.src_ips)
         pct = (100.0 * seen / expected_fleet) if expected_fleet else 0.0
         lines = [
-            "=== Coverage report (network path, AIM-19) ===",
+            "=== Coverage report (network path) ===",
             f"window:            {self.ts_min} .. {self.ts_max}",
             f"distinct sources:  {seen} / {expected_fleet} endpoints ({pct:.1f}%)",
             f"distinct users:    {len(self.users)}",
@@ -1031,7 +1031,7 @@ class Coverage:
         for prov, n in sorted(self.by_provider.items(), key=lambda kv: -kv[1]):
             lines.append(f"  {prov:<18} {n}")
         lines.append("")
-        lines.append("by source class (AIM-103; 'unknown' = no subnet inventory match):")
+        lines.append("by source class ('unknown' = no subnet inventory match):")
         if self.by_class:
             for cls, n in sorted(self.by_class.items(), key=lambda kv: -kv[1]):
                 lines.append(f"  {cls:<18} {n}")
@@ -1092,7 +1092,7 @@ def main(argv=None):
     classifier = SourceClassifier(args.subnets)
     if not classifier._nets:
         print(f"note: no subnet inventory at {args.subnets} — all sources classify "
-              f"'unknown' and verdicts are unchanged (AIM-103 prerequisite: "
+              f"'unknown' and verdicts are unchanged (prerequisite: "
               f"network-team subnet list)", file=sys.stderr)
     token = args.ingest_token or os.environ.get("AIM_INGEST_TOKEN")
     if args.sink == "http" and not token:

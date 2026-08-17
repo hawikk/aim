@@ -84,7 +84,7 @@ def _duration_ms(payload: dict) -> int | None:
 
 def handle_payload(event_name: str, payload: dict) -> list[dict]:
     """One usage event per hook invocation, plus one tool_use event for
-    postToolUse payloads that name a tool (AIM-86). [] when the hook is
+    postToolUse payloads that name a tool. [] when the hook is
     unregistered or the payload carries no session id (can't correlate,
     so drop)."""
     if event_name not in HOOK_EVENTS:
@@ -115,11 +115,11 @@ def handle_payload(event_name: str, payload: dict) -> list[dict]:
     )
     out = [ev]
 
-    # AIM-86: postToolUse fires for every agent tool (built-in and MCP)
+    # postToolUse fires for every agent tool (built-in and MCP)
     # and carries tool_name + duration. Only the name survives — arguments
     # (tool_input) and results (tool_output) are scanned for flags above
     # and then dropped; they are never read into the event.
-    # AIM-627: emit chain fields (call_id/seq/result_status) + agent_handoffs
+    # emit chain fields (call_id/seq/result_status) + agent_handoffs
     # for Task/Agent tools. Metadata only — never args or result bodies.
     if event_name == "postToolUse":
         tool_name = payload.get("tool_name")

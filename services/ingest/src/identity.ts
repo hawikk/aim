@@ -1,9 +1,9 @@
 /**
- * Identity resolution client (AIM-49) + device-mapping registrar (AIM-455).
+ * Identity resolution client + device-mapping registrar.
  *
  * The collector attests its endpoint identity once per batch (`collector`
  * block in the POST /v1/events body). Ingest forwards it to the identity-sync
- * service's POST /resolve (AIM-24), which returns a pseudonym + team — never
+ * service's POST /resolve, which returns a pseudonym + team — never
  * an email. The result is stamped onto every event in the batch.
  *
  * Resolution is fail-open: if identity-sync is unreachable or errors, the
@@ -11,7 +11,7 @@
  * Cleartext os_user/device_id never leaves the platform trust boundary and is
  * never logged or persisted by this service.
  *
- * AIM-455 adds the enroll-time write path: when a minted enrollment token
+ * adds the enroll-time write path: when a minted enrollment token
  * carries bound_email, ingest registers device_id → email with identity-sync
  * so resolver rules 1–2 can fire on subsequent batches.
  */
@@ -24,7 +24,7 @@ export interface CollectorIdentity {
   device_id?: string;
   os_user?: string;
   /**
-   * Signed build identity (AIM-646). Optional on the wire in pilot mode;
+   * Signed build identity. Optional on the wire in pilot mode;
    * required when INGEST_ATTESTATION_MODE=enforce.
    */
   build?: BuildIdentity;
@@ -40,7 +40,7 @@ export interface Resolution {
   user_pseudonym: string | null;
   team: string | null;
   /**
-   * "human" | "service" | "unknown" (AIM-149). A declared agent host or CI
+   * "human" | "service" | "unknown". A declared agent host or CI
    * runner resolves as "service" even when it carries a named operator's
    * pseudonym, so machine activity never reads as a person at a keyboard.
    */
@@ -59,8 +59,8 @@ export interface IdentityResolver {
 }
 
 /**
- * Write path for device_id/os_user → directory email (AIM-455) and
- * device_id rebind after re-enroll (AIM-868). Implemented by identity-sync
+ * Write path for device_id/os_user → directory email and
+ * device_id rebind after re-enroll. Implemented by identity-sync
  * POST /device-mappings and POST /join-keys/rebind-device; gated + audited.
  */
 export interface DeviceMappingRegistrar {
@@ -148,10 +148,10 @@ export class HttpIdentityResolver implements IdentityResolver {
 }
 
 /**
- * Registers device→directory bindings with identity-sync (AIM-455).
+ * Registers device→directory bindings with identity-sync.
  *
  * Auth: HS256 service JWT carrying the ai-monitoring-revealers grant — the
- * same gate as POST /service-identities / /reveal (AIM-302). The JWT is
+ * same gate as POST /service-identities / /reveal. The JWT is
  * minted by ingest from IDENTITY_SYNC_JWT_HS256_SECRET (shared with
  * identity-sync in compose). Mapping registration is fail-open on the enroll
  * path: a mapping failure must not roll back device enrollment (the device
@@ -262,7 +262,7 @@ const MAX_IDENTITY_FIELD_LENGTH = 256;
  * Validate the optional `collector` block from the batch body. Returns the
  * normalized identity, or an error string. device_id / os_user are optional
  * individually, but at least one must be present for the block to be
- * meaningful. `build` (AIM-646) is optional at parse time — enforce mode
+ * meaningful. `build` is optional at parse time — enforce mode
  * rejects missing/invalid signatures after parse.
  */
 export function parseCollectorIdentity(value: unknown): { identity: CollectorIdentity } | { error: string } {

@@ -1,4 +1,4 @@
-/* AIM-696 — auto-attach compliance control evidence to high-severity findings.
+/* — auto-attach compliance control evidence to high-severity findings.
  *
  * Pure module (no db/auth). Maps a finding's ruleId through
  * policies/compliance/framework-map.yaml and returns the control refs an

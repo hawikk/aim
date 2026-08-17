@@ -2,7 +2,7 @@
 
 Shared libraries live here (telemetry event schema, policy engine, SIEM
 connectors). None exist yet — the first ones land with the ingestion
-workstream under AIM-16.
+workstream.
 
 Conventions when adding one:
 

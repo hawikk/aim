@@ -54,15 +54,15 @@ logs/
 !collectors/proxy/samples/*.sample.log
 .claude/
 
-# Dogfood multi-host fleet state (device tokens) — never commit (AIM-1057)
+# Dogfood multi-host fleet state (device tokens) — never commit
 deploy/dogfood/multi-host/state/
 
-# Air-gap bundle output (AIM-98)
+# Air-gap bundle output
 deploy/airgap/out/
-# Intune Win32 staging output (AIM-742)
+# Intune Win32 staging output
 deploy/windows/out/
 
-# `aim` CLI build artifacts (AIM-130/AIM-135): dist/ is already ignored
+# `aim` CLI build artifacts: dist/ is already ignored
 # globally; the intermediate staging tree and the vendored collector tree are
 # not. `_vendor/` is regenerated from the collector source by
 # scripts/build_aim_cli.py on every build — it is build output, never edited by
@@ -71,24 +71,24 @@ packaging/build/
 packaging/aim-cli/src/aim/_vendor/
 
 # Machine-owned policy files written by the dashboard rule-tuning / alert
-# config APIs (AIM-94) — live config, not PR-reviewed policy.
+# config APIs — live config, not PR-reviewed policy.
 policies/guardrail/v1/ui-overrides.yaml
 policies/guardrail/v1/alerts.yaml
 
-# GitHub App private key and any other local PEM/secret material (AIM-161).
+# GitHub App private key and any other local PEM/secret material.
 deploy/secrets/*
 !deploy/secrets/README.md
 
-# AIM-209: local CI attestations are per-run evidence, not source
+# local CI attestations are per-run evidence, not source
 ci-local-attestation.json
 evasion-report.json
 
-# Headless UI captures (AIM-515) — regenerate with apps/web npm run screenshot
+# Headless UI captures — regenerate with apps/web npm run screenshot
 apps/web/test/screenshots/
 
-# Friend-preview basic-auth secret (AIM-1048)
+# Friend-preview basic-auth secret
 apps/landing/deploy/.htpasswd
 
-# Local image pin file for pilot pull path (AIM-1126) — copy from
+# Local image pin file for pilot pull path — copy from
 # deploy/compose/images.pin.env.example; may hold site-specific digests.
 deploy/compose/images.pin.env

@@ -1,4 +1,4 @@
-"""Consent / notice gate (AIM-321 privacy bar).
+"""Consent / notice gate (privacy bar).
 
 Capture must not run until notice is acknowledged. See
 docs/privacy/aim-321-os-egress-consent-notice.md.

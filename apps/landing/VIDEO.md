@@ -74,7 +74,7 @@ Screenshots are captured from `apps/landing/demo.html` using Playwright automati
 
 - **Aesthetic:** Black background, white type, restrained—inspired by Linear/Vercel launch films
 - **Motion:** Spring-based animations (not linear), smooth scale/drift, professional easing
-- **Type:** System stacks with proper fallbacks (no external font endpoints per AIM-353)
+- **Type:** System stacks with proper fallbacks (no external font endpoints)
 - **Framing:** Real screenshots with modern browser chrome (10px dots, subtle gradient)
 - **Pacing:** Tighter than v1 (2.5s opening, 8.5s walkthroughs, 15s guardrails+privacy, 15s CTA)
 - **Silent:** No audio track; designed for sound-off viewing

@@ -1,4 +1,4 @@
-/* AIM-689 — Analyst-facing policy editor (safe subset, no raw YAML).
+/* — Analyst-facing policy editor (safe subset, no raw YAML).
  *
  * Self-contained module, same pattern as rules.js / mcp.js: injects its own
  * nav tab, view section and stylesheet at runtime.
@@ -15,8 +15,8 @@
  * live allowlists. Mutations still require capabilities.admin (same as the
  * APIs) — non-admins see a validated read-only surface.
  *
- * Split (AIM-1177, mirroring the AIM-1172 compliance / AIM-1163 activity /
- * AIM-1147 rules / AIM-1157 mcp splits) — the panels live in sibling modules
+ * Split (mirroring the compliance activity /
+ * rules mcp splits) — the panels live in sibling modules
  * with clear ownership:
  *   ./policy/state.js     shared view-private polCtx + mode pill + summary cards
  *   ./policy/tools.js     sanctioned-tools panel (form, table, mutations)
@@ -36,7 +36,7 @@ import { mountToolsForm, loadSanctioned, bindToolHandlers } from './policy/tools
 import { mountModelsForm, loadAllowlist, bindModelHandlers } from './policy/models.js';
 import { loadAdvanced } from './policy/advanced.js';
 
-/* ---------- Gate: server-computed capability (AIM-95) ---------- */
+/* ---------- Gate: server-computed capability ---------- */
 const me = await api('/api/me').catch((err) => {
   if (err.status === 401) window.location.assign('/auth/login');
   return null;

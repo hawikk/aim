@@ -1,11 +1,11 @@
-// AIM-779 — Pageable dark-tool / coverage-alert false-positive precision SLO.
+// — Pageable dark-tool / coverage-alert false-positive precision SLO.
 //
 // Scope is the **pageable / banner** channel only (`coverageAlerts[]` after
-// AIM-596 precision gates). The Coverage ledger (darkItems) is honesty, not
+// precision gates). The Coverage ledger (darkItems) is honesty, not
 // paging — ledger rows are never counted as FPs.
 //
 // This module is pure measurement. It does not change fire-on-dark defaults
-// (AIM-443) or the AIM-596 precision knobs in routes/coverage.js.
+// or the precision knobs in routes/coverage.js.
 
 /** Published SLO: pageable dark-tool alert FP rate over labeled 14-day window. */
 export const DARK_TOOL_PAGEABLE_ALERT_FP_SLO = Object.freeze({
@@ -15,7 +15,7 @@ export const DARK_TOOL_PAGEABLE_ALERT_FP_SLO = Object.freeze({
   windowDays: 14,
   /** Measurement scope — never the ledger. */
   scope: 'pageable',
-  /** Alert kind under measurement (AIM-443). */
+  /** Alert kind under measurement. */
   alertKind: 'sanctioned_tool_dark',
 });
 

@@ -1,4 +1,4 @@
-"""IaC ↔ CNAPP posture rule parity (AIM-329).
+"""IaC ↔ CNAPP posture rule parity.
 
 Gatehouse already runs Checkov on PR diffs. This module makes those findings
 tell the *code-to-cloud* story pre-merge:
@@ -8,8 +8,7 @@ tell the *code-to-cloud* story pre-merge:
 * drift between the mapping and the posture catalog fails CI
 
 The CNAPP catalog is vendored from Cloud Sentry (littlewiz `backend/rules/`)
-so a PR scan does not need a live CNAPP API call. Live asset correlation is
-[AIM-305](/AIM/issues/AIM-305); this module is the rule-semantics half.
+so a PR scan does not need a live CNAPP API call. Live asset correlation is out of scope here; this module is the rule-semantics half.
 """
 
 from __future__ import annotations
@@ -337,7 +336,7 @@ def render_would_be_section(
     catalog_path: str | None = None,
     max_rows: int = 20,
 ) -> str:
-    """Markdown block for the PR comment / check-run summary (AIM-329 AC#3)."""
+    """Markdown block for the PR comment / check-run summary (AC#3)."""
     rows = would_be_cloud_findings(
         findings, mapping_path=mapping_path, catalog_path=catalog_path)
     if not rows:
@@ -362,8 +361,8 @@ def render_would_be_section(
     if len(rows) > max_rows:
         lines.append(f"\n…and {len(rows) - max_rows} more would-be cloud finding(s).")
     lines.append(
-        "\n<sub>Rule parity map: gatehouse `cnapp_parity` (AIM-329). "
-        "Asset-level code-to-cloud linking is AIM-305.</sub>"
+        "\n<sub>Rule parity map: gatehouse `cnapp_parity`. "
+        "Asset-level code-to-cloud linking is.</sub>"
     )
     return "\n".join(lines)
 

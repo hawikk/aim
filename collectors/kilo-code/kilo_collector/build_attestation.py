@@ -1,4 +1,4 @@
-"""Signed build identity for endpoint collectors (AIM-646).
+"""Signed build identity for endpoint collectors.
 
 Each collector reports a ``build`` block in the batch envelope so ingest can
 verify the install is a genuine AI Monitoring release (not a forked binary

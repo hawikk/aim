@@ -45,7 +45,7 @@ sentinel:
 
   # Alerts sharing a correlation key inside this window are one parent
   # incident; each alert is retained as a child link (tool / user / resource /
-  # evidence). Configurable (AIM-700). One `terraform apply` that turns 40
+  # evidence). Configurable. One `terraform apply` that turns 40
   # buckets public — or one secret pattern firing in Claude Code and Cursor —
   # should produce one page, not a storm.
   burst_window_seconds: 900
@@ -53,7 +53,7 @@ sentinel:
   # severity escalates — escalation always speaks.
   renotify_cooldown_seconds: 3600
   # The fields whose values together identify one root cause. Default groups
-  # across tools and users (AIM-700) — do NOT add labels.tool or
+  # across tools and users — do NOT add labels.tool or
   # subject_ref.user_ref unless you intentionally want per-tool/per-user pages.
   # Add `resource.region` if one account spans environments; use `resource.ref`
   # instead of `resource.account_ref` to page per resource (noisier, and the
@@ -88,7 +88,7 @@ sentinel:
 
   remediation:
     draft_pr:
-      # Off by default (board answer Q7: the agent proposes, a human applies).
+      # Off by default (the agent proposes, a human applies).
       #
       # Turning this on opens DRAFT pull requests carrying a fix from the
       # reviewed remediation catalogue. Never merges, never approves, never

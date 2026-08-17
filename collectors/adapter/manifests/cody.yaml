@@ -1,4 +1,4 @@
-# Sourcegraph Cody — named presence (AIM-1176).
+# Sourcegraph Cody — named presence.
 # Inspected sourcegraph/cody-public-snapshot (2026-08-13):
 #   Chat lives in VS Code globalState key cody-local-chatHistory-v2
 #   (state.vscdb / Memento) as SerializedChatTranscript with humanMessage.text.

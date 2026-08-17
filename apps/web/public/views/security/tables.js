@@ -1,6 +1,6 @@
-/* Security view tables (AIM-1135 split): guardrail flags by detector with the
- * AIM-482 criticality filter, and discovered-but-unsanctioned tools with the
- * AIM-484 admin Sanction action. Rows stay clickable (AIM-482 drill-down lives
+/* Security view tables (split): guardrail flags by detector with the
+ * criticality filter, and discovered-but-unsanctioned tools with the
+ * admin Sanction action. Rows stay clickable (drill-down lives
  * in ./detail.js). */
 import { $, esc } from '../../lib/dom.js';
 import { fmtInt, fmtTok, fmtDay, fmtUsd } from '../../lib/format.js';
@@ -31,7 +31,7 @@ export function renderSecFlagsTable() {
       ? `${all.length} detector${all.length === 1 ? '' : 's'}`
       : `${detectorRows.length} of ${all.length} at ${sev}`;
   }
-  // AIM-1023: CTAs track the criticality filter so "high" opens high findings.
+  // CTAs track the criticality filter so "high" opens high findings.
   wireFindingsCtas(sev);
   const canFindings = canOpenFindings();
   const cols = [
@@ -99,7 +99,7 @@ export function renderSecUnapprovedTable({ reload }) {
     { key: 'tokens', label: 'Tokens', num: true, render: (r) => fmtTok(r.tokens) },
     { key: 'costUsd', label: 'Est. cost', num: true, render: (r) => fmtUsd(r.costUsd) },
   ];
-  // AIM-484: admin-only Sanction action (keep AIM-482 row drill-down intact).
+  // admin-only Sanction action (keep row drill-down intact).
   if (canSanction) {
     cols.push({
       key: '_action',
@@ -126,7 +126,7 @@ export function renderSecUnapprovedTable({ reload }) {
         ev.preventDefault();
         ev.stopPropagation(); // do not open row detail
         const tool = btn.dataset.sanction;
-        // AIM-151: no modal dialogs — reason prompt is the confirm step.
+        // no modal dialogs — reason prompt is the confirm step.
         const reason = promptReason('Sanction', tool);
         if (!reason) return;
         btn.disabled = true;

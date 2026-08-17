@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Constraint regression suite for locked product constraints (AIM-760).
+"""Constraint regression suite for locked product constraints.
 
 CI fails when a change would land that breaks locked works-council / privacy /
 identity / deploy-mode constraints. The suite is intentionally *static* —
@@ -7,7 +7,7 @@ it inspects schema, auth source, and deploy manifests in the repo so a PR
 that re-opens a content field, trusts a client identity header, or ships
 ``AIM_AUTH_DEV=1`` in a production helm values file is blocked before merge.
 
-Dimensions covered (parent epic AIM-641 "Fit to locked constraints"):
+Dimensions covered (parent epic "Fit to locked constraints"):
 
   privacy      — metadata-only event schema (no content fields); closed
                  objects; invalid content examples still reject; no-semantic-

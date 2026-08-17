@@ -35,7 +35,7 @@ gatehouse = [
     "schema/*.json",
     "catalogue/*.yml",
     "cnapp_parity/*.yml",
-    "gate_modes.json",  # AIM-334: per-gate enforce/observe (precision budget)
+    "gate_modes.json", # per-gate enforce/observe (precision budget)
 ]
 
 [tool.pytest.ini_options]

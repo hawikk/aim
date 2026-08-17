@@ -4,7 +4,7 @@ import type { VendorDailyRollup } from "./vendor-admin/types";
 
 /**
  * OTLP/HTTP JSON metrics receiver for Claude Code first-party telemetry
- * (AIM-1168). Anthropic's exporter emits claude_code.* counters
+ *. Anthropic's exporter emits claude_code.* counters
  * (tokens, cost, sessions, loc). Prompt content is redacted by default
  * on their side; we still enforce an attribute allowlist at this boundary.
  *

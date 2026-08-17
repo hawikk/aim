@@ -1,4 +1,4 @@
-/* Alerts inbox rendering (AIM-1181 split): alert cards, state badges,
+/* Alerts inbox rendering (split): alert cards, state badges,
  * evidence links, the dropped-entries warning, and the list render itself.
  * Pure presentation over inboxCtx — data loading lives in ./data.js. */
 
@@ -48,7 +48,7 @@ function fieldChip(label, value, title, href) {
   return `<span class="a-field" title="${esc(title || `${label}: ${value}`)}"><span class="a-field-k">${esc(label)}</span>${v}</span>`;
 }
 
-/** AIM-703: rule / finding_type → runbook deep-link chip. */
+/**: rule / finding_type → runbook deep-link chip. */
 function runbookChip(d) {
   const key = d.rule || d.findingType;
   if (!key) return '';
@@ -58,11 +58,11 @@ function runbookChip(d) {
 
 export function alertRow(a) {
   const { state } = inboxCtx;
-  /* AIM-482: AI-tool-governance card — tool/session/rule/exposure/user/repo.
+  /*: AI-tool-governance card — tool/session/rule/exposure/user/repo.
      Do not render CNAPP pillar enums or cloud resource ARNs as the primary
      meta line; those read as cloud-security cards, not AI monitoring. */
   const d = alertDomainFields(a);
-  // AIM-800: session chip deep-links to MCP session chain (analyst+).
+  // session chip deep-links to MCP session chain (analyst+).
   const sessionHref = d.sessionFull
     ? `#/mcp?session=${encodeURIComponent(d.sessionFull)}`
     : null;
@@ -78,7 +78,7 @@ export function alertRow(a) {
   const summary = a.evidence?.summary
     ? `<span class="a-summary">${esc(a.evidence.summary)}</span>`
     : '';
-  // AIM-702: historical disposition hint (policy_hash + rule when available).
+  // historical disposition hint (policy_hash + rule when available).
   const hint = state.outcomeIndex instanceof Map
     ? suggestDisposition(a, state.outcomeIndex)
     : null;
