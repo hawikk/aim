@@ -72,6 +72,13 @@ jobs:
       - name: provider catalogue drift
         run: python scripts/check_provider_catalogue_drift.py
 
+      # Parses every shipped proxy-log fixture and asserts the mapped events
+      # are schema-valid and metadata-only. --self-test proves the rules fire.
+      - name: proxy fixture matrix
+        run: |
+          python scripts/check_proxy_fixture_matrix.py --check
+          python scripts/check_proxy_fixture_matrix.py --self-test
+
   node:
     name: node (lint + typecheck + compose contract tests)
     runs-on: ubuntu-latest

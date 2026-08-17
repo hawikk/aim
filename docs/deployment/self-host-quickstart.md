@@ -21,7 +21,6 @@ Explicitly **out of scope** for this document and the soft-launch demo path:
 | Wiz-class CNAPP scale (10k+ cloud accounts, multi-AZ posture graph) | CNAPP enterprise track — not this demo |
 | Positioning Gatehouse as a CI product / CI/CD SKU | Gatehouse is a **free PR-security pillar**, not a CI competitor |
 | Production HA, multi-AZ Postgres, SSO/SAML | Enterprise later — see `enterprise-packaging.md`, `saml-sso-runbook.md` |
-| Public license file flips / pricing page copy | Blocked on product/legal decisions; not install UX |
 | Air-gapped offline media transfer | [`air-gapped-install.md`](./air-gapped-install.md) |
 
 If you need those, stop here and open the linked runbooks — do not stretch this

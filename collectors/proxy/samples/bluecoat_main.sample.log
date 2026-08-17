@@ -1,0 +1,22 @@
+# Blue Coat / Symantec ProxySG bcreportermain_v1 — synthetic subset (AIM-1111).
+# Sanitized RFC1918 clients, fake usernames, no real customer data.
+# Field map (space-separated, quoted multi-token fields):
+#   date time time-taken c-ip cs-username cs-auth-group x-exception-id
+#   sc-filter-result cs-categories cs-referer sc-status s-action cs-method
+#   rs-content-type cs-uri-scheme cs-host cs-uri-port cs-uri-path cs-uri-query
+#   cs-uri-extension cs-user-agent s-ip sc-bytes cs-bytes x-virus-id
+#   x-bluecoat-application-name x-bluecoat-application-operation
+# Identity presence: cs-username = user (authenticated proxy user). Absent = "-".
+# Replay: ./replay_sample.sh samples/bluecoat_main.sample.log
+# Pin:    --format bluecoat_main
+2026-07-21 10:00:00 45 10.12.3.41 jsmith - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp api.anthropic.com 443 /v1/messages - - "Python/3.11" 10.0.0.5 15234 1840 - "Anthropic" "API"
+2026-07-21 10:00:01 12 10.12.3.41 jsmith - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp statsig.anthropic.com 443 /v1/rgstr - - "Python/3.11" 10.0.0.5 2201 512 - "Anthropic" "API"
+2026-07-21 10:00:02 210 10.12.7.19 agarcia - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp api2.cursor.sh 443 /aiserver - - "Cursor/1.0" 10.0.0.5 88210 4096 - "Cursor" "Chat"
+2026-07-21 10:00:03 33 10.12.9.77 bchen - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp api.kilocode.ai 443 /v1/chat - - "Kilo/1.0" 10.0.0.5 5120 2048 - "Kilo" "Chat"
+2026-07-21 10:00:05 61 10.12.4.55 dpatel - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp api.githubcopilot.com 443 /chat/completions - - "VSCode/1.90" 10.0.0.5 24012 3000 - "GitHub" "Copilot"
+2026-07-21 10:00:08 15 10.12.6.23 emiller - - OBSERVED "Technology/Internet" - 200 TCP_MISS GET - http chatgpt.com 80 /c/abc123 model=gpt-4o - "Mozilla/5.0" 10.0.0.5 4096 256 - "OpenAI" "ChatGPT"
+2026-07-21 10:00:09 44 10.12.8.31 fjones - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp api.deepseek.com 443 /chat/completions - - "curl/8.0" 10.0.0.5 33210 2200 - "DeepSeek" "API"
+2026-07-21 10:00:11 29 10.12.8.31 fjones - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp openrouter.ai 443 /api/v1/chat/completions - - "curl/8.0" 10.0.0.5 512 1800 - "OpenRouter" "API"
+2026-07-21 10:00:15 120 10.12.2.10 ci-runner - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp api.openai.com 443 /v1/chat/completions - - "python-httpx/0.27" 10.0.0.5 20480 4096 - "OpenAI" "API"
+2026-07-21 10:00:20 5 10.12.3.41 jsmith - - OBSERVED "Search Engines/Portals" - 200 TCP_MISS CONNECT - tcp www.google.com 443 / - - "Mozilla/5.0" 10.0.0.5 2048 128 - "-" "-"
+2026-07-21 10:00:22 40 10.12.5.60 hkim - - OBSERVED "Technology/Internet" - 200 TCP_MISS CONNECT - tcp server.codeium.com 443 /exa - - "Windsurf/1.0" 10.0.0.5 9999 1024 - "Codeium" "Complete"

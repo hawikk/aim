@@ -49,6 +49,9 @@ Thumbs.db
 # Logs
 *.log
 logs/
+# Except the synthetic proxy parser fixtures, which are .log by format.
+# check_proxy_fixture_matrix.py --check goes red without them.
+!collectors/proxy/samples/*.sample.log
 .claude/
 
 # Dogfood multi-host fleet state (device tokens) — never commit (AIM-1057)
