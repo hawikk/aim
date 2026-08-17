@@ -1,6 +1,6 @@
 # Runner hardening (D-C2)
 
-Soft-path tooling for the co-located self-hosted runner. **Hard isolation requires a separate box** — see [`docs/security/runner-hardening-d-c2.md`](../../docs/security/runner-hardening-d-c2.md).
+Soft-path tooling for the co-located self-hosted runner. **Hard isolation requires a separate box** — see `docs/security/runner-hardening-d-c2.md`.
 
 | Script | Purpose |
 |---|---|

@@ -114,7 +114,7 @@ can only heartbeat on one ingest registry at a time.
 - Storing prompt or response content.
 - Inline LLM gateway latency competition (observe-first architecture).
 - Claiming live AI-reviewer quality from stub-mode eval numbers — model
-  validation is a separate gate (`docs/aim-239-live-eval-2026-07-28.md`).
+  validation is a separate gate.
 
 ## Related
 

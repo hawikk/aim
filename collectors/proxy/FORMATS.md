@@ -5,10 +5,10 @@ corporate IT. When IT confirms a live export, wiring is: drop sample →
 `./replay_sample.sh` → pin `--format` in the connector unit.
 
 Full field-map matrix + residual IT questions:
-[`docs/proxy-format-matrix.md`](../../docs/proxy-format-matrix.md).
+`docs/proxy-format-matrix.md`.
 
 PR CI matrix (Squid + ≥3 enterprise formats every PR; how to add a vendor):
-[`docs/proxy-ci-matrix.md`](../../docs/proxy-ci-matrix.md) +
+`docs/proxy-ci-matrix.md` +
 [`fixture-matrix.json`](./fixture-matrix.json).
 
 ## Supported parsers (`proxy_ingest.py` `PARSERS`)

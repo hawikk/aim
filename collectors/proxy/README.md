@@ -15,7 +15,7 @@ collectors add depth.
    from IT). Pin an explicit format in production once IT confirms the
    export shape. Vendor readiness: [`FORMATS.md`](./FORMATS.md).
    Field maps + residual IT questions:
-   [`../../docs/proxy-format-matrix.md`](../../docs/proxy-format-matrix.md).
+   `../../docs/proxy-format-matrix.md`.
 2. Matches destination hostnames against the AI endpoint detection
    database (`endpoints.json` — coding-AI SaaS catalogue, suffix-matched, with
    sanctioned/unapproved flagging per policy; refreshed).
@@ -69,8 +69,7 @@ python3 would_block_report.py --input events.jsonl [--since 2026-07-08T00:00:00Z
 ```
 
 Safety invariant: the exporter refuses to run if any blocklist domain would
-also match a sanctioned-tool domain. Rollout cadence, appeal path, and IT
-handoff: `../../docs/aim-113-blocklist-rollout-handoff.md`.
+also match a sanctioned-tool domain.
 
 ### Validate an IT sample in one command
 
@@ -89,7 +88,7 @@ yields zero AI events or any event fails schema validation:
 Formats ready for drop-in replay today (synthetic samples under `samples/`):
 Squid native, Zscaler NSS JSON, Palo Alto URL CSV subset, Blue Coat main,
 Cisco Umbrella proxy CSV, identity-bearing JSONL. See [`FORMATS.md`](./FORMATS.md)
-and [`../../docs/proxy-format-matrix.md`](../../docs/proxy-format-matrix.md).
+and `../../docs/proxy-format-matrix.md`.
 
 ## Production deployment shape
 

@@ -12,7 +12,7 @@ row into the gatehouse evidence store when importable (90-day retention).
 
 Usage:
   python3 scripts/merge-bypass-audit.py
-  python3 scripts/merge-bypass-audit.py --limit 30 --markdown docs/security/aim-446-bypass-audit.md
+  python3 scripts/merge-bypass-audit.py --limit 30 --markdown
 """
 
 from __future__ import annotations
@@ -235,7 +235,7 @@ def to_markdown(payload: dict) -> str:
         "\nRegenerate:\n\n"
         "```bash\n"
         "python3 scripts/merge-bypass-audit.py --limit 30 \\\n"
-        "  --markdown docs/security/aim-446-bypass-audit.md \\\n"
+        " --markdown \\\n"
         "  --json docs/security/aim-446-bypass-audit.json\n"
         "```\n"
     )

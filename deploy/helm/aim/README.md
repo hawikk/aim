@@ -32,7 +32,7 @@ API_URL=http://localhost:8081 node scripts/smoke.js
 | `values-airgapped.yaml` | Offline: `imagePullPolicy: Never` / internal registry; same fail-closed posture; use with `deploy/airgap/install-offline.sh` |
 
 Security defaults audit and residual risks:
-[`docs/security/helm-values-security-defaults.md`](../../../docs/security/helm-values-security-defaults.md).
+`docs/security/helm-values-security-defaults.md`.
 Verify gates with `./scripts/helm-security-defaults-check.sh`.
 
 ## Upgrades
@@ -98,7 +98,7 @@ helm upgrade --install aim deploy/helm/aim \
 
 `values-standard.yaml` sets `ingest`/`api`/`guardrail` to 2 replicas and enables
 PodDisruptionBudgets (`podDisruptionBudgets.enabled=true`). HA kill-drill
-evidence: `docs/aim-553-deploy-maturity.md` and `scripts/ha-smoke.sh`.
+evidence: and `scripts/ha-smoke.sh`.
 Security defaults audit: `docs/deployment/helm-security-defaults-audit.md`.
 
 ## Enterprise multi-AZ

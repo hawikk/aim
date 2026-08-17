@@ -61,7 +61,7 @@ audit records. Knobs and rationale:
 Metadata-only does **not** mean “nothing personal can be inferred.” Flags,
 tool names, and small-team patterns can still describe employee activity.
 See the reconstruction risk report
-(`docs/security/aim-651-metadata-reconstruction-risk.md`).
+.
 That report **does not** recommend prompt capture as a mitigation.
 
 ---

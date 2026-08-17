@@ -203,7 +203,7 @@ def main() -> int:
         "claude_cursor_note": (
             "Claude Code IDE+CLI share ~/.claude hooks/transcripts; "
             "Cursor AI surface is IDE-only (no agent CLI on fleet). "
-            "See docs/aim-647-dual-surface-completeness.md"
+            "See"
         ),
     }
     print(json.dumps(summary, indent=2))

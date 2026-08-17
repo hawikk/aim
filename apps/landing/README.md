@@ -6,7 +6,7 @@ Active site (AI Monitoring only — multi-product stack framing removed):
 |------|------|
 | [`index.html`](./index.html) | Hero + product features + pricing |
 | [`video.html`](./video.html) | Product video / walkthrough |
-| [`demo.html`](./demo.html) | Sample AI-usage demo (sibling) |
+| `demo.html` | Sample AI-usage demo (sibling) |
 
 Storyboard + capture plan: [`VIDEO.md`](./VIDEO.md).  
 Poster until `assets/demo.mp4` ships: [`assets/demo-poster.svg`](./assets/demo-poster.svg).  

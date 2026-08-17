@@ -41,7 +41,6 @@ REQUIRED_PATHS = (
     "deploy/linux/aim-collector-oob-health.sh",
     "deploy/linux/systemd/aim-collector-oob-health.service",
     "deploy/linux/systemd/aim-collector-oob-health.timer",
-    "docs/aim-639-independence-path-to-10.md",
     # Continuous out-of-band job — must remain scheduled on aim-ops.
     ".github/workflows/independence-attestation.yml",
 )

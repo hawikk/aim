@@ -31,7 +31,7 @@ const UNIQUE_N = Number(process.env.UNIQUE_N || 60);
 const KILL_N = Number(process.env.KILL_N || 80);
 const KEEP = process.env.KEEP_REPLICAS === "1";
 const REPORT_PATH =
-  process.env.REPORT_PATH || join(ROOT, "docs/aim-597-ha-smoke-report.md");
+  process.env.REPORT_PATH || join(ROOT, "");
 
 const INGEST_PRIMARY = `${PROJECT}-ingest-1`;
 const API_PRIMARY = `${PROJECT}-api-1`;

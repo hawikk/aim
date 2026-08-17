@@ -8,11 +8,17 @@
 
 Operator guide: [`docs/deployment/prebuilt-images.md`](../../docs/deployment/prebuilt-images.md).
 
+> The pull path needs a registry that actually holds the images. No images are
+> published for this public snapshot, so strict `--pull` fails against the
+> default `ghcr.io/hawikk/aim-*` coordinates until you push your own and set
+> `AIM_IMAGE_REGISTRY`. Bare `install-pilot.sh` is unaffected: it defaults to
+> `prefer-pull` and falls back to a source build.
+
 ## Quick use
 
 ```bash
 # Tag mode (after docker login ghcr.io if packages are private)
-export AIM_IMAGE_TAG=main-<shortsha>   # from release-images run
+export AIM_IMAGE_TAG=main-<shortsha>   # from the release-images run
 ./scripts/install-pilot.sh --pull
 
 # Digest mode

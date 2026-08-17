@@ -134,8 +134,7 @@ Dimension 16 moves **9 → 10** when all of the following are true:
 3. This ADR checked in.
 4. OOB health unit + script present under `deploy/linux/`, **and** `install.sh` enables the root timer + optional `AIM_CONFIG_PUBKEY_FILE` / `AIM_HARDEN`.
 5. `python3 scripts/independence_attestation.py` exits 0.
-6. Path-to-10 evidence: `docs/aim-639-independence-path-to-10.md`.
-7. records the re-score with evidence links.
+6. The re-score is recorded with evidence links.
 
 ## Alternatives considered
 

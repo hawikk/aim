@@ -5,7 +5,7 @@
  * CANARY; run against a pilot database for organic numbers.
  *
  * Usage:
- *   node scripts/security-metrics.mjs > docs/aim-32-security-metrics.md
+ * node scripts/security-metrics.mjs >
  *
  * Env: CANARY_DSN / DATABASE_URL (default: the canary scratch DB),
  *      MEASUREMENT (path to the canary measurement JSON written by

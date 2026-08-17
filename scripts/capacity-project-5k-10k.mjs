@@ -26,7 +26,7 @@ import { writeFileSync } from "node:fs";
 
 // ---- measured / stated inputs ------------------------------------------
 
-/** dogfood model (docs/aim-323-fleet-scale-proof.md §2, results JSON). */
+/** dogfood model ( §2, results JSON). */
 const DOGFOOD = {
   label: "dogfood",
   provenance: "measured model at 700 devices; rates linear-extrapolated beyond 700",
@@ -42,7 +42,7 @@ const DOGFOOD = {
 
 /**
  * coding-intensity upper bound
- * (docs/aim-118-ingest-scale-proof-2026-07-23.md §2).
+ * ( §2).
  */
 const CODING = {
   label: "coding intensity (upper bound)",

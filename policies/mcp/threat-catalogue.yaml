@@ -3,7 +3,7 @@
 # to detectors/rails. Metadata-only posture: catalogue entries describe
 # threat classes and server/tool *names*, not payloads from customer envs.
 #
-# Update process (see docs/aim-668-mcp-threat-catalogue-process.md):
+# Update process:
 # 1. Security or Engineering opens a PR adding/changing an entry under threats[]
 #    and/or allowlist_recommendations.
 # 2. Each threat must cite a detector_or_rail and residual_gap if not fully covered.

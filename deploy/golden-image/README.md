@@ -3,7 +3,7 @@
 Image-time install + seal + first-boot auto-enroll for corporate golden
 images. Full operator recipe:
 
-**[`docs/deployment/zero-touch-golden-image.md`](../../docs/deployment/zero-touch-golden-image.md)**
+**`docs/deployment/zero-touch-golden-image.md`**
 
 ## Quick path (Linux)
 

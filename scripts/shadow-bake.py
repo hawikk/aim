@@ -9,7 +9,7 @@ so ``scripts/shadow-report.mjs`` aggregates them.
 
 Why a backtest and not only live-hook capture: shipped the hooks,
 but the fleet had no delivered enforcement bundle, so the live report showed 0
-events (docs/aim-110-shadow-report-2026-07-22.md). This driver closes the
+events. This driver closes the
 credibility gap now by scoring *real developer activity already on the
 endpoint* with the exact shipped rules, while the live hooks (installed by
 this same change) begin the forward-looking 2-week quiet-telemetry window.

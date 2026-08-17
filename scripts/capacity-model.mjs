@@ -48,7 +48,7 @@ const out = {
     workdaySeconds: WORKDAY_S,
     burstMultiplier: burst,
     measuredAtDevices: 700,
-    measuredRef: "docs/aim-323-fleet-scale-proof.md",
+    measuredRef: "",
   },
   tiers: table,
   topologyHints: {

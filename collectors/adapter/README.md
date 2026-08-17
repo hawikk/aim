@@ -45,4 +45,4 @@ python3 -m pytest tests/ -q
 - **continue** / **cody** / **jetbrains_ai** — pack 2. Continue has depth via `sqlite_table` on `tokens_generated`; Cody and JetBrains AI are presence-only after inspecting local state.
 - **tabnine** / **augment** / **supermaven** — pack 3. All three are presence-only after inspecting local state (Tabnine config/token, Augment chat/MCP, Supermaven binary cache). Residual: no metadata-only usage table.
 
-See manifests, `docs/adapter-contract.md` §4, `docs/aim-1012-codex-cli-coverage.md`, `docs/aim-1169-high-prevalence-adapter-pack.md`, `docs/aim-1176-adapter-pack-2.md`, and `docs/aim-1185-adapter-pack-3.md`.
+See the manifests and `docs/adapter-contract.md` §4.

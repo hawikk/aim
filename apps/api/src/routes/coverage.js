@@ -430,7 +430,7 @@ async function aiToolsColumn(db, thresholdSeconds, alertOpts = {}) {
       `never-seen critical only when healthy hosts ≥ ${precision.neverSeenMinHealthyHosts} ` +
       `(or COVERAGE_ALERT_NEVER_SEEN_FORCE=1); stopped-reporting high only after ` +
       `${precision.silenceThresholdSeconds / 3600}h silence. Dark ledger is unchanged — ` +
-      'silence is still not "no usage". See docs/aim-596-coverage-alert-precision.md.',
+      'silence is still not "no usage".',
   };
 
   return {

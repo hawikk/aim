@@ -19,7 +19,7 @@ apps-local `events`/`directory_*` schema and seed path were removed on.
   - `GET /api/teams?days=N` — per-team usage from ingest-time identity enrichment; unresolved identities bucket into `(unattributed)`
   - `GET /api/governance/budgets` · `PUT /api/governance/budgets/:team` · `GET /api/governance/budgets/utilization` — per-team token/cost budgets with 80/100% utilization; cost figures are estimates (`estimateNote` on every response; see `docs/cost-attribution-accuracy.md`)
   - `GET|POST /api/governance/model-allowlist` · `DELETE /api/governance/model-allowlist/:id` — scoped model/provider allowlist (global|team), observe→enforce mode
-  - Break-glass trail + enterprise grants — analyst+ list of endpoint `enforcement.action=confirmed` overrides; optional manager-approval grants with expiry/revoke; compliance audit export. Policy flag `secret_override_requires_manager` defaults **false** (pilot resubmit path). Migration: `services/ingest/migrations/035_break_glass_grants.sql`. Docs: `docs/aim-784-break-glass-enterprise.md`.
+  - Break-glass trail + enterprise grants — analyst+ list of endpoint `enforcement.action=confirmed` overrides; optional manager-approval grants with expiry/revoke; compliance audit export. Policy flag `secret_override_requires_manager` defaults **false** (pilot resubmit path). Migration: `services/ingest/migrations/035_break_glass_grants.sql`.
     - `GET /api/enforcement/break-glass` — endpoint override trail (+ CSV)
     - `GET|POST /api/enforcement/break-glass/grants` · `POST …/grants/:id/{approve,deny,revoke}` — grant lifecycle
     - `GET /api/enforcement/break-glass/active-grants` — endpoint sync bundle

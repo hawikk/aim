@@ -7,9 +7,9 @@ Win32-app upload rights + a ring-0 pilot device group — owner: IT.
 Related: enrollment protocol in
 [`docs/deployment/enrollment-and-heartbeat.md`](../../../docs/deployment/enrollment-and-heartbeat.md),
 rollout rings in
-[`docs/deployment/rollout-plan.md`](../../../docs/deployment/rollout-plan.md),
+`docs/deployment/rollout-plan.md`,
 pilot proof checklist in
-[`docs/deployment/intune-pilot-proof.md`](../../../docs/deployment/intune-pilot-proof.md).
+`docs/deployment/intune-pilot-proof.md`.
 
 ## Build the package
 

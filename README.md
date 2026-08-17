@@ -25,6 +25,17 @@ product; internal design notes, rollout records, and deployment-specific
 compliance material are not published here, so a few cross-references in the
 docs will not resolve.
 
+Two consequences worth stating plainly, because the docs below reference both:
+**only `ci.yml` ships here** — the release, attestation and matrix workflows
+run in the internal repo, so any doc pointing at
+`.github/workflows/release-*.yml` is describing something you cannot run — and
+**no container images are published**, so the GHCR pull path in
+[`docs/deployment/prebuilt-images.md`](docs/deployment/prebuilt-images.md) will
+not resolve. Neither blocks you: `install-pilot.sh` defaults to `prefer-pull`
+and falls back to building from source, which is the supported path here. The
+one artifact that *is* published is the CLI wheel on PyPI
+([`aimonitoring-security`](https://pypi.org/project/aimonitoring-security/)).
+
 | Tier | Price | How you start |
 | --- | --- | --- |
 | Community | Free (soft cap: 3 seats) | Clone this repo |

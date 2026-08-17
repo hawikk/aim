@@ -6,7 +6,7 @@
  *
  * Custom-string keys (cs1–cs7) always ship with matching *Label fields so
  * Sentinel / ArcSight parsers and SOC KQL can resolve meaning without a
- * side-channel schema. See docs/aim-585-sentinel-cef-field-matrix.md.
+ * side-channel schema.
  */
 
 const VENDOR = 'AIMonitoring';

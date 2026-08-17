@@ -136,13 +136,13 @@ Salt resolution (same as existing collectors): `AIM_HASH_SALT` env → managed c
 
 Both manifests live under `collectors/adapter/manifests/`. Neither required a change to surface implementations or the emit/identity core — only new YAML (+ fixture data for tests).
 
-**Not chosen for the first pair:** Codex CLI was deferred (assumed JSONL; real state is SQLite). **Shipped** as `codex_cli` via the reusable `sqlite_table` format on `local_session_logs` (see `docs/aim-1012-codex-cli-coverage.md`).
+**Not chosen for the first pair:** Codex CLI was deferred (assumed JSONL; real state is SQLite). **Shipped** as `codex_cli` via the reusable `sqlite_table` format on `local_session_logs`.
 
-**high-prevalence pack:** `windsurf`, `cline` (Cline + Roo), `amazon_q`. Named `tool=other` + `tool_raw`. Cline/Roo is the depth tool (`json_session` on inspected HistoryItem files; optional `records_key` for Cline `globalState.json`). Windsurf and Amazon Q stay presence-only (path / extension / binary / existing proxy catalogue) — their local stores are contentful (Cascade transcripts; Amazon Q CLI `data.sqlite3` history/conversations/auth). See `docs/aim-1169-high-prevalence-adapter-pack.md`.
+**high-prevalence pack:** `windsurf`, `cline` (Cline + Roo), `amazon_q`. Named `tool=other` + `tool_raw`. Cline/Roo is the depth tool (`json_session` on inspected HistoryItem files; optional `records_key` for Cline `globalState.json`). Windsurf and Amazon Q stay presence-only (path / extension / binary / existing proxy catalogue) — their local stores are contentful (Cascade transcripts; Amazon Q CLI `data.sqlite3` history/conversations/auth).
 
-**adapter pack 2:** `continue`, `cody`, `jetbrains_ai`. Continue is the depth tool (`sqlite_table` on inspected `~/.continue/dev_data/devdata.sqlite` `tokens_generated`). Cody and JetBrains AI stay presence-only after inspecting local state (VS Code `cody-local-chatHistory-v2` transcripts; JetBrains `ml-llm` chats). Optional glob on discovery paths names versioned JetBrains config trees. See `docs/aim-1176-adapter-pack-2.md`.
+**adapter pack 2:** `continue`, `cody`, `jetbrains_ai`. Continue is the depth tool (`sqlite_table` on inspected `~/.continue/dev_data/devdata.sqlite` `tokens_generated`). Cody and JetBrains AI stay presence-only after inspecting local state (VS Code `cody-local-chatHistory-v2` transcripts; JetBrains `ml-llm` chats). Optional glob on discovery paths names versioned JetBrains config trees.
 
-**adapter pack 3:** `tabnine`, `augment`, `supermaven`. All three stay presence-only after inspecting local state (Tabnine `tabnine_config.json` / `.refresh_token_v2`; Augment chat + `mcpServers.json`; Supermaven `~/.supermaven` binary cache). Named `tool=other` + `tool_raw`. Existing proxy catalogue rule ids already join those `tool_raw` values. See `docs/aim-1185-adapter-pack-3.md`.
+**adapter pack 3:** `tabnine`, `augment`, `supermaven`. All three stay presence-only after inspecting local state (Tabnine `tabnine_config.json` / `.refresh_token_v2`; Augment chat + `mcpServers.json`; Supermaven `~/.supermaven` binary cache). Named `tool=other` + `tool_raw`. Existing proxy catalogue rule ids already join those `tool_raw` values.
 
 ## 5. Existing collectors on the contract
 

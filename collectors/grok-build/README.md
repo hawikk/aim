@@ -62,7 +62,7 @@ match the other endpoint collectors.
 **not** automatically added to `approved_tools` — that remains a Security
 decision. Until approved, dashboard activity scoring and the unapproved-tool
 guardrail still treat it as outside the allowlist (same posture as
-`kimi_code`). See `docs/aim-271-grok-build-coverage.md`.
+`kimi_code`).
 
 ## Tests
 

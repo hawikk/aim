@@ -91,7 +91,6 @@ without any matched content leaving the endpoint.
 | `anomalous-volume-hourly` | threshold | medium | user > 500k tokens (in+out) in 1h |
 | `off-hours-bulk-usage` | threshold | medium | user > 100 events in 24h during off-hours (20:00–07:00 local) |
 
-Precision scorecard (28k-event corpus): `docs/aim-441-ruleset-precision.md`.
 
 Open items for Security (not decided by engineering):
 

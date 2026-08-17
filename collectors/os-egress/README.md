@@ -1,9 +1,8 @@
 # OS egress collector
 
 On-device capture surface for **non-IDE AI SaaS usage** (ChatGPT web, Claude.ai
-web, and other catalogue domains). Decision record:
-`../../docs/aim-321-capture-surface-decision.md`. Consent/notice bar (must be
-acked before capture): `../../docs/privacy/aim-321-os-egress-consent-notice.md`.
+web, and other catalogue domains). A consent notice must be acknowledged
+before any capture starts.
 
 ## What it does
 

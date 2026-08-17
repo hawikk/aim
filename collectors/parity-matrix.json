@@ -908,10 +908,7 @@
       "summary": "Shipped: unknown_ai_coding_tool observe-only finding path (IdP/proxy/process heuristics) + coding_discoveries table. PR #289 merge d9b8a136.",
       "evidence": {
         "pr": 289,
-        "merge": "d9b8a136e918869d1783715f051330470a99453e",
-        "docs": [
-          "docs/aim-644-unknown-ai-coding-tool.md"
-        ]
+        "merge": "d9b8a136e918869d1783715f051330470a99453e"
       }
     },
     {
@@ -946,7 +943,6 @@
         "pr": 304,
         "merge": "dea7a258",
         "docs": [
-          "docs/aim-647-dual-surface-completeness.md",
           "docs/aim-647-dual-surface-proof.json"
         ]
       }

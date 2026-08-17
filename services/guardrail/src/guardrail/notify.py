@@ -389,7 +389,7 @@ def build_record(finding: dict, runbook_base_url: str = "") -> dict:
     """Enrich an engine finding into the notifier JSON record.
 
     Same field set as the TS SentinelForwarder.buildRecord — see
-    SENTINEL_RECORD_FIELDS and docs/aim-585-sentinel-cef-field-matrix.md.
+    SENTINEL_RECORD_FIELDS .
     """
     fields = finding_fields(finding)
     severity, runbook, known = classify(fields["finding_type"])

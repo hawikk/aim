@@ -67,7 +67,7 @@ POLICY_RULES_FP0 = {
     "unapproved-mcp-server",
     "unapproved-mcp-server-configured",
     # credential-shaped-tool-call is a heuristic name matcher, NOT policy-as-code
-    # FP0 — docs/aim-572-credential-shaped-precision.md
+    # FP0 —
 }
 
 # Heuristic matchers: FP rate is labeled-corpus / observe, not allowlist identity.

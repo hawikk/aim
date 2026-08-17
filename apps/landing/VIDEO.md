@@ -4,7 +4,7 @@
 **Social cut:** `apps/landing/assets/demo-remotion-9x16.mp4` (9:16)  
 **Poster:** `apps/landing/assets/demo-poster.svg`  
 **Page:** [`video.html`](./video.html)  
-**Source:** [`remotion/`](./remotion/) — Remotion project with TypeScript compositions
+**Source:** `remotion/` — Remotion project with TypeScript compositions
 
 **Privacy rule:** Real dashboard screenshots from `apps/landing/demo.html` (synthetic sample-data.json). No fake UI, no customer data, no PII. HARD FAIL: username "hawikk" is banned from promo frames.
 
@@ -22,7 +22,7 @@
 
 ## Remotion implementation
 
-**Location:** [`remotion/`](./remotion/)
+**Location:** `remotion/`
 
 Production-quality Remotion project with TypeScript compositions. Screenshots recaptured from `apps/landing/demo.html` (synthetic 12-seat cohort, NOT personal mode). Uses spring-based animations, smooth easing curves, and modern design aesthetic.
 

@@ -7,7 +7,7 @@ finding carries `decision: "observe"` (locked policy decision). This is
 **not** the endpoint enforcement path. Endpoint blocks for critical rules live
 in collector hooks + `enforcement.json` and are audited on
 usage events as `enforcement.{action,rule_id,policy_hash}` — see
-[`docs/aim-440-enforcement-reconcile.md`](../../docs/aim-440-enforcement-reconcile.md).
+.
 
 - Design + policy proposal: [`docs/guardrail-engine-v1.md`](../../docs/guardrail-engine-v1.md)
 - Ruleset: [`policies/guardrail/v1/core.yaml`](../../policies/guardrail/v1/core.yaml) — **content is a proposal to Security; changes go through PR review.**
@@ -135,7 +135,7 @@ AIM_HASH_SALT=... PYTHONPATH=src python3 -m guardrail.cli repo-ref /home/eng/pay
 ## Layout
 
 - `src/guardrail/rules.py` — ruleset loading, validation, content hashing
-- `src/guardrail/merge.py` — multi-source org+team+local pack merge with security floors; see [`docs/security/multi-source-policy-merge.md`](../../docs/security/multi-source-policy-merge.md)
+- `src/guardrail/merge.py` — multi-source org+team+local pack merge with security floors; see `docs/security/multi-source-policy-merge.md`
 - `src/guardrail/conditions.py` — condition-tree evaluation (the rule DSL)
 - `src/guardrail/engine.py` — streaming evaluator, sliding-window state, findings + audit
 - `src/guardrail/dbrunner.py` — post-ingest Postgres runner (evaluate-db) + alert delivery wiring

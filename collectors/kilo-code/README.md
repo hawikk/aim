@@ -133,7 +133,7 @@ collector copies the live DB to a temp file, reads `session` token/cost
 columns read-only, optionally scans `message`/`part` text for matchers
 locally, and emits usage events with `tool_version` prefixed `cli/` so
 dashboards can prove the surface. See `cli_sessions.py` and
-`docs/aim-647-dual-surface-completeness.md`.
+.
 
 Session ids: Kilo task ids are long-lived, so per the schema's `session_id`
 rule they are re-hashed per UTC day — `HMAC(utc-date || task_id)` — and

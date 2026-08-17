@@ -82,7 +82,7 @@ SHADOW_AI_DATABASE_URL=sqlite:///./dev.db .venv/bin/shadow-ai inventory
 
 Pseudonym only at rest. Same HMAC secret as identity-sync. Reveal is
 identity-sync `POST /reveal` (audited). See
-[docs/aim-504-saas-oauth-shadow-discovery.md](../../docs/aim-504-saas-oauth-shadow-discovery.md).
+.
 
 ## Coding-tool auto-discovery
 
@@ -90,4 +90,4 @@ Uncatalogued signals that look like AI coding tools emit
 `unknown_ai_coding_tool` findings (observe only). Heuristics:
 `src/shadow_ai/coding_heuristics.py`. Analyst queue:
 `GET /v1/shadow-ai/coding-discoveries`. Disposition via platform findings
-status transitions. See [docs/aim-644-unknown-ai-coding-tool.md](../../docs/aim-644-unknown-ai-coding-tool.md).
+status transitions.

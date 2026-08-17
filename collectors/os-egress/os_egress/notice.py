@@ -1,7 +1,7 @@
 """Consent / notice gate (privacy bar).
 
 Capture must not run until notice is acknowledged. See
-docs/privacy/aim-321-os-egress-consent-notice.md.
+.
 """
 
 from __future__ import annotations
@@ -42,7 +42,6 @@ def require_notice(*, config: dict | None = None) -> None:
     if not is_notice_acknowledged(config=config):
         raise NoticeNotAcknowledged(
             "OS egress capture is disabled until notice is acknowledged. "
-            "See docs/privacy/aim-321-os-egress-consent-notice.md "
             "(set AIM_OS_EGRESS_NOTICE_ACK=1 or drop "
             f"{notice_ack_path()} after notice publication)."
         )

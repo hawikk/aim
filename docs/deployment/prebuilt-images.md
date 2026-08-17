@@ -8,11 +8,22 @@ air-gap release bundle) so `install-pilot` prefers download over source build.
 **Acceptance target:** pilot on a clean host with Docker already installed —
 cold path **≤ 15 minutes** when images are available.
 
+> **No images are published for this public snapshot.** The GHCR coordinates
+> below are the ones the internal release workflow writes to, and that workflow
+> is not part of the public export — `docker pull ghcr.io/hawikk/aim-*` will
+> fail for you. Treat this document as the contract the pull path expects, not
+> as a download you can use today. This is not fatal: the default
+> `install-pilot` mode is `prefer-pull`, which falls back to a source build
+> when the pull fails, so the plain command still works — it just pays the
+> 10–20 minute cold build this document exists to avoid. Only strict `--pull`
+> fails outright. To get the fast path, push these images to a registry you
+> control and set `AIM_IMAGE_REGISTRY` to it.
+
 ---
 
-## What is published
+## What the release workflow publishes
 
-Workflow: `.github/workflows/release-images.yml`
+Workflow: `.github/workflows/release-images.yml` (internal; not in this snapshot)
 
 | Image (GHCR) | Source Dockerfile | Pilot role |
 | --- | --- | --- |

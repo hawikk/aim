@@ -12,7 +12,7 @@ findings map to CNAPP rule IDs (same family as post-deploy posture).
 |---|---|
 | [Product positioning](../../docs/product/gatehouse.md) | External / buyers — what it is, is not, install, comparison |
 | [Stack overview](../../docs/product/stack-overview.md) | Pillar map, free vs commercial framing |
-| [GitHub App design](../../docs/gatehouse-github-app.md) | Permissions, retention, threat model, AI reviewer |
+| `GitHub App design` | Permissions, retention, threat model, AI reviewer |
 
 ## Run a scan without GitHub
 
@@ -118,4 +118,4 @@ python services/gatehouse/benchmark/run.py --require-scanners --markdown \
 ```
 
 See [`benchmark/README.md`](benchmark/README.md) and
-[`docs/gate-precision-scorecard.md`](../../docs/gate-precision-scorecard.md).
+`docs/gate-precision-scorecard.md`.

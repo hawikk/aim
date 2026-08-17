@@ -24,7 +24,7 @@
  *   exit 4 — INSUFFICIENT: real coverage, too little of it to conclude from.
  *
  * Usage:
- *   node scripts/shadow-report.mjs > docs/aim-110-shadow-report.md
+ * node scripts/shadow-report.mjs >
  *   node scripts/shadow-report.mjs --self-test
  *
  * Env: CANARY_DSN / DATABASE_URL (default: local dev DB),
