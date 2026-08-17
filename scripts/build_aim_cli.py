@@ -170,6 +170,27 @@ def _assert_python_floor(proj: dict) -> None:
         )
 
 
+def _assert_version_sync(proj: dict) -> None:
+    """Fail the build if ``aim.__version__`` disagrees with pyproject.
+
+    The builder reads the version from pyproject but copies ``__init__.py``
+    verbatim, so a bump in one place and not the other ships a wheel whose
+    dist-info and ``aim --version`` disagree. 0.1.2 was built that way before
+    this check existed.
+    """
+    declared = (proj.get("version") or "").strip()
+    init = SRC / "aim" / "__init__.py"
+    match = re.search(r'^__version__\s*=\s*"([^"]+)"', init.read_text(), re.M)
+    if match is None:
+        raise SystemExit(f"no __version__ found in {init}")
+    if match.group(1) != declared:
+        raise SystemExit(
+            f"version drift: pyproject says {declared!r} but "
+            f"{init.relative_to(REPO)} says {match.group(1)!r}. Bump both — "
+            f"dist-info and `aim --version` must agree."
+        )
+
+
 def _metadata(proj: dict) -> str:
     # Home-page + Project-URL so pip show / PyPI metadata name the trusted sources.
     return (
@@ -268,6 +289,7 @@ def build_sdist(proj: dict) -> Path:
 def main() -> int:
     proj = _read_project()
     _assert_python_floor(proj)
+    _assert_version_sync(proj)
     nname = _normalize_dist_name(proj["name"])
     print(f"building {proj['name']} {proj['version']} "
           f"(console script: aim; stdlib builder)")

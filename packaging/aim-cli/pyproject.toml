@@ -7,9 +7,9 @@
 # so `pip install .` / `python -m build` work for anyone who prefers setuptools
 # — but the stdlib builder is the documented one command.
 #
-# Distribution name is `aimonitoring-security` (PyPI; D-489-3). The `aim` name
-# on PyPI is AimStack's unrelated experiment tracker. The installed console
-# script and import package remain `aim`.
+# Distribution name is `aimonitoring-security`. The `aim` name on PyPI is
+# AimStack's unrelated experiment tracker. The installed console script and
+# import package remain `aim`.
 # setuptools>=77 is required for the PEP 639 SPDX `license` expression below;
 # older versions reject a plain string and want the legacy `{ text = ... }` table.
 [build-system]
@@ -18,7 +18,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aimonitoring-security"
-version = "0.1.1"
+version = "0.1.2"
 description = "AI Monitoring endpoint collectors + local dashboard behind one `aim` CLI"
 readme = "README.md"
 requires-python = ">=3.11"

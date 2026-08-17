@@ -35,7 +35,7 @@ CI-built wheel + `SHA256SUMS` + keyless cosign (identity =
 `.github/workflows/release-cli.yml` at the tag):
 
 ```sh
-TAG=v0.1.1
+TAG=v0.1.2
 REPO=hawikk/aim
 WHEEL=aimonitoring_security-${TAG#v}-py3-none-any.whl
 

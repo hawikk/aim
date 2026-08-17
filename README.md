@@ -149,7 +149,7 @@ Requires only Python 3.11+ (standard library only).
 pipx install aimonitoring-security
 aim personal
 # → open http://127.0.0.1:8787
-aim --version   # e.g. "aim 0.1.1"
+aim --version   # e.g. "aim 0.1.2"
 ```
 
 > **Do not run `pipx install aim`.** That PyPI name is AimStack's unrelated ML
