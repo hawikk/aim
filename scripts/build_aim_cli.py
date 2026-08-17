@@ -192,26 +192,28 @@ def _assert_version_sync(proj: dict) -> None:
 
 
 def _metadata(proj: dict) -> str:
-    # Home-page + Project-URL so pip show / PyPI metadata name the trusted sources.
-    return (
-        "Metadata-Version: 2.1\n"
-        f"Name: {proj['name']}\n"
-        f"Version: {proj['version']}\n"
-        f"Summary: {proj.get('description', '')}\n"
-        f"Requires-Python: {proj.get('requires-python', REQUIRED_PYTHON)}\n"
-        "License: Apache-2.0\n"
-        "Home-page: https://github.com/hawikk/aim\n"
-        "Project-URL: GitHub Releases, https://github.com/hawikk/aim/releases\n"
-        "Project-URL: Repository, https://github.com/hawikk/aim\n"
-        "Classifier: License :: OSI Approved :: Apache Software License\n"
-        "Classifier: Programming Language :: Python :: 3\n"
-        "Classifier: Intended Audience :: Developers\n"
-        "Classifier: Topic :: Security\nDescription-Content-Type: text/plain\n\n"
-        "Packaged AI Monitoring collectors + local dashboard behind one `aim` "
-        "CLI. Distribution name is aimonitoring-security (PyPI); the console "
-        "script remains `aim`. Runtime is stdlib-only; run `aim personal` for "
-        "a local, zero-egress dashboard. Signed GitHub Releases remain the "
-        "canonical cosign-verified channel.\n")
+    """PEP 566 metadata. Long description is the packaging README."""
+    readme = (PKG_ROOT / "README.md").read_text()
+    fields = [
+        "Metadata-Version: 2.1",
+        f"Name: {proj['name']}",
+        f"Version: {proj['version']}",
+        f"Summary: {proj.get('description', '')}",
+        f"Requires-Python: {proj.get('requires-python', REQUIRED_PYTHON)}",
+        "License: Apache-2.0",
+        "Home-page: https://github.com/hawikk/aim",
+        "Project-URL: GitHub Releases, https://github.com/hawikk/aim/releases",
+        "Project-URL: Repository, https://github.com/hawikk/aim",
+        "Classifier: License :: OSI Approved :: Apache Software License",
+        "Classifier: Programming Language :: Python :: 3",
+        "Classifier: Intended Audience :: Developers",
+        "Classifier: Topic :: Security",
+        "Description-Content-Type: text/markdown",
+        "",
+        readme,
+    ]
+    return "\n".join(fields)
+
 
 
 def build_wheel(proj: dict) -> Path:

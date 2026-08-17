@@ -21,7 +21,7 @@ import/CLI guard fails with a human message rather than a mid-command
 
 import sys
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 # Keep this block free of 3.10+ syntax so the message can still render on older
 # interpreters that somehow imported the package (editable / force installs).

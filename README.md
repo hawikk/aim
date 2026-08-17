@@ -95,7 +95,7 @@ content is never stored), severity, enforce-coverage posture, unapproved tools.*
 ![Live activity trail — per-event score and cost](docs/screenshots/activity.png)
 
 *Live activity trail — streaming per-event view with a 1–10 security score,
-pseudonymous users, model, tokens, cost, and match flags.*
+pseudonymous host and user refs, model, tokens, cost, and match flags.*
 
 ![Fleet — enrolled collectors and heartbeat health](docs/screenshots/fleet.png)
 
@@ -141,15 +141,18 @@ below, or write [sales@](mailto:sales@getaimonitoring.com).
 
 No company, no SSO, no Docker, no database. Install the single `aim` CLI and
 watch **your own** Claude Code, Cursor, Kilo Code, and Kimi Code usage on a
-local dashboard. Everything stays on your machine — **personal mode
-makes zero outbound network calls** (verify by running it with networking off).
-Requires only Python 3.11+ (standard library only).
+local dashboard. Grok Build and GitHub Copilot are fleet / observe-only;
+`aim personal` does not scan them. Everything stays on your machine —
+**personal mode makes zero outbound network calls** (verify by running it
+with networking off). Requires only Python 3.11+ (standard library only).
+On a single-user machine `user_ref` falls back to `host_ref` — there is
+no separate person mapping until you run the fleet identity-sync path.
 
 ```bash
 pipx install aimonitoring-security
 aim personal
 # → open http://127.0.0.1:8787
-aim --version   # e.g. "aim 0.1.2"
+aim --version   # e.g. "aim 0.1.3"
 ```
 
 > **Do not run `pipx install aim`.** That PyPI name is AimStack's unrelated ML
