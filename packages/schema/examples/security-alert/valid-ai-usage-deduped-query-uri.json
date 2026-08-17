@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "b71c3e58-2a94-4f61-8d0c-5e2b7a90c413",
+  "dedupe_key": "c9881abdf98f786c18bc851d7e01b9f39657918f34d8d939f6cdbf25218487cd",
+  "pillar": "ai_usage",
+  "producer": {
+    "name": "aim-guardrail",
+    "version": "fc48e49"
+  },
+  "finding_type": "ai_usage.unapproved_tool",
+  "title": "Unapproved AI coding tool in use on an enrolled endpoint",
+  "severity": "medium",
+  "severity_id": 3,
+  "status": "updated",
+  "observed_at": "2026-07-25T09:31:00Z",
+  "first_seen_at": "2026-07-24T17:02:41Z",
+  "last_seen_at": "2026-07-25T09:31:00Z",
+  "observed_count": 37,
+  "resource": {
+    "kind": "ai_session",
+    "ref": "aim:session:unapproved_tool:8f14e45f",
+    "display": "kilo-code on eng-laptop-0417",
+    "provider": null,
+    "account_ref": null,
+    "region": null
+  },
+  "subject_ref": {
+    "user_ref": "dd43bd7bc6831eb5c681eea59e3f8e8982e4561f2b205e491665ebc1ecdca636",
+    "host_ref": "6328b1db2bd857c3fabf6c73260801b2f134d0ad2a7fed233ae36adebc987a0b"
+  },
+  "evidence": {
+    "source_uri": "aim:/findings?rule_id=unapproved_tool&subject_ref=8f14e45f",
+    "detail_count": 37,
+    "summary": "37 sessions from one pseudonymous user on a tool outside the approved list."
+  },
+  "labels": {
+    "rule_id": "unapproved_tool",
+    "tool_raw": "kilo-code"
+  }
+}

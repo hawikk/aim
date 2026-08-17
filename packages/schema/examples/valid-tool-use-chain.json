@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.10",
+  "event_id": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+  "event_type": "tool_use",
+  "ts": "2026-08-01T12:00:00Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": "0db271bf0b35a7379e8474b26bd3c199e11f8cb40b778304dba418a1dfc6848f",
+  "tool": "claude_code",
+  "tool_version": "1.0.62",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "sess_chain_demo_01",
+  "repo_ref": "4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
+  "tool_calls": [
+    {
+      "tool_name": "Task",
+      "mcp_server": null,
+      "action_class": "other",
+      "count": 1,
+      "duration_ms": 120,
+      "call_id": "c_root",
+      "duration_ms": 500,
+      "call_id": "c01",
+      "parent_call_id": null,
+      "result_status": "ok",
+      "seq": 0
+    },
+    {
+      "tool_name": "create_issue",
+      "mcp_server": "github",
+      "action_class": "mcp_call",
+      "count": 1,
+      "duration_ms": 3110,
+      "call_id": "c_mcp_1",
+      "parent_call_id": "c_root",
+      "duration_ms": 2100,
+      "call_id": "c02",
+      "parent_call_id": "c01",
+      "result_status": "ok",
+      "seq": 1
+    },
+    {
+      "tool_name": "run",
+      "mcp_server": "sketchy",
+      "action_class": "mcp_call",
+      "count": 1,
+      "duration_ms": 40,
+      "call_id": "c_mcp_2",
+      "parent_call_id": "c_root",
+      "tool_name": "run_query",
+      "mcp_server": "sketchy",
+      "action_class": "mcp_call",
+      "count": 1,
+      "duration_ms": null,
+      "call_id": "c03",
+      "parent_call_id": "c01",
+      "result_status": "denied",
+      "seq": 2
+    }
+  ],
+  "agent_handoffs": [
+    {
+      "handoff_kind": "task",
+      "status": "completed",
+      "child_session_id": "sess_child_01",
+      "tool_name": "Task",
+      "parent_call_id": "c_root",
+      "child_session_id": "sess_child_aa11",
+      "tool_name": "Task",
+      "parent_call_id": "c01"
+    }
+  ],
+  "match_flags": [],
+  "source": "endpoint"
+}

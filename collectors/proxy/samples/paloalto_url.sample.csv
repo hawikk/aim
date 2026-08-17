@@ -1,0 +1,18 @@
+# Palo Alto URL-filtering / traffic CSV — synthetic subset (AIM-1094).
+# Sanitized RFC1918 sources, fake domain users, no real customer data.
+# Columns (fixed order when header is absent): receive_time,src,srcuser,dst,url,
+# category,action,bytes_sent,bytes_received,http_method,response_code,elapsed_sec
+# Replay: ./replay_sample.sh samples/paloalto_url.sample.csv
+# Pin:    --format paloalto_csv
+receive_time,src,srcuser,dst,url,category,action,bytes_sent,bytes_received,http_method,response_code,elapsed_sec
+2026/07/21 10:00:00,10.12.3.41,corp\jsmith,104.18.32.47,https://api.anthropic.com/v1/messages,ai-and-ml,allow,1840,15234,POST,200,1
+2026/07/21 10:00:01,10.12.3.41,corp\jsmith,104.18.32.48,https://statsig.anthropic.com/v1/rgstr,ai-and-ml,allow,512,2201,POST,200,0
+2026/07/21 10:00:02,10.12.7.19,corp\agarcia,76.76.21.21,https://api2.cursor.sh/aiserver.v1.AiService/StreamChat,ai-and-ml,allow,4096,88210,POST,200,3
+2026/07/21 10:00:03,10.12.9.77,corp\bchen,104.21.5.10,https://api.kilocode.ai/v1/chat,ai-and-ml,allow,2048,5120,POST,200,0
+2026/07/21 10:00:05,10.12.4.55,corp\dpatel,140.82.112.21,https://api.githubcopilot.com/chat/completions,ai-and-ml,allow,3000,24012,POST,200,1
+2026/07/21 10:00:08,10.12.6.23,corp\emiller,104.18.33.45,https://chatgpt.com/c/abc123?model=gpt-4o,ai-and-ml,allow,256,4096,GET,200,0
+2026/07/21 10:00:09,10.12.8.31,corp\fjones,104.18.27.90,https://api.deepseek.com/chat/completions,ai-and-ml,allow,2200,33210,POST,200,1
+2026/07/21 10:00:11,10.12.8.31,corp\fjones,104.21.32.10,https://openrouter.ai/api/v1/chat/completions,ai-and-ml,allow,1800,512,POST,200,0
+2026/07/21 10:00:15,10.12.2.10,corp\ci-runner,172.64.150.10,https://api.openai.com/v1/chat/completions,ai-and-ml,allow,4096,20480,POST,200,2
+2026/07/21 10:00:20,10.12.3.41,corp\jsmith,142.250.72.4,https://www.google.com/,web-browsing,allow,128,2048,GET,200,0
+2026/07/21 10:00:22,10.12.5.60,corp\hkim,35.190.42.10,https://server.codeium.com/exa.api_server_pb.ApiServerService/GetCompletions,ai-and-ml,allow,1024,9999,POST,200,1

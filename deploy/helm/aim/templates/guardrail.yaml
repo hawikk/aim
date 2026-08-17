@@ -1,0 +1,76 @@
+# Guardrail evaluator (post-ingest consumer). No inbound traffic, so no
+# Service — only the probe port. /readyz reports 503 until the first poll
+# tick succeeds (fail-closed), then stays ready while ticks succeed within
+# max(2x pollInterval, 60s).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aim.fullname" . }}-guardrail
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "guardrail" "context" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.guardrail.replicas }}
+  selector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "guardrail" "context" .) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aim.selectorLabels" (dict "component" "guardrail" "context" .) | nindent 8 }}
+        {{- if and .Values.progressiveDelivery .Values.progressiveDelivery.versionLabel }}
+        app.kubernetes.io/version: {{ .Values.progressiveDelivery.versionLabel | quote }}
+        aim.monitoring/canary-version: {{ .Values.progressiveDelivery.versionLabel | quote }}
+        {{- end }}
+    spec:
+      {{- with include "aim.appPodSecurityContext" . }}
+      securityContext:
+        {{- . | nindent 8 }}
+      {{- end }}
+      {{- with include "aim.appPlacement" (dict "component" "guardrail" "context" . "Values" .Values) }}
+      {{- . | nindent 6 }}
+      {{- end }}
+      containers:
+        - name: guardrail
+          {{- with include "aim.appContainerSecurityContext" . }}
+          securityContext:
+            {{- . | nindent 12 }}
+          {{- end }}
+          image: {{ include "aim.image" (dict "image" .Values.guardrail.image "context" .) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          args: ["poll", "--rules", "/app/policies/guardrail/v1"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: DATABASE_URL
+            - name: GUARDRAIL_POLL_INTERVAL
+              value: {{ .Values.guardrail.pollInterval | quote }}
+            - name: GUARDRAIL_HEALTH_PORT
+              value: {{ .Values.guardrail.healthPort | quote }}
+            - name: AIM_HASH_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: AIM_HASH_SALT
+          ports:
+            - name: health
+              containerPort: {{ .Values.guardrail.healthPort }}
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            # 60s freshness window with default interval: allow the first
+            # tick plus margin before marking unready.
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.guardrail.resources | nindent 12 }}

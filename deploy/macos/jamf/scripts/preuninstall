@@ -1,0 +1,22 @@
+#!/bin/bash
+# AIM-743 — pkg preuninstall for AIMonitoringCollector.
+set -euo pipefail
+
+LOG="/var/log/aim-collector-preuninstall.log"
+exec >>"$LOG" 2>&1
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] preuninstall start"
+
+UNINSTALLER="/opt/aim-collector/uninstall.sh"
+if [ -x "$UNINSTALLER" ]; then
+  "$UNINSTALLER" || true
+else
+  for label in com.aimonitoring.collector-scan com.aimonitoring.collector-oob-health; do
+    plist="/Library/LaunchDaemons/${label}.plist"
+    launchctl bootout "system/${label}" 2>/dev/null || launchctl unload "$plist" 2>/dev/null || true
+    rm -f "$plist"
+  done
+  rm -rf /opt/aim-collector /etc/aim-collector
+fi
+
+echo "preuninstall complete"
+exit 0

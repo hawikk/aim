@@ -1,0 +1,1076 @@
+{
+  "version": 3,
+  "updated": "2026-08-01",
+  "notes": "Shadow-AI discovery tool catalogue (AIM-300/AIM-504/AIM-552/AIM-594). DATA, NOT CODE: adding a newly-discovered AI SaaS is a catalogue entry + PR review, never a code change. Matching: IdP OAuth grants match on oauth.client_ids (exact) then oauth.app_name_patterns (case-insensitive substring of the IdP app display name); proxy domain observations match on domains (suffix). data_access_class drives risk scoring. sanctioned reflects the AIM-16 locked policy list; changes are a Security/Legal decision, not an engineering one. AIM-504: Claude web, Midjourney, Microsoft Copilot. AIM-552/594: breadth residual \u2014 coding-agent parity with endpoints.json, GenAI-in-SaaS products (domain/OAuth not DOM), multi-model gateways.",
+  "tools": [
+    {
+      "id": "claude_code",
+      "name": "Claude Code",
+      "vendor": "Anthropic",
+      "sanctioned": true,
+      "data_access_class": "code-context",
+      "domains": [
+        "api.anthropic.com",
+        "api.claude.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "claude code"
+        ]
+      }
+    },
+    {
+      "id": "claude_web",
+      "name": "Claude.ai",
+      "vendor": "Anthropic",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "claude.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "claude.ai",
+          "claude web",
+          "anthropic claude"
+        ]
+      },
+      "notes": "Web chat (not Claude Code). Distinct from sanctioned claude_code."
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "vendor": "Anysphere",
+      "sanctioned": true,
+      "data_access_class": "code-context",
+      "domains": [
+        "cursor.sh",
+        "cursor.com",
+        "cursorapi.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "cursor"
+        ]
+      }
+    },
+    {
+      "id": "kilo_code",
+      "name": "Kilo Code",
+      "vendor": "Kilo Code",
+      "sanctioned": true,
+      "data_access_class": "code-context",
+      "domains": [
+        "kilocode.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "kilo code",
+          "kilocode"
+        ]
+      }
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "vendor": "OpenAI",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "chatgpt.com",
+        "chat.openai.com",
+        "auth0.openai.com",
+        "api.openai.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "chatgpt",
+          "chat.openai",
+          "openai chatgpt"
+        ]
+      },
+      "notes": "Primary AIM-504 account-layer signal: work-email ChatGPT signup / OAuth grant."
+    },
+    {
+      "id": "github_copilot",
+      "name": "GitHub Copilot",
+      "vendor": "GitHub",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "api.githubcopilot.com",
+        "api.individual.githubcopilot.com",
+        "api.business.githubcopilot.com",
+        "copilot-proxy.githubusercontent.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "github copilot"
+        ]
+      }
+    },
+    {
+      "id": "microsoft_copilot",
+      "name": "Microsoft Copilot",
+      "vendor": "Microsoft",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "copilot.microsoft.com",
+        "edgeservices.bing.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "microsoft 365 copilot",
+          "microsoft copilot",
+          "bing copilot",
+          "office copilot",
+          "365 copilot"
+        ]
+      },
+      "notes": "AIM-552: removed bare bing.com (too broad for domain matching)."
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "vendor": "Google",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "gemini.google.com",
+        "generativelanguage.googleapis.com",
+        "bard.google.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "gemini",
+          "google bard",
+          "bard"
+        ]
+      }
+    },
+    {
+      "id": "midjourney",
+      "name": "Midjourney",
+      "vendor": "Midjourney",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "midjourney.com",
+        "cdn.midjourney.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "midjourney"
+        ]
+      }
+    },
+    {
+      "id": "windsurf",
+      "name": "Windsurf",
+      "vendor": "Codeium",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "codeium.com",
+        "windsurf.com",
+        "codeiumdata.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "windsurf",
+          "codeium"
+        ]
+      }
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "vendor": "Perplexity AI",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "perplexity.ai",
+        "api.perplexity.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "perplexity"
+        ]
+      }
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "vendor": "DeepSeek",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "deepseek.com",
+        "api.deepseek.com",
+        "chat.deepseek.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "deepseek"
+        ]
+      }
+    },
+    {
+      "id": "grok",
+      "name": "Grok",
+      "vendor": "xAI",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "grok.com",
+        "x.ai",
+        "api.x.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "grok",
+          "xai",
+          "x.ai"
+        ]
+      }
+    },
+    {
+      "id": "tabnine",
+      "name": "Tabnine",
+      "vendor": "Tabnine",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "tabnine.com",
+        "api.tabnine.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "tabnine"
+        ]
+      }
+    },
+    {
+      "id": "amazon_q",
+      "name": "Amazon Q",
+      "vendor": "Amazon",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "q.aws.dev",
+        "codewhisperer.us-east-1.amazonaws.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "amazon q",
+          "codewhisperer",
+          "aws q"
+        ]
+      }
+    },
+    {
+      "id": "sourcegraph_cody",
+      "name": "Sourcegraph Cody",
+      "vendor": "Sourcegraph",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "sourcegraph.com",
+        "cody.sourcegraph.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "sourcegraph cody",
+          "cody"
+        ]
+      }
+    },
+    {
+      "id": "continue",
+      "name": "Continue",
+      "vendor": "Continue Dev",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "continue.dev",
+        "hub.continue.dev"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "continue.dev",
+          "continue ai"
+        ]
+      }
+    },
+    {
+      "id": "supermaven",
+      "name": "Supermaven",
+      "vendor": "Supermaven",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "supermaven.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "supermaven"
+        ]
+      }
+    },
+    {
+      "id": "augment",
+      "name": "Augment",
+      "vendor": "Augment Code",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "augmentcode.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "augment code",
+          "augment"
+        ]
+      }
+    },
+    {
+      "id": "jetbrains_ai",
+      "name": "JetBrains AI",
+      "vendor": "JetBrains",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "api.jetbrains.ai",
+        "grazie.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "jetbrains ai",
+          "jetbrains ai assistant",
+          "grazie"
+        ]
+      }
+    },
+    {
+      "id": "zed",
+      "name": "Zed AI",
+      "vendor": "Zed Industries",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "zed.dev"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "zed",
+          "zed editor"
+        ]
+      }
+    },
+    {
+      "id": "replit",
+      "name": "Replit",
+      "vendor": "Replit",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "replit.com",
+        "replit.dev"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "replit",
+          "replit agent",
+          "ghostwriter"
+        ]
+      },
+      "notes": "AIM-594/AIM-552: Replit Agent + Ghostwriter surface as Replit."
+    },
+    {
+      "id": "kimi_code",
+      "name": "Kimi Code",
+      "vendor": "Moonshot AI",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "kimi.moonshot.cn",
+        "api.moonshot.cn",
+        "www.kimi.com",
+        "kimi.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "kimi code",
+          "kimi",
+          "moonshot"
+        ]
+      }
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral AI",
+      "vendor": "Mistral",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "api.mistral.ai",
+        "codestral.mistral.ai",
+        "chat.mistral.ai",
+        "console.mistral.ai",
+        "mistral.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "mistral",
+          "le chat",
+          "codestral"
+        ]
+      }
+    },
+    {
+      "id": "cohere",
+      "name": "Cohere",
+      "vendor": "Cohere",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "api.cohere.ai",
+        "api.cohere.com",
+        "dashboard.cohere.com",
+        "cohere.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "cohere"
+        ]
+      }
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "vendor": "Groq",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "api.groq.com",
+        "console.groq.com",
+        "groq.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "groq"
+        ]
+      }
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "vendor": "OpenRouter",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "openrouter.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "openrouter"
+        ]
+      },
+      "notes": "Multi-model gateway; common behind Kilo/Cline/Continue BYOK."
+    },
+    {
+      "id": "huggingface",
+      "name": "Hugging Face",
+      "vendor": "Hugging Face",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "huggingface.co",
+        "hf.co",
+        "api-inference.huggingface.co"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "hugging face",
+          "huggingface"
+        ]
+      }
+    },
+    {
+      "id": "together_ai",
+      "name": "Together AI",
+      "vendor": "Together",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "api.together.xyz",
+        "together.ai",
+        "api.together.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "together ai",
+          "together.xyz"
+        ]
+      }
+    },
+    {
+      "id": "fireworks",
+      "name": "Fireworks AI",
+      "vendor": "Fireworks",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "api.fireworks.ai",
+        "fireworks.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "fireworks ai",
+          "fireworks"
+        ]
+      }
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama Cloud",
+      "vendor": "Ollama",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "ollama.com",
+        "ollama.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "ollama",
+          "ollama cloud"
+        ]
+      },
+      "notes": "Local Ollama is invisible to network discovery; cloud control-plane only."
+    },
+    {
+      "id": "notion_ai",
+      "name": "Notion AI",
+      "vendor": "Notion",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "notion.so",
+        "www.notion.so"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "notion ai",
+          "notion"
+        ]
+      },
+      "notes": "AIM-552 GenAI-in-SaaS: shared origin with docs. OAuth app name is stronger than domain. Page feature use = accepted residual."
+    },
+    {
+      "id": "grammarly",
+      "name": "Grammarly",
+      "vendor": "Grammarly",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "grammarly.com",
+        "capi.grammarly.com",
+        "auth.grammarly.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "grammarly"
+        ]
+      }
+    },
+    {
+      "id": "adobe_firefly",
+      "name": "Adobe Firefly",
+      "vendor": "Adobe",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "firefly.adobe.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "adobe firefly",
+          "firefly"
+        ]
+      }
+    },
+    {
+      "id": "canva_magic",
+      "name": "Canva Magic Studio",
+      "vendor": "Canva",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "canva.com",
+        "www.canva.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "canva",
+          "canva magic"
+        ]
+      },
+      "notes": "Shared design origin; OAuth grant is primary account-layer signal."
+    },
+    {
+      "id": "jasper",
+      "name": "Jasper",
+      "vendor": "Jasper",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "jasper.ai",
+        "app.jasper.ai",
+        "api.jasper.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "jasper",
+          "jasper ai"
+        ]
+      }
+    },
+    {
+      "id": "copy_ai",
+      "name": "Copy.ai",
+      "vendor": "Copy.ai",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "copy.ai",
+        "app.copy.ai",
+        "api.copy.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "copy.ai",
+          "copyai"
+        ]
+      }
+    },
+    {
+      "id": "otter",
+      "name": "Otter.ai",
+      "vendor": "Otter.ai",
+      "sanctioned": false,
+      "data_access_class": "communication-data",
+      "domains": [
+        "otter.ai",
+        "api.otter.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "otter.ai",
+          "otter ai",
+          "otter"
+        ]
+      }
+    },
+    {
+      "id": "fireflies",
+      "name": "Fireflies.ai",
+      "vendor": "Fireflies",
+      "sanctioned": false,
+      "data_access_class": "communication-data",
+      "domains": [
+        "fireflies.ai",
+        "api.fireflies.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "fireflies",
+          "fireflies.ai"
+        ]
+      }
+    },
+    {
+      "id": "gamma",
+      "name": "Gamma",
+      "vendor": "Gamma",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "gamma.app",
+        "www.gamma.app"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "gamma",
+          "gamma.app"
+        ]
+      }
+    },
+    {
+      "id": "notebooklm",
+      "name": "NotebookLM",
+      "vendor": "Google",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "notebooklm.google.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "notebooklm",
+          "notebook lm"
+        ]
+      }
+    },
+    {
+      "id": "poe",
+      "name": "Poe",
+      "vendor": "Quora",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "poe.com",
+        "www.poe.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "poe by quora",
+          "quora poe",
+          "poe.com"
+        ]
+      },
+      "notes": "Patterns avoid bare 'poe' substring false positives."
+    },
+    {
+      "id": "character_ai",
+      "name": "Character.AI",
+      "vendor": "Character.AI",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "character.ai",
+        "beta.character.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "character.ai",
+          "character ai"
+        ]
+      }
+    },
+    {
+      "id": "meta_ai",
+      "name": "Meta AI",
+      "vendor": "Meta",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "meta.ai",
+        "www.meta.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "meta ai",
+          "meta.ai"
+        ]
+      }
+    },
+    {
+      "id": "copilot_studio",
+      "name": "Microsoft Copilot Studio",
+      "vendor": "Microsoft",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "copilotstudio.microsoft.com",
+        "web.powerva.microsoft.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "copilot studio",
+          "power virtual agents",
+          "microsoft copilot studio"
+        ]
+      }
+    },
+    {
+      "id": "v0",
+      "name": "v0 (Vercel)",
+      "vendor": "Vercel",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "v0.dev",
+        "v0.app"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "v0",
+          "vercel v0"
+        ]
+      }
+    },
+    {
+      "id": "bolt_new",
+      "name": "Bolt.new",
+      "vendor": "StackBlitz",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "bolt.new"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "bolt.new",
+          "bolt new"
+        ]
+      }
+    },
+    {
+      "id": "lovable",
+      "name": "Lovable",
+      "vendor": "Lovable",
+      "sanctioned": false,
+      "data_access_class": "code-context",
+      "domains": [
+        "lovable.dev",
+        "gptengineer.app"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "lovable",
+          "gpt engineer"
+        ]
+      }
+    },
+    {
+      "id": "phind",
+      "name": "Phind",
+      "vendor": "Phind",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "phind.com",
+        "www.phind.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "phind"
+        ]
+      }
+    },
+    {
+      "id": "you_com",
+      "name": "You.com",
+      "vendor": "You.com",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "you.com",
+        "api.you.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "you.com",
+          "you.com ai"
+        ]
+      }
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen (Tongyi)",
+      "vendor": "Alibaba",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "tongyi.aliyun.com",
+        "dashscope.aliyuncs.com",
+        "qwen.ai"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "qwen",
+          "tongyi",
+          "dashscope"
+        ]
+      }
+    },
+    {
+      "id": "anthropic_console",
+      "name": "Anthropic Console",
+      "vendor": "Anthropic",
+      "sanctioned": false,
+      "data_access_class": "model-api",
+      "domains": [
+        "console.anthropic.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "anthropic console"
+        ]
+      },
+      "notes": "Console/API key portal \u2014 distinct from Claude Code and Claude.ai chat. Pattern avoids bare 'anthropic' collision."
+    },
+    {
+      "id": "writer",
+      "name": "Writer",
+      "vendor": "Writer",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "writer.com",
+        "api.writer.com",
+        "app.writer.com"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "writer.com",
+          "writer ai",
+          "writer enterprise"
+        ]
+      }
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "vendor": "ElevenLabs",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": [
+        "elevenlabs.io",
+        "api.elevenlabs.io"
+      ],
+      "oauth": {
+        "client_ids": [],
+        "app_name_patterns": [
+          "elevenlabs",
+          "eleven labs"
+        ]
+      }
+    }
+  ],
+  "known_non_ai": [
+    {
+      "id": "slack",
+      "name": "Slack",
+      "app_name_patterns": [
+        "slack"
+      ],
+      "notes": "Suppress from AI inventory; listed so grants don't pollute the unclassified triage queue. Slack AI feature use is accepted page-level residual (browser NO-GO)."
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "app_name_patterns": [
+        "zoom"
+      ],
+      "notes": "Suppress from AI inventory."
+    },
+    {
+      "id": "google_workspace_apps",
+      "name": "Google first-party apps",
+      "app_name_patterns": [
+        "google drive",
+        "google docs",
+        "google calendar",
+        "gmail",
+        "google sheets"
+      ],
+      "notes": "First-party Workspace grants are expected, not shadow AI (Gemini/NotebookLM catalogued separately)."
+    },
+    {
+      "id": "microsoft_first_party",
+      "name": "Microsoft first-party apps",
+      "app_name_patterns": [
+        "microsoft office",
+        "microsoft teams",
+        "outlook",
+        "onedrive",
+        "sharepoint"
+      ],
+      "notes": "First-party M365 grants are expected, not shadow AI (Copilot / Copilot Studio catalogued separately)."
+    },
+    {
+      "id": "okta_admin",
+      "name": "Okta admin apps",
+      "app_name_patterns": [
+        "okta admin",
+        "okta dashboard"
+      ],
+      "notes": "IdP console itself."
+    },
+    {
+      "id": "atlassian_core",
+      "name": "Atlassian core apps",
+      "app_name_patterns": [
+        "jira",
+        "confluence",
+        "bitbucket",
+        "atlassian"
+      ],
+      "notes": "Core productivity; Atlassian Intelligence is not a separate OAuth app."
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "app_name_patterns": [
+        "figma"
+      ],
+      "notes": "Design tool OAuth is expected; suppress unless Security promotes a design-AI class later."
+    }
+  ]
+}

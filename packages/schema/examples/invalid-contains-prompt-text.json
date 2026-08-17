@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "event_id": "f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c",
+  "ts": "2026-07-21T14:22:17Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": "0db271bf0b35a7379e8474b26bd3c199e11f8cb40b778304dba418a1dfc6848f",
+  "tool": "claude_code",
+  "tool_version": "1.0.62",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "sess_leak_test",
+  "tokens_in": 10,
+  "tokens_out": 4,
+  "match_flags": [],
+  "source": "endpoint",
+  "prompt_text": "fix the login bug in auth.py",
+  "response_text": "sure, here is the diff..."
+}

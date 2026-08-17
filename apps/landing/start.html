@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get started | AI Monitoring</title>
+<meta name="description" content="Clone AIM and self-host. Community is free for personal projects and public open source. Team and Enterprise talk to sales.">
+<link rel="canonical" href="https://getaimonitoring.com/start.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://getaimonitoring.com/start.html">
+<meta property="og:title" content="Get started | AI Monitoring">
+<meta property="og:description" content="Clone AIM and self-host. Community is free for personal projects and public open source.">
+<meta property="og:image" content="https://getaimonitoring.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Get started | AI Monitoring">
+<meta name="twitter:description" content="Clone AIM and self-host. Community is free for personal projects and public open source.">
+<meta name="twitter:image" content="https://getaimonitoring.com/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='white'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --sans: "Inter", -apple-system, "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --fg: #fff;
+    --dim: #888;
+    --faint: #555;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: #000;
+    color: var(--fg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
+
+  .skip-link {
+    position: absolute; left: -9999px; top: 12px; z-index: 100;
+    background: #fff; color: #000; padding: 8px 16px; border-radius: 999px;
+    font-size: 13px;
+  }
+  .skip-link:focus { left: 12px; }
+
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 44px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  .brand .dot { width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px rgba(255,255,255,0.55); }
+  .nav-links { display: flex; gap: 36px; position: absolute; left: 50%; transform: translateX(-50%); }
+  .nav-links a { font-size: 14px; color: #999; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+
+  .pill {
+    display: inline-block; border-radius: 999px; font-size: 14px; font-weight: 500;
+    padding: 9px 22px; line-height: 1.3; white-space: nowrap;
+    transition: box-shadow 0.25s, color 0.2s, border-color 0.2s;
+  }
+  .pill-solid {
+    background: #fff; color: #000;
+    box-shadow: 0 0 30px rgba(255,255,255,0.4);
+  }
+  .pill-solid:hover { box-shadow: 0 0 44px rgba(255,255,255,0.6); }
+  .pill-outline { border: 1px solid rgba(255,255,255,0.28); color: #ddd; }
+  .pill-outline:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 72px 44px 120px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.34em;
+    color: var(--dim); text-transform: uppercase; margin-bottom: 28px;
+  }
+  h1 {
+    font-size: clamp(42px, 5vw, 64px);
+    font-weight: 200; letter-spacing: -0.02em; line-height: 1.12;
+    max-width: 14em;
+  }
+  .lede {
+    margin-top: 28px;
+    max-width: 38em;
+    font-size: 17px;
+    line-height: 1.6;
+    color: #bbb;
+  }
+  .lede a { color: #fff; }
+  .clone {
+    margin-top: 40px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.85;
+    color: #ccc;
+    white-space: pre;
+  }
+
+  .paths {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 88px;
+    margin-top: 96px;
+  }
+  .path-name {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .path h2 {
+    font-size: 32px; font-weight: 200; letter-spacing: -0.02em; margin-top: 22px;
+  }
+  .path p {
+    font-family: var(--mono); font-size: 13px; line-height: 1.75;
+    color: var(--dim); margin-top: 16px;
+  }
+  .path .pill, .path .link-cta { margin-top: 32px; display: inline-block; }
+  .link-cta { font-size: 14px; color: #aaa; }
+  .link-cta:hover { color: #fff; }
+
+  .note {
+    margin-top: 88px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--dim);
+    max-width: 46em;
+  }
+
+  footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 44px;
+  }
+  footer .brand { font-size: 14px; color: #ccc; }
+  footer .brand .dot { width: 9px; height: 9px; }
+  footer .fine { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  footer nav { display: flex; gap: 26px; }
+  footer nav a { font-size: 13px; color: #777; }
+  footer nav a:hover { color: #fff; }
+
+  @media (max-width: 960px) {
+    .nav-links { display: none; }
+    .paths { grid-template-columns: 1fr; gap: 64px; }
+  }
+  @media (max-width: 560px) {
+    .nav { padding: 20px 24px; }
+    .nav-cta .pill-outline { display: none; }
+    main, footer { padding-left: 24px; padding-right: 24px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav">
+  <a class="brand" href="/" aria-label="AI Monitoring home">
+    <span class="dot" aria-hidden="true"></span>
+    <span>AI Monitoring</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="/#features">Features</a>
+    <a href="/#video">Video</a>
+    <a href="/#pricing">Pricing</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="pill pill-solid" href="https://github.com/hawikk/aim">Get Started</a>
+    <a class="pill pill-outline" href="mailto:sales@getaimonitoring.com">Contact Sales</a>
+  </div>
+</header>
+
+<main id="main">
+  <p class="eyebrow">get started</p>
+  <h1>Community is free.<br>Enterprise talks to us.</h1>
+  <p class="lede">
+    Personal projects and public open source clone the Community repo and run it.
+    No card, no waitlist, no email to us. Team and Enterprise write
+    <a href="mailto:sales@getaimonitoring.com">sales@getaimonitoring.com</a>.
+  </p>
+  <pre class="clone">git clone https://github.com/hawikk/aim.git
+cd aim
+./scripts/demo-stack-up.sh</pre>
+
+  <div class="paths">
+    <article class="path" id="community">
+      <p class="path-name">Community</p>
+      <h2>Free</h2>
+      <p>Personal use, evaluation, and public OSS. Soft cap of 3 seats. All collectors and dashboards. Clone and self-host.</p>
+      <a class="pill pill-solid" href="https://github.com/hawikk/aim">Clone on GitHub</a>
+    </article>
+    <article class="path">
+      <p class="path-name">Team</p>
+      <h2>$12 / seat</h2>
+      <p>Annual, $144 / seat / year. Monthly is $15. Minimum 5 seats. Shared findings and a team dashboard.</p>
+      <a class="pill pill-outline" href="mailto:sales@getaimonitoring.com?subject=AIM%20Team">Contact Sales</a>
+    </article>
+    <article class="path">
+      <p class="path-name">Enterprise</p>
+      <h2>From $28</h2>
+      <p>SSO / SCIM, paid enforce packs, evidence, air-gap. Annual contract. Volume priced with sales.</p>
+      <a class="link-cta" href="mailto:sales@getaimonitoring.com?subject=AIM%20Enterprise">Contact Sales →</a>
+    </article>
+  </div>
+
+  <p class="note">
+    Watch the 51s product walkthrough on the
+    <a href="/#video">home page</a>
+    if you want the tour first. Community does not require an email.
+  </p>
+</main>
+
+<footer>
+  <span class="brand"><span class="dot" aria-hidden="true"></span>AI Monitoring</span>
+  <nav aria-label="Footer">
+    <a href="/#features">Features</a>
+    <a href="/#video">Video</a>
+    <a href="/#pricing">Pricing</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
+    <a href="/.well-known/security.txt">Security</a>
+  </nav>
+  <span class="fine">© 2026 AI Monitoring</span>
+</footer>
+</body>
+</html>

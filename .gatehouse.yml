@@ -1,0 +1,20 @@
+# Example Gatehouse policy for a Community self-host.
+# Copy and tighten for your own org. This file is not hawikk's production policy.
+
+enforcement:
+  block_on: critical
+
+scanners:
+  gitleaks: true
+  semgrep: true
+  checkov: true
+  trivy: true
+
+ai_review:
+  enabled: false
+  blocking: false
+
+suggested_fixes:
+  enabled: true
+
+suppressions: []

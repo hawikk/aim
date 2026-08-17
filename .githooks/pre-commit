@@ -1,0 +1,18 @@
+#!/bin/sh
+# Pre-commit security gate.
+# 1. gitleaks — block commits that introduce secrets.
+# 2. eslint — lint check (fast on this repo; keep it that way).
+#
+# Enabled via: git config core.hooksPath .githooks  (or `make setup`)
+
+set -e
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --config .gitleaks.toml --verbose
+else
+  echo "pre-commit: gitleaks not found — skipping secret scan (install: https://github.com/gitleaks/gitleaks)" >&2
+fi
+
+if command -v pnpm >/dev/null 2>&1 && [ -d node_modules ]; then
+  pnpm lint
+fi

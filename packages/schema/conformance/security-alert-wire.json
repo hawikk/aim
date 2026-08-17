@@ -1,0 +1,6 @@
+{
+  "schema": "security.alert/v1.1",
+  "stream": "secstack:alerts:v1",
+  "field": "alert",
+  "note": "Redis stream wire shape for security.alert: one XADD entry carries exactly one field, named `field`, whose value is the canonical JSON of a security.alert/v1.1 document. AIM-392: gatehouse and hygiene published under `payload` while sentinel and the API inbox read `alert` — 100% of pr_security alerts were dropped as malformed with every health check green. Every producer and consumer MUST take the field name from this file (asserted by the per-service wire-contract tests), never hand-roll it."
+}

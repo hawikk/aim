@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aimonitoring.dev/schemas/mcp/tool-argument-policy.schema.json",
+  "title": "MCP tool-argument policy (metadata-only)",
+  "description": "AIM-664: express allow / deny / confirm on MCP tool name + argument *shape* (key presence and value *type class* only). This is NOT a license to store or inspect argument content. Value equality, substrings of values, paths, URLs, bodies, and argv are privacy-blocked (AIM-16). Endpoint evaluators may read tool_input locally to compute shape; only the decision (and optional shape metadata already allowed on the wire) leaves the host.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "default_effect", "rules"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema major version. Bump only on breaking shape changes."
+    },
+    "policy_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Optional stable id for audit/ops (e.g. mcp-tool-arg-pilot-2026-08)."
+    },
+    "policy_hash": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "description": "Optional content tag for audit continuity (same role as enforcement.policy_hash)."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["observe", "enforce"],
+      "default": "observe",
+      "description": "observe = compute + audit only; enforce = endpoint may apply deny/confirm when the rail is flipped. Does not by itself flip unapproved-mcp-server."
+    },
+    "default_effect": {
+      "$ref": "#/$defs/effect",
+      "description": "Effect when no rule matches. Prefer 'allow' so this policy is additive on top of the server allowlist (AIM-86/441)."
+    },
+    "rules": {
+      "type": "array",
+      "description": "Ordered list. Highest priority among matching rules wins; ties break by list order (first wins).",
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Human rationale for the revision. Never customer content."
+    }
+  },
+  "$defs": {
+    "effect": {
+      "type": "string",
+      "enum": ["allow", "deny", "confirm"],
+      "description": "allow = permit; deny = hard block (when mode=enforce); confirm = challenge/resubmit gate (same UX family as pii-in-prompt / MCP break-glass)."
+    },
+    "nameMatcher": {
+      "description": "Exact string, or structured matcher. Glob-style '*' alone means any non-empty name.",
+      "oneOf": [
+        { "type": "string", "minLength": 1, "maxLength": 128 },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "maxProperties": 1,
+          "properties": {
+            "equals": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "prefix": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "suffix": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "contains": { "type": "string", "minLength": 1, "maxLength": 64 }
+          }
+        }
+      ]
+    },
+    "typeClass": {
+      "type": "string",
+      "enum": ["string", "number", "boolean", "object", "array", "null", "present"],
+      "description": "Value type class only. 'present' means key exists with any type. NEVER a value."
+    },
+    "argShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Argument *shape* constraints. Keys are argument names; types are JSON type classes. No value predicates allowed (additionalProperties:false).",
+      "properties": {
+        "keys_all": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "uniqueItems": true,
+          "description": "Every listed key must be present (type unconstrained unless key_types says otherwise)."
+        },
+        "keys_any": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "At least one listed key must be present."
+        },
+        "keys_none": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "uniqueItems": true,
+          "description": "None of these keys may be present."
+        },
+        "key_count": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min": { "type": "integer", "minimum": 0 },
+            "max": { "type": "integer", "minimum": 0 }
+          },
+          "description": "Bounds on the number of top-level argument keys."
+        },
+        "key_types": {
+          "type": "object",
+          "propertyNames": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "additionalProperties": { "$ref": "#/$defs/typeClass" },
+          "description": "Required type class per key. Implies key presence except for type 'present' which only requires existence."
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "effect", "match"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$"
+        },
+        "effect": { "$ref": "#/$defs/effect" },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "default": 100,
+          "description": "Higher wins among matching rules. Default 100."
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Short operator-facing label (not shown to end users unless policy allows)."
+        },
+        "match": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "All present fields are AND-ed. Omitting a field means unconstrained.",
+          "properties": {
+            "mcp_server": { "$ref": "#/$defs/nameMatcher" },
+            "tool_name": { "$ref": "#/$defs/nameMatcher" },
+            "action_class": {
+              "type": "string",
+              "enum": ["fs_read", "fs_write", "shell", "network", "mcp_call", "other"]
+            },
+            "arg_shape": { "$ref": "#/$defs/argShape" }
+          }
+        }
+      }
+    }
+  }
+}

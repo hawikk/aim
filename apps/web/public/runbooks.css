@@ -1,0 +1,210 @@
+/* AIM-703 — SOC runbook pages (injected by runbooks.js).
+   Reuses tokens, .card/.cards, .panel, .banner, .pill from styles.css. */
+
+#view-runbooks .rb-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+#view-runbooks .rb-card {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--panel);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+#view-runbooks .rb-card:hover,
+#view-runbooks .rb-card:focus-visible {
+  border-color: var(--accent, var(--border-strong));
+  background: var(--panel-hover, var(--panel));
+  outline: none;
+}
+#view-runbooks .rb-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#view-runbooks .rb-card-title {
+  font-weight: 600;
+}
+#view-runbooks .rb-slug {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+#view-runbooks .rb-card-sum {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+  max-width: 90ch;
+  line-height: 1.45;
+}
+
+#view-runbooks .rb-gaps {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--panel);
+}
+#view-runbooks .rb-gaps.ok {
+  border-left: 3px solid var(--good, var(--sev-low));
+}
+#view-runbooks .rb-gaps.bad {
+  border-left: 3px solid var(--sev-high);
+}
+#view-runbooks .rb-gaps p {
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  max-width: 90ch;
+}
+#view-runbooks .rb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+#view-runbooks .rb-table th,
+#view-runbooks .rb-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+#view-runbooks .rb-table th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#view-runbooks .rb-back {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+#view-runbooks .rb-back a {
+  color: var(--accent, var(--link, inherit));
+}
+
+#view-runbooks .rb-detail {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  background: var(--panel);
+  max-width: 88ch;
+}
+#view-runbooks .rb-detail-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+#view-runbooks .rb-detail-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+#view-runbooks .rb-summary {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+#view-runbooks .rb-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+#view-runbooks .rb-when p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+#view-runbooks .rb-steps h3,
+#view-runbooks .rb-related h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+#view-runbooks .rb-steps ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+#view-runbooks .rb-steps li {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 13px;
+  line-height: 1.5;
+}
+#view-runbooks .rb-step-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 6px; /* AIM-151 ceiling — no pill-shaped chrome */
+  background: var(--code-bg, rgba(0, 0, 0, 0.25));
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+#view-runbooks .rb-related {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 18px;
+}
+@media (max-width: 720px) {
+  #view-runbooks .rb-related {
+    grid-template-columns: 1fr;
+  }
+}
+#view-runbooks .rb-related ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+#view-runbooks .rb-related .faint {
+  color: var(--muted);
+  list-style: none;
+  margin-left: -1.1rem;
+}
+#view-runbooks .rb-siem-hint {
+  margin: 18px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Inline deep-link chip used by findings / rules / inbox */
+.a-runbook,
+.f-runbook,
+.rule-runbook {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.a-runbook.gap,
+.f-runbook.gap,
+.rule-runbook.gap {
+  color: var(--sev-medium);
+}

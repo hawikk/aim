@@ -1,0 +1,118 @@
+/* AIM-1007 — live Attribution health panel (Epic A gate) */
+
+.ah-windows {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+@media (max-width: 720px) {
+  .ah-windows { grid-template-columns: 1fr; }
+}
+
+.ah-window {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  background: var(--panel);
+  min-width: 0;
+}
+
+.ah-window[data-tone="ok"] { border-color: var(--good-border); background: var(--good-soft); }
+.ah-window[data-tone="warn"] { border-color: var(--warn-border); background: var(--warn-soft); }
+.ah-window[data-tone="bad"] { border-color: var(--bad-border); background: var(--bad-soft); }
+.ah-window[data-tone="muted"] { border-color: var(--border-strong); }
+
+.ah-window-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+  text-transform: lowercase;
+}
+
+.ah-window-pct {
+  font-family: var(--mono);
+  font-size: var(--text-xl, 1.35rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ah-window-pct.tone-ok { color: var(--good); }
+.ah-window-pct.tone-warn { color: var(--warn); }
+.ah-window-pct.tone-bad { color: var(--bad); }
+.ah-window-pct.tone-muted { color: var(--muted); }
+
+.ah-window-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.ah-window-badge { margin-top: 0.4rem; }
+
+.ah-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .ah-meta { grid-template-columns: 1fr; }
+}
+
+.ah-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ah-meta-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.ah-meta-value {
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ah-meta-value.tone-bad,
+.ah-stale.tone-bad .ah-meta-value { color: var(--bad); }
+
+.ah-spark {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+  color: var(--accent, var(--good));
+  font-size: 0.8rem;
+}
+
+.ah-spark[data-spark="empty"] {
+  color: var(--muted);
+}
+
+.ah-spark-line.tone-ok { color: var(--good); }
+.ah-spark-line.tone-warn { color: var(--warn); }
+.ah-spark-line.tone-bad { color: var(--bad); }
+.ah-spark-line.tone-muted { color: var(--muted); }
+
+.ah-spark svg {
+  flex: 0 0 40%;
+  max-width: 240px;
+  height: 36px;
+}
+
+.ah-gate { margin: 0.35rem 0 0.5rem; }
+
+.banner.ok {
+  background: var(--good-soft);
+  border: 1px solid var(--good-border);
+  color: var(--good);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}

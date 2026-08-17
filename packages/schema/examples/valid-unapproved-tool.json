@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "event_id": "e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b",
+  "ts": "2026-07-21T14:19:02Z",
+  "host_ref": "a73caed1e6bed0f9d1cc5a35a703d0bc63a57c9a52b93a6e3a463318cefab97b",
+  "user_ref": null,
+  "tool": "other",
+  "tool_raw": "aider",
+  "model": null,
+  "provider": "openai",
+  "session_id": "proxy-flow-883412",
+  "tokens_in": 4021,
+  "tokens_out": 512,
+  "cost_estimate_usd": 0.0091,
+  "repo_ref": null,
+  "match_flags": [
+    {
+      "detector": "policy:unapproved-tool",
+      "category": "policy",
+      "severity": "medium"
+    }
+  ],
+  "source": "proxy"
+}

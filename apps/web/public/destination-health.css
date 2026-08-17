@@ -1,0 +1,213 @@
+/* AIM-704 — destination health / failed delivery SLO screen */
+
+.dh-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.dh-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.dh-sub {
+  margin: 0;
+  color: var(--muted);
+  max-width: 46rem;
+  font-size: 0.92rem;
+}
+
+.dh-overall {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  white-space: nowrap;
+}
+
+.dh-overall[data-state="ok"] { border-color: var(--good-border); background: var(--good-soft); }
+.dh-overall[data-state="degraded"] { border-color: var(--warn-border); background: var(--warn-soft); }
+.dh-overall[data-state="broken"] { border-color: var(--bad-border); background: var(--bad-soft); }
+.dh-overall[data-state="never_configured"] { border-color: var(--border-strong); background: var(--info-soft); }
+
+.dh-overall-label {
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.dh-overall-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.dh-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.dh-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dh-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+
+.dh-dot.ok,
+.dh-dot.met { background: var(--good); }
+.dh-dot.degraded,
+.dh-dot.pending { background: var(--warn); }
+.dh-dot.broken,
+.dh-dot.breached { background: var(--bad); }
+.dh-dot.never_configured { background: var(--faint); box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+.dh-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.dh-tile {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 10.5rem;
+}
+
+.dh-tile.state-ok { border-color: var(--good-border); }
+.dh-tile.state-degraded { border-color: var(--warn-border); }
+.dh-tile.state-broken { border-color: var(--bad-border); }
+.dh-tile.state-never_configured { border-style: dashed; }
+
+.dh-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dh-tile-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.dh-tile-pillar {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.dh-tile-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.dh-tile-msg {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  flex: 1;
+}
+
+.dh-tile-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.dh-tile-meta dt {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.dh-tile-meta dd {
+  margin: 0.1rem 0 0;
+}
+
+.dh-tile-meta > div {
+  min-width: 0;
+}
+
+.dh-alerts-panel {
+  margin-top: 0.5rem;
+}
+
+.dh-meta {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.dh-err {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--bad-border);
+  border-radius: 6px;
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-size: 0.9rem;
+}
+
+.dh-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.dh-alert-table {
+  width: 100%;
+}
+
+.dh-primary {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  background: var(--info-soft, rgba(59, 130, 246, 0.12));
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
+.dh-err-snip {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.pill.bad,
+.mono.bad {
+  color: var(--bad);
+}

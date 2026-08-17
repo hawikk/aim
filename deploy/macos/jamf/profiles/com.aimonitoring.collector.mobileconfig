@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  AIM-743 — Jamf configuration profile template for the AIM collector.
+
+  Scope: Computer (device-level). Upload to Jamf Pro after replacing:
+    - REPLACE_INGEST_URL
+    - REPLACE_ORG_UUID
+    - REPLACE_PAYLOAD_UUID
+
+  Secrets are intentionally NOT in this profile — see jamf/README.md.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.aimonitoring.collector</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>com.aimonitoring.collector.settings</string>
+      <key>PayloadUUID</key>
+      <string>REPLACE_PAYLOAD_UUID</string>
+      <key>PayloadDisplayName</key>
+      <string>AI Monitoring Collector Settings</string>
+      <key>PayloadEnabled</key>
+      <true/>
+      <key>IngestURL</key>
+      <string>REPLACE_INGEST_URL</string>
+      <key>ManagedConfigPath</key>
+      <string>/etc/aim-collector/config.json</string>
+      <key>PayloadPath</key>
+      <string>/opt/aim-collector</string>
+      <key>ScanIntervalSeconds</key>
+      <integer>300</integer>
+      <key>Notes</key>
+      <string>Tokens are not stored in this profile. Full Disk Access may be required for root LaunchDaemon scan of user tool state under /Users/*.</string>
+    </dict>
+  </array>
+  <key>PayloadDisplayName</key>
+  <string>AI Monitoring Collector</string>
+  <key>PayloadIdentifier</key>
+  <string>com.aimonitoring.collector</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>REPLACE_ORG_UUID</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadOrganization</key>
+  <string>AI Monitoring</string>
+  <key>PayloadDescription</key>
+  <string>Managed settings for the AIM endpoint collector (Jamf). Pair with AIMonitoringCollector pkg policy.</string>
+  <key>PayloadScope</key>
+  <string>System</string>
+</dict>
+</plist>

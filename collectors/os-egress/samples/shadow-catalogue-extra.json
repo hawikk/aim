@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "updated": "2026-07-29",
+  "notes": "Minimal AIM-300-shaped catalogue fragment for discovery→coverage tests (AIM-321).",
+  "tools": [
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "vendor": "Perplexity AI",
+      "sanctioned": false,
+      "data_access_class": "prompts-and-files",
+      "domains": ["perplexity.ai", "api.perplexity.ai"]
+    }
+  ]
+}

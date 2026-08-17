@@ -1,0 +1,72 @@
+# Augment Code — named unsanctioned presence (AIM-1185).
+# Inspected 2026-08-14:
+#   Marketplace id augment.vscode-augment
+#   VS Code globalStorage/augment.vscode-augment/augment-global-state
+#     (mcpServers.json is MCP config, not a usage table)
+#   Auggie CLI (npm @augmentcode/auggie, binary auggie) is closed-source;
+#     project .augment/commands/*.md are reusable prompts (contentful)
+#   augment.vim chat is multi-turn transcripts (contentful)
+# No published metadata-only model/token surface. Do not invent sessions.
+# schema_tool=other + tool_raw=augment. Catalogue rule id stays augment.
+id: augment
+display_name: Augment Code
+provider: augment
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.augment"
+        - "~/.config/augment"
+        - "~/.local/share/augment"
+        - "~/Library/Application Support/augment"
+        - "${APPDATA}/augment"
+        - "${XDG_CONFIG_HOME}/augment"
+        - "${XDG_DATA_HOME}/augment"
+        - "~/.config/Code/User/globalStorage/augment.vscode-augment"
+        - "~/.config/Code - Insiders/User/globalStorage/augment.vscode-augment"
+        - "~/.config/Cursor/User/globalStorage/augment.vscode-augment"
+        - "~/.config/VSCodium/User/globalStorage/augment.vscode-augment"
+        - "~/.vscode-server/data/User/globalStorage/augment.vscode-augment"
+        - "~/Library/Application Support/Code/User/globalStorage/augment.vscode-augment"
+        - "~/Library/Application Support/Cursor/User/globalStorage/augment.vscode-augment"
+        - "${APPDATA}/Code/User/globalStorage/augment.vscode-augment"
+      binaries: ["auggie"]
+    extraction:
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - augment.vscode-augment
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - augmentcode.com
+        - api.augmentcode.com
+      catalogue_rule_ids: ["augment"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+  forbidden_keys:
+    - prompt
+    - completion
+    - message
+    - messages
+    - env
+    - args
+notes: >
+  Presence-only: ~/.augment / globalStorage / auggie / extension + existing
+  proxy catalogue. Residual is vendor/admin usage export. Do not parse
+  .augment/commands, chat transcripts, or mcpServers.json. Unsanctioned.

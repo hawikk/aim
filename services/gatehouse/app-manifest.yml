@@ -1,0 +1,36 @@
+# GitHub App manifest for gatehouse.
+#
+# Create the App from this file (Settings -> Developer settings -> GitHub Apps
+# -> New GitHub App -> "from a manifest"), so the permission set is reviewed as
+# a diff in this repo rather than clicked through a web form once and forgotten.
+#
+# The justification for each permission is in
+# docs/gatehouse-github-app.md §1. Adding one here without adding it there is a
+# review failure, not an oversight.
+name: gatehouse
+url: https://github.com/hawikk/aim
+description: >-
+  PR-time security review. Runs diff-scoped SAST, secret, IaC and dependency
+  scanners on pull requests and reports one check run and one comment.
+public: false
+
+hook_attributes:
+  # Replace with the deployment's public URL. The service refuses to start
+  # without GATEHOUSE_WEBHOOK_SECRET, so an unauthenticated endpoint is not a
+  # reachable misconfiguration.
+  url: https://gatehouse.internal.example/webhook
+  active: true
+
+default_permissions:
+  # Clone the PR head; read .gatehouse.yml from the base branch. READ ONLY —
+  # gatehouse can never push a commit, branch or tag (epic decision D4).
+  contents: read
+  # Post and edit the single summary comment. `write` is the minimum GitHub
+  # offers for commenting; it does not permit merging, closing or approving.
+  pull_requests: write
+  # Create the check run, set its conclusion, attach inline annotations.
+  checks: write
+
+default_events:
+  # Only pull_request. Not push, not issues, not issue_comment.
+  - pull_request

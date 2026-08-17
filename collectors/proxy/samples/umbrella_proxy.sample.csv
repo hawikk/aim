@@ -1,0 +1,21 @@
+# Cisco Umbrella proxy CSV — synthetic subset (AIM-1111).
+# Sanitized RFC1918 internal IPs, fake identity labels, no real customer data.
+# Field map (CSV):
+#   Timestamp, Identities, Internal IP, External IP, Destination IP,
+#   Content Type, Action, URL, Hostname, Categories, HTTP Method, Status Code
+# Identity presence: Identities = user (directory / AD label). May be multi-value
+#   ("user@corp,Network"); parser takes the first token for coverage only.
+# Replay: ./replay_sample.sh samples/umbrella_proxy.sample.csv
+# Pin:    --format umbrella_csv
+Timestamp,Identities,Internal IP,External IP,Destination IP,Content Type,Action,URL,Hostname,Categories,HTTP Method,Status Code
+2026-07-21 10:00:00 UTC,jsmith@corp.example,10.12.3.41,203.0.113.10,104.18.32.47,application/json,Allowed,https://api.anthropic.com/v1/messages,api.anthropic.com,AI and Machine Learning,POST,200
+2026-07-21 10:00:01 UTC,jsmith@corp.example,10.12.3.41,203.0.113.10,104.18.32.48,application/json,Allowed,https://statsig.anthropic.com/v1/rgstr,statsig.anthropic.com,AI and Machine Learning,POST,200
+2026-07-21 10:00:02 UTC,agarcia@corp.example,10.12.7.19,203.0.113.10,76.76.21.21,application/grpc,Allowed,https://api2.cursor.sh/aiserver.v1.AiService/StreamChat,api2.cursor.sh,AI and Machine Learning,POST,200
+2026-07-21 10:00:03 UTC,bchen@corp.example,10.12.9.77,203.0.113.10,104.21.5.10,application/json,Allowed,https://api.kilocode.ai/v1/chat,api.kilocode.ai,AI and Machine Learning,POST,200
+2026-07-21 10:00:05 UTC,dpatel@corp.example,10.12.4.55,203.0.113.10,140.82.112.21,application/json,Allowed,https://api.githubcopilot.com/chat/completions,api.githubcopilot.com,AI and Machine Learning,POST,200
+2026-07-21 10:00:08 UTC,emiller@corp.example,10.12.6.23,203.0.113.10,104.18.33.45,text/html,Allowed,https://chatgpt.com/c/abc123?model=gpt-4o,chatgpt.com,AI and Machine Learning,GET,200
+2026-07-21 10:00:09 UTC,fjones@corp.example,10.12.8.31,203.0.113.10,104.18.27.90,application/json,Allowed,https://api.deepseek.com/chat/completions,api.deepseek.com,AI and Machine Learning,POST,200
+2026-07-21 10:00:11 UTC,fjones@corp.example,10.12.8.31,203.0.113.10,104.21.32.10,application/json,Allowed,https://openrouter.ai/api/v1/chat/completions,openrouter.ai,AI and Machine Learning,POST,200
+2026-07-21 10:00:15 UTC,ci-runner@corp.example,10.12.2.10,203.0.113.10,172.64.150.10,application/json,Allowed,https://api.openai.com/v1/chat/completions,api.openai.com,AI and Machine Learning,POST,200
+2026-07-21 10:00:20 UTC,jsmith@corp.example,10.12.3.41,203.0.113.10,142.250.72.4,text/html,Allowed,https://www.google.com/search?q=weather,www.google.com,Search Engines,GET,200
+2026-07-21 10:00:22 UTC,hkim@corp.example,10.12.5.60,203.0.113.10,35.190.42.10,application/grpc,Allowed,https://server.codeium.com/exa.api_server_pb.ApiServerService/GetCompletions,server.codeium.com,AI and Machine Learning,POST,200

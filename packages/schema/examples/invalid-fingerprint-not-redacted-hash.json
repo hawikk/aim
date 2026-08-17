@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.8",
+  "event_id": "7b2c1d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e",
+  "ts": "2026-07-28T09:14:02Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": null,
+  "tool": "claude_code",
+  "tool_version": "1.0.62",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1908f7e6d5c4b3a2918f7e6d5c4b3a",
+  "repo_ref": "4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
+  "match_flags": [
+    {
+      "detector": "secret:github-token",
+      "category": "secret",
+      "severity": "high",
+      "fingerprint": "ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890"
+    }
+  ],
+  "source": "endpoint"
+}

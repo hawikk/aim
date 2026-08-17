@@ -1,0 +1,48 @@
+{{- $full := include "aim.fullname" . }}
+AI Monitoring platform installed (release {{ .Release.Name }}, appVersion {{ .Chart.AppVersion }}).
+
+Components:
+  postgres   {{ $full }}-postgres:{{ .Values.postgres.service.port }}
+  minio      {{ $full }}-minio:{{ .Values.minio.service.apiPort }} (console :{{ .Values.minio.service.consolePort }})
+  ingest     {{ $full }}-ingest:{{ .Values.ingest.service.port }}
+  api+web    {{ $full }}-api:{{ .Values.api.service.port }}  ({{ if .Values.api.oidc.issuer }}OIDC SSO via {{ .Values.api.oidc.issuer }}{{ else }}{{ if .Values.api.requireSso }}REQUIRE_SSO set but oidc.issuer empty — API will refuse to boot{{ else }}personal/standalone mode — no SSO configured{{ end }}{{ end }})
+  guardrail  polling every {{ .Values.guardrail.pollInterval }}s
+
+Open the dashboard:
+  kubectl port-forward svc/{{ $full }}-api 8081:{{ .Values.api.service.port }}
+  → http://localhost:8081
+
+Smoke check (from the repo root):
+  API_URL=http://localhost:8081 node scripts/smoke.js
+
+{{- if .Values.api.authDev }}
+
+WARNING: api.authDev=true — /auth/dev/login role-switch endpoints are
+enabled. LOCAL UI DEVELOPMENT ONLY; never for a shared environment.
+{{- end }}
+{{- if and .Values.api.requireSso (not .Values.api.oidc.issuer) }}
+
+ERROR: api.requireSso is true but api.oidc.issuer is empty.
+The API will refuse to start (AIM_REQUIRE_SSO=1). Configure api.oidc
+(docs/deployment/hosted-preview-sso-runbook.md) before this release can serve traffic.
+{{- else if .Values.security.allowInsecureDefaults }}
+
+WARNING: security.allowInsecureDefaults=true (dev/throwaway shape).
+Chart defaults include documented local-only secrets and personal/standalone
+auth when OIDC is unset. For production: -f values-standard.yaml (or
+values-airgapped.yaml), set secrets.existingSecret + api.oidc, and see
+docs/security/helm-values-security-defaults.md. Production overlays refuse
+insecure opens at helm template/install time.
+{{- else if not .Values.api.oidc.issuer }}
+
+WARNING: no OIDC is configured — the dashboard is running in
+personal/standalone mode (a single local admin identity) and the default
+credentials are the documented local-only values from docker-compose.yml.
+Neither is acceptable for a shared environment — use values-standard.yaml,
+set real secrets (or secrets.existingSecret), and configure api.oidc for
+your IdP (docs/deployment/hosted-preview-sso-runbook.md).
+{{- end }}
+
+Upgrades: helm is roll-forward only — the pre-upgrade migrate job applies new
+migrations to existing data. See docs/deployment/upgrades.md and
+docs/deployment/backup-restore.md before upgrading production.

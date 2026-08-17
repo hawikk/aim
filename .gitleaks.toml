@@ -1,0 +1,50 @@
+# Gitleaks configuration — extend the default ruleset with org-specific patterns.
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+title = "AI Monitoring gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Files that are safe by construction"
+regexTarget = "match"
+regexes = [
+  # Documented AWS example access key ID used in detection unit tests.
+  '''AKIAIOSFODNN7EXAMPLE''',
+  # security.alert/v1 dedupe_key / live-status dedupeKey: SHA-256 over
+  # non-secret identity components. Opaque but never confidential.
+  '''dedupe_key"\s*:\s*"[0-9a-f]{16,64}"''',
+  '''dedupeKey"\s*:\s*"[0-9a-f]{16,64}"''',
+  # Dashboard metric field name trips generic-api-key on the key: label.
+  '''p95DurationMs''',
+  # Well-known local-only JWT secret used in identity-sync unit tests.
+  '''test-jwt-secret-[0-9a-f]+''',
+]
+paths = [
+  '''\.env\.example$''',
+  '''\.tfvars\.example$''',
+  '''gitleaks-report\.json$''',
+  '''sbom(\..*)?\.json$''',
+  # Collector/guardrail test fixtures: deliberate fake secrets for matcher tests.
+  '''collectors/.*/tests/.*''',
+  '''collectors/.*/validate_schema\.mjs$''',
+  '''collectors/matcher-fixtures/.*''',
+  '''services/guardrail/.*/tests?/.*''',
+  '''services/identity-sync/tests/.*''',
+  # gatehouse acceptance / eval / benchmark fixtures (AIM-161/162/334).
+  '''services/gatehouse/tests/fixtures/.*''',
+  '''services/gatehouse/eval/fixtures/.*''',
+  '''services/gatehouse/benchmark/.*''',
+  # AIM-277 throwaway planted secret used only for detector proof docs.
+  '''docs/_aim277_throwaway/.*''',
+  # Schema examples + conformance generator: format-valid dead tokens.
+  '''packages/schema/examples/.*''',
+  '''packages/schema/conformance/.*''',
+]
+
+# Example org-specific rule: internal service tokens.
+# [[rules]]
+# id = "aim-internal-token"
+# description = "AI Monitoring internal service token"
+# regex = '''aim_(?:api|svc)_[A-Za-z0-9]{32,}'''
+# tags = ["aim", "token"]

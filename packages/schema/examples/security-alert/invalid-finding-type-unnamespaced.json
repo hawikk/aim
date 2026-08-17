@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "0f2b9d1a-6c44-4a7d-9a2e-1b3c5d7e9f01",
+  "dedupe_key": "3065df930324ddd51515abd0396223ba5c8534c65c7eebdf297e654fcc22018c",
+  "pillar": "cloud_posture",
+  "producer": {
+    "name": "cloud-sentry",
+    "version": "8c9aead"
+  },
+  "finding_type": "s3_bucket_public_access",
+  "title": "S3 bucket allows public access via ACL or bucket policy",
+  "severity": "high",
+  "severity_id": 4,
+  "status": "new",
+  "observed_at": "2026-07-25T09:14:03Z",
+  "first_seen_at": "2026-07-25T09:14:03Z",
+  "last_seen_at": "2026-07-25T09:14:03Z",
+  "observed_count": 1,
+  "resource": {
+    "kind": "cloud_resource",
+    "ref": "arn:aws:s3:::sensitive-data-bucket",
+    "display": "sensitive-data-bucket",
+    "provider": "aws",
+    "account_ref": "123456789012",
+    "region": "eu-central-1"
+  },
+  "subject_ref": null,
+  "evidence": {
+    "source_uri": "cloud-sentry:/findings/2f9c1d84-5b70-4c2a-9e11-77aa03bd6f19",
+    "detail_count": 1,
+    "summary": "Public access is not blocked at the bucket or account level."
+  },
+  "labels": {
+    "compliance": "CIS-2.0/2.1.5",
+    "tool_source": "prowler"
+  },
+  "remediation_hint": "Enable S3 Block Public Access at the bucket and account level (copy-paste Terraform in the finding)."
+}

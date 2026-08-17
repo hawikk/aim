@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "policy_id": "mcp-tool-arg-default-deny",
+  "mode": "enforce",
+  "default_effect": "deny",
+  "rules": [
+    {
+      "id": "allow-ide-read-only",
+      "effect": "allow",
+      "priority": 50,
+      "match": {
+        "mcp_server": "ide",
+        "tool_name": { "prefix": "get_" },
+        "arg_shape": {
+          "keys_none": ["content", "body", "data"],
+          "key_count": { "max": 4 }
+        }
+      }
+    },
+    {
+      "id": "confirm-any-shell-class",
+      "effect": "confirm",
+      "priority": 40,
+      "match": {
+        "action_class": "shell"
+      }
+    }
+  ]
+}

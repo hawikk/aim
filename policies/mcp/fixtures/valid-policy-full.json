@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "policy_id": "mcp-tool-arg-pilot-2026-08",
+  "policy_hash": "aim664-tool-arg-shape-v1",
+  "mode": "observe",
+  "default_effect": "allow",
+  "notes": "Pilot matrix: deny destructive github tools that carry a force key; confirm filesystem writes; allow listed read tools. Metadata shape only.",
+  "rules": [
+    {
+      "id": "deny-github-delete-with-force",
+      "effect": "deny",
+      "priority": 200,
+      "title": "GitHub delete_repo with force flag present",
+      "match": {
+        "mcp_server": "github",
+        "tool_name": "delete_repo",
+        "action_class": "mcp_call",
+        "arg_shape": {
+          "keys_all": ["force"],
+          "key_types": { "force": "boolean" }
+        }
+      }
+    },
+    {
+      "id": "confirm-filesystem-write",
+      "effect": "confirm",
+      "priority": 150,
+      "title": "Filesystem write_file path present",
+      "match": {
+        "mcp_server": "filesystem",
+        "tool_name": { "equals": "write_file" },
+        "arg_shape": {
+          "keys_any": ["path", "file_path"],
+          "keys_none": ["token", "password", "secret"]
+        }
+      }
+    },
+    {
+      "id": "allow-github-search",
+      "effect": "allow",
+      "priority": 100,
+      "match": {
+        "mcp_server": { "equals": "github" },
+        "tool_name": { "prefix": "search_" },
+        "arg_shape": {
+          "key_count": { "min": 1, "max": 8 }
+        }
+      }
+    },
+    {
+      "id": "deny-credential-shaped-tool-name",
+      "effect": "deny",
+      "priority": 180,
+      "match": {
+        "tool_name": { "contains": "secret" },
+        "action_class": "mcp_call"
+      }
+    }
+  ]
+}

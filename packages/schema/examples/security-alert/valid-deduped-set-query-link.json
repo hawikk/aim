@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "9a1c3e5b-7d09-4f2a-8b46-1c3e5a7b9d02",
+  "dedupe_key": "b8d0f2a4c6e81032b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1",
+  "pillar": "ai_usage",
+  "producer": {
+    "name": "aim-guardrail",
+    "version": "631bd5b"
+  },
+  "finding_type": "ai_usage.unapproved_provider_or_model",
+  "title": "Unapproved provider for AI tool traffic",
+  "severity": "high",
+  "severity_id": 4,
+  "status": "new",
+  "observed_at": "2026-07-21T09:25:00Z",
+  "first_seen_at": "2026-07-21T09:25:00Z",
+  "last_seen_at": "2026-07-21T09:25:00Z",
+  "observed_count": 12,
+  "resource": {
+    "kind": "repo",
+    "ref": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "display": "repo:cccccccc",
+    "provider": null,
+    "account_ref": null,
+    "region": null
+  },
+  "subject_ref": {
+    "user_ref": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "host_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "evidence": {
+    "source_uri": "aim:/findings?rule_id=unapproved_provider_or_model&resource_ref=cccccccc",
+    "detail_count": 12,
+    "summary": "12 findings share this rule and repository."
+  },
+  "labels": {
+    "rule_id": "unapproved-provider-or-model",
+    "ruleset_version": "1",
+    "decision": "observe"
+  },
+  "remediation_hint": "Confirm intent with the engineer; if unsanctioned, remove the ANTHROPIC_BASE_URL override."
+}

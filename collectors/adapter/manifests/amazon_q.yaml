@@ -1,0 +1,60 @@
+# Amazon Q Developer (ex-CodeWhisperer) — named presence.
+# Inspected amazon-q-developer-cli (2026-08-13): ~/.aws/amazonq plus
+# $XDG_DATA_HOME/amazon-q/data.sqlite3. SQLite tables are history
+# (shell command/cwd/hostname), conversations (key/value JSON), state,
+# and auth — all content or secrets. No metadata-only model/token table.
+# Do not SELECT those tables. schema_tool=other + tool_raw=amazon_q.
+# Catalogue rule id stays amazon-codewhisperer; tool=amazon_q.
+id: amazon_q
+display_name: Amazon Q Developer
+provider: aws
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.aws/amazonq"
+        - "~/.aws/amazon-q"
+        - "~/.local/share/amazon-q"
+        - "~/Library/Application Support/amazon-q"
+        - "${XDG_DATA_HOME}/amazon-q"
+        - "${LOCALAPPDATA}/amazon-q"
+      binaries: ["q"]
+    extraction:
+      # Do not glob data.sqlite3 / conversation JSON. Presence is path/binary.
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - amazonwebservices.amazon-q-vscode
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - codewhisperer.us-east-1.amazonaws.com
+        - codewhisperer.us-west-2.amazonaws.com
+        - q.us-east-1.amazonaws.com
+        - desktop-release.codewhisperer.us-east-1.amazonaws.com
+        - codewhisperer.eu-central-1.amazonaws.com
+        - codewhisperer.ap-southeast-1.amazonaws.com
+        - q.us-west-2.amazonaws.com
+        - q.aws.dev
+      catalogue_rule_ids: ["amazon-codewhisperer"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: >
+  Distinct from aws_bedrock (provider-api). Local CLI DB is contentful —
+  residual is vendor GetUsageLimits / admin export, not a local token
+  column. Unsanctioned by default. Do not auto-promote.

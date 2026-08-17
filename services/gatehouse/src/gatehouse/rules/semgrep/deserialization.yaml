@@ -1,0 +1,37 @@
+# Vendored semgrep pack — unsafe deserialization (AIM-328).
+rules:
+  - id: python-unsafe-deserialization
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Deserializing untrusted data with pickle/yaml.load executes arbitrary
+      code by design. Use a safe loader or a data-only format.
+    metadata:
+      gatehouse_type: unsafe_deserialization
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      short_description: Unsafe deserialization of untrusted input
+      remediation: "Use yaml.safe_load, or json, instead of pickle.loads / yaml.load."
+      confidence: MEDIUM
+      category: deserialization
+    patterns:
+      - pattern-either:
+          - pattern: pickle.loads(...)
+          - pattern: yaml.load($X)
+          - pattern: yaml.load($X, Loader=yaml.Loader)
+          - pattern: yaml.load($X, Loader=yaml.UnsafeLoader)
+
+  - id: python-marshal-loads
+    languages: [python]
+    severity: ERROR
+    message: >-
+      marshal.loads can execute code from crafted payloads. Never deserialize
+      untrusted bytes with marshal.
+    metadata:
+      gatehouse_type: unsafe_deserialization
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      short_description: Unsafe marshal.loads of untrusted data
+      remediation: "Use json or a schema-validated format for untrusted input."
+      confidence: HIGH
+      category: deserialization
+    patterns:
+      - pattern: marshal.loads(...)

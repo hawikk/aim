@@ -1,0 +1,53 @@
+id: kilo_code
+display_name: Kilo Code
+provider: kilocode
+schema_tool: kilo_code
+sanctioned: true
+implementation: legacy
+legacy:
+  package: collectors/kilo-code
+  reason: >
+    VS Code globalStorage task JSON (ui_messages / api_conversation_history)
+    plus standalone CLI SQLite sessions (AIM-647) and MCP inventory stay in
+    collectors/kilo-code; manifest registers the tool on the shared contract.
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.config/Code/User/globalStorage/kilocode.kilo-code"
+        - "~/.cursor-server/data/User/globalStorage/kilocode.kilo-code"
+      extension_ids: ["kilocode.kilo-code"]
+    extraction:
+      format: legacy
+      session_glob: "tasks/*/ui_messages.json"
+      source: endpoint
+  # Standalone CLI (AIM-647 dual surface) — separate on-disk store from the
+  # VS Code extension. Events tag tool_version as cli/<version>.
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.local/share/kilo/kilo.db"
+      binaries: ["kilo"]
+    extraction:
+      format: legacy
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids: ["kilocode.kilo-code"]
+    extraction:
+      format: legacy
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains: ["kilocode.ai", "app.kilo.ai"]
+      catalogue_rule_ids: ["kilocode-backend"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+

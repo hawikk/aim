@@ -1,0 +1,83 @@
+# Vendored semgrep pack — injection (AIM-328).
+#
+# Data-driven: add a rule here, not in runner/scanner code. The scanner points
+# at this directory; every *.yaml is loaded.
+rules:
+  - id: python-sql-injection-format
+    languages: [python]
+    severity: ERROR
+    message: >-
+      SQL query built by string formatting with untrusted input. An attacker
+      controlling this value can change the statement, not just its data.
+      Use parameterized queries (cursor.execute(sql, params)).
+    metadata:
+      gatehouse_type: sql_injection
+      cwe: "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+      short_description: SQL injection — query built by string concatenation
+      remediation: >-
+        Pass values as parameters: cursor.execute("SELECT ... WHERE id = %s", (user_id,)).
+        Never interpolate request data into the SQL text.
+      confidence: HIGH
+      category: injection
+    patterns:
+      - pattern-either:
+          - pattern: $CURSOR.execute("..." % ..., ...)
+          - pattern: $CURSOR.execute("..." + ..., ...)
+          - pattern: $CURSOR.execute(f"...", ...)
+          - pattern: $CURSOR.execute("...".format(...), ...)
+          - pattern: |
+              $QUERY = "..." % ...
+              ...
+              $CURSOR.execute($QUERY, ...)
+          - pattern: |
+              $QUERY = f"..."
+              ...
+              $CURSOR.execute($QUERY, ...)
+          - pattern: |
+              $QUERY = "..." + ...
+              ...
+              $CURSOR.execute($QUERY, ...)
+
+  - id: js-sql-injection-template
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      SQL query assembled from a template literal or concatenation. Use the
+      driver's placeholder form so values can never be read as SQL.
+    metadata:
+      gatehouse_type: sql_injection
+      cwe: "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+      short_description: SQL injection — query built by string interpolation
+      remediation: 'Use placeholders: db.query("SELECT ... WHERE id = $1", [id]).'
+      confidence: HIGH
+      category: injection
+    patterns:
+      - pattern-either:
+          - pattern: $DB.query(`...${...}...`, ...)
+          - pattern: $DB.execute(`...${...}...`, ...)
+          - pattern: $DB.query("..." + $X, ...)
+          - pattern: $DB.execute("..." + $X, ...)
+
+  - id: python-shell-command-injection
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Shell command built from a formatted string with shell=True. Anything
+      that reaches this value can run arbitrary commands as this process.
+    metadata:
+      gatehouse_type: command_injection
+      cwe: "CWE-78: Improper Neutralization of Special Elements used in an OS Command"
+      short_description: Command injection — shell=True with an interpolated command
+      remediation: >-
+        Pass an argument list and drop shell=True: subprocess.run(["git", "clone", url]).
+      confidence: HIGH
+      category: injection
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.$FN(f"...", ..., shell=True, ...)
+          - pattern: subprocess.$FN("..." % ..., ..., shell=True, ...)
+          - pattern: subprocess.$FN("..." + ..., ..., shell=True, ...)
+          - pattern: subprocess.$FN("...".format(...), ..., shell=True, ...)
+          - pattern: os.system(f"...")
+          - pattern: os.system("..." % ...)
+          - pattern: os.system("..." + ...)

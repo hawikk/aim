@@ -1,0 +1,6 @@
+{"ts": "2026-07-29T12:00:00Z", "host": "chatgpt.com", "process_class": "browser", "device_id": "pilot-device-001"}
+{"ts": "2026-07-29T12:00:05Z", "host": "chat.openai.com", "process_class": "browser", "device_id": "pilot-device-001"}
+{"ts": "2026-07-29T12:05:00Z", "host": "claude.ai", "process_class": "browser", "device_id": "pilot-device-001"}
+{"ts": "2026-07-29T12:05:30Z", "host": "api.claude.ai", "process_class": "desktop_app", "device_id": "pilot-device-001"}
+{"ts": "2026-07-29T12:06:00Z", "host": "news.ycombinator.com", "process_class": "browser", "device_id": "pilot-device-001"}
+{"ts": "2026-07-29T12:07:00Z", "host": "https://chatgpt.com/c/secret-thread-id?model=gpt-4o", "device_id": "pilot-device-001"}

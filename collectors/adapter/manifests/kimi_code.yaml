@@ -1,0 +1,34 @@
+id: kimi_code
+display_name: Kimi Code
+provider: kimi
+schema_tool: kimi_code
+sanctioned: false
+implementation: legacy
+legacy:
+  package: collectors/kimi-code
+  reason: >
+    wire.jsonl + state.json scanners and MCP inventory remain in
+    collectors/kimi-code; first-class schema enum already names the tool.
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.kimi"
+        - "~/.config/kimi"
+    extraction:
+      format: legacy
+      session_glob: "**/wire.jsonl"
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - api.moonshot.cn
+        - api.moonshot.ai
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: First-class schema tool; still unapproved until Security promotes it.

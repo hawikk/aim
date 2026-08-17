@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "event_id": "3f6f9a2e-9d4b-4c1a-8e7d-2a5b6c7d8e9f",
+  "ts": "2026-07-21T14:03:11Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": "0db271bf0b35a7379e8474b26bd3c199e11f8cb40b778304dba418a1dfc6848f",
+  "tool": "claude_code",
+  "tool_version": "1.0.62",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "sess_9f8e7d6c5b4a",
+  "tokens_in": 18342,
+  "tokens_out": 1204,
+  "cost_estimate_usd": 0.0731,
+  "repo_ref": "4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
+  "match_flags": [
+    {
+      "detector": "secret:aws-access-key",
+      "category": "secret",
+      "severity": "high"
+    }
+  ],
+  "source": "endpoint"
+}

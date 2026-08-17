@@ -1,0 +1,98 @@
+/* Coverage & Trust (AIM-278) — three known/covered/dark columns.
+   Uses the shell's design tokens only; no new primitives. */
+
+.cov-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cov-col { display: flex; flex-direction: column; gap: 10px; }
+
+.cov-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cov-col-head h2 { margin: 0; }
+
+.cov-fresh {
+  font-family: var(--mono);
+  font-size: var(--text-sm, 12px);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+}
+.cov-fresh.stale {
+  border-color: var(--bad-border, var(--bad));
+  color: var(--bad);
+  font-weight: 600;
+}
+.cov-fresh.fresh { color: var(--good); }
+.cov-fresh.unknown { border-style: dashed; }
+
+.cov-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cov-stat {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.cov-stat .label {
+  font-size: var(--text-xs, 11px);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cov-stat .value {
+  font-family: var(--mono);
+  font-size: 22px;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.cov-stat .value.tone-good { color: var(--good); }
+.cov-stat .value.tone-bad { color: var(--bad); }
+.cov-stat .value.tone-unknown { color: var(--faint); }
+.cov-stat .unknown-hint { font-size: var(--text-xs, 11px); color: var(--faint); }
+
+.cov-notwired {
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: var(--text-sm, 12px);
+  color: var(--muted);
+}
+.cov-notwired code { color: var(--text); }
+.cov-notwired p { margin: 6px 0 0; }
+
+.cov-error {
+  border: 1px solid var(--bad-border, var(--bad));
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: var(--text-sm, 12px);
+  color: var(--bad);
+}
+
+.cov-col .hint { margin: 0; }
+
+.cov-list { margin-top: 2px; }
+.cov-list table { width: 100%; }
+.cov-list td, .cov-list th { white-space: normal; }
+
+.cov-foot {
+  color: var(--faint);
+  font-size: var(--text-xs, 11px);
+  margin-top: 4px;
+}
+
+/* AIM-332: stale ledger rows + toggle spacing */
+.cov-row-stale td {
+  background: color-mix(in srgb, var(--bad, #c0392b) 8%, transparent);
+}
+.cov-toggle {
+  margin-top: 0.35rem;
+  margin-right: 0.4rem;
+}

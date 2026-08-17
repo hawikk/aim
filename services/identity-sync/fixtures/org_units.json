@@ -1,0 +1,77 @@
+[
+  {
+    "orgUnitPath": "/",
+    "name": "Root",
+    "parentOrgUnitPath": null
+  },
+  {
+    "orgUnitPath": "/Engineering",
+    "name": "Engineering",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Engineering/Platform",
+    "name": "Platform",
+    "parentOrgUnitPath": "/Engineering"
+  },
+  {
+    "orgUnitPath": "/Engineering/Product",
+    "name": "Product",
+    "parentOrgUnitPath": "/Engineering"
+  },
+  {
+    "orgUnitPath": "/Security",
+    "name": "Security",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Data",
+    "name": "Data",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Design",
+    "name": "Design",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Marketing",
+    "name": "Marketing",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Sales",
+    "name": "Sales",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Finance",
+    "name": "Finance",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/People",
+    "name": "People",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Legal",
+    "name": "Legal",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Support",
+    "name": "Support",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/IT",
+    "name": "IT",
+    "parentOrgUnitPath": "/"
+  },
+  {
+    "orgUnitPath": "/Research",
+    "name": "Research",
+    "parentOrgUnitPath": "/"
+  }
+]

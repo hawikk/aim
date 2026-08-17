@@ -1,0 +1,51 @@
+# OpenAI Codex CLI — first-class fleet coverage via sqlite_table surface (AIM-1012).
+# Real ~/.codex/state_*.sqlite threads table: model, tokens_used, cli_version,
+# model_provider, id. Content columns (first_user_message, preview, title, …)
+# are never SELECTed. schema_tool=other + tool_raw=codex_cli (no schema minor).
+# Default unsanctioned — Security/CEO own approved_tools promotion.
+id: codex_cli
+display_name: Codex CLI
+provider: openai
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.codex"
+      binaries: ["codex"]
+    extraction:
+      format: sqlite_table
+      session_glob: "state_*.sqlite"
+      source: endpoint
+      sqlite:
+        table: threads
+      field_map:
+        # logical → SQLite column (whitelist only; content columns hard-denied)
+        session_id: id
+        model: model
+        provider: model_provider
+        # Codex stores a single tokens_used total (no in/out split).
+        tokens_in: tokens_used
+        tool_version: cli_version
+        ts: updated_at_ms
+        # cwd is HMAC'd to repo_ref by the emit path; never on the wire raw.
+        repo_key: cwd
+privacy:
+  metadata_only: true
+  forbidden_keys:
+    - first_user_message
+    - preview
+    - title
+    - git_origin_url
+    - git_sha
+    - git_branch
+    - rollout_path
+    - cwd
+notes: >
+  Codex CLI local state is SQLite (state_N.sqlite threads), not JSONL.
+  Proxy: api.openai.com already yields presence as provider=openai with
+  unknown tool attribution — that cannot name Codex specifically. Depth
+  and tool identity require this endpoint surface. Do not auto-sanction.

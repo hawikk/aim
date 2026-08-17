@@ -1,0 +1,246 @@
+{{- /*
+NetworkPolicy pack (AIM-769). Default-deny namespace + allowlist for
+ingest/api/guardrail ↔ postgres/minio and public ingress ports.
+
+Requires a CNI that enforces NetworkPolicy (Calico, Cilium, GKE, EKS with
+Amazon VPC CNI Network Policy, etc.). See docs/deployment/enterprise-topology.md.
+*/ -}}
+{{- if and .Values.networkPolicy .Values.networkPolicy.enabled }}
+{{- $np := .Values.networkPolicy }}
+{{- if $np.defaultDeny | default true }}
+---
+# Default deny all ingress + egress in the release namespace for pods managed
+# by this chart instance. Selective allow policies below open required paths.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-default-deny
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+{{- end }}
+---
+# DNS egress (CoreDNS / kube-dns) — required for name resolution under deny-all.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-dns
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $np.dnsNamespace | default "kube-system" }}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+---
+# Ingest: collectors POST /v1/events — open service port from cluster/world.
+# Restrict with networkPolicy.allowIngressFrom when collectors are pinned.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-ingest-ingress
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "ingest" "context" .) | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "ingest" "context" .) | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: {{ .Values.ingest.service.port }}
+      {{- with $np.allowIngressFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+# API / dashboard: ingress controller or clients.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-api-ingress
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: {{ .Values.api.service.port }}
+      {{- with $np.allowIngressFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+# App pods (api, ingest, guardrail, migrate) → Postgres (in-cluster or external).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-app-to-postgres
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: [api, ingest, guardrail, migrate]
+      - key: app.kubernetes.io/instance
+        operator: In
+        values: [{{ .Release.Name }}]
+  policyTypes:
+    - Egress
+  egress:
+{{- if .Values.postgres.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.postgres.service.port }}
+{{- else }}
+    # External/managed Postgres: open TCP/5432 to configured CIDRs (or all).
+    - to:
+{{- if and $np.externalEgressCIDRs (gt (len $np.externalEgressCIDRs) 0) }}
+{{- range $np.externalEgressCIDRs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+{{- end }}
+{{- else }}
+        - ipBlock:
+            cidr: 0.0.0.0/0
+{{- end }}
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 443
+{{- end }}
+{{- if .Values.postgres.enabled }}
+---
+# Postgres accepts only from app pods (not world).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-postgres-ingress
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: [api, ingest, guardrail, migrate]
+              - key: app.kubernetes.io/instance
+                operator: In
+                values: [{{ .Release.Name }}]
+      ports:
+        - protocol: TCP
+          port: 5432
+{{- end }}
+---
+# Ingest → object store (in-cluster MinIO or external S3).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-ingest-to-objectstore
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "ingest" "context" .) | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "ingest" "context" .) | nindent 6 }}
+  policyTypes:
+    - Egress
+  egress:
+{{- if .Values.minio.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              {{- include "aim.selectorLabels" (dict "component" "minio" "context" .) | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.minio.service.apiPort }}
+{{- else }}
+    - to:
+{{- if and $np.externalEgressCIDRs (gt (len $np.externalEgressCIDRs) 0) }}
+{{- range $np.externalEgressCIDRs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+{{- end }}
+{{- else }}
+        - ipBlock:
+            cidr: 0.0.0.0/0
+{{- end }}
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 9000
+{{- end }}
+{{- if .Values.minio.enabled }}
+---
+# MinIO accepts API traffic from ingest + minio-init only.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "aim.fullname" . }}-allow-minio-ingress
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "minio" "context" .) | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "minio" "context" .) | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: [ingest, minio-init]
+              - key: app.kubernetes.io/instance
+                operator: In
+                values: [{{ .Release.Name }}]
+      ports:
+        - protocol: TCP
+          port: {{ .Values.minio.service.apiPort }}
+{{- end }}
+{{- end }}

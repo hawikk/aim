@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.9",
+  "event_id": "b2c3d4e5-f6a7-4890-b123-456789abcdef",
+  "ts": "2026-07-29T12:05:00Z",
+  "host_ref": "bbccddeeff00112233445566778899aabbccddeeff00112233445566778899aa",
+  "user_ref": null,
+  "tool": "other",
+  "tool_raw": "claude_web",
+  "model": null,
+  "provider": "anthropic",
+  "session_id": "1123456789abcdef0123456789abcdef",
+  "match_flags": [
+    {
+      "detector": "policy:unapproved-tool",
+      "category": "policy",
+      "severity": "medium"
+    }
+  ],
+  "source": "os_egress",
+  "traffic_class": "employee"
+}

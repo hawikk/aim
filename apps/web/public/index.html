@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>AI Monitoring — Usage Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232dd4a8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='1' y='1' width='22' height='22' rx='3' fill='%230a0a0b' stroke='none'/%3E%3Cpath d='M21 12h-2.5l-2 6-4-14-2.5 8H5'/%3E%3C/svg%3E" />
+  <!-- AIM-514: apply the stored theme BEFORE first paint. This has to be an
+       inline, blocking script — a module script is deferred, and a deferred
+       theme is a visible flash of dark on a light-theme operator's screen.
+       Keep the key and the value vocabulary identical to public/lib/theme.js
+       (THEME_KEY / 'dark' | 'light'); test/theme.test.js asserts they match. -->
+  <script>
+    try {
+      if (localStorage.getItem('aim.theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch (e) { /* storage blocked: fall through to the dark default */ }
+  </script>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/vendor/chart.umd.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <h1 class="sr-only">AI Monitoring usage dashboard</h1>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12h-2.5l-2 6-4-14-2.5 8H5"/></svg>
+        </span>
+        <span class="brand-name">AI Monitoring</span>
+      </div>
+
+      <!-- AIM-1070: primary rail + collapsible utility groups. Routes stay
+           addressable; placeNavTab (lib/nav-ia.js) rehomes module tabs. -->
+      <nav id="tabs" role="tablist" aria-label="Dashboard views">
+        <div class="nav-slot nav-slot-primary" data-nav-slot="primary">
+          <button data-view="overview" id="tab-overview" role="tab" aria-selected="true" class="active" aria-controls="view-overview">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            Home
+          </button>
+          <button data-view="security" id="tab-security" role="tab" aria-selected="false" aria-controls="view-security">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            Security
+          </button>
+          <button data-view="fleet" id="tab-fleet" role="tab" aria-selected="false" aria-controls="view-fleet" hidden>
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/></svg>
+            Fleet
+          </button>
+        </div>
+
+        <div class="nav-group-wrap" data-nav-group="analysis" data-collapsed="true">
+          <button type="button" class="nav-group-toggle" data-nav-toggle="analysis" aria-expanded="false" aria-controls="nav-body-analysis">
+            <span class="nav-group-label">Analysis</span>
+            <span class="nav-group-meta" data-nav-count="analysis" hidden></span>
+            <svg class="ico nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="nav-group-body" id="nav-body-analysis" data-nav-body="analysis" hidden>
+            <button data-view="providers" id="tab-providers" role="tab" aria-selected="false" aria-controls="view-providers">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+              Providers
+            </button>
+            <button data-view="app-llm" id="tab-app-llm" role="tab" aria-selected="false" aria-controls="view-app-llm">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+              App-LLM
+            </button>
+            <button data-view="apps" id="tab-apps" role="tab" aria-selected="false" aria-controls="view-apps">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>
+              Apps
+            </button>
+            <button data-view="teams" id="tab-teams" role="tab" aria-selected="false" aria-controls="view-teams">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Teams
+            </button>
+            <button data-view="tools" id="tab-tools" role="tab" aria-selected="false" aria-controls="view-tools">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              Tools
+            </button>
+            <button data-view="repos" id="tab-repos" role="tab" aria-selected="false" aria-controls="view-repos">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+              Repos
+            </button>
+            <button data-view="activity" id="tab-activity" role="tab" aria-selected="false" aria-controls="view-activity" hidden>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+              Live
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-group-wrap" data-nav-group="ops" data-collapsed="true">
+          <button type="button" class="nav-group-toggle" data-nav-toggle="ops" aria-expanded="false" aria-controls="nav-body-ops">
+            <span class="nav-group-label">Ops &amp; health</span>
+            <span class="nav-group-meta" data-nav-count="ops" hidden></span>
+            <svg class="ico nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="nav-group-body" id="nav-body-ops" data-nav-body="ops" hidden></div>
+        </div>
+
+        <div class="nav-group-wrap" data-nav-group="control" data-collapsed="true">
+          <button type="button" class="nav-group-toggle" data-nav-toggle="control" aria-expanded="false" aria-controls="nav-body-control">
+            <span class="nav-group-label">Control plane</span>
+            <span class="nav-group-meta" data-nav-count="control" hidden></span>
+            <svg class="ico nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="nav-group-body" id="nav-body-control" data-nav-body="control" hidden></div>
+        </div>
+
+        <div class="nav-group-wrap" data-nav-group="restricted" data-collapsed="true">
+          <button type="button" class="nav-group-toggle" data-nav-toggle="restricted" aria-expanded="false" aria-controls="nav-body-restricted">
+            <span class="nav-group-label">Restricted</span>
+            <span class="nav-group-meta" data-nav-count="restricted" hidden></span>
+            <svg class="ico nav-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="nav-group-body" id="nav-body-restricted" data-nav-body="restricted" hidden>
+            <button data-view="users" id="tab-users" role="tab" aria-selected="false" aria-controls="view-users" hidden>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+              Users
+            </button>
+            <button data-view="audit" id="tab-audit" role="tab" aria-selected="false" aria-controls="view-audit" hidden>
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+              Audit
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-foot">
+        <span id="me" class="me"></span>
+        <!-- AIM-479: GET /auth/logout clears the session and lands on a signed-out
+             page (no auto-redirect to /auth/login — that re-auths via SSO). -->
+        <a id="sign-out" class="sign-out" href="/auth/logout" hidden>Sign out</a>
+      </div>
+    </aside>
+
+    <div class="content">
+      <header class="topbar">
+        <div class="segmented" id="range" role="group" aria-label="Time range">
+          <button data-days="7" aria-pressed="false">7d</button>
+          <button data-days="30" aria-pressed="true" class="active">30d</button>
+          <button data-days="90" aria-pressed="false">90d</button>
+        </div>
+        <span id="updated" class="updated" title="Last refreshed"></span>
+        <span class="spacer"></span>
+        <div class="controls">
+          <span id="pipeline-health" class="pipeline-health" role="status" aria-live="polite" hidden></span>
+          <span id="env-tag" class="tag" title="Environment">pilot</span>
+          <!-- AIM-707: home persona picker (SOC / Sec Eng / Admin). Hidden when
+               the session has fewer than two allowable personas. Preference is
+               local (aim.homeRole); API role still gates data. -->
+          <div class="segmented home-role" id="home-role" role="group" aria-label="Home layout" hidden>
+            <button type="button" data-home-role="soc" aria-pressed="false" title="SOC home — triage first">SOC</button>
+            <button type="button" data-home-role="seceng" aria-pressed="false" title="Security engineering home">Sec Eng</button>
+            <button type="button" data-home-role="admin" aria-pressed="false" title="Admin home — fleet posture">Admin</button>
+          </div>
+          <!-- AIM-917: locale picker — registered catalogs only (en/de/fr/nl).
+               Preference: localStorage aim.locale → navigator → en. -->
+          <label class="picker locale-picker" for="locale-picker">
+            <span class="locale-picker-label">Language</span>
+            <select id="locale-picker" aria-label="Language" title="Interface language for admin and analyst chrome"></select>
+          </label>
+          <!-- AIM-514: theme toggle. aria-pressed carries the state so the
+               accessible name ("Light theme") stays stable; the icon shows the
+               theme the click will switch TO. -->
+          <button type="button" id="theme-toggle" class="theme-toggle" data-theme-toggle aria-pressed="false" title="Switch to the light theme">
+            <svg class="ico ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg class="ico ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            <span class="sr-only">Light theme</span>
+          </button>
+          <span id="role-badge" class="role-badge" title="Your permission level determines which rows you can see"></span>
+        </div>
+      </header>
+
+  <div id="sr-status" class="sr-only" aria-live="polite"></div>
+
+      <main id="main">
+    <section id="view-overview" class="view active" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+      <!-- AIM-481 front page + AIM-707 role-based widget order (data-home-widget). -->
+      <!-- AIM-1070: Home is the single main page — live signals only, not a second tab rail. -->
+      <div class="banner info home-banner" id="ov-home-banner" hidden></div>
+      <div class="banner info" id="ov-vendor-feeds" hidden></div>
+      <div class="cards" id="ov-cards" data-home-widget="kpis"></div>
+      <div class="panel panel-spark" data-home-widget="spark">
+        <h2>Live activity <span class="hint">events per day in range</span> <a class="panel-link" id="ov-activity-link" href="#/activity">Open Live →</a></h2>
+        <div class="chart-box chart-box-spark"><canvas id="ov-trend" role="img" aria-label="Sparkline of daily events"></canvas></div>
+      </div>
+      <div class="panel" id="ov-alerts-panel" data-home-widget="alerts">
+        <h2>Top open alerts <span class="hint">critical &amp; high, newest first</span> <a class="panel-link" id="ov-alerts-link" href="#/findings">Triage →</a></h2>
+        <div id="ov-alerts" class="ov-alerts" role="list" aria-label="Top open security alerts"></div>
+      </div>
+      <div class="ov-tool-split" data-home-widget="tools">
+        <div class="panel">
+          <h2>Sanctioned tools <span class="hint">on the allowlist</span> <a class="btn-export" id="exp-overview" href="/api/overview?format=csv" download>CSV</a></h2>
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Sanctioned tools table, scrollable"><table id="ov-tools-sanctioned"></table></div>
+        </div>
+        <div class="panel">
+          <h2>Unapproved tools <span class="hint">not on the allowlist</span> <a class="panel-link" href="#/security">Security →</a></h2>
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Unapproved tools table, scrollable"><table id="ov-tools-unapproved"></table></div>
+        </div>
+      </div>
+      <!-- AIM-1007: live multi-window Epic A attribution health (1h/24h/7d pct_ok) -->
+      <div class="panel" id="ov-attr-health-panel" data-home-widget="attribution">
+        <h2>Attribution health <span class="hint">live 1h / 24h / 7d pct_ok — Epic A gate ≥95% on trailing 7d; service principals count as OK</span>
+          <span class="verified-stamp" id="ov-attr-health-verified" hidden></span>
+        </h2>
+        <div id="ov-attr-health" aria-live="polite"></div>
+      </div>
+      <!-- AIM-452: attributed vs unattributed is a first-class, alertable Overview metric -->
+      <div class="panel" id="ov-attribution-panel" data-home-widget="attribution">
+        <h2>Identity coverage <span class="hint">attributed vs unattributed usage — a rate nobody alerts on is how we assert fleet coverage we do not have</span>
+          <span class="verified-stamp" id="ov-attr-verified" hidden></span>
+        </h2>
+        <div class="cards" id="ov-attr-cards"></div>
+        <div class="chart-box" style="margin-top:1rem"><canvas id="ov-attr-trend" role="img" aria-label="Line chart of daily attributed and unattributed event rates"></canvas></div>
+        <div class="split-tables" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
+          <div>
+            <h3 class="subhead">By tool <span class="hint">unattributed first</span></h3>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Unattributed usage by tool, scrollable"><table id="ov-attr-tools"></table></div>
+          </div>
+          <div>
+            <h3 class="subhead">By host <span class="hint">top 50 by unattributed events</span></h3>
+            <div class="table-wrap" tabindex="0" role="region" aria-label="Unattributed usage by host, scrollable"><table id="ov-attr-hosts"></table></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" data-home-widget="repos"><h2>Repositories <span class="hint">pseudonymous repo refs — which codebases AI tools touch</span> <a class="btn-export" id="exp-repos" href="/api/repos?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Repositories table, scrollable"><table id="ov-repos"></table></div></div>
+    </section>
+
+    <section id="view-providers" class="view" role="tabpanel" aria-labelledby="tab-providers" tabindex="0">
+      <div class="banner info">Org-level AI provider traffic by collection path. <b>proxy</b> = network-path visibility (no endpoint agent required); <b>endpoint</b> = device collector.</div>
+      <div class="controls-row">
+        <div class="segmented" id="source-filter" role="group" aria-label="Collection source">
+          <button data-source="all" aria-pressed="true" class="active">all</button>
+          <button data-source="proxy" aria-pressed="false">proxy</button>
+          <button data-source="endpoint" aria-pressed="false">endpoint</button>
+        </div>
+      </div>
+      <div class="panel detail" id="prov-detail" hidden></div>
+      <div class="cards" id="prov-cards"></div>
+      <div class="panel"><h2>Providers <span class="hint">volumes by AI provider</span> <a class="btn-export" id="exp-providers" href="/api/providers?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Providers table, scrollable"><table id="prov-table"></table></div></div>
+      <div class="panel"><h2>Events by provider</h2><div class="chart-box"><canvas id="prov-chart" role="img" aria-label="Bar chart of events by provider"></canvas></div></div>
+      <div class="panel"><h2>Daily events by provider</h2><div class="chart-box"><canvas id="prov-trend" role="img" aria-label="Line chart of daily events by provider"></canvas></div></div>
+    </section>
+
+    <section id="view-app-llm" class="view" role="tabpanel" aria-labelledby="tab-app-llm" tabindex="0">
+      <div class="banner info">Application-LLM traffic (AIM-103): company software vs employee tools calling LLM provider APIs, metered at the proxy. <b>application</b> = server/DC/CI source; <b>employee</b> = endpoint source; <b>unknown</b> = not yet classified (subnet inventory pending). Metadata only — volume, bytes, status; no tokens, models, or content. For OTel-instrumented apps (model + token + cost), open the <a href="#apps">Apps</a> view.</div>
+      <div class="cards" id="al-cards"></div>
+      <div class="panel" id="al-otel-panel" hidden>
+        <h2>OTel instrumented apps <span class="hint">model + token + cost depth lives on Apps — proxy metering above cannot see tokens</span></h2>
+      <div class="banner info">Application-LLM traffic (AIM-103): company software vs employee tools calling LLM provider APIs, metered at the proxy. <b>application</b> = server/DC/CI source; <b>employee</b> = endpoint source; <b>unknown</b> = not yet classified (subnet inventory pending). Metadata only — volume, bytes, status; no tokens, models, or content. For OTel-instrumented apps (model + token totals), open the <a href="#apps">Apps</a> view.</div>
+      <div class="cards" id="al-cards"></div>
+      <div class="panel" id="al-otel-panel" hidden>
+        <h2>OTel instrumented apps <span class="hint">model + token depth lives on Apps — proxy metering above cannot see tokens</span></h2>
+        <div class="cards" id="al-otel-cards"></div>
+        <p class="hint" id="al-otel-hint"></p>
+      </div>
+      <div class="panel"><h2>Provider API metering by source class <span class="hint">per-provider volume, bytes, and status mix</span> <a class="btn-export" id="exp-app-llm" href="/api/app-llm?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Provider API metering by source class table, scrollable"><table id="al-table"></table></div></div>
+      <div class="panel"><h2>New sources calling an LLM API <span class="hint">first-ever provider-API call inside the window — the shadow-AI-in-software signal</span></h2><div class="table-wrap" tabindex="0" role="region" aria-label="New sources calling an LLM API table, scrollable"><table id="al-new"></table></div></div>
+      <div class="panel"><h2>Daily events by provider and source class</h2><div class="chart-box"><canvas id="al-trend" role="img" aria-label="Line chart of daily provider API events by source class"></canvas></div></div>
+    </section>
+
+    <section id="view-apps" class="view" role="tabpanel" aria-labelledby="tab-apps" tabindex="0">
+      <div class="banner info" id="apps-vendor-feeds" hidden></div>
+      <div class="banner info">Application LLM telemetry (AIM-105 / AIM-737): APM-class per-service signals from OTel GenAI instrumentation — model distribution, token metering (in/out), estimated cost by service and model. Metadata only; there is deliberately no employee/user dimension here. Complements the App-LLM view (proxy metering) with in-app instrumentation. Team-level model/cost is on <a href="#teams">Teams</a>.</div>
+      <div class="panel detail" id="apps-detail" hidden></div>
+      <div class="cards" id="apps-cards"></div>
+      <div class="panel"><h2>Instrumented applications <span class="hint">per-service LLM usage — click a service for its model inventory and trend</span> <a class="btn-export" id="exp-apps" href="/api/apps/llm?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Instrumented applications table, scrollable"><table id="apps-table"></table></div></div>
+      <div class="panel"><h2>Model distribution <span class="hint">which models OTel sources call — tokens and estimated cost (metadata only, no prompt content)</span> <a class="btn-export" id="exp-apps-models" href="/api/apps/llm?format=csv&amp;breakdown=models" download>CSV</a></h2>
+      <div class="banner info">Application LLM telemetry (AIM-105 / AIM-574): APM-class per-service signals from OTel GenAI instrumentation — model distribution, token metering (in/out), errors and latency. Metadata only; there is deliberately no employee/user dimension here. Complements the App-LLM view (proxy metering) with in-app instrumentation.</div>
+      <div class="panel detail" id="apps-detail" hidden></div>
+      <div class="cards" id="apps-cards"></div>
+      <div class="panel"><h2>Instrumented applications <span class="hint">per-service LLM usage — click a service for its model inventory and trend</span> <a class="btn-export" id="exp-apps" href="/api/apps/llm?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Instrumented applications table, scrollable"><table id="apps-table"></table></div></div>
+      <div class="panel"><h2>Model distribution <span class="hint">which models OTel sources call, with token totals — metadata only, no prompt content</span></h2>
+        <div class="chart-box"><canvas id="apps-models-chart" role="img" aria-label="Bar chart of total tokens by model across instrumented apps"></canvas></div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Model distribution table, scrollable"><table id="apps-models-table"></table></div>
+      </div>
+    </section>
+
+    <section id="view-teams" class="view" role="tabpanel" aria-labelledby="tab-teams" tabindex="0">
+      <div class="banner warn" id="teams-attr-banner" hidden></div>
+      <div class="panel detail" id="team-detail" hidden></div>
+      <div class="panel"><h2>Per-team usage <span class="hint">click a team for identity, members, models, and rename; unresolved identities bucket into (unattributed)</span> <a class="btn-export" id="exp-teams" href="/api/teams?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Per-team usage table, scrollable"><table id="teams-table"></table></div></div>
+      <!-- AIM-737: team × model tokens/cost (aggregate endpoint; exportable) -->
+      <div class="panel"><h2>Model usage by team <span class="hint">tokens and estimated cost per model — employee tooling path (OTel apps have no team dimension; see Apps)</span> <a class="btn-export" id="exp-teams-models" href="/api/aggregate?group_by=team,model&amp;format=csv" download>CSV</a></h2>
+        <div class="chart-box"><canvas id="teams-models-chart" role="img" aria-label="Bar chart of estimated cost by model across teams"></canvas></div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Model usage by team table, scrollable"><table id="teams-models-table"></table></div>
+      </div>
+      <!-- AIM-94: team × tool token matrix (aggregate endpoint, follows the range control) -->
+      <div class="panel"><h2>Team × tool matrix <span class="hint">tokens per team and tool — hover a cell for events and est. cost</span></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Team by tool token matrix, scrollable"><table id="teams-matrix"></table></div></div>
+      <div class="panel"><h2>Cost by team</h2><div class="chart-box"><canvas id="teams-chart" role="img" aria-label="Bar chart of estimated cost by team"></canvas></div></div>
+    </section>
+
+    <section id="view-tools" class="view" role="tabpanel" aria-labelledby="tab-tools" tabindex="0">
+      <div class="banner info" id="tools-vendor-feeds" hidden></div>
+      <div class="panel"><h2>Tools in use <span class="hint">click a row for the drill-down — sanctioned status, first/last seen, version when known</span> <a class="btn-export" id="exp-tools-list" href="/api/tools?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Tools inventory table, scrollable"><table id="tools-table"></table></div></div>
+      <div class="panel detail" id="tool-detail">
+        <div class="controls-row">
+          <label class="picker">Tool: <select id="tool-picker"></select></label>
+          <span id="tool-sanction-actions" class="tool-sanction-actions" hidden></span>
+        </div>
+        <div class="cards" id="tool-cards"></div>
+        <h2>Models <a class="btn-export" id="exp-tool" href="/api/tools?format=csv" download>CSV</a></h2>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Models table, scrollable"><table id="tool-models"></table></div>
+        <h2>Versions observed</h2>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Tool versions table, scrollable"><table id="tool-versions"></table></div>
+        <h2>Daily usage</h2>
+        <div class="chart-box"><canvas id="tool-trend" role="img" aria-label="Line chart of daily usage for the selected tool"></canvas></div>
+      </div>
+    </section>
+
+    <section id="view-repos" class="view" role="tabpanel" aria-labelledby="tab-repos" tabindex="0">
+      <div class="banner info">Repositories are <b>pseudonymized by design</b> (HMAC repo refs — data minimization). Live data shows those refs, not raw Git remotes. Human-readable labels (security group only) are the explicit de-pseudonymization path and every access is audited. Do not treat truncated mono hashes as a bug.</div>
+      <div class="panel detail" id="repo-detail" hidden></div>
+      <div class="panel"><h2>Repositories <span class="hint">click a repo for the drill-down; repos with guardrail flag hits are highlighted</span> <a class="btn-export" id="exp-repos-tab" href="/api/repos?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Repositories table, scrollable"><table id="repos-table"></table></div></div>
+    </section>
+
+    <section id="view-security" class="view" role="tabpanel" aria-labelledby="tab-security" tabindex="0">
+      <div class="banner warn">Guardrail match flags (observe-only, v1) and unapproved tool discovery. Aggregates only — matched content is never stored; user identities withheld here by policy. Click a detector row for evidence, or use <b>View all open findings</b> / severity pills to open the full alert list in Findings triage.</div>
+      <div class="cards" id="sec-cards"></div>
+      <!-- AIM-796: fleet enforce coverage (install path + honor rate). Analyst+ only;
+           hidden until capabilities.coverage or capabilities.fleet unhides it.
+           Loads GET /api/enforcement/coverage (AIM-789 contract). Metadata only. -->
+      <div class="panel" id="sec-enforce-panel" hidden>
+        <h2>Fleet enforce coverage <span class="hint">install-path (policy loaded) + honor rate under mode=enforce — zero blocks is not clean when posture is dark</span>
+          <span class="verified-stamp" id="sec-enforce-asof" hidden></span>
+        </h2>
+        <div id="sec-enforce-statement" class="sec-enforce-statement" role="status"></div>
+        <div id="sec-enforce-coverage"></div>
+      </div>
+      <div class="controls-row" id="sec-filters">
+        <label class="picker">Criticality: <select id="sec-severity" aria-label="Filter match flags by severity">
+          <option value="all" selected>all</option>
+          <option value="critical">critical</option>
+          <option value="high">high</option>
+          <option value="medium">medium</option>
+          <option value="low">low</option>
+        </select></label>
+        <span class="hint" id="sec-filter-hint"></span>
+        <!-- AIM-1023: always-visible hop into Findings triage (wired in loadSecurity). -->
+        <a class="btn-control" id="sec-findings-cta" href="#/findings" hidden>View all open findings →</a>
+      </div>
+      <div class="panel detail" id="sec-detail" hidden>
+        <div class="sec-detail-head">
+          <h2 id="sec-detail-title">Detail</h2>
+          <button type="button" class="btn-control" id="sec-detail-close">Close</button>
+        </div>
+        <div id="sec-detail-body"></div>
+      </div>
+      <div class="panel"><h2>Match flags by detector <span class="hint">click a row for evidence + triage</span> <a class="panel-link" id="sec-findings-panel-link" href="#/findings" hidden>View all open findings →</a> <a class="btn-export" id="exp-flags" href="/api/flags?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Match flags by detector table, scrollable"><table id="flags-table"></table></div></div>
+      <div class="panel"><h2>Matches by severity <span class="hint">where the risk sits across every triggered detector</span></h2><div class="chart-box"><canvas id="flags-severity" role="img" aria-label="Bar chart of detector matches by severity"></canvas></div></div>
+      <div class="panel"><h2>Flag hits per day</h2><div class="chart-box"><canvas id="flags-trend" role="img" aria-label="Line chart of guardrail flag hits per day"></canvas></div></div>
+      <!-- AIM-588: fixed-height chart boxes side-by-side — no layout thrash on load. -->
+      <div class="charts-grid" role="group" aria-label="Security trend charts">
+        <div class="panel">
+          <h2>Detection volume <span class="hint">guardrail matches per day — total + top detectors</span></h2>
+          <div class="chart-box"><canvas id="flags-trend" role="img" aria-label="Line chart of detection volume per day"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Enforce blocks <span class="hint">blocked / would-block / override per day</span></h2>
+          <div class="chart-box"><canvas id="blocks-trend" role="img" aria-label="Line chart of enforce blocks per day"></canvas></div>
+        </div>
+      </div>
+      <div class="panel"><h2>Unapproved tool discovery <span class="hint">everything not on the sanctioned list (Claude Code, Cursor, Kilo Code) — click a row for detail</span> <a class="btn-export" id="exp-unapproved" href="/api/unapproved?format=csv" download>CSV</a></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Unapproved tool discovery table, scrollable"><table id="unapproved-table"></table></div></div>
+      <div class="panel"><h2>MCP server usage <span class="hint">mcp_call tool invocations by server (schema v1.1 tool_use events) — correlate with unapproved-MCP findings</span></h2><div class="table-wrap" tabindex="0" role="region" aria-label="MCP server usage table, scrollable"><table id="mcp-table"></table></div></div>
+      <div class="panel" id="sec-break-glass-panel">
+        <h2>Secret break-glass (overrides)
+          <span class="hint">endpoint resubmit overrides of secret-pattern blocks — pilot audit trail; metadata only</span>
+          <a class="btn-export" id="exp-break-glass" href="/api/enforcement/break-glass?format=csv" download>CSV</a>
+        </h2>
+        <div class="cards" id="break-glass-cards"></div>
+        <p class="hint" id="break-glass-hint"></p>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Secret break-glass overrides table, scrollable"><table id="break-glass-table"></table></div>
+      </div>
+
+      <div class="panel" id="sec-break-glass-grants-panel">
+        <h2>Break-glass grants
+          <span class="hint">AIM-784 — manager approval, expiry, revoke · metadata only</span>
+          <a class="btn-export" id="exp-break-glass-grants" href="/api/enforcement/break-glass/grants?format=csv" download>CSV</a>
+          <a class="btn-export" id="exp-break-glass-audit" href="/api/enforcement/break-glass/audit-export?format=bundle" download>Audit pack</a>
+        </h2>
+        <div class="cards" id="break-glass-grants-cards"></div>
+        <p class="hint" id="break-glass-grants-hint"></p>
+        <div class="controls-row" id="bg-grant-controls" style="margin-bottom:0.75rem">
+          <button type="button" class="btn-control" id="bg-grant-request">Request grant…</button>
+          <button type="button" class="btn-control" id="bg-grant-refresh">Refresh</button>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Break-glass grants table, scrollable"><table id="break-glass-grants-table"></table></div>
+      </div>
+    </section>
+
+    <section id="view-activity" class="view" role="tabpanel" aria-labelledby="tab-activity" tabindex="0">
+      <div class="banner info">Live event trail — per-event security score (1–10) and estimated cost. Restricted to analyst + admin. Pseudonymous; matched content is never stored.</div>
+      <div class="controls-row" id="act-filters">
+        <label class="picker">Tool: <input type="text" id="act-filter-tool" placeholder="e.g. claude_code" style="width:10em"></label>
+        <label class="picker">Event type: <input type="text" id="act-filter-event-type" placeholder="e.g. tool_use" style="width:9em"></label>
+        <label class="picker">User: <input type="text" id="act-filter-user" placeholder="pseudonym" style="width:10em"></label>
+        <label class="picker">Min score: <input type="number" id="act-filter-min-score" min="1" max="10" placeholder="1–10" style="width:5em"></label>
+        <button class="btn-control" id="act-refresh">Refresh</button>
+        <span class="find-views" id="act-views" role="group" aria-label="Saved views">
+          <label class="picker">View: <select id="act-view-select"><option value="">Custom filters</option></select></label>
+          <button type="button" class="btn-control" id="act-view-save">Save current…</button>
+          <button type="button" class="btn-control" id="act-view-rename" hidden>Rename</button>
+          <button type="button" class="btn-control" id="act-view-update" hidden>Update filters</button>
+          <button type="button" class="btn-control" id="act-view-delete" hidden>Delete</button>
+          <span class="hint" id="act-view-hint" hidden>Save this filter set to come back to it</span>
+        </span>
+        <div class="stream-control" style="margin-left:auto">
+          <span id="act-stream-state" class="stream-state" role="status" aria-live="polite" data-streaming="1">streaming</span>
+          <button type="button" class="btn-control" id="act-stream" aria-pressed="false" title="Pause the stream to inspect a row without it moving">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+            <span id="act-stream-label">Pause</span>
+          </button>
+        </div>
+      </div>
+      <div class="find-view-form" id="act-view-form" hidden>
+        <input type="text" id="act-view-name" maxlength="80" placeholder="View name (1–80 chars)" autocomplete="off" />
+        <button type="button" class="btn-control" id="act-view-confirm">Save view</button>
+        <button type="button" class="btn-control" id="act-view-cancel">Cancel</button>
+        <span class="find-form-err" id="act-view-err" role="alert"></span>
+      </div>
+      <div class="panel">
+        <h2>Activity trail <span class="hint" id="act-hint"></span></h2>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Activity trail table, scrollable" id="act-wrap">
+          <table id="act-table">
+            <caption class="sr-only">Live activity trail with security score, user, tool, tokens, cost and flags</caption>
+            <thead><tr>
+              <th scope="col">Time</th>
+              <th scope="col">Score</th>
+              <th scope="col">User</th>
+              <th scope="col">Tool</th>
+              <th scope="col">Model</th>
+              <th scope="col">Event</th>
+              <th scope="col" class="num">Tokens</th>
+              <th scope="col" class="num">Est. cost</th>
+              <th scope="col">Flags / factors</th>
+            </tr></thead>
+            <tbody id="act-tbody"></tbody>
+          </table>
+        </div>
+        <div class="act-pager">
+          <button id="act-load-more" class="btn-control" hidden>Load more</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-fleet" class="view" role="tabpanel" aria-labelledby="tab-fleet" tabindex="0">
+      <div class="banner info">Collector fleet — enrolled devices and heartbeat health. Restricted to the security group; access is logged. Heartbeat buckets: <b>healthy</b> within one interval, <b>stale</b> within three, <b>dead</b> beyond that, <b>never seen</b> before first heartbeat. <b>SLO-healthy</b> (AIM-645, ≥99% target) requires a reported <code>collector_version</code>, fresh <code>last_event_at</code> (heartbeat), and no active client-side errors. Enrolled-but-silent hosts appear as coverage gaps — they do not vanish. <b>Enforce coverage</b> (AIM-781) answers who can enforce today: install-path bundle delivery, honor rate, and fail-open inventory.</div>
+      <!-- AIM-1007: same Epic A attribution health panel as Overview home -->
+      <div class="panel" id="fleet-attr-health-panel">
+        <h2>Attribution health <span class="hint">live 1h / 24h / 7d pct_ok — Epic A gate ≥95% on trailing 7d</span>
+          <span class="verified-stamp" id="fleet-attr-health-verified" hidden></span>
+        </h2>
+        <div id="fleet-attr-health" aria-live="polite"></div>
+      </div>
+      <div class="cards" id="fleet-cards"></div>
+      <div class="panel"><h2>Collector coverage <span class="hint">share of enrolled devices actually reporting — the gap is the part that is not green</span>
+        <span class="verified-stamp" id="fleet-verified" hidden></span>
+      </h2><div id="fleet-coverage"></div></div>
+      <!-- AIM-588: coverage over time; fixed chart-box height prevents thrash. -->
+      <div class="panel">
+        <h2>Coverage over time <span class="hint">healthy % of enrolled devices and gap count per day</span></h2>
+        <div class="chart-box"><canvas id="fleet-cov-trend" role="img" aria-label="Line chart of fleet coverage over time"></canvas></div>
+      </div>
+      <div class="panel" id="fleet-enforce-panel">
+        <h2>Fleet enforce coverage <span class="hint">install path + honor rate + fail-open — who can enforce today without SQL</span>
+          <span class="verified-stamp" id="fleet-enforce-verified" hidden></span>
+        </h2>
+        <div class="cards" id="fleet-enforce-cards"></div>
+        <div id="fleet-enforce-alerts" class="banner warn" hidden role="status"></div>
+        <div id="fleet-enforce-summary" class="cov-headline" style="margin-top:0.75rem"></div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Who can enforce today, scrollable" style="margin-top:0.75rem">
+          <h3 class="hint" style="margin:0 0 0.35rem">Who can enforce today</h3>
+          <table id="fleet-enforce-who-table"></table>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Fail-open hosts inventory, scrollable" style="margin-top:1rem">
+          <h3 class="hint" style="margin:0 0 0.35rem">Fail-open inventory <span class="faint">(no bundle / shadow / stale)</span></h3>
+          <table id="fleet-enforce-failopen-table"></table>
+        </div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Honor rate by rule, scrollable" style="margin-top:1rem">
+          <h3 class="hint" style="margin:0 0 0.35rem">Honor rate by rule <span class="faint">blocked ÷ (blocked + would_block)</span></h3>
+          <table id="fleet-enforce-honor-table"></table>
+        </div>
+      </div>
+      <div class="panel"><h2>Enrolled devices <span class="hint">devices needing attention first; revoked devices are excluded; ≤100 per page</span></h2>
+        <div id="fleet-page-banner"></div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Enrolled devices table, scrollable"><table id="fleet-table"></table></div>
+        <div id="fleet-pager" class="list-pager-host"></div>
+      </div>
+    </section>
+
+    <section id="view-users" class="view" role="tabpanel" aria-labelledby="tab-users" tabindex="0">
+      <div class="banner info">User-level view — restricted to the security group. Access is logged (audit trail). Pseudonymous identifiers only; identity reveal is role-gated in identity-sync.</div>
+      <div id="users-truncation-banner" class="banner warn" role="status" hidden></div>
+      <div class="panel detail" id="user-detail" hidden></div>
+      <div class="panel"><h2>User usage <span class="hint">ordered by tokens · ≤100 per page · click a pseudonym for the per-user timeline</span> <a class="btn-export" id="exp-users" href="/api/users?format=csv" download>CSV</a></h2>
+        <div id="users-page-banner"></div>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="User usage table, scrollable"><table id="users-table"></table></div>
+        <div id="users-pager" class="list-pager-host"></div>
+      </div>
+    </section>
+
+    <section id="view-audit" class="view" role="tabpanel" aria-labelledby="tab-audit" tabindex="0">
+      <div class="banner info">Audit trail — immutable record of sign-ins, authorization decisions and sensitive actions. Restricted to auditors and security admins.</div>
+      <!-- AIM-989: operator-visible JIT first-login failures + SLA breaches (no raw log dig) -->
+      <div class="panel jit-status-panel" id="jit-status-panel" aria-labelledby="jit-status-h">
+        <h2 id="jit-status-h">JIT provisioning <span class="hint">first-login failures &amp; SLA</span></h2>
+        <p class="hint">Surfaces <code>identity.jit_provision_failed</code> and <code>identity.jit_sla_breach</code> from the audit trail. Runbook: <code id="jit-runbook-link">docs/security/jit-provisioning-sla.md</code></p>
+        <div id="jit-status-banner" class="banner info" role="status" hidden></div>
+        <div class="controls-row" id="jit-quick-filters">
+          <button type="button" class="btn-control" data-jit-filter="identity.jit_provision_failed">Filter failures</button>
+          <button type="button" class="btn-control" data-jit-filter="identity.jit_sla_breach">Filter SLA breaches</button>
+          <button type="button" class="btn-control" data-jit-filter="">Clear action filter</button>
+        </div>
+        <div class="jit-status-grid">
+          <div class="jit-status-col">
+            <h3>Recent failures <span class="hint" id="jit-fail-count"></span></h3>
+            <div id="jit-failures"></div>
+          </div>
+          <div class="jit-status-col">
+            <h3>SLA breaches <span class="hint" id="jit-breach-count"></span></h3>
+            <div id="jit-breaches"></div>
+          </div>
+        </div>
+      </div>
+      <div class="controls-row">
+        <label class="picker">Action: <input type="text" id="audit-filter-action" placeholder="e.g. finding.triage"></label>
+        <label class="picker">Actor: <input type="text" id="audit-filter-actor" placeholder="email"></label>
+        <label class="picker">Since: <input type="date" id="audit-filter-since"></label>
+        <button class="btn-control" id="audit-refresh">Refresh</button>
+      </div>
+      <div class="panel"><h2>Audit events <span class="hint">latest 200 matching the filters</span></h2><div class="table-wrap" tabindex="0" role="region" aria-label="Audit events table, scrollable"><table id="audit-table"></table></div></div>
+    </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+  <!-- AIM-290: product system status — "is it working and covering everything?" -->
+  <script type="module" src="/status.js"></script>
+  <!-- AIM-746: install health — enroll → first evidence SLO + breach alerts -->
+  <script type="module" src="/install-health.js"></script>
+  <!-- AIM-704: destination health — failed webhook/email/Slack delivery SLO + ops alerts -->
+  <script type="module" src="/destination-health.js"></script>
+  <!-- AIM-708: custom dashboard builder — compose KPIs/charts/tables into named dashboards (beyond saved views) -->
+  <script type="module" src="/dashboards.js"></script>
+  <!-- AIM-70: findings triage console — self-contained module, activates on capabilities.findingsConsole -->
+  <script type="module" src="/findings.js"></script>
+  <script type="module" src="/cases.js"></script>
+  <!-- AIM-160: unified cross-pillar alert inbox + stack health strip — self-contained module, activates on capabilities.findingsConsole (same analyst+ gate as /api/alerts) -->
+  <script type="module" src="/inbox.js"></script>
+  <!-- AIM-81: guardrail rules transparency viewer — self-contained module, activates on capabilities.guardrail -->
+  <script type="module" src="/rules.js"></script>
+  <!-- AIM-689: analyst-facing policy editor (safe subset, no raw YAML) — activates on capabilities.findingsConsole -->
+  <script type="module" src="/policy.js"></script>
+  <!-- AIM-703: SOC runbooks for every alert class — deep-linked from findings/rules/inbox; activates on capabilities.findingsConsole -->
+  <script type="module" src="/runbooks.js"></script>
+  <!-- AIM-87: compliance evidence report — self-contained module, activates on capabilities.compliance -->
+  <script type="module" src="/compliance.js"></script>
+  <!-- AIM-718: access review / attestation for AIM roles — admin + auditor -->
+  <script type="module" src="/access-review.js"></script>
+  <!-- MCP server inventory — self-contained module, activates on capabilities.findingsConsole -->
+  <script type="module" src="/mcp.js"></script>
+  <!-- AIM-278: Coverage & Trust — known/covered/dark per surface — self-contained module, activates on capabilities.coverage (analyst+) -->
+  <script type="module" src="/coverage.js"></script>
+  <!-- AIM-504: SaaS/OAuth shadow discovery (IdP grants) -->
+  <script type="module" src="/shadow-ai.js"></script>
+  <!-- AIM-144: live activity trail — self-contained module, activates on capabilities.userLevel -->
+  <script type="module" src="/activity.js"></script>
+  <!-- AIM-131: first-run onboarding + enrollment-token minting — self-contained module, activates on capabilities.admin (admin). Loaded last so its first-run activate() wins the initial landing. -->
+  <script type="module" src="/onboarding.js"></script>
+</body>
+</html>

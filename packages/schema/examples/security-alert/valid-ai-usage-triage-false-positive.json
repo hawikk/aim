@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "7c3a1e58-4d92-4b06-8f71-3e5c9a2d0b46",
+  "dedupe_key": "b7d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2",
+  "pillar": "ai_usage",
+  "producer": {
+    "name": "aim-guardrail",
+    "version": "fc48e49"
+  },
+  "finding_type": "ai_usage.unapproved_tool",
+  "title": "Unapproved AI coding tool in use on an enrolled endpoint",
+  "severity": "medium",
+  "severity_id": 3,
+  "status": "suppressed",
+  "observed_at": "2026-07-25T11:40:00Z",
+  "first_seen_at": "2026-07-24T17:02:41Z",
+  "last_seen_at": "2026-07-25T09:31:00Z",
+  "observed_count": 37,
+  "resource": {
+    "kind": "ai_session",
+    "ref": "aim:session:unapproved_tool:8f14e45f",
+    "display": "kilo-code on eng-laptop-0417",
+    "provider": null,
+    "account_ref": null,
+    "region": null
+  },
+  "subject_ref": {
+    "user_ref": "dd43bd7bc6831eb5c681eea59e3f8e8982e4561f2b205e491665ebc1ecdca636",
+    "host_ref": "6328b1db2bd857c3fabf6c73260801b2f134d0ad2a7fed233ae36adebc987a0b"
+  },
+  "evidence": {
+    "source_uri": "aim:/findings?rule_id=unapproved_tool&subject_ref=8f14e45f",
+    "detail_count": 37,
+    "summary": "Triaged false positive in AIM: the tool was on the approved list under a different package name."
+  },
+  "labels": {
+    "rule_id": "unapproved_tool",
+    "tool_raw": "kilo-code",
+    "aim_triage_status": "false_positive"
+  }
+}

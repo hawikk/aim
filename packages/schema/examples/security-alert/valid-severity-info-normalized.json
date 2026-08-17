@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "3b6d8e0a-1c25-4f39-9d47-5a8b0c2d4e61",
+  "dedupe_key": "d0f2b4a6c8e01234d6f8a0b2c4e6d8f0a2b4c6e8d0f2a4b6c8e0d2f4a6b8c0e2",
+  "pillar": "cloud_posture",
+  "producer": {
+    "name": "cloud-sentry",
+    "version": "8c9aead"
+  },
+  "finding_type": "cloud_posture.storage_soft_delete_disabled",
+  "title": "Blob soft delete is disabled on the storage account",
+  "severity": "informational",
+  "severity_id": 1,
+  "status": "new",
+  "observed_at": "2026-07-25T09:14:03Z",
+  "first_seen_at": "2026-07-25T09:14:03Z",
+  "last_seen_at": "2026-07-25T09:14:03Z",
+  "observed_count": 1,
+  "resource": {
+    "kind": "cloud_resource",
+    "ref": "/subscriptions/0b1/resourceGroups/rg-prod/providers/Microsoft.Storage/storageAccounts/prodblobs",
+    "display": "prodblobs",
+    "provider": "azure",
+    "account_ref": "0b1",
+    "region": "westeurope"
+  },
+  "subject_ref": null,
+  "evidence": {
+    "source_uri": "cloud-sentry:/findings/2f9c1d84-5b70-4c2a-9e11-77aa03bd6f19",
+    "detail_count": 1,
+    "summary": "Public access is not blocked at the bucket or account level."
+  },
+  "labels": {
+    "tool_source": "azure_defender_for_cloud"
+  },
+  "remediation_hint": "Enable S3 Block Public Access at the bucket and account level (copy-paste Terraform in the finding)."
+}

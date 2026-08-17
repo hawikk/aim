@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-08-14T23:29:54.806Z",
+  "base": "http://127.0.0.1:8281",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "deviceScaleFactor": 2,
+  "pixelSize": {
+    "width": 2880,
+    "height": 1800
+  },
+  "files": [
+    "docs/screenshots/overview.png",
+    "docs/screenshots/security.png",
+    "docs/screenshots/activity.png",
+    "docs/screenshots/fleet.png",
+    "docs/screenshots/theme-dark.png",
+    "docs/screenshots/theme-light.png"
+  ],
+  "note": "Live captures of the 2026-08-14 analyst console (personal/standalone) for the public README."
+}

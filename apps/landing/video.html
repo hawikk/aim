@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video — AI Monitoring</title>
+<meta name="description" content="See AI Monitoring in action: product walkthrough, guardrails, and how teams get started. Synthetic demo footage only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='white'/%3E%3C/svg%3E">
+<style>
+  /* No external font endpoints (AIM-353 standing rule): Inter / JetBrains Mono
+     are used when installed locally and degrade to the system stacks. */
+  :root {
+    --sans: "Inter", -apple-system, "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --fg: #fff;
+    --dim: #888;
+    --faint: #555;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: #000;
+    color: var(--fg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
+
+  .skip-link {
+    position: absolute; left: -9999px; top: 12px; z-index: 100;
+    background: #fff; color: #000; padding: 8px 16px; border-radius: 999px;
+    font-size: 13px;
+  }
+  .skip-link:focus { left: 12px; }
+
+  /* ---------- Nav (match index.html) ---------- */
+  .nav {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding:
+      max(28px, env(safe-area-inset-top, 0px) + 14px)
+      max(28px, env(safe-area-inset-right, 0px) + 28px)
+      26px
+      max(28px, env(safe-area-inset-left, 0px) + 28px);
+    overflow: visible;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; flex-shrink: 0; }
+  .brand .dot { width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px rgba(255,255,255,0.55); }
+  .nav-links { display: flex; gap: 36px; position: absolute; left: 50%; transform: translateX(-50%); }
+  .nav-links a { font-size: 14px; color: #999; transition: color 0.2s; }
+  .nav-links a:hover,
+  .nav-links a[aria-current="page"] { color: #fff; }
+  .nav-cta {
+    display: flex; align-items: center; gap: 14px;
+    flex-shrink: 0; overflow: visible;
+  }
+
+  .pill {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px; font-size: 14px; font-weight: 500;
+    padding: 9px 22px; line-height: 1.3; white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s, box-shadow 0.25s;
+    -webkit-appearance: none;
+    appearance: none;
+    overflow: visible;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+  .pill-solid {
+    background: #fff;
+    background-color: #fff;
+    color: #000 !important;
+    -webkit-text-fill-color: #000;
+    box-shadow: 0 0 24px rgba(255,255,255,0.28);
+  }
+  .pill-solid:hover { box-shadow: 0 0 36px rgba(255,255,255,0.42); }
+  .pill-outline { border: 1px solid rgba(255,255,255,0.28); color: #ddd; }
+  .pill-outline:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+  /* ---------- Page ---------- */
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 44px 80px;
+  }
+  .page-head {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.34em;
+    color: var(--dim); text-transform: uppercase; margin-bottom: 28px;
+  }
+  h1 {
+    font-size: clamp(34px, 4.6vw, 56px);
+    font-weight: 200; letter-spacing: -0.02em; line-height: 1.15;
+    color: #fff;
+  }
+  .page-sub {
+    margin: 18px auto 0;
+    max-width: 32em;
+    font-size: 16px;
+    line-height: 1.55;
+    color: #bbb;
+    font-weight: 400;
+  }
+
+  /* 16:9 stage — whitespace only, no card chrome / borders */
+  .video-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    margin: 0 auto;
+  }
+  .video-stage video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000 url("assets/demo-poster.svg") center / cover no-repeat;
+  }
+  .video-stage.is-empty video {
+    pointer-events: none;
+  }
+  .video-stage.is-empty video::-webkit-media-controls {
+    display: none !important;
+  }
+
+  .video-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px 24px;
+    background:
+      radial-gradient(ellipse 55% 50% at 50% 48%, rgba(255,255,255,0.05), transparent 70%),
+      rgba(0,0,0,0.22);
+    pointer-events: none;
+  }
+  .video-empty[hidden] { display: none; }
+  .video-empty-kicker {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 18px;
+  }
+  .video-empty-title {
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+  .video-empty-sub {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--dim);
+    max-width: 34em;
+  }
+  .video-empty-dot {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 0 28px 4px rgba(255,255,255,0.12),
+      inset 0 0 12px rgba(255,255,255,0.1);
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .video-empty-dot::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 8px; height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .captions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+    margin-top: 56px;
+  }
+  .caption h2 {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ccc;
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .caption p {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--dim); /* #888 */
+  }
+
+  .page-cta {
+    margin-top: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .demo-link { font-size: 15px; color: #aaa; transition: color 0.2s; }
+  .demo-link:hover { color: #fff; }
+  .demo-link .arrow { display: inline-block; transition: transform 0.2s; margin-left: 4px; }
+  .demo-link:hover .arrow { transform: translateX(3px); }
+
+  footer {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 44px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  footer .brand { font-size: 14px; color: #ccc; }
+  footer .brand .dot { width: 9px; height: 9px; }
+  footer nav { display: flex; gap: 26px; flex-wrap: wrap; }
+  footer nav a { font-size: 13px; color: #777; }
+  footer nav a:hover { color: #fff; }
+  footer .fine { font-size: 12px; color: var(--faint); font-family: var(--mono); }
+
+  @media (max-width: 960px) {
+    .nav-links { display: none; }
+    .captions { grid-template-columns: 1fr; gap: 36px; }
+    .page { padding-left: 24px; padding-right: 24px; }
+    footer { padding-left: 24px; padding-right: 24px; }
+  }
+  @media (max-width: 560px) {
+    .nav {
+      padding:
+        max(20px, env(safe-area-inset-top, 0px) + 12px)
+        max(16px, env(safe-area-inset-right, 0px) + 16px)
+        16px
+        max(16px, env(safe-area-inset-left, 0px) + 16px);
+    }
+    .nav-cta .pill-outline { display: none; }
+    .page-head { margin-bottom: 36px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav">
+  <a class="brand" href="index.html" aria-label="AI Monitoring home">
+    <span class="dot" aria-hidden="true"></span>
+    <span>AI Monitoring</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="index.html#features">Product</a>
+    <a href="video.html" aria-current="page">Video</a>
+    <a href="demo.html">Demo</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="pill pill-solid" href="index.html#pricing">Get Started</a>
+    <a class="pill pill-outline" href="mailto:sales@getaimonitoring.com">Contact Sales</a>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <header class="page-head">
+    <p class="eyebrow">product walkthrough</p>
+    <h1>See AI Monitoring in action</h1>
+    <p class="page-sub">A short demo of what AIM is, who it is for, and how guardrails work — on synthetic sample data only.</p>
+  </header>
+
+  <div class="video-stage is-empty" id="video-stage">
+    <!-- Prefer real capture at assets/demo.mp4 when ready (see VIDEO.md). -->
+    <video
+      id="demo-video"
+      controls
+      playsinline
+      preload="none"
+      poster="assets/demo-poster.svg"
+      aria-label="AI Monitoring product demo video"
+    >
+      <!-- Source attached by script only when the asset is present. -->
+    </video>
+    <div class="video-empty" id="video-empty" role="status">
+      <div class="video-empty-dot" aria-hidden="true"></div>
+      <p class="video-empty-kicker">Demo video</p>
+      <p class="video-empty-title">Coming soon</p>
+      <p class="video-empty-sub">
+        Screen capture of the sample Demo is loading.
+        Poster only for now — no customer data, no faked UI.
+      </p>
+    </div>
+  </div>
+
+  <section class="captions" aria-label="Video context">
+    <article class="caption">
+      <h2>What it is</h2>
+      <p>Security visibility and guardrails for every AI coding tool your engineers use — Claude Code, Cursor, and the rest of the stack.</p>
+    </article>
+    <article class="caption">
+      <h2>Who it’s for</h2>
+      <p>Security-led orgs and platform teams that need fleet visibility without paywalling privacy posture.</p>
+    </article>
+    <article class="caption">
+      <h2>How it works</h2>
+      <p>Collectors surface usage metadata; policies flag or block risk; every action lands in an audit trail you can show auditors.</p>
+    </article>
+  </section>
+
+  <div class="page-cta">
+    <a class="pill pill-solid" href="index.html#pricing">Get Started</a>
+    <a class="demo-link" href="demo.html">Try the sample demo<span class="arrow" aria-hidden="true">→</span></a>
+  </div>
+</main>
+
+<footer>
+  <span class="brand"><span class="dot" aria-hidden="true"></span>AI Monitoring</span>
+  <nav aria-label="Footer">
+    <a href="index.html#features">Product</a>
+    <a href="video.html" aria-current="page">Video</a>
+    <a href="demo.html">Demo</a>
+    <a href="index.html#privacy">Privacy</a>
+    <a href="mailto:sales@getaimonitoring.com">Contact</a>
+  </nav>
+  <span class="fine">© 2026 AI Monitoring</span>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+  // Prefer Remotion version, fallback to original Playwright capture
+  const ASSETS = ['assets/demo-remotion.mp4', 'assets/demo.mp4'];
+  const stage = document.getElementById('video-stage');
+  const video = document.getElementById('demo-video');
+  const empty = document.getElementById('video-empty');
+
+  function showEmpty() {
+    stage.classList.add('is-empty');
+    empty.hidden = false;
+    video.removeAttribute('controls');
+    video.removeAttribute('src');
+    while (video.firstChild) video.removeChild(video.firstChild);
+    // Keep poster visible as the stage background.
+    try { video.load(); } catch (_) { /* ignore */ }
+  }
+
+  function showPlayer(assetPath) {
+    stage.classList.remove('is-empty');
+    empty.hidden = true;
+    video.setAttribute('controls', '');
+    const source = document.createElement('source');
+    source.src = assetPath;
+    source.type = 'video/mp4';
+    video.appendChild(source);
+    video.addEventListener('error', showEmpty, { once: true });
+    video.load();
+  }
+
+  // HEAD probe with fallback waterfall
+  async function probeAssets() {
+    for (const asset of ASSETS) {
+      try {
+        const res = await fetch(asset, { method: 'HEAD', cache: 'no-store' });
+        if (res.ok) {
+          showPlayer(asset);
+          return;
+        }
+      } catch (_) {
+        // Try next asset
+      }
+    }
+    showEmpty();
+  }
+
+  probeAssets();
+})();
+</script>
+</body>
+</html>

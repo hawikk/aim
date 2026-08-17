@@ -1,0 +1,108 @@
+name: ci
+
+# Public Community CI.
+#
+# Scope note: this repository is a public snapshot of a larger internal
+# monorepo, and the snapshot does not carry the `tests/` directories for the
+# collectors and services. This workflow therefore runs exactly the suites and
+# guardrail checks that are present here and that were verified to pass on a
+# clean GitHub-hosted runner with no Docker daemon, no private registry, no
+# secrets and no network access beyond dependency installation. Nothing here is
+# allowed to depend on self-hosted runners or internal infrastructure.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: no job here writes to the repo or reads a secret.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: python (pytest, schema, packaging, guardrail checks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Deliberately not `-r requirements-dev.txt`: that file also installs the
+      # four services as editable packages for suites that are not part of this
+      # snapshot. These three are the only third-party imports reached by the
+      # steps below (pytest as the runner, jsonschema for the canonical schema
+      # validator, PyYAML for the catalogue/evidence checks). Version floors are
+      # kept in lockstep with requirements-dev.txt.
+      - name: install python deps
+        run: python -m pip install --upgrade pip 'pytest>=8.0' 'jsonschema>=4.20' 'PyYAML>=6.0'
+
+      # Static + behavioural checks on the published enrol script and on the
+      # DPIA evidence-pack exporter. No network, no pipx install.
+      - name: pytest (scripts)
+        run: python -m pytest scripts -q
+
+      # The canonical event schema is the privacy contract: it must keep
+      # rejecting prompt text, response bodies, tool-call arguments and
+      # plaintext identities. Validates every example plus the conformance
+      # corpus against both the publisher and consumer profiles.
+      - name: canonical schema + conformance corpus
+        run: python packages/schema/validate.py
+
+      # The documented install artifact. The builder is stdlib-only and offline
+      # by design, so a break here means the published wheel path is broken.
+      - name: build the `aim` CLI wheel + sdist (stdlib only)
+        run: python scripts/build_aim_cli.py
+
+      - name: MCP threat catalogue shape
+        run: python scripts/validate_mcp_threat_catalogue.py
+
+      - name: tool-version compatibility matrix
+        run: python scripts/check_tool_version_matrix.py
+
+      - name: OS install/enroll matrix
+        run: python scripts/check_os_install_enroll_matrix.py
+
+      - name: provider catalogue drift
+        run: python scripts/check_provider_catalogue_drift.py
+
+  node:
+    name: node (lint + typecheck + compose contract tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm is the repo's declared package manager (see `packageManager` in
+      # package.json); action-setup reads the pinned version from there.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: install workspace deps
+        run: pnpm install --frozen-lockfile
+
+      - name: eslint
+        run: pnpm lint
+
+      - name: typecheck
+        run: pnpm typecheck
+
+      # `pnpm test` is deliberately NOT run: services/ingest invokes `vitest
+      # run`, and this snapshot ships no test files for it, so vitest exits 1.
+      # The two suites below are real and self-contained. Both assert on the
+      # output of `docker compose config`, which is rendered entirely
+      # client-side — the docker CLI is preinstalled on ubuntu-latest and no
+      # daemon, image pull or registry access is required.
+      - name: compose host-port binding
+        run: node --test scripts/test_compose_bind.mjs
+
+      - name: compose pull-override contract
+        run: node --test scripts/test_compose_pull.mjs

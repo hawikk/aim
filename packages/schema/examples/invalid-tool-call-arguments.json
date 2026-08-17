@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.1",
+  "event_id": "8c3d5e6f-9a2b-4c5d-0e1f-2a3b4c5d6e7f",
+  "event_type": "tool_use",
+  "ts": "2026-07-22T09:42:10Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": null,
+  "tool": "claude_code",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "sess_9f8e7d6c5b4a",
+  "tool_calls": [
+    {
+      "tool_name": "Bash",
+      "mcp_server": null,
+      "action_class": "shell",
+      "count": 1,
+      "arguments": "cat ~/.aws/credentials"
+    }
+  ],
+  "match_flags": [],
+  "source": "endpoint"
+}

@@ -1,0 +1,160 @@
+# AIM-763 — Win / WSL / Linux install + enroll continuous proof matrix
+#
+# Living contract for the three locked endpoint shapes the product must
+# support under dimension 18 (fit to locked constraints):
+#   windows  — Intune Win32 package (Install-AIMCollector.ps1)
+#   wsl      — Linux installer inside a WSL distro (deploy/linux/install.sh)
+#   linux    — native Linux host (same installer; non-WSL OS string)
+#
+# CI (`scripts/check_os_install_enroll_matrix.py --check`) fails when any
+# required cell is incomplete: missing artifacts, contract markers gone,
+# or dry-run install under AIM_ROOT fails to produce enroll-ready layout.
+# The scheduled workflow `.github/workflows/os-install-enroll-matrix.yml`
+# runs this continuously on aim-ops and pages the owner via a sticky
+# GitHub issue on failure.
+#
+# WSL and native Linux share the bash installer; WSL is a distinct cell
+# because heartbeat must report `wsl-*` OS strings (see aim-collector-heartbeat.sh
+# os_string) so fleet coverage does not collapse WSL into bare linux.
+
+schema_version: 1
+issue: AIM-763
+parent: AIM-641
+owner: founding-engineer
+page_on_failure: true
+sticky_issue_title: "[AIM-763] OS install/enroll matrix FAILED"
+
+# Required OS shapes. Adding a shape without a cell is a hard fail.
+oses:
+  - linux
+  - wsl
+  - windows
+
+cells:
+  - os: linux
+    channel: native_bash
+    install_script: deploy/linux/install.sh
+    uninstall_script: deploy/linux/uninstall.sh
+    heartbeat_helper: deploy/linux/aim-collector-heartbeat.sh
+    scan_helper: deploy/linux/aim-collector-scan.sh
+    oob_health_helper: deploy/linux/aim-collector-oob-health.sh
+    systemd_units:
+      - deploy/linux/systemd/aim-collector-scan.service
+      - deploy/linux/systemd/aim-collector-scan.timer
+      - deploy/linux/systemd/aim-collector-oob-health.service
+      - deploy/linux/systemd/aim-collector-oob-health.timer
+    config_dir: /etc/aim-collector
+    payload_dir: /opt/aim-collector
+    # Contract markers that must appear as literal substrings (case-sensitive).
+    install_markers:
+      - AIM_INGEST_URL
+      - AIM_ENROLL_TOKEN
+      - enroll-token
+      - AIM_NO_SCHEDULER
+      - AIM_ROOT
+      - config.json
+      - aim-collector-heartbeat.sh
+      - aim-collector-scan.sh
+      - enforcement.json
+    heartbeat_markers:
+      - /v1/enroll
+      - /v1/heartbeat
+      - wsl-
+      - enroll-token
+      - device-token
+      - host_id
+    # Dry-run under AIM_ROOT is required for this cell.
+    dry_run: true
+    dry_run_expect_files:
+      - etc/aim-collector/config.json
+      - etc/aim-collector/token
+      - etc/aim-collector/enroll-token
+      - etc/aim-collector/enforcement.json
+      - opt/aim-collector/aim_collector/enroll.py
+      - opt/aim-collector/aim-collector-heartbeat.sh
+      - opt/aim-collector/aim-collector-scan.sh
+    notes: >
+      Native Linux host. Installer is root-owned systemd timer when available,
+      cron fallback otherwise. Enroll token optional; without it pilot falls
+      back to event last-seen coverage.
+
+  - os: wsl
+    channel: wsl_bash
+    # Same installer as native Linux — deliberately shared path modules.
+    install_script: deploy/linux/install.sh
+    uninstall_script: deploy/linux/uninstall.sh
+    heartbeat_helper: deploy/linux/aim-collector-heartbeat.sh
+    scan_helper: deploy/linux/aim-collector-scan.sh
+    oob_health_helper: deploy/linux/aim-collector-oob-health.sh
+    systemd_units:
+      - deploy/linux/systemd/aim-collector-scan.service
+      - deploy/linux/systemd/aim-collector-scan.timer
+      - deploy/linux/systemd/aim-collector-oob-health.service
+      - deploy/linux/systemd/aim-collector-oob-health.timer
+    config_dir: /etc/aim-collector
+    payload_dir: /opt/aim-collector
+    install_markers:
+      - AIM_INGEST_URL
+      - AIM_ENROLL_TOKEN
+      - enroll-token
+      - AIM_NO_SCHEDULER
+      - AIM_ROOT
+      - config.json
+      - aim-collector-heartbeat.sh
+    # WSL is the OS-string discriminator; must detect Microsoft kernel marker.
+    heartbeat_markers:
+      - /v1/enroll
+      - /v1/heartbeat
+      - wsl-
+      - microsoft
+      - /proc/version
+      - enroll-token
+      - device-token
+    dry_run: true
+    dry_run_expect_files:
+      - etc/aim-collector/config.json
+      - etc/aim-collector/token
+      - etc/aim-collector/enroll-token
+      - etc/aim-collector/enforcement.json
+      - opt/aim-collector/aim_collector/enroll.py
+      - opt/aim-collector/aim-collector-heartbeat.sh
+    notes: >
+      WSL distro is a separate endpoint from the Windows host. Run
+      deploy/linux/install.sh inside the distro (`wsl -d <distro> -- bash ...`).
+      Heartbeat prefixes os with `wsl-` when /proc/version mentions Microsoft.
+
+  - os: windows
+    channel: intune_win32
+    install_script: deploy/windows/Install-AIMCollector.ps1
+    uninstall_script: deploy/windows/Uninstall-AIMCollector.ps1
+    packaging_readme: deploy/windows/intunewin/README.md
+    config_dir: 'C:\ProgramData\AI-Monitoring\collector'
+    payload_dir: 'C:\Program Files\AIMonitoring\Collector'
+    detection_key: 'HKLM:\SOFTWARE\AIMonitoring\Collector'
+    task_name: AIM Collector Scan
+    install_markers:
+      - IngestUrl
+      - EnrollToken
+      - enroll-token
+      - Register-ScheduledTask
+      - heartbeat
+      - scan-once
+      - enforcement.json
+      - HKLM:\SOFTWARE\AIMonitoring\Collector
+      - AIM Collector Scan
+    uninstall_markers:
+      - Unregister-ScheduledTask
+      - AIM Collector Scan
+      - HKLM:\SOFTWARE\AIMonitoring\Collector
+    packaging_markers:
+      - IntuneWinAppUtil
+      - Install-AIMCollector.ps1
+      - Uninstall-AIMCollector.ps1
+      - EnrollToken
+      - Detection rule
+    # No Windows runner in CI — structural + packaging contract only.
+    dry_run: false
+    notes: >
+      Windows host via Intune Win32. Scheduled task runs scan-once + flush +
+      heartbeat every 5 min. EnrollToken is optional; without it pilot stays
+      on event last-seen until enroll is provisioned.

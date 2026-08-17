@@ -1,0 +1,31 @@
+id: grok_build
+display_name: Grok Build
+provider: xai
+schema_tool: grok_build
+sanctioned: false
+implementation: legacy
+legacy:
+  package: collectors/grok-build
+  reason: >
+    Paperclip grok_local run metadata + usage log parsing lives in
+    collectors/grok-build (AIM-271/AIM-371); registered here for fleet parity.
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.paperclip"
+        - "${PAPERCLIP_HOME}"
+    extraction:
+      format: legacy
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - api.x.ai
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true

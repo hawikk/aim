@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "event_id": "b2c3d4e5-f6a7-4890-b123-456789abcdef",
+  "ts": "2026-07-21T14:22:18Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": "0db271bf0b35a7379e8474b26bd3c199e11f8cb40b778304dba418a1dfc6848f",
+  "tool": "claude_code",
+  "tool_version": "1.0.62",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "sess_message_content_leak",
+  "tokens_in": 100,
+  "tokens_out": 20,
+  "match_flags": [],
+  "source": "endpoint",
+  "message": "please refactor login.py",
+  "messages": [
+    {"role": "user", "content": "please refactor login.py"},
+    {"role": "assistant", "content": "here is the patch..."}
+  ],
+  "content": "please refactor login.py"
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.1",
+  "event_id": "7b2c4d5e-8f1a-4b3c-9d0e-1f2a3b4c5d6e",
+  "event_type": "tool_use",
+  "ts": "2026-07-22T09:41:03Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": "0db271bf0b35a7379e8474b26bd3c199e11f8cb40b778304dba418a1dfc6848f",
+  "tool": "claude_code",
+  "tool_version": "1.0.62",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "sess_9f8e7d6c5b4a",
+  "repo_ref": "4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e",
+  "tool_calls": [
+    { "tool_name": "Bash", "mcp_server": null, "action_class": "shell", "count": 7, "duration_ms": 18340 },
+    { "tool_name": "Edit", "mcp_server": null, "action_class": "fs_write", "count": 3, "duration_ms": null },
+    { "tool_name": "Read", "mcp_server": null, "action_class": "fs_read", "count": 12, "duration_ms": null },
+    { "tool_name": "WebFetch", "mcp_server": null, "action_class": "network", "count": 1, "duration_ms": 2400 },
+    { "tool_name": "create_issue", "mcp_server": "github", "action_class": "mcp_call", "count": 2, "duration_ms": 3110 }
+  ],
+  "match_flags": [],
+  "source": "endpoint"
+}

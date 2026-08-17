@@ -1,0 +1,34 @@
+[project]
+name = "guardrail"
+version = "0.1.0"
+description = "Guardrail engine v1 — policy-as-code evaluation over the AI usage event stream (observe-only)"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",
+    "psycopg[binary]>=3.1",  # evaluate-db runner (AIM-32)
+    # Alert bus publisher (AIM-158). Both are runtime deps, not dev ones:
+    # `redis` is the transport, and `jsonschema` is what makes "a malformed
+    # publish is rejected and logged" true in production and not only in CI.
+    # bus.py degrades gracefully when either is missing so a bare checkout
+    # still runs, but the shipped image must carry both.
+    "redis>=5.0",
+    "jsonschema>=4.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+guardrail = "guardrail.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

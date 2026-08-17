@@ -1,0 +1,197 @@
+# IaC rule → CNAPP posture rule parity map (AIM-329).
+#
+# Each entry: an IaC scanner check (primarily Checkov) that, if it fails on a
+# PR, names the cloud-posture finding the same misconfiguration would become
+# post-deploy under Cloud Sentry (littlewiz policy slug).
+#
+# Fields:
+#   iac_rule        Checkov check id (or other scanner rule id)
+#   scanner         default checkov
+#   cnapp_rule      posture catalog slug (must exist in posture_catalog.yml)
+#   frameworks      optional IaC frameworks this mapping applies to
+#   note            why this mapping is the right semantic match
+#
+# Drift: `gatehouse iac-parity --check` fails when
+#   - a mapping points at an unknown cnapp_rule
+#   - a catalog rule with iac_required:true has zero mappings
+#   - a high-severity Checkov id listed under watchlist has no mapping
+
+version: 1
+
+mappings:
+  # --- AWS S3 public / public-access-block ---
+  - iac_rule: CKV_AWS_20
+    cnapp_rule: aws_s3_public
+    note: S3 bucket ACL allows public READ
+  - iac_rule: CKV_AWS_57
+    cnapp_rule: aws_s3_public
+    note: S3 bucket ACL allows public WRITE
+  - iac_rule: CKV_AWS_53
+    cnapp_rule: aws_s3_public
+    note: BlockPublicAcls disabled
+  - iac_rule: CKV_AWS_54
+    cnapp_rule: aws_s3_public
+    note: BlockPublicPolicy disabled
+  - iac_rule: CKV_AWS_55
+    cnapp_rule: aws_s3_public
+    note: IgnorePublicAcls disabled
+  - iac_rule: CKV_AWS_56
+    cnapp_rule: aws_s3_public
+    note: RestrictPublicBuckets disabled
+
+  # --- AWS security groups open to the world ---
+  - iac_rule: CKV_AWS_23
+    cnapp_rule: aws_sg_wide_open
+    note: SG rule to 0.0.0.0/0 without description
+  - iac_rule: CKV_AWS_24
+    cnapp_rule: aws_sg_wide_open
+    note: SSH (22) open to 0.0.0.0/0
+  - iac_rule: CKV_AWS_25
+    cnapp_rule: aws_sg_wide_open
+    note: RDP (3389) open to 0.0.0.0/0
+  - iac_rule: CKV_AWS_260
+    cnapp_rule: aws_sg_wide_open
+    note: HTTP (80) open to 0.0.0.0/0
+
+  # --- AWS RDS encryption ---
+  - iac_rule: CKV_AWS_16
+    cnapp_rule: aws_rds_unencrypted
+    note: RDS storage not encrypted
+  - iac_rule: CKV_AWS_17
+    cnapp_rule: aws_rds_unencrypted
+    note: RDS not in a private subnet / public accessibility sibling signal
+
+  # --- AWS IAM wildcards ---
+  - iac_rule: CKV_AWS_1
+    cnapp_rule: aws_iam_wildcard
+    note: IAM policy document uses Action * and Resource *
+  - iac_rule: CKV_AWS_40
+    cnapp_rule: aws_iam_wildcard
+    note: IAM policy allows full administrative privileges
+  - iac_rule: CKV_AWS_62
+    cnapp_rule: aws_iam_wildcard
+    note: IAM group policy too permissive
+
+  # --- GCP storage / compute ---
+  - iac_rule: CKV_GCP_28
+    cnapp_rule: gcp_gcs_public
+    note: GCS bucket not private / IAM allUsers
+  - iac_rule: CKV_GCP_29
+    cnapp_rule: gcp_gcs_public
+    note: GCS uniform bucket-level access / public ACL sibling
+  - iac_rule: CKV_GCP_32
+    cnapp_rule: gcp_compute_public
+    note: GCE instance with public IP
+  - iac_rule: CKV_GCP_30
+    cnapp_rule: gcp_compute_public
+    note: GCE default service account with public IP patterns
+  - iac_rule: CKV_GCP_15
+    cnapp_rule: gcp_bq_public
+    note: BigQuery dataset publicly accessible
+
+  # --- Azure storage ---
+  - iac_rule: CKV_AZURE_1
+    cnapp_rule: azure_storage_blob_public
+    note: Storage account allows blob public access
+  - iac_rule: CKV_AZURE_10
+    cnapp_rule: azure_storage_blob_public
+    note: Storage account allow_blob_public_access true
+  - iac_rule: CKV_AZURE_2
+    cnapp_rule: azure_storage_blob_public
+    note: Storage account default network access open
+
+  # --- Kubernetes pod security (Checkov CKV_K8S_*) ---
+  - iac_rule: CKV_K8S_16
+    cnapp_rule: k8s_pod_privileged_container
+    note: containers[].securityContext.privileged
+  - iac_rule: CKV_K8S_20
+    cnapp_rule: k8s_pod_allows_privilege_escalation
+    note: allowPrivilegeEscalation not set false
+  - iac_rule: CKV_K8S_25
+    cnapp_rule: k8s_pod_allows_privilege_escalation
+    note: allowPrivilegeEscalation true
+  - iac_rule: CKV_K8S_22
+    cnapp_rule: k8s_pod_runs_as_root
+    note: runAsNonRoot not true
+  - iac_rule: CKV_K8S_23
+    cnapp_rule: k8s_pod_runs_as_root
+    note: runAsUser is 0 / unset
+  - iac_rule: CKV_K8S_17
+    cnapp_rule: k8s_pod_host_namespace
+    note: hostPID true
+  - iac_rule: CKV_K8S_18
+    cnapp_rule: k8s_pod_host_namespace
+    note: hostIPC true
+  - iac_rule: CKV_K8S_19
+    cnapp_rule: k8s_pod_host_namespace
+    note: hostNetwork true
+  - iac_rule: CKV_K8S_21
+    cnapp_rule: k8s_pod_hostpath_volume
+    note: hostPath volume
+  - iac_rule: CKV_K8S_28
+    cnapp_rule: k8s_pod_dangerous_capabilities
+    note: NET_RAW capability
+  - iac_rule: CKV_K8S_37
+    cnapp_rule: k8s_pod_dangerous_capabilities
+    note: capabilities.add includes disallowed caps
+  - iac_rule: CKV_K8S_38
+    cnapp_rule: k8s_pod_default_namespace_sa_token
+    note: automountServiceAccountToken / default SA
+  - iac_rule: CKV_K8S_29
+    cnapp_rule: k8s_pod_dangerous_capabilities
+    note: unsafe sysctls
+
+  # --- K8s admission / namespace PSA ---
+  - iac_rule: CKV_K8S_155
+    cnapp_rule: k8s_admission_webhook_fail_open
+    note: ValidatingWebhookConfiguration failurePolicy=Ignore
+  - iac_rule: CKV_K8S_156
+    cnapp_rule: k8s_admission_webhook_fail_open
+    note: MutatingWebhookConfiguration failurePolicy=Ignore
+  - iac_rule: CKV_K8S_157
+    cnapp_rule: k8s_namespace_pod_security_admission_missing
+    note: namespace missing pod-security labels
+
+  # --- KSPM RBAC ---
+  - iac_rule: CKV_K8S_49
+    cnapp_rule: kspm_rbac_wildcard_role
+    note: Role/ClusterRole verbs or resources = *
+  - iac_rule: CKV_K8S_42
+    cnapp_rule: kspm_rbac_cluster_admin_binding
+    note: ClusterRoleBinding to cluster-admin
+  - iac_rule: CKV_K8S_45
+    cnapp_rule: kspm_rbac_sensitive_permission
+    note: secrets get/list/watch
+  - iac_rule: CKV_K8S_46
+    cnapp_rule: kspm_rbac_sensitive_permission
+    note: pods/exec create
+  - iac_rule: CKV_K8S_48
+    cnapp_rule: kspm_rbac_default_service_account
+    note: default service account token automount
+  - iac_rule: CKV_K8S_1550
+    cnapp_rule: kspm_rbac_public_group
+    note: system:unauthenticated / system:authenticated bindings (when present)
+
+# High-severity Checkov ids we expect to stay mapped. Missing entry = drift.
+watchlist:
+  - CKV_AWS_20
+  - CKV_AWS_57
+  - CKV_AWS_24
+  - CKV_AWS_25
+  - CKV_AWS_16
+  - CKV_AWS_1
+  - CKV_AWS_40
+  - CKV_GCP_28
+  - CKV_AZURE_1
+  - CKV_AZURE_10
+  - CKV_K8S_16
+  - CKV_K8S_17
+  - CKV_K8S_18
+  - CKV_K8S_19
+  - CKV_K8S_21
+  - CKV_K8S_22
+  - CKV_K8S_25
+  - CKV_K8S_28
+  - CKV_K8S_37
+  - CKV_K8S_42
+  - CKV_K8S_49

@@ -1,0 +1,233 @@
+# MCP threat catalogue (AIM-627 / AIM-668) — continuous-update source of truth.
+# Versioned, PR-reviewed. Security owns additions; engineering owns wiring
+# to detectors/rails. Metadata-only posture: catalogue entries describe
+# threat classes and server/tool *names*, not payloads from customer envs.
+#
+# Update process (see docs/aim-668-mcp-threat-catalogue-process.md):
+# 1. Security or Engineering opens a PR adding/changing an entry under threats[]
+#    and/or allowlist_recommendations.
+# 2. Each threat must cite a detector_or_rail and residual_gap if not fully covered.
+# 3. CI validates schema shape via scripts/validate_mcp_threat_catalogue.py.
+# 4. Review cadence: at least monthly (review_sla_days), or within
+#    cve_response_business_days of a public MCP CVE / novel agent tool-abuse
+#    report affecting coding tools.
+# 5. Analysts apply recommendations via policy PR or PUT /api/mcp-allowlist —
+#    this file never auto-mutates the live allowlist.
+#
+version: 1
+last_reviewed: "2026-08-01"
+owners:
+  security: Security on-call
+  engineering: Founding Engineer (platform)
+update_cadence: monthly_or_cve_driven
+
+# Continuous-update → allowlist recommendations (AIM-668).
+# Policy *suggestions* derived from threat classes below. Names are metadata
+# identifiers only (no package URLs, no secrets, no customer inventory dumps).
+allowlist_recommendations:
+  # Concrete server ids that must never land on approved_mcp_servers without
+  # dual-control + Security OK. These are curated deny candidates seen in
+  # public MCP supply-chain / abuse research and internal red-team scenarios —
+  # not an inventory dump of corporate endpoints.
+  never_approve_servers:
+    - name: free-mcp-marketplace
+      reason: "Unvetted marketplace broker; common supply-chain lure surface"
+    - name: free-mcp-bridge
+      reason: "Generic free-MCP bridge pattern; often wraps shell/network without tenant isolation"
+    - name: mcp-everything
+      reason: "Catch-all community server exposing shell + FS + network in one package"
+    - name: mcp-shell
+      reason: "Unrestricted shell MCP; bypasses repo/network rails when allowlisted"
+    - name: open-shell-mcp
+      reason: "Alias class for unrestricted shell MCP packages"
+    - name: secrets-mcp
+      reason: "Broad secrets-store MCP; credential-shaped tools without scoped IAM"
+    - name: vault-dump-mcp
+      reason: "Explicit secrets-exfil naming; never approve"
+    - name: crypto-miner-mcp
+      reason: "Known abuse-class name pattern; resource-theft indicator"
+    - name: anonymous-proxy-mcp
+      reason: "Egress-laundering MCP; defeats restricted-repo network rails"
+    - name: pastebin-mcp
+      reason: "Uncontrolled external paste target; exfil side-channel"
+
+  never_approve_server_substrings:
+    - substring: "typosquat"
+      reason: "Typosquat / homoglyph MCP package names"
+    - substring: "free-mcp"
+      reason: "Unvetted free MCP marketplaces often used in supply-chain lures"
+    - substring: "mcp-everything"
+      reason: "Catch-all community packages with shell+FS+network tools"
+    - substring: "unrestricted-shell"
+      reason: "Servers advertising unrestricted shell"
+    - substring: "crypto-miner"
+      reason: "Resource-theft / abuse-class naming"
+    - substring: "anonymous-proxy"
+      reason: "Egress-laundering proxy MCPs"
+    - substring: "pastebin"
+      reason: "Uncontrolled paste/exfil side-channel servers"
+    - substring: "vault-dump"
+      reason: "Explicit secrets dump tooling"
+    - substring: "keylogger"
+      reason: "Credential capture tooling disguised as MCP"
+
+  never_approve_tool_substrings:
+    - substring: "delete_repo"
+      reason: "Destructive GitHub-class tools"
+    - substring: "force_push"
+      reason: "Destructive git history rewrite"
+    - substring: "exfil"
+      reason: "Explicit exfiltration tool naming"
+    - substring: "credential"
+      reason: "Credential-shaped tool names (also covered by detector)"
+    - substring: "vault"
+      reason: "Secrets-store tool names"
+    - substring: "token"
+      reason: "Token/secret tool names"
+    - substring: "password"
+      reason: "Password/secret tool names"
+    - substring: "private_key"
+      reason: "Key-material tool names"
+    - substring: "dump_secret"
+      reason: "Explicit secrets dump"
+    - substring: "send_webhook"
+      reason: "Uncontrolled egress via webhook tools"
+    - substring: "raw_shell"
+      reason: "Unscoped shell execution tools"
+    - substring: "exec_command"
+      reason: "Generic remote command execution tools"
+
+  # Pilot seed candidates Security may promote after inventory bake (AIM-568).
+  # These are the *only* first-party ids currently safe to grow from; still
+  # require Security sign-off before enforce flip (AIM-564).
+  pilot_seed_servers:
+    - ide
+    - claude_ai_Gmail
+    - claude_ai_Google_Calendar
+
+  review_sla_days: 30
+  cve_response_business_days: 5
+
+threats:
+  - id: mcp-unapproved-server
+    title: Invocation of unapproved MCP server
+    severity: high
+    description: >
+      Agent calls tools on an MCP server not on the corporate allowlist,
+      including unknown/null server ids.
+    detector_or_rail: unapproved-mcp-server
+    residual_gap: null
+    references: ["AIM-86", "AIM-441", "AIM-547"]
+    allowlist_map: never_approve_servers + deny_unlisted mode
+
+  - id: mcp-unapproved-tool
+    title: Approved server, unapproved tool
+    severity: high
+    description: >
+      Server is allowlisted but a specific tool on that server is not
+      (e.g. github server ok, delete_repo tool denied).
+    detector_or_rail: unapproved-mcp-tool
+    residual_gap: >
+      Endpoint tool-level enforce ships observe-first; flip after Security
+      populates approved_mcp_tools and completes a bake.
+    references: ["AIM-627"]
+    allowlist_map: never_approve_tool_substrings + approved_mcp_tools matrix
+
+  - id: mcp-configured-intent
+    title: Unapproved MCP server present in tool config
+    severity: medium
+    description: >
+      Config inventory shows intent-to-use before any live call.
+    detector_or_rail: unapproved-mcp-server-configured
+    residual_gap: null
+    references: ["AIM-97"]
+    allowlist_map: never_approve_servers / substrings vs inventory
+
+  - id: mcp-credential-tool-name
+    title: Credential-shaped tool name
+    severity: high
+    description: >
+      tool_name matches credential/vault/token substrings without needing args.
+    detector_or_rail: credential-shaped-tool-call
+    residual_gap: null
+    references: ["AIM-441"]
+    allowlist_map: never_approve_tool_substrings (credential/vault/token/password)
+
+  - id: mcp-supply-chain-server
+    title: Malicious or compromised MCP server binary/package
+    severity: critical
+    description: >
+      Third-party MCP server package is trojaned or typosquatted; agent
+      inherits its tools. Detection today is allowlist + inventory, not
+      package SBOM of the server itself.
+    detector_or_rail: unapproved-mcp-server
+    residual_gap: >
+      No SBOM/signature verification of MCP server packages at install time.
+      Gateway path (AIM-112) could add network-level mediation later.
+    references: ["AIM-627", "AIM-112"]
+    allowlist_map: never_approve_server_substrings (typosquat, free-mcp, …)
+
+  - id: mcp-confused-deputy
+    title: Confused-deputy via nested tool chains
+    severity: high
+    description: >
+      Parent agent spawns sub-agent / Task tool that invokes MCP tools under
+      a different effective policy context.
+    detector_or_rail: agent_handoffs + session chain (schema v1.10)
+    residual_gap: >
+      Chain fields optional until collectors emit call_id/parent_call_id;
+      no cross-session policy inheritance model yet.
+    references: ["AIM-627", "AIM-799"]
+    allowlist_map: same server/tool allowlist applied on child session events
+
+  - id: mcp-exfil-via-tool
+    title: Data exfiltration through MCP tool side effects
+    severity: critical
+    description: >
+      Approved MCP tools used to push repo content to external systems.
+      Content of args/results is not observed (privacy design).
+    detector_or_rail: network-tool-restricted-repo / shell-tool-restricted-repo (partial)
+    residual_gap: >
+      True content DLP requires gateway (AIM-100/112) under legal gates;
+      metadata rails cover restricted-repo + action_class only.
+    references: ["AIM-100", "AIM-112", "AIM-15"]
+    allowlist_map: never_approve_servers (pastebin-mcp, anonymous-proxy-mcp) + tool substrings
+
+  - id: mcp-prompt-injection-tool-output
+    title: Indirect prompt injection via MCP tool results
+    severity: high
+    description: >
+      Tool result content steers the agent. We do not store results; endpoint
+      injection detectors cover user prompts only today.
+    detector_or_rail: injection-attempt-in-prompt (prompt surface only)
+    residual_gap: >
+      No tool-result injection detector (would require content on the wire
+      or endpoint-local only with no export — future endpoint-local work).
+    references: ["AIM-96", "AIM-627"]
+    allowlist_map: minimize approved surface; prefer first-party pilot seeds only
+
+  - id: mcp-destructive-scm-tool
+    title: Destructive source-control MCP tools
+    severity: high
+    description: >
+      Tools that delete repositories, force-push, or rewrite history on
+      approved SCM MCP servers.
+    detector_or_rail: unapproved-mcp-tool + never_approve_tool_substrings
+    residual_gap: >
+      Requires approved_mcp_tools population for each approved SCM server
+      before enforce can deny by tool name.
+    references: ["AIM-668", "AIM-627"]
+    allowlist_map: never_approve_tool_substrings (delete_repo, force_push)
+
+  - id: mcp-unscoped-exec
+    title: Unscoped shell / exec MCP tools
+    severity: critical
+    description: >
+      MCP servers or tools that expose raw shell or arbitrary command
+      execution without repo/host constraints.
+    detector_or_rail: unapproved-mcp-server + shell-tool-restricted-repo (partial)
+    residual_gap: >
+      shell-tool-restricted-repo only applies in restricted-repo context;
+      global deny depends on keep raw_shell / exec_command off allowlists.
+    references: ["AIM-668", "AIM-535"]
+    allowlist_map: never_approve_servers (mcp-shell, open-shell-mcp) + tool substrings

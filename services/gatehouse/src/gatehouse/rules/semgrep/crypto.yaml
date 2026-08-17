@@ -1,0 +1,86 @@
+# Vendored semgrep pack — crypto misuse (AIM-328).
+#
+# Note: do not combine python + javascript in one rule that uses language-
+# specific patterns (e.g. requests.$FN with keyword args). Semgrep silently
+# matches neither language; keep language-specific rules separate.
+rules:
+  - id: weak-hash-for-credentials
+    languages: [python, javascript, typescript]
+    severity: WARNING
+    message: >-
+      MD5/SHA-1 are not password hashes and are not collision resistant. Use
+      bcrypt/scrypt/argon2 for credentials and SHA-256+ elsewhere.
+    metadata:
+      gatehouse_type: weak_crypto
+      cwe: "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+      short_description: Broken hash algorithm in use
+      remediation: "Replace with argon2/bcrypt for passwords, SHA-256 for integrity."
+      confidence: MEDIUM
+      category: crypto
+    patterns:
+      - pattern-either:
+          - pattern: hashlib.md5(...)
+          - pattern: hashlib.sha1(...)
+          - pattern: crypto.createHash("md5")
+          - pattern: crypto.createHash("sha1")
+
+  - id: tls-verification-disabled
+    languages: [python]
+    severity: ERROR
+    message: >-
+      TLS certificate verification is disabled, which removes the guarantee
+      that the peer is who it claims to be. Fix the trust store instead.
+    metadata:
+      gatehouse_type: tls_verification_disabled
+      cwe: "CWE-295: Improper Certificate Validation"
+      short_description: TLS certificate verification disabled
+      remediation: >-
+        Point the client at the correct CA bundle (REQUESTS_CA_BUNDLE /
+        NODE_EXTRA_CA_CERTS) rather than turning verification off.
+      confidence: HIGH
+      category: crypto
+    patterns:
+      - pattern-either:
+          - pattern: |
+              requests.$FN(..., verify=False, ...)
+          - pattern: |
+              requests.$FN(..., verify=False)
+          - pattern: |
+              ssl._create_unverified_context(...)
+
+  - id: tls-verification-disabled-js
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      TLS certificate verification is disabled (rejectUnauthorized: false),
+      which removes the guarantee that the peer is who it claims to be.
+    metadata:
+      gatehouse_type: tls_verification_disabled
+      cwe: "CWE-295: Improper Certificate Validation"
+      short_description: TLS certificate verification disabled (Node)
+      remediation: >-
+        Point the client at the correct CA bundle (NODE_EXTRA_CA_CERTS) rather
+        than turning verification off.
+      confidence: HIGH
+      category: crypto
+    patterns:
+      - pattern: |
+          $O = {..., rejectUnauthorized: false, ...}
+
+  - id: python-insecure-cipher-ecb
+    languages: [python]
+    severity: ERROR
+    message: >-
+      AES-ECB encrypts identical blocks identically and leaks structure in the
+      plaintext. Prefer an AEAD mode (GCM) with a unique nonce.
+    metadata:
+      gatehouse_type: weak_crypto
+      cwe: "CWE-327: Use of a Broken or Risky Cryptographic Algorithm"
+      short_description: Insecure AES-ECB mode
+      remediation: "Use AES-GCM (or ChaCha20-Poly1305) with a unique nonce per message."
+      confidence: HIGH
+      category: crypto
+    patterns:
+      - pattern-either:
+          - pattern: AES.new(..., AES.MODE_ECB, ...)
+          - pattern: AES.new($KEY, AES.MODE_ECB)

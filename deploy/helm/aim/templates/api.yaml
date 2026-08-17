@@ -1,0 +1,241 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aim.fullname" . }}-api
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 4 }}
+spec:
+  type: {{ .Values.api.service.type | default "ClusterIP" }}
+  selector:
+    {{- include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.api.service.port }}
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aim.fullname" . }}-api
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 8 }}
+        {{- if and .Values.progressiveDelivery .Values.progressiveDelivery.versionLabel }}
+        app.kubernetes.io/version: {{ .Values.progressiveDelivery.versionLabel | quote }}
+        aim.monitoring/canary-version: {{ .Values.progressiveDelivery.versionLabel | quote }}
+        {{- end }}
+    spec:
+      {{- with include "aim.appPodSecurityContext" . }}
+      securityContext:
+        {{- . | nindent 8 }}
+      {{- end }}
+      {{- with include "aim.appPlacement" (dict "component" "api" "context" . "Values" .Values) }}
+      {{- . | nindent 6 }}
+      {{- end }}
+      containers:
+        - name: api
+          {{- with include "aim.appContainerSecurityContext" . }}
+          securityContext:
+            {{- . | nindent 12 }}
+          {{- end }}
+          image: {{ include "aim.image" (dict "image" .Values.api.image "context" .) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: DATABASE_URL
+            - name: AIM_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: AIM_SESSION_SECRET
+            {{- /* AIM-716: multi-IdP providers take precedence over single issuer */ -}}
+            {{- $providers := .Values.api.oidc.providers | default list }}
+            {{- if gt (len $providers) 0 }}
+            {{- $ids := list }}
+            {{- range $p := $providers }}{{- $ids = append $ids $p.id }}{{- end }}
+            - name: AIM_OIDC_PROVIDERS
+              value: {{ join "," $ids | quote }}
+            {{- if .Values.api.oidc.redirectUri }}
+            - name: AIM_OIDC_REDIRECT_URI
+              value: {{ .Values.api.oidc.redirectUri | quote }}
+            {{- else if .Values.ingress.host }}
+            - name: AIM_OIDC_REDIRECT_URI
+              value: {{ printf "https://%s/auth/callback" .Values.ingress.host | quote }}
+            {{- end }}
+            - name: AIM_OIDC_GROUPS_CLAIM
+              value: {{ .Values.api.oidc.groupsClaim | quote }}
+            {{- range $p := $providers }}
+            {{- $idUpper := $p.id | upper | replace "-" "_" }}
+            {{- if $p.issuer }}
+            - name: AIM_OIDC_{{ $idUpper }}_ISSUER
+              value: {{ $p.issuer | quote }}
+            {{- end }}
+            - name: AIM_OIDC_{{ $idUpper }}_CLIENT_ID
+              value: {{ $p.clientId | quote }}
+            - name: AIM_OIDC_{{ $idUpper }}_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" $ }}
+                  key: AIM_OIDC_{{ $idUpper }}_CLIENT_SECRET
+            {{- if $p.scopes }}
+            - name: AIM_OIDC_{{ $idUpper }}_SCOPES
+              value: {{ $p.scopes | quote }}
+            {{- end }}
+            {{- if $p.groupsClaim }}
+            - name: AIM_OIDC_{{ $idUpper }}_GROUPS_CLAIM
+              value: {{ $p.groupsClaim | quote }}
+            {{- end }}
+            {{- if $p.label }}
+            - name: AIM_OIDC_{{ $idUpper }}_LABEL
+              value: {{ $p.label | quote }}
+            {{- end }}
+            {{- end }}
+            - name: AIM_ROLE_GROUPS_ADMIN
+              value: {{ .Values.api.roleGroups.admin | quote }}
+            - name: AIM_ROLE_GROUPS_ANALYST
+              value: {{ .Values.api.roleGroups.analyst | quote }}
+            - name: AIM_ROLE_GROUPS_AUDITOR
+              value: {{ .Values.api.roleGroups.auditor | quote }}
+            - name: AIM_ROLE_GROUPS_VIEWER
+              value: {{ .Values.api.roleGroups.viewer | quote }}
+            - name: AIM_REVEAL_GROUPS
+              value: {{ .Values.api.revealGroups | quote }}
+            {{- else if .Values.api.oidc.issuer }}
+            - name: AIM_OIDC_ISSUER
+              value: {{ .Values.api.oidc.issuer | quote }}
+            - name: AIM_OIDC_CLIENT_ID
+              value: {{ .Values.api.oidc.clientId | quote }}
+            - name: AIM_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: AIM_OIDC_CLIENT_SECRET
+            {{- if .Values.api.oidc.redirectUri }}
+            - name: AIM_OIDC_REDIRECT_URI
+              value: {{ .Values.api.oidc.redirectUri | quote }}
+            {{- else if .Values.ingress.host }}
+            - name: AIM_OIDC_REDIRECT_URI
+              value: {{ printf "https://%s/auth/callback" .Values.ingress.host | quote }}
+            {{- end }}
+            - name: AIM_OIDC_GROUPS_CLAIM
+              value: {{ .Values.api.oidc.groupsClaim | quote }}
+            {{- end }}
+            {{- /* AIM-715 SAML SP — parallel to OIDC; role groups shared below */ -}}
+            {{- if .Values.api.saml.entryPoint }}
+            - name: AIM_SAML_IDP_ENTRY_POINT
+              value: {{ .Values.api.saml.entryPoint | quote }}
+            - name: AIM_SAML_IDP_ISSUER
+              value: {{ .Values.api.saml.idpIssuer | quote }}
+            - name: AIM_SAML_IDP_CERT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: AIM_SAML_IDP_CERT
+            {{- if .Values.api.saml.callbackUrl }}
+            - name: AIM_SAML_CALLBACK_URL
+              value: {{ .Values.api.saml.callbackUrl | quote }}
+            {{- else if .Values.ingress.host }}
+            - name: AIM_SAML_CALLBACK_URL
+              value: {{ printf "https://%s/auth/saml/acs" .Values.ingress.host | quote }}
+            {{- end }}
+            {{- if .Values.api.saml.spEntityId }}
+            - name: AIM_SAML_SP_ENTITY_ID
+              value: {{ .Values.api.saml.spEntityId | quote }}
+            {{- else if .Values.ingress.host }}
+            - name: AIM_SAML_SP_ENTITY_ID
+              value: {{ printf "https://%s" .Values.ingress.host | quote }}
+            {{- end }}
+            - name: AIM_SAML_GROUPS_ATTRIBUTE
+              value: {{ .Values.api.saml.groupsAttribute | default "groups" | quote }}
+            {{- end }}
+            {{- if or .Values.api.oidc.issuer .Values.api.saml.entryPoint }}
+            - name: AIM_ROLE_GROUPS_ADMIN
+              value: {{ .Values.api.roleGroups.admin | quote }}
+            - name: AIM_ROLE_GROUPS_ANALYST
+              value: {{ .Values.api.roleGroups.analyst | quote }}
+            - name: AIM_ROLE_GROUPS_AUDITOR
+              value: {{ .Values.api.roleGroups.auditor | quote }}
+            - name: AIM_ROLE_GROUPS_VIEWER
+              value: {{ .Values.api.roleGroups.viewer | quote }}
+            - name: AIM_REVEAL_GROUPS
+              value: {{ .Values.api.revealGroups | quote }}
+            {{- end }}
+            {{- if and .Values.api.authDev .Values.api.requireSso }}
+            {{- fail "api.authDev cannot be true when api.requireSso is true (AIM-545 / AIM-557)" }}
+            {{- end }}
+            {{- if .Values.api.requireSso }}
+            # Pilot/production: refuse personal-mode local-admin if OIDC/SAML is missing.
+            - name: AIM_REQUIRE_SSO
+              value: "1"
+            {{- end }}
+            {{- if .Values.api.authDev }}
+            # LOCAL UI DEVELOPMENT ONLY — never for a shared environment.
+            - name: AIM_AUTH_DEV
+              value: "1"
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+          # /api/health is unauthenticated liveness (apps/api/src/auth.js:23).
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "aim.fullname" . }}-api
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "aim.fullname" . }}-api
+                port:
+                  name: http
+  {{- if .Values.ingress.tls }}
+  tls:
+    - hosts: [{{ .Values.ingress.host | quote }}]
+  {{- end }}
+{{- end }}

@@ -1,0 +1,99 @@
+# Cline + Roo Code — one named tool_raw=cline (AIM-1169). Depth from
+# inspected vendor stores, not a collector fork:
+#   Cline 4.x: ~/.cline/data/globalState.json taskHistory[] (HistoryItem:
+#     id, ts, tokensIn, tokensOut, modelId, totalCost; `task` is prompt).
+#   Roo 3.53: globalStorage/tasks/<id>/history_item.json (same token fields;
+#     no modelId).
+# Never read secrets.json, api_conversation_history.json, or ui_messages
+# `request` text. schema_tool=other. Default unsanctioned.
+id: cline
+display_name: Cline
+provider: cline
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.cline"
+        - "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev"
+        - "~/.config/Code - Insiders/User/globalStorage/saoudrizwan.claude-dev"
+        - "~/.config/Cursor/User/globalStorage/saoudrizwan.claude-dev"
+        - "~/.config/VSCodium/User/globalStorage/saoudrizwan.claude-dev"
+        - "~/.vscode-server/data/User/globalStorage/saoudrizwan.claude-dev"
+        - "~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev"
+        - "~/Library/Application Support/Cursor/User/globalStorage/saoudrizwan.claude-dev"
+        - "${APPDATA}/Code/User/globalStorage/saoudrizwan.claude-dev"
+      binaries: ["cline"]
+    extraction:
+      format: json_session
+      session_glob: "**/globalState.json,**/taskHistory.json"
+      records_key: taskHistory
+      source: endpoint
+      field_map:
+        session_id: id
+        ts: ts
+        tokens_in: tokensIn
+        tokens_out: tokensOut
+        model: modelId
+        cost_estimate_usd: totalCost
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.roo"
+        - "~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "~/.config/Code - Insiders/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "~/.config/Cursor/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "~/.config/VSCodium/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "~/.vscode-server/data/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "~/Library/Application Support/Cursor/User/globalStorage/rooveterinaryinc.roo-cline"
+        - "${APPDATA}/Code/User/globalStorage/rooveterinaryinc.roo-cline"
+      binaries: ["roo"]
+    extraction:
+      format: json_session
+      session_glob: "tasks/*/history_item.json"
+      source: endpoint
+      field_map:
+        session_id: id
+        ts: ts
+        tokens_in: tokensIn
+        tokens_out: tokensOut
+        cost_estimate_usd: totalCost
+        repo_key: workspace
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - saoudrizwan.claude-dev
+        - RooVeterinaryInc.roo-cline
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - cline.bot
+        - roocode.com
+      catalogue_rule_ids: ["cline"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+  forbidden_keys:
+    - task
+    - cwdOnTaskInitialization
+    - workspace
+    - prompt
+    - completionResultSummary
+    - secrets
+notes: >
+  Roo is the same Cline-lineage HistoryItem shape; both emit tool_raw=cline
+  for reversibility. BYOK to api.anthropic.com stays on the anthropic-api
+  rule (cannot name Cline at the proxy). ui_messages.json is contentful
+  (request text) and is not parsed. Unsanctioned by default.

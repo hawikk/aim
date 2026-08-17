@@ -1,0 +1,42 @@
+# Presence via adapter contract (AIM-304). Depth lives in
+# collectors/github-copilot (AIM-1167) — chat session files contain
+# prompt/completion text, so a generic json_session glob is unsafe.
+id: github_copilot
+display_name: GitHub Copilot
+provider: github
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - api.githubcopilot.com
+        - api.individual.githubcopilot.com
+        - api.business.githubcopilot.com
+        - copilot-proxy.githubusercontent.com
+        - telemetry.individual.githubcopilot.com
+      catalogue_rule_ids: ["github-copilot"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - github.copilot
+        - github.copilot-chat
+    extraction:
+      format: json_session
+      source: endpoint
+privacy:
+  metadata_only: true
+notes: >
+  Adapter surfaces remain presence-only (proxy host + extension id). Depth
+  is collectors/github-copilot: tool_raw=github_copilot, tool_version, last-used
+  ts, day-hashed session id, selected model when a settings/session metadata
+  key names one, and chat/agent/inline turn counts. GitHub does not persist
+  suggestion-accept or token counters locally — do not invent them. Org
+  Metrics API is the sibling first-party ingest path (AIM-1168). Default
+  unsanctioned until Security promotes Copilot.

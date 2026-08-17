@@ -1,0 +1,36 @@
+{
+  "name": "ai-monitoring",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "AI Monitoring - internal security platform for observing AI coding tool usage",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test && pnpm test:apps",
+    "test:apps": "pnpm --dir apps/api test && npm ci --prefix apps/web && pnpm --dir apps/web test && node --test apps/landing/test/*.test.mjs",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r typecheck",
+    "dev": "docker compose up --build",
+    "dev:down": "docker compose down",
+    "demo:sentinel": "node --experimental-strip-types scripts/demo-sentinel-e2e.ts",
+    "sbom": "cdxgen -o sbom.json --type js ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-uri@3": "3.1.5",
+      "fast-uri@4": "4.1.2"
+    }
+  }
+}

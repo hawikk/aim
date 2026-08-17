@@ -1,0 +1,67 @@
+#!/bin/bash
+# AIM-743 — pkg postinstall for AIMonitoringCollector.
+# Invoked by installer(8) as root after payload is laid down.
+set -euo pipefail
+
+LOG="/var/log/aim-collector-postinstall.log"
+exec >>"$LOG" 2>&1
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] postinstall start"
+
+INSTALLER="${AIM_INSTALLER:-/opt/aim-collector/install.sh}"
+if [ ! -x "$INSTALLER" ]; then
+  INSTALLER="/usr/local/libexec/aim-collector/install.sh"
+fi
+
+if [ ! -x "$INSTALLER" ]; then
+  echo "ERROR: install.sh not found at $INSTALLER"
+  exit 1
+fi
+
+# Map Jamf script parameters when present (policy Parameters 4–7).
+# $1–$3 are reserved by Jamf (mount point, computer name, username).
+if [ -n "${4:-}" ]; then export AIM_INGEST_URL="${AIM_INGEST_URL:-$4}"; fi
+if [ -n "${5:-}" ]; then export AIM_TOKEN="${AIM_TOKEN:-$5}"; fi
+if [ -n "${6:-}" ]; then export AIM_HASH_SALT="${AIM_HASH_SALT:-$6}"; fi
+if [ -n "${7:-}" ]; then export AIM_ENROLL_TOKEN="${AIM_ENROLL_TOKEN:-$7}"; fi
+
+if [ -z "${AIM_TOKEN:-}" ] && [ -z "${AIM_TOKEN_FILE:-}" ]; then
+  for candidate in \
+    /var/root/aim-secrets/token \
+    /usr/local/aim-secrets/token; do
+    if [ -r "$candidate" ]; then
+      export AIM_TOKEN_FILE="$candidate"
+      break
+    fi
+  done
+fi
+
+if [ -z "${AIM_ENROLL_TOKEN:-}" ]; then
+  for candidate in \
+    /var/root/aim-secrets/enroll-token \
+    /usr/local/aim-secrets/enroll-token; do
+    if [ -r "$candidate" ]; then
+      export AIM_ENROLL_TOKEN
+      AIM_ENROLL_TOKEN="$(tr -d '[:space:]' < "$candidate")"
+      break
+    fi
+  done
+fi
+
+if [ -z "${AIM_INGEST_URL:-}" ]; then
+  echo "WARNING: AIM_INGEST_URL not set — leaving payload in place; run install.sh via policy with secrets"
+  if [ -r /etc/aim-collector/config.json ] && command -v launchctl >/dev/null 2>&1; then
+    for label in com.aimonitoring.collector-scan com.aimonitoring.collector-oob-health; do
+      plist="/Library/LaunchDaemons/${label}.plist"
+      [ -f "$plist" ] || continue
+      launchctl bootout "system/${label}" 2>/dev/null || launchctl unload "$plist" 2>/dev/null || true
+      launchctl bootstrap system "$plist" 2>/dev/null || launchctl load -w "$plist" 2>/dev/null || true
+    done
+  fi
+  echo "postinstall complete (payload only)"
+  exit 0
+fi
+
+export AIM_VERSION="${AIM_VERSION:-0.1.0}"
+"$INSTALLER"
+echo "postinstall complete"
+exit 0

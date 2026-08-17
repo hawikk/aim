@@ -1,0 +1,3 @@
+# Copy to terraform.tfvars (gitignored) to override.
+region = "eu-west-1"
+name   = "aim-prod"

@@ -1,0 +1,910 @@
+name: aim-local
+
+# Local development stack for the AI Monitoring platform.
+# One command: `docker compose up --build`  (or `make dev`)
+#
+# Services:
+#   postgres      — system of record (telemetry metadata, policies, audit)
+#   minio         — S3-compatible object store (raw event batches, exports, SBOMs)
+#   minio-init    — one-shot bucket bootstrap
+#   identity-sync — directory sync + identity resolution (services/identity-sync),
+#                   dev fixture directory, no host port (internal only)
+#   ingest        — ingestion API (services/ingest)
+#   guardrail     — post-ingest evaluator, polls evaluate-db on an interval (AIM-65)
+#   api           — dashboard API + web UI (apps/api)
+#
+# Credentials default to documented local-only values; override via .env
+# (gitignored — see .env.example).
+#
+# HOST PORT BINDING (AIM-184). Every published port names an interface. A
+# mapping written "8080:8080" has no interface and Docker binds it to 0.0.0.0,
+# which puts it on every network the host is attached to — and, because Docker
+# publishes by inserting DNAT rules ahead of the INPUT chain, a host firewall
+# does not stop it. Two knobs, deliberately separate:
+#
+#   AIM_BIND_ADDR           (default 127.0.0.1) — the app surfaces: ingest,
+#     dashboard/API, gatehouse. An operator running a pilot for collectors on
+#     other machines sets this to 0.0.0.0 (or a specific LAN address) on
+#     purpose, and those surfaces authenticate their callers.
+#
+#   AIM_DATASTORE_BIND_ADDR (default 127.0.0.1) — Postgres and MinIO. Separate
+#     precisely so that widening the app surfaces for a pilot does NOT also
+#     expose the telemetry database. Publishing these at all is a local-dev
+#     convenience (psql, the MinIO console); nothing in the stack needs them,
+#     services reach each other over the `aim` compose network.
+#
+# Both use `:-`, not `-`: an empty value falls back to loopback. `-` would let
+# `AIM_BIND_ADDR=` render ":8080:8080", which Compose reads as an empty host_ip
+# and binds to 0.0.0.0 — the exact failure this is here to prevent.
+#
+# scripts/test_compose_bind.mjs enforces the defaults against the rendered
+# `docker compose config`, so a mapping added without an interface fails CI.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aim}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localdev-only-not-a-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-aim}
+    ports:
+      - "${AIM_DATASTORE_BIND_ADDR:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [aim]
+
+  # Cross-pillar alert bus (AIM-158, decision record D3.1 §4).
+  #
+  # One stream, secstack:alerts:v1, one consumer group per consumer. Redis
+  # Streams rather than pub/sub because consumers need independent cursors,
+  # at-least-once delivery, pending-entry recovery after a crash, and replay
+  # within the retention window — the sentinel restarting must not miss the
+  # alert it was about to triage.
+  #
+  # Deliberately a *separate* instance from any pillar's Redis: an alert
+  # stream sharing a process with a Celery broker means bus growth can stall
+  # cloud scanning, which is exactly the coupling you cannot have in a
+  # security product.
+  #
+  # The two memory settings are a pair, and the second is load-bearing:
+  #   mem_limit 256m  — the cgroup ceiling, an execution boundary.
+  #   --maxmemory 192mb — what the process itself refuses work at.
+  # Without --maxmemory, Redis defaults to unlimited, `noeviction` never
+  # fires, and the container grows into the cgroup until the kernel OOM-kills
+  # it: a silent bus outage that also takes down the alert that would have
+  # reported it. A cgroup limit is not a backpressure mechanism. The 64 MB gap
+  # is headroom for the AOF-rewrite fork, which transiently doubles RSS.
+  #
+  # noeviction (not an LRU policy) because evicting stream entries would
+  # corrupt consumer-group state; growth is bounded by MAXLEN on write and the
+  # daily retention trim instead, and a refused XADD is loud.
+  redis-bus:
+    image: redis:7-alpine
+    command: >-
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 192mb
+      --maxmemory-policy noeviction
+      ${ALERT_BUS_REDIS_EXTRA_ARGS:-}
+    # No `ports:` mapping, by design: the bus is reachable only on the compose
+    # network, never from the host or the internet (D3.1 §5).
+    mem_limit: 256m
+    volumes:
+      - alertbus:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [aim]
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aim-local}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-localdev-only-not-a-secret}
+    ports:
+      - "${AIM_DATASTORE_BIND_ADDR:-127.0.0.1}:${MINIO_API_PORT:-9000}:9000"
+      - "${AIM_DATASTORE_BIND_ADDR:-127.0.0.1}:${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks: [aim]
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 \"$${MINIO_ROOT_USER}\" \"$${MINIO_ROOT_PASSWORD}\"
+      && mc mb --ignore-existing \"local/$${MINIO_BUCKET}\"
+      && mc anonymous set none \"local/$${MINIO_BUCKET}\"
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aim-local}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-localdev-only-not-a-secret}
+      MINIO_BUCKET: ${MINIO_BUCKET:-aim-telemetry-local}
+    networks: [aim]
+
+  # SaaS/OAuth shadow discovery (AIM-504 / AIM-300): IdP OAuth-grant inventory
+  # → unapproved_ai_saas_grant findings. Default dogfood path uses the fixture
+  # grant source (no real IdP credentials). Live tenant:
+  #   SHADOW_AI_GRANT_SOURCE=entra|okta|google  (+ matching secrets)
+  # Multi-IdP pilot/prod (AIM-777):
+  #   SHADOW_AI_GRANT_SOURCE=multi
+  #   SHADOW_AI_GRANT_SOURCES=entra,okta,google
+  # Shares the platform Postgres so apps/api can read shadow_ai_* tables
+  # after migration 022. Summary reports grants_by_idp_source.
+  shadow-ai:
+    build:
+      context: .
+      dockerfile: services/shadow-ai/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ingest:
+        condition: service_started
+    environment:
+      SHADOW_AI_DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
+      # MUST equal IDENTITY_SYNC_PSEUDONYM_SECRET so grant pseudonyms join.
+      SHADOW_AI_PSEUDONYM_SECRET: ${IDENTITY_SYNC_PSEUDONYM_SECRET:-localdev-only-not-a-secret}
+      SHADOW_AI_GRANT_SOURCE: ${SHADOW_AI_GRANT_SOURCE:-fixture}
+      # Comma-separated when SHADOW_AI_GRANT_SOURCE=multi (AIM-777).
+      SHADOW_AI_GRANT_SOURCES: ${SHADOW_AI_GRANT_SOURCES:-}
+      # Prefer the Entra/Okta-normalized fixture in dogfood so ChatGPT work
+      # grants appear as first-class signals without collector install.
+      SHADOW_AI_GRANT_FIXTURE_PATH: ${SHADOW_AI_GRANT_FIXTURE_PATH:-/app/fixtures/entra_grants.json}
+      # Explicit /app paths: pip-install puts code under site-packages, so
+      # package-relative defaults miss the bind-mounted catalogue/fixtures
+      # (AIM-1032). Dockerfile also sets these ENV defaults.
+      SHADOW_AI_CATALOGUE_PATH: ${SHADOW_AI_CATALOGUE_PATH:-/app/catalogue/ai-tools.json}
+      SHADOW_AI_PROXY_FIXTURE_PATH: ${SHADOW_AI_PROXY_FIXTURE_PATH:-/app/fixtures/proxy_observations.json}
+      SHADOW_AI_PROCESS_FIXTURE_PATH: ${SHADOW_AI_PROCESS_FIXTURE_PATH:-/app/fixtures/process_observations.json}
+      SHADOW_AI_PROXY_SOURCE: fixture
+      SHADOW_AI_EMIT_PLATFORM_FINDINGS: ${SHADOW_AI_EMIT_PLATFORM_FINDINGS:-true}
+      SHADOW_AI_ENTRA_TENANT_ID: ${SHADOW_AI_ENTRA_TENANT_ID:-}
+      SHADOW_AI_ENTRA_CLIENT_ID: ${SHADOW_AI_ENTRA_CLIENT_ID:-}
+      SHADOW_AI_ENTRA_CLIENT_SECRET: ${SHADOW_AI_ENTRA_CLIENT_SECRET:-}
+      SHADOW_AI_OKTA_ORG_URL: ${SHADOW_AI_OKTA_ORG_URL:-}
+      SHADOW_AI_OKTA_API_TOKEN: ${SHADOW_AI_OKTA_API_TOKEN:-}
+      SHADOW_AI_GOOGLE_CREDENTIALS_FILE: ${SHADOW_AI_GOOGLE_CREDENTIALS_FILE:-}
+      SHADOW_AI_GOOGLE_DELEGATED_ADMIN: ${SHADOW_AI_GOOGLE_DELEGATED_ADMIN:-}
+    volumes:
+      - ./services/shadow-ai/fixtures:/app/fixtures:ro
+      - ./services/shadow-ai/catalogue:/app/catalogue:ro
+    restart: unless-stopped
+    networks: [aim]
+
+  # Identity resolution (AIM-24/49): syncs the dev fixture directory at startup
+  # (identity-sync sync is idempotent) and serves POST /resolve, which ingest
+  # calls once per batch to stamp user_pseudonym + team onto events. Internal
+  # only — deliberately no host port: /reveal must not be reachable off-box.
+  identity-sync:
+    build:
+      context: .
+      dockerfile: services/identity-sync/Dockerfile
+    environment:
+      # SQLite is fine for dev, but it must outlive the container: dir_users is
+      # rebuilt by the fixture sync on every start, while service_identities and
+      # the reveal audit log are operator-entered and would be silently lost on
+      # a rebuild (AIM-149). Named volume, not the image filesystem.
+      IDENTITY_SYNC_DATABASE_URL: sqlite:////app/data/identity_sync.db
+      IDENTITY_SYNC_DIRECTORY_SOURCE: fixture
+      IDENTITY_SYNC_FIXTURE_DIR: /app/fixtures
+      IDENTITY_SYNC_PSEUDONYM_SECRET: ${IDENTITY_SYNC_PSEUDONYM_SECRET:-localdev-only-not-a-secret}
+      # Caller authentication for the gated endpoints (/reveal, POST
+      # /service-identities, AIM-306): bearer JWTs verified against this shared
+      # secret. Dev default keeps the local stack working; prod uses the IdP
+      # JWKS (IDENTITY_SYNC_JWT_JWKS_URL) from the secret manager instead.
+      IDENTITY_SYNC_JWT_HS256_SECRET: ${IDENTITY_SYNC_JWT_HS256_SECRET:-localdev-only-not-a-secret}
+      # Bare OS usernames resolve via <user>@<domain> (email heuristic).
+      IDENTITY_SYNC_PRIMARY_EMAIL_DOMAIN: ${IDENTITY_SYNC_PRIMARY_EMAIL_DOMAIN:-example.com}
+      # AIM-714: on newly suspended / missing directory users, force-deny live
+      # AIM SSO sessions via POST /api/admin/sessions/revoke. Opt-in: both must
+      # be set. Token name must appear in AIM_SESSION_REVOKE_SERVICES on `api`.
+      IDENTITY_SYNC_AIM_API_URL: ${IDENTITY_SYNC_AIM_API_URL:-}
+      IDENTITY_SYNC_SESSION_REVOKE_TOKEN: ${IDENTITY_SYNC_SESSION_REVOKE_TOKEN:-}
+    # Read-only bind so fixture edits apply on the next container restart
+    # without an image rebuild.
+    volumes:
+      - ./services/identity-sync/fixtures:/app/fixtures:ro
+      - identity-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8080/health').status == 200 else 1)"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [aim]
+
+  ingest:
+    build:
+      context: .
+      dockerfile: services/ingest/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      identity-sync:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
+      PORT: "8080"
+      # Shared fleet / bootstrap bearer (AIM-319). Preferred event auth is the
+      # enrollment-issued device_token (DB-backed) — it survives stack recreate
+      # and INGEST_TOKENS rotation. Mode: full (default, deprecated use counted)
+      # → bootstrap (ops label) → disabled (device tokens only on /v1/events).
+      INGEST_TOKENS: ${INGEST_TOKENS:-dev-token-change-me}
+      INGEST_SHARED_TOKEN_MODE: ${INGEST_SHARED_TOKEN_MODE:-full}
+      # Identity enrichment (AIM-49): one POST /resolve per batch; events are
+      # stamped with user_pseudonym + team. Resolution is fail-open, so an
+      # identity-sync outage stores events unattributed rather than dropping.
+      IDENTITY_RESOLVE_URL: http://identity-sync:8080
+      # AIM-455: enroll-time device_mappings registration. Same HS256 secret
+      # as identity-sync so ingest can mint a short-lived service JWT for
+      # POST /device-mappings when a minted enroll token carries bound_email.
+      # Without this, enroll still works but leaves devices unattributed.
+      IDENTITY_SYNC_JWT_HS256_SECRET: ${IDENTITY_SYNC_JWT_HS256_SECRET:-localdev-only-not-a-secret}
+      # Fleet enrollment (AIM-80/AIM-131): the supported path is now
+      # dashboard-minted, DB-backed enrollment tokens (Onboarding view, security
+      # -admin) — no env surgery needed. This legacy env var still works for the
+      # bare dev-compose bootstrap and logs a deprecation warning on use; leave
+      # empty in real deployments and mint tokens from the dashboard instead.
+      ENROLL_TOKENS: ${ENROLL_TOKENS:-dev-enroll-token-change-me}
+      # OTLP receiver (AIM-105): HMAC salt for service-name host_ref derivation.
+      OTEL_HOST_SALT: ${OTEL_HOST_SALT:-}
+      # AIM-1168 vendor admin puller. Unset tokens → feed dark, ingest stays up.
+      COPILOT_METRICS_TOKEN: ${COPILOT_METRICS_TOKEN:-}
+      COPILOT_METRICS_ORG: ${COPILOT_METRICS_ORG:-}
+      COPILOT_METRICS_ENTERPRISE: ${COPILOT_METRICS_ENTERPRISE:-}
+      CURSOR_ADMIN_API_KEY: ${CURSOR_ADMIN_API_KEY:-}
+      VENDOR_ADMIN_POLL_INTERVAL_S: ${VENDOR_ADMIN_POLL_INTERVAL_S:-3600}
+      # Overload admission control (AIM-127): cap concurrent in-flight
+      # /v1/events and shed with 429/Retry-After above it. Default shadow
+      # (observe-only); set INGEST_ADMISSION_MODE=enforce to actually shed.
+      INGEST_ADMISSION_MODE: ${INGEST_ADMISSION_MODE:-shadow}
+      INGEST_MAX_INFLIGHT: ${INGEST_MAX_INFLIGHT:-64}
+      INGEST_ADMISSION_RETRY_AFTER_S: ${INGEST_ADMISSION_RETRY_AFTER_S:-1}
+      OBJECT_STORE_ENDPOINT: http://minio:9000
+      OBJECT_STORE_BUCKET: ${MINIO_BUCKET:-aim-telemetry-local}
+      OBJECT_STORE_ACCESS_KEY: ${MINIO_ROOT_USER:-aim-local}
+      OBJECT_STORE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-localdev-only-not-a-secret}
+    ports:
+      - "${AIM_BIND_ADDR:-127.0.0.1}:${API_PORT:-8080}:8080"
+    command: sh -c "node dist/migrate.js && node dist/index.js"
+    restart: unless-stopped
+    networks: [aim]
+
+  # Guardrail evaluator (AIM-65) — the post-ingest consumer, compose form.
+  # Polls `evaluate-db` every GUARDRAIL_POLL_INTERVAL seconds: drains every
+  # event not yet in evaluated_events, writes findings, marks them evaluated.
+  # Idempotent (UNIQUE (rule_id, event_id) ON CONFLICT DO NOTHING), so this is
+  # safe to run repeatedly. Observe-only: findings carry decision="observe",
+  # nothing is blocked. Boots the security dashboard with populated findings
+  # out of the box — no manual `guardrail evaluate-db` step.
+  #
+  # Resilient to the startup race: if it comes up before ingest has applied
+  # migrations, the first ticks log guardrail.poll.error and retry — findings
+  # populate within one interval once the tables exist and events land.
+  guardrail:
+    build:
+      context: .
+      dockerfile: services/guardrail/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ingest:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
+      GUARDRAIL_POLL_INTERVAL: ${GUARDRAIL_POLL_INTERVAL:-15}
+      # Same pseudonymization salt the collectors use — required for the
+      # restricted-repo-access rule to match event.repo_ref (AIM-78). Empty =
+      # the rule stays inert (fail-closed) and the audit detail says so.
+      AIM_HASH_SALT: ${AIM_HASH_SALT:-}
+      # --- AIM-76: alert delivery (off by default) -------------------------
+      # Newly inserted findings are forwarded to the configured destinations
+      # after each batch commit; outcomes are recorded in finding_deliveries.
+      # Uncomment (and set the values in .env) to enable.
+      # Generic webhook: one HMAC-SHA256-signed JSON POST per batch of new
+      # findings (X-AIM-Signature: sha256=<hex> over the body):
+      # ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+      # ALERT_WEBHOOK_SECRET: ${ALERT_WEBHOOK_SECRET:-}
+      # ALERT_WEBHOOK_MIN_SEVERITY: ${ALERT_WEBHOOK_MIN_SEVERITY:-low}
+      # Microsoft Sentinel (Log Analytics Data Collector API, SharedKey auth):
+      # SENTINEL_WORKSPACE_ID: ${SENTINEL_WORKSPACE_ID:-}
+      # SENTINEL_SHARED_KEY: ${SENTINEL_SHARED_KEY:-}
+      # Google Chat company channel (AIM-485). Webhook URL is the secret —
+      # never put it in alerts.yaml / the Rules UI. AIM_BASE_URL builds the
+      # triage deep link on each card:
+      # ALERT_GOOGLE_CHAT_WEBHOOK_URL: ${ALERT_GOOGLE_CHAT_WEBHOOK_URL:-}
+      # ALERT_GOOGLE_CHAT_MIN_SEVERITY: ${ALERT_GOOGLE_CHAT_MIN_SEVERITY:-high}
+      # Slack (AIM-583) — SOC opt-in only. Default off until ALERT_SLACK_ENABLED=1:
+      # ALERT_SLACK_ENABLED: ${ALERT_SLACK_ENABLED:-}
+      # ALERT_SLACK_WEBHOOK_URL: ${ALERT_SLACK_WEBHOOK_URL:-}
+      # ALERT_SLACK_MIN_SEVERITY: ${ALERT_SLACK_MIN_SEVERITY:-high}
+      # PagerDuty (AIM-699) — on-call escalation stage; routing key is the secret:
+      # ALERT_PAGERDUTY_ROUTING_KEY: ${ALERT_PAGERDUTY_ROUTING_KEY:-}
+      # ALERT_PAGERDUTY_MIN_SEVERITY: ${ALERT_PAGERDUTY_MIN_SEVERITY:-critical}
+      # ALERT_EMAIL_SMTP_HOST: ${ALERT_EMAIL_SMTP_HOST:-}
+      # ALERT_EMAIL_SMTP_PORT: ${ALERT_EMAIL_SMTP_PORT:-587}
+      # ALERT_EMAIL_SMTP_USER: ${ALERT_EMAIL_SMTP_USER:-}
+      # ALERT_EMAIL_SMTP_PASSWORD: ${ALERT_EMAIL_SMTP_PASSWORD:-}
+      # ALERT_EMAIL_FROM: ${ALERT_EMAIL_FROM:-}
+      # ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-}
+      # ALERT_EMAIL_MIN_SEVERITY: ${ALERT_EMAIL_MIN_SEVERITY:-high}
+      # AIM_BASE_URL: ${AIM_BASE_URL:-http://localhost:8081}
+      # AIM-575: App-LLM new-sources signal (always evaluated; alerts only when
+      # a destination above is enabled). First-ever proxy provider-API caller
+      # inside lookback → app-llm-new-source finding → same notifiers.
+      # APP_LLM_NEW_SOURCE_LOOKBACK_HOURS: ${APP_LLM_NEW_SOURCE_LOOKBACK_HOURS:-48}
+      # APP_LLM_NEW_SOURCE_PROVIDERS: ${APP_LLM_NEW_SOURCE_PROVIDERS:-anthropic,openai,openrouter,xai}
+      # --- AIM-324: first-class SIEM export (off by default) ---------------
+      # Splunk HEC (OCSF Detection Finding) — reference integration:
+      # SPLUNK_HEC_URL: ${SPLUNK_HEC_URL:-}
+      # SPLUNK_HEC_TOKEN: ${SPLUNK_HEC_TOKEN:-}
+      # Syslog/CEF fallback:
+      # SYSLOG_CEF_HOST: ${SYSLOG_CEF_HOST:-}
+      # SYSLOG_CEF_PORT: ${SYSLOG_CEF_PORT:-514}
+      # Delivery lag: poll mode serves GET /lagz (pending/dead per destination).
+      # --- AIM-115: LLM-judge + GenAI telemetry (off by default) -----------
+      # The guardrail LLM-judge call site (llm-judge CLI) reports GenAI spans
+      # to the ingest OTLP receiver. Set the OTEL_* values (and AIM_LLM_* for
+      # the provider) in .env to enable; unset = spans are not exported.
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      AIM_OTEL_SERVICE_NAME: ${AIM_OTEL_SERVICE_NAME:-guardrail}
+      AIM_LLM_BASE_URL: ${AIM_LLM_BASE_URL:-}
+      AIM_LLM_API_KEY: ${AIM_LLM_API_KEY:-}
+      AIM_LLM_MODEL: ${AIM_LLM_MODEL:-}
+      # SENTINEL_LOG_TYPE: ${SENTINEL_LOG_TYPE:-AIGuardrailFinding}
+      # RUNBOOK_BASE_URL: ${RUNBOOK_BASE_URL:-}
+      # --- AIM-158: unified alert bus --------------------------------------
+      # Publishes guardrail findings as security.alert/v1.1 onto the shared
+      # cross-pillar stream (same redis-bus the rest of the stack uses).
+      # Default matches gatehouse/sentinel so local compose shows the inbox;
+      # set ALERT_BUS_URL= (empty) only if you intentionally run without a bus.
+      ALERT_BUS_URL: ${ALERT_BUS_URL:-redis://redis-bus:6379/0}
+      # Baked in at build time by the stack launcher: the container has no git
+      # context, and producer.version is what makes a noisy build traceable.
+      GUARDRAIL_VERSION: ${GUARDRAIL_VERSION:-unknown}
+    command: ["poll", "--rules", "/app/policies/guardrail/v1"]
+    # Read-only bind of the same policy dir the api service can write (AIM-94):
+    # the poller re-loads the ruleset every tick, so UI-tuned rule overrides
+    # and alert destinations take effect on the next evaluation pass.
+    volumes:
+      - ./policies/guardrail/v1:/app/policies/guardrail/v1:ro
+    restart: unless-stopped
+    networks: [aim]
+
+  # Dashboard API (apps/api) — serves the web dashboard and read API.
+  # Auth model (AIM-95): in-app OIDC SSO when AIM_OIDC_* is set (authorization
+  # code flow + PKCE, HMAC-signed session cookie); with no AIM_OIDC_* set it
+  # runs in personal/standalone mode (local admin, single-user use).
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-aim}:${POSTGRES_PASSWORD:-localdev-only-not-a-secret}@postgres:5432/${POSTGRES_DB:-aim}
+      PORT: "8080"
+      # AIM-158: read side of the alert bus. Same redis-bus as gatehouse /
+      # sentinel / merge-audit publishers. Default is on for full local compose
+      # so AIM-160 inbox is not a silent 503 (AIM-365). Override with
+      # ALERT_BUS_READ_URL / ALERT_BUS_URL when the bus is external or absent;
+      # a true single-pillar install without redis-bus still 503s honestly.
+      ALERT_BUS_URL: ${ALERT_BUS_READ_URL:-${ALERT_BUS_URL:-redis://redis-bus:6379/0}}
+      # AIM-452 / AIM-290: publish system-status breaches (including
+      # unattributed-rate) onto the same alert bus Sentinel already consumes.
+      # Status "degraded" alone is not enough — the alerter XADDs candidates.
+      # Override SYSTEM_STATUS_ALERTS=0 to disable without removing the bus.
+      SYSTEM_STATUS_ALERTS: ${SYSTEM_STATUS_ALERTS:-1}
+      SYSTEM_STATUS_ALERT_INTERVAL_SEC: ${SYSTEM_STATUS_ALERT_INTERVAL_SEC:-300}
+      # AIM-442: critical findings must leave status=new within this many hours
+      # or a standing alert is published on the same bus (finding_type
+      # ai_usage.finding_sla_breach). Override FINDING_SLA_ALERTS=0 to disable.
+      FINDING_CRITICAL_ACK_SLA_HOURS: ${FINDING_CRITICAL_ACK_SLA_HOURS:-4}
+      FINDING_SLA_ALERTS: ${FINDING_SLA_ALERTS:-1}
+      FINDING_SLA_ALERT_INTERVAL_SEC: ${FINDING_SLA_ALERT_INTERVAL_SEC:-300}
+      # AIM-672: live pilot secret/PII detector FP rate SLO (sessions with a
+      # false_positive finding / all sessions). Breach publishes
+      # ai_usage.detector_fp_rate_breach on the same bus. Weekly snapshots
+      # land in fp_rate_snapshots. Override DETECTOR_FP_RATE_ALERTS=0 or
+      # DETECTOR_FP_RATE_SNAPSHOTS=off to disable.
+      DETECTOR_FP_SESSION_SLO_PCT: ${DETECTOR_FP_SESSION_SLO_PCT:-0.5}
+      DETECTOR_FP_RATE_ALERTS: ${DETECTOR_FP_RATE_ALERTS:-1}
+      DETECTOR_FP_RATE_ALERT_INTERVAL_SEC: ${DETECTOR_FP_RATE_ALERT_INTERVAL_SEC:-300}
+      DETECTOR_FP_RATE_SNAPSHOTS: ${DETECTOR_FP_RATE_SNAPSHOTS:-1}
+      DETECTOR_FP_RATE_SNAPSHOT_CHECK_SEC: ${DETECTOR_FP_RATE_SNAPSHOT_CHECK_SEC:-3600}
+      # AIM-160: unified shell chrome. AIM_STACK_SERVICES is the JSON array
+      # the stack-health strip probes (name/healthz-url/pillar-UI deep link);
+      # AIM_GATEWAY_HOST is the host the UI resolves evidence source_uri refs
+      # against (scheme -> <subdomain>.<host>, same mapping as the sentinel's
+      # render.py SCHEME_HOSTS). Unset AIM_STACK_SERVICES = the strip shows
+      # this API alone, with configured:false.
+      AIM_STACK_SERVICES: '${AIM_STACK_SERVICES:-[{"name":"ingest","url":"http://ingest:8080/healthz","ui":"https://aim.localhost:8443/"},{"name":"gatehouse","url":"http://gatehouse:8090/healthz","ui":"https://gatehouse.localhost:8443/"},{"name":"sentinel","url":"http://sentinel:8091/healthz","ui":"https://sentinel.localhost:8443/"}]}'
+      AIM_GATEWAY_HOST: ${AIM_GATEWAY_HOST:-localhost:8443}
+      # AIM-297: PR CI runner queue/health for #/status (file from health-report
+      # or live GitHub API). Unset = tile never_configured (honest, not green).
+      AIM_CI_RUNNER_STATUS_FILE: ${AIM_CI_RUNNER_STATUS_FILE:-}
+      AIM_CI_RUNNER_STATUS_URL: ${AIM_CI_RUNNER_STATUS_URL:-}
+      AIM_CI_RUNNER_REPOS: ${AIM_CI_RUNNER_REPOS:-}
+      GITHUB_TOKEN: ${AIM_CI_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
+      # SSO (leave unset for personal mode; see .env.example):
+      # OIDC (AIM-95) and/or SAML 2.0 SP (AIM-715). Partial either fails closed.
+      AIM_OIDC_ISSUER: ${AIM_OIDC_ISSUER:-}
+      AIM_OIDC_CLIENT_ID: ${AIM_OIDC_CLIENT_ID:-}
+      AIM_OIDC_CLIENT_SECRET: ${AIM_OIDC_CLIENT_SECRET:-}
+      # AIM-716 multi-IdP (optional; see docs/deployment/multi-idp-sso.md)
+      AIM_OIDC_PROVIDERS: ${AIM_OIDC_PROVIDERS:-}
+      AIM_OIDC_GOOGLE_ISSUER: ${AIM_OIDC_GOOGLE_ISSUER:-}
+      AIM_OIDC_GOOGLE_CLIENT_ID: ${AIM_OIDC_GOOGLE_CLIENT_ID:-}
+      AIM_OIDC_GOOGLE_CLIENT_SECRET: ${AIM_OIDC_GOOGLE_CLIENT_SECRET:-}
+      AIM_OIDC_ENTRA_ISSUER: ${AIM_OIDC_ENTRA_ISSUER:-}
+      AIM_OIDC_ENTRA_CLIENT_ID: ${AIM_OIDC_ENTRA_CLIENT_ID:-}
+      AIM_OIDC_ENTRA_CLIENT_SECRET: ${AIM_OIDC_ENTRA_CLIENT_SECRET:-}
+      AIM_OIDC_OKTA_ISSUER: ${AIM_OIDC_OKTA_ISSUER:-}
+      AIM_OIDC_OKTA_CLIENT_ID: ${AIM_OIDC_OKTA_CLIENT_ID:-}
+      AIM_OIDC_OKTA_CLIENT_SECRET: ${AIM_OIDC_OKTA_CLIENT_SECRET:-}
+      AIM_BASE_URL: ${AIM_BASE_URL:-http://localhost:8081}
+      AIM_OIDC_REDIRECT_URI: ${AIM_OIDC_REDIRECT_URI:-}
+      AIM_OIDC_SCOPES: ${AIM_OIDC_SCOPES:-openid profile email}
+      AIM_OIDC_GROUPS_CLAIM: ${AIM_OIDC_GROUPS_CLAIM:-groups}
+      AIM_SAML_IDP_ENTRY_POINT: ${AIM_SAML_IDP_ENTRY_POINT:-}
+      AIM_SAML_IDP_ISSUER: ${AIM_SAML_IDP_ISSUER:-}
+      AIM_SAML_IDP_CERT: ${AIM_SAML_IDP_CERT:-}
+      AIM_SAML_IDP_CERT_FILE: ${AIM_SAML_IDP_CERT_FILE:-}
+      AIM_SAML_SP_ENTITY_ID: ${AIM_SAML_SP_ENTITY_ID:-}
+      AIM_SAML_CALLBACK_URL: ${AIM_SAML_CALLBACK_URL:-}
+      AIM_SAML_GROUPS_ATTRIBUTE: ${AIM_SAML_GROUPS_ATTRIBUTE:-groups}
+      AIM_ROLE_GROUPS_ADMIN: ${AIM_ROLE_GROUPS_ADMIN:-ai-monitoring-security}
+      AIM_ROLE_GROUPS_ANALYST: ${AIM_ROLE_GROUPS_ANALYST:-ai-monitoring-analysts}
+      AIM_ROLE_GROUPS_AUDITOR: ${AIM_ROLE_GROUPS_AUDITOR:-ai-monitoring-auditors}
+      AIM_ROLE_GROUPS_VIEWER: ${AIM_ROLE_GROUPS_VIEWER:-ai-monitoring-viewers}
+      AIM_REVEAL_GROUPS: ${AIM_REVEAL_GROUPS:-ai-monitoring-revealers}
+      AIM_SESSION_SECRET: ${AIM_SESSION_SECRET:-}
+      AIM_SESSION_TTL_HOURS: ${AIM_SESSION_TTL_HOURS:-8}
+      # AIM-714: service-token names allowed to call POST /api/admin/sessions/revoke
+      # (identity-sync deprovision automation). Empty = human admins only.
+      AIM_SESSION_REVOKE_SERVICES: ${AIM_SESSION_REVOKE_SERVICES:-}
+      AIM_AUTH_DEV: ${AIM_AUTH_DEV:-}
+      # Machine credentials for headless consumers (AIM-165). The sentinel
+      # reads /api/alerts, and no OIDC flow can authenticate a daemon — this
+      # is the only non-interactive way in. A file, not an env var: env vars
+      # land in `docker inspect` and are inherited by child processes, and
+      # this one opens the alert inbox. It holds digests, never secrets; mint
+      # entries with `node scripts/mint-service-token.mjs sentinel`.
+      #
+      # Unset  = no Bearer token is accepted, and one sent gets a 401 saying so.
+      # Broken = the API refuses to boot, rather than coming up healthy while
+      #          every consumer silently 401s.
+      AIM_SERVICE_TOKENS_FILE: ${AIM_SERVICE_TOKENS_FILE:-}
+      # Onboarding (AIM-131): the public ingest URL an engineer's collector
+      # posts to, rendered into the copy-paste join command. Defaults to the
+      # local pilot ingest port; set to the reachable ingest hostname in prod.
+      AIM_INGEST_PUBLIC_URL: ${AIM_INGEST_PUBLIC_URL:-http://localhost:8080}
+      # Same legacy value ingest reads (above). The dashboard uses it only to
+      # detect the insecure shipped default and warn loudly — token values are
+      # never returned to the client. Clear it once you mint scoped tokens.
+      ENROLL_TOKENS: ${ENROLL_TOKENS:-dev-enroll-token-change-me}
+      # Immutable audit trail (AIM-27): mint/revoke of enrollment tokens
+      # (AIM-131) and every other sensitive action are hash-chained + HMAC
+      # -sealed here. Both must be set for the trail to be enabled; unset = a
+      # startup warning and no audit. The log lives on the aim-audit volume so
+      # it survives container recreation.
+      #
+      # AIM-244: do NOT default AUDIT_HMAC_KEY to a well-known value. A public
+      # fallback re-keys the chain when compose is launched without the stack
+      # .env (wrong cwd, missing --env-file), crash-loops the API on seal
+      # mismatch, and for the window it ran made every seal forgeable. The
+      # launcher mints AIM_AUDIT_HMAC_KEY and maps it here; bare `compose up`
+      # must set AUDIT_HMAC_KEY explicitly or leave the trail off.
+      AUDIT_LOG_PATH: ${AUDIT_LOG_PATH:-/app/data/audit.jsonl}
+      AUDIT_HMAC_KEY: ${AUDIT_HMAC_KEY:-}
+    # Writable bind of the guardrail policy dir (AIM-94): the rule-tuning and
+    # alert-destination APIs write machine-owned ui-overrides.yaml / alerts.yaml
+    # here; the guardrail service mounts the same dir read-only and picks the
+    # changes up on its next poll tick. core.yaml stays PR-managed.
+    volumes:
+      - ./policies/guardrail/v1:/app/policies/guardrail/v1
+      # Persistent home for the hash-chained audit log (AUDIT_LOG_PATH).
+      - aim-audit:/app/data
+      # Service-token digests, read-only. The directory is mounted rather
+      # than the file, for the same reason gatehouse mounts its key dir:
+      # binding a path that does not exist yet makes Docker create an empty
+      # directory there, and the API would then fail on an unreadable token
+      # file instead of the honest "no service tokens configured".
+      - ${AIM_SECRETS_DIR:-./deploy/secrets}:/run/secrets:ro
+    ports:
+      - "${AIM_BIND_ADDR:-127.0.0.1}:${DASHBOARD_PORT:-8081}:8080"
+    restart: unless-stopped
+    networks: [aim]
+
+  # ── Pillar 3: PR-time security review (AIM-161) ────────────────────────────
+  # Webhook receiver + scanner orchestrator. Independent of Postgres and of
+  # ingest: it holds its own SQLite state and speaks to the rest of the stack
+  # only through the alert bus, so a PR scan still works when AIM is down.
+  gatehouse:
+    build:
+      context: .
+      dockerfile: services/gatehouse/Dockerfile
+    depends_on:
+      redis-bus:
+        condition: service_healthy
+    environment:
+      # GitHub App credentials. Empty by default — the service refuses to serve
+      # without a webhook secret, so an unconfigured install is inert rather
+      # than dangerously open.
+      GATEHOUSE_APP_ID: ${GATEHOUSE_APP_ID:-}
+      GATEHOUSE_PRIVATE_KEY_FILE: /run/secrets/gatehouse-app.pem
+      GATEHOUSE_WEBHOOK_SECRET: ${GATEHOUSE_WEBHOOK_SECRET:-}
+      ALERT_BUS_URL: redis://redis-bus:6379/0
+      # Security owns the blocking threshold; this is the shipped proposal.
+      GATEHOUSE_FAIL_ON: ${GATEHOUSE_FAIL_ON:-high}
+      GATEHOUSE_STATE_DB: /var/lib/gatehouse/state.db
+      # AIM-446 — same durable evidence DB the merge-auditor writes.
+      GATEHOUSE_EVIDENCE_DB: /var/lib/gatehouse/gate-evidence.db
+      GATEHOUSE_EVIDENCE_RETENTION_DAYS: ${GATEHOUSE_EVIDENCE_RETENTION_DAYS:-90}
+      # AIM-357 / AIM-298: auto-revert write token. Prefer a fine-grained PAT
+      # (contents:write + pull_requests:write on the audited repo only). Never
+      # commit the value — set it in the stack .env (0600). Rotation runbook:
+      # docs/security/enforcing-ci-gates.md § Auto-revert token.
+      GATEHOUSE_REVERT_TOKEN: ${GATEHOUSE_REVERT_TOKEN:-}
+      # Read token for merge-audit / API (contents:read + checks:read + PRs).
+      GATEHOUSE_GITHUB_TOKEN: ${GATEHOUSE_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
+      # AIM-736: GenAI spans from HttpProvider.review (AI security reviewer).
+      # Same OTEL_* contract as guardrail; unset = spans not exported.
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      AIM_OTEL_SERVICE_NAME: ${GATEHOUSE_OTEL_SERVICE_NAME:-gatehouse}
+      GATEHOUSE_AI_SYSTEM: ${GATEHOUSE_AI_SYSTEM:-openai}
+    volumes:
+      # Findings + the blob-SHA delta cache. Losing it costs one full rescan
+      # per open PR, not correctness.
+      - gatehouse-state:/var/lib/gatehouse
+      # The App private key as a read-only file rather than an env var: env
+      # vars show up in `docker inspect` and are inherited by every scanner
+      # subprocess this service spawns over untrusted code.
+      #
+      # The *directory* is mounted, not the file. Binding a path that does not
+      # exist yet makes Docker create an empty directory there, and the service
+      # would then fail on an unreadable key with a confusing error instead of
+      # the honest "no key configured".
+      - ${GATEHOUSE_SECRETS_DIR:-./deploy/secrets}:/run/secrets:ro
+    # Ephemeral scan workspaces live in RAM, not on the host disk. Deleting
+    # the checkout in a `finally` is the guarantee; a tmpfs means a crashed
+    # container cannot leave a customer's source tree on the VM either.
+    tmpfs:
+      - /tmp/gatehouse:size=512m,mode=1777
+    ports:
+      - "${AIM_BIND_ADDR:-127.0.0.1}:${GATEHOUSE_PORT:-8090}:8090"
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/healthz')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    # Four scanner subprocesses on a 4-vCPU box (D6). The cap keeps one
+    # pathological PR from starving ingest and the dashboard.
+    mem_limit: 2g
+    cpus: 2.0
+    restart: unless-stopped
+    networks: [aim]
+
+  # AIM-357 / AIM-298: out-of-band merge auditor. Failure domain is this
+  # process + the bus, not the GitHub Actions queue (which is what it audits).
+  # Publishes pr_security.merge_bypass / audited_bypass to secstack:alerts:v1
+  # and opens auto-revert PRs when GATEHOUSE_REVERT_TOKEN is set.
+  gatehouse-merge-audit:
+    # AIM-1061: opt-in only. GitHub merge auditing needs
+    # GATEHOUSE_GITHUB_TOKEN and reaches the GitHub API — out of scope for a
+    # metadata-only, observe-only pilot. Without the token the worker exits
+    # ("... is required") and crash-loops. A `profiles` key keeps it OFF by
+    # default; enable later with `--profile github-audit` (or COMPOSE_PROFILES)
+    # once a scoped read token is provisioned.
+    profiles: ["github-audit"]
+    build:
+      context: .
+      dockerfile: services/gatehouse/Dockerfile
+    depends_on:
+      redis-bus:
+        condition: service_healthy
+    environment:
+      ALERT_BUS_URL: redis://redis-bus:6379/0
+      GATEHOUSE_GITHUB_TOKEN: ${GATEHOUSE_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
+      GATEHOUSE_REVERT_TOKEN: ${GATEHOUSE_REVERT_TOKEN:-}
+      # Optional: pin the gate file when the image ships a copy; empty = fetch
+      # from each repo's default branch via the GitHub API.
+      GATEHOUSE_REQUIRED_CHECKS: ${GATEHOUSE_REQUIRED_CHECKS:-}
+      # AIM-446 — durable gate verdicts (≥90 days). Shared volume with the
+      # PR gatehouse service so `gatehouse evidence get --sha …` answers
+      # "why was this blocked/allowed" months later from either process.
+      GATEHOUSE_EVIDENCE_DB: /var/lib/gatehouse/gate-evidence.db
+      GATEHOUSE_EVIDENCE_RETENTION_DAYS: ${GATEHOUSE_EVIDENCE_RETENTION_DAYS:-90}
+      # Liveness heartbeat for the healthcheck below (AIM-413). The poller
+      # touches this file at startup and after every cycle; a stale mtime
+      # means the auditor died and `docker ps` shows the container unhealthy.
+      GATEHOUSE_HEARTBEAT_FILE: /tmp/merge-audit.heartbeat
+    volumes:
+      - gatehouse-state:/var/lib/gatehouse
+    # Poll every 2 minutes. --publish is required for the bus half of AIM-298.
+    # Twin repo (littlewiz) is optional: set GATEHOUSE_AUDIT_REPO_TWIN when that
+    # repo ships `.github/required-checks.json` and the read token can see it.
+    # Repos may carry a per-repo base-ref suffix (AIM-413), e.g.
+    #   GATEHOUSE_AUDIT_REPO=hawikk/aim:main
+    #   GATEHOUSE_AUDIT_REPO_TWIN=hawikk/littlewiz:master
+    # Shared code path — do not fork for the twin.
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -eu
+        args="merge-audit --repo ${GATEHOUSE_AUDIT_REPO:-hawikk/aim}"
+        if [ -n "${GATEHOUSE_AUDIT_REPO_TWIN:-}" ]; then
+          args="$$args --repo ${GATEHOUSE_AUDIT_REPO_TWIN}"
+        fi
+        args="$$args --loop --interval ${GATEHOUSE_AUDIT_INTERVAL:-120} --publish --limit ${GATEHOUSE_AUDIT_LIMIT:-20}"
+        if [ -n "${GATEHOUSE_AUDIT_SINCE:-}" ]; then
+          args="$$args --since ${GATEHOUSE_AUDIT_SINCE}"
+        fi
+        exec gatehouse $$args
+    healthcheck:
+      # Unhealthy when the heartbeat is older than 3 poll intervals (+60s
+      # margin for a slow GitHub API page). This is how a dead auditor is
+      # noticed: `docker ps` flips to (unhealthy) and the container restarts.
+      test: ["CMD-SHELL",
+             "test -f /tmp/merge-audit.heartbeat && test $$(( $$(date +%s) - $$(stat -c %Y /tmp/merge-audit.heartbeat) )) -lt $$(( $${GATEHOUSE_AUDIT_INTERVAL:-120} * 3 + 60 ))"]
+      interval: 60s
+      timeout: 10s
+      start_period: 30s
+      retries: 2
+    mem_limit: 256m
+    cpus: 0.25
+    restart: unless-stopped
+    networks: [aim]
+
+  # The acceptance suite, run inside the image that ships the scanners:
+  #   docker compose run --rm gatehouse-tests
+  # Not started by `stack up`.
+  gatehouse-tests:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: services/gatehouse/Dockerfile
+    user: root
+    working_dir: /src
+    entrypoint: ["sh", "-c"]
+    command:
+      - "pip install --quiet pytest && git config --global user.email t@t.invalid
+         && git config --global user.name gatehouse-test
+         && python -m pytest services/gatehouse/tests -q"
+    volumes:
+      - ./services/gatehouse:/src/services/gatehouse:ro
+      - ./packages/schema:/src/packages/schema:ro
+    networks: [aim]
+
+  # The sentinel agent (AIM-165): reads the bus, collapses bursts into
+  # incidents, triages, and pings a human with a copy-paste fix.
+  sentinel:
+    build:
+      context: .
+      dockerfile: services/sentinel/Dockerfile
+    depends_on:
+      redis-bus:
+        condition: service_healthy
+    environment:
+      ALERT_BUS_URL: redis://redis-bus:6379/0
+      SENTINEL_STATE_DB: /var/lib/sentinel/state.db
+      SENTINEL_CONFIG: ${SENTINEL_CONFIG:-}
+      # Credentials only. Everything structural lives in sentinel.yml.
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      SENTINEL_LLM_ENDPOINT: ${SENTINEL_LLM_ENDPOINT:-}
+      SENTINEL_LLM_API_KEY: ${SENTINEL_LLM_API_KEY:-}
+      SENTINEL_LLM_MODEL: ${SENTINEL_LLM_MODEL:-claude-sonnet-5}
+      # AIM-736: GenAI spans from Triager (alert triage LLM). Unset OTEL = off.
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      AIM_OTEL_SERVICE_NAME: ${SENTINEL_OTEL_SERVICE_NAME:-sentinel}
+      # Security owns the paging bar; this is the shipped proposal.
+      SENTINEL_PAGE_FROM: ${SENTINEL_PAGE_FROM:-high}
+      # Evidence links are rendered against the gateway, not the container's
+      # own hostname — a link an operator cannot open is the same as no link.
+      SENTINEL_GATEWAY_URL: ${SENTINEL_GATEWAY_URL:-https://localhost:8443}
+    volumes:
+      # Incidents, the decision log and the undelivered outbox. Losing it
+      # replays the bus (safe: reads are idempotent) but loses the record of
+      # what was decided and why, which is the part nothing can reconstruct.
+      - sentinel-state:/var/lib/sentinel
+      # Optional committed config, mounted read-only so the agent can never
+      # rewrite its own paging threshold.
+      - ${SENTINEL_CONFIG_DIR:-./deploy}:/etc/sentinel:ro
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8091/healthz')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    # One poll loop and one outbound HTTP call at a time. It is the smallest
+    # service in the stack and must stay that way on a 4-vCPU box (D6).
+    mem_limit: 256m
+    cpus: 0.5
+    restart: unless-stopped
+    networks: [aim]
+
+  # The acceptance suite:  docker compose run --rm sentinel-tests
+  sentinel-tests:
+    profiles: [test]
+    build:
+      context: .
+      dockerfile: services/sentinel/Dockerfile
+    user: root
+    working_dir: /src
+    entrypoint: ["sh", "-c"]
+    command:
+      - "pip install --quiet pytest && python -m pytest services/sentinel/tests -q"
+    environment:
+      # The integration file runs against a real bus here instead of skipping:
+      # inside compose there is one, and a fake cannot tell you what the
+      # server decided.
+      ALERT_BUS_TEST_URL: redis://redis-bus:6379/9
+      SECURITY_ALERT_SCHEMA_DIR: /src/packages/schema/schema/v1
+    depends_on:
+      redis-bus:
+        condition: service_healthy
+    volumes:
+      - ./services/sentinel:/src/services/sentinel:ro
+      - ./packages/schema:/src/packages/schema:ro
+    networks: [aim]
+
+  # ---------------------------------------------------------------------
+  # hygiene — pillar 4: secrets & token hygiene (AIM-163).
+  #
+  # A scheduled batch job, not a daemon. `hygiene-cron` below owns the
+  # schedule; this service exists so an operator can run a scan on demand:
+  #
+  #   docker compose run --rm hygiene scan /repos/ai-monitoring
+  #   docker compose run --rm hygiene audit-token
+  # ---------------------------------------------------------------------
+  hygiene:
+    build:
+      context: .
+      dockerfile: services/hygiene/Dockerfile
+    profiles: ["tools"]
+    depends_on:
+      redis-bus:
+        condition: service_healthy
+    environment:
+      ALERT_BUS_URL: redis://redis-bus:6379/0
+      HYGIENE_CONFIG: ${HYGIENE_CONFIG:-/etc/hygiene/hygiene.yml}
+      HYGIENE_STATE_DIR: /var/lib/hygiene
+      # Read-only by policy (D4). Used for the check-3 scope audit, and it is
+      # the token whose own over-scoping this check is most likely to catch.
+      HYGIENE_GITHUB_TOKEN: ${HYGIENE_GITHUB_TOKEN:-}
+      # Deep-link target for over-scoped cloud principals (D2).
+      CIEM_BASE_URL: ${CIEM_BASE_URL:-}
+      # Set to `off` to never transmit a leaked credential to its issuer.
+      # Findings then report liveness `unknown` rather than clean.
+      HYGIENE_LIVENESS: ${HYGIENE_LIVENESS:-on}
+    volumes:
+      # Findings state, the HMAC fingerprint key, rendered reports.
+      - hygiene-state:/var/lib/hygiene
+      - ${HYGIENE_CONFIG_DIR:-./deploy}:/etc/hygiene:ro
+      # The repositories to scan. Read-only: this pillar never writes to a
+      # repo, never pushes, and never remediates — remediation is copy-paste
+      # instructions only (D4).
+      - ${HYGIENE_REPOS_DIR:-./.hygiene-repos}:/repos:ro
+    networks: [aim]
+
+  # The schedule. A tiny loop rather than a cron daemon, so the whole thing is
+  # one image and the interval is visible in this file.
+  #
+  # Nightly and staggered off midnight: a full-history gitleaks pass is the
+  # most CPU-hungry job in the stack, and the single-VM budget (D6) does not
+  # have room for it to land on top of the other pillars' nightly work.
+  hygiene-cron:
+    build:
+      context: .
+      dockerfile: services/hygiene/Dockerfile
+    depends_on:
+      redis-bus:
+        condition: service_healthy
+    environment:
+      ALERT_BUS_URL: redis://redis-bus:6379/0
+      HYGIENE_CONFIG: ${HYGIENE_CONFIG:-/etc/hygiene/hygiene.yml}
+      HYGIENE_STATE_DIR: /var/lib/hygiene
+      HYGIENE_GITHUB_TOKEN: ${HYGIENE_GITHUB_TOKEN:-}
+      CIEM_BASE_URL: ${CIEM_BASE_URL:-}
+      HYGIENE_LIVENESS: ${HYGIENE_LIVENESS:-on}
+      HYGIENE_SCAN_INTERVAL: ${HYGIENE_SCAN_INTERVAL:-86400}
+    entrypoint: ["sh", "-c"]
+    command:
+      # `|| true` on the scan, deliberately: exit 1 means "found secrets" and
+      # exit 2 means "a check broke". Neither should kill the scheduler — the
+      # run already logged the failure and, for exit 2, said so at the top of
+      # the report. A crash-looping cron container would turn one broken check
+      # into no scanning at all.
+      - "while true; do
+           hygiene scan --all --publish --report-dir /var/lib/hygiene/reports || true;
+           sleep \"$$HYGIENE_SCAN_INTERVAL\";
+         done"
+    volumes:
+      - hygiene-state:/var/lib/hygiene
+      - ${HYGIENE_CONFIG_DIR:-./deploy}:/etc/hygiene:ro
+      - ${HYGIENE_REPOS_DIR:-./.hygiene-repos}:/repos:ro
+    restart: unless-stopped
+    # A full-history scan of a large repo is CPU-bound in gitleaks. Capped so
+    # the nightly pass cannot starve the ingest path on a 4-vCPU box (D6).
+    cpus: 1.5
+    mem_limit: 1g
+    networks: [aim]
+
+  # Run the pillar-4 suite in the image that actually has gitleaks in it:
+  #   docker compose run --rm hygiene-tests
+  hygiene-tests:
+    profiles: ["tests"]
+    build:
+      context: .
+      dockerfile: services/hygiene/Dockerfile
+    user: root
+    working_dir: /src
+    entrypoint: ["sh", "-c"]
+    command:
+      - "pip install --quiet pytest
+         && git config --global user.email hygiene-test@example.invalid
+         && git config --global user.name hygiene-test
+         && git config --global init.defaultBranch main
+         && python -m pytest services/hygiene/tests -q"
+    environment:
+      SECURITY_ALERT_SCHEMA_PATH: /src/packages/schema/schema/v1/security-alert.schema.json
+      # Nothing in the suite touches the network, but belt and braces: a test
+      # run must never transmit a credential, even a synthesized one.
+      HYGIENE_LIVENESS: "off"
+    volumes:
+      - ./services/hygiene:/src/services/hygiene:ro
+      - ./packages/schema:/src/packages/schema:ro
+    networks: [aim]
+
+volumes:
+  pgdata:
+  minio-data:
+  aim-audit:
+  # gatehouse findings + blob-SHA delta cache (30-day retention, `gatehouse prune`).
+  gatehouse-state:
+  # Service identities + the identity reveal audit log. Losing these on a
+  # rebuild would silently un-map every declared agent/CI host.
+  identity-data:
+  # Alert bus AOF. Persisted so a VM restart does not drop unacked alerts or
+  # the consumer-group cursors that make replay work (D3.1 §4.2).
+  alertbus:
+  # Sentinel incidents, decision log and undelivered outbox (90-day retention
+  # for the audit trail, `sentinel` prunes on its daily pass).
+  sentinel-state:
+  # Pillar-4 findings state (30-day retention, purged at the start of every
+  # run), the per-install HMAC fingerprint key, and rendered reports. Holds
+  # masked credential stubs and one-way fingerprints — never a secret value.
+  hygiene-state:
+
+networks:
+  aim:
+    driver: bridge

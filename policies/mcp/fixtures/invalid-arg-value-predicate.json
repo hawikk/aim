@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "default_effect": "allow",
+  "rules": [
+    {
+      "id": "bad-value-predicate",
+      "effect": "deny",
+      "match": {
+        "tool_name": "write_file",
+        "arg_shape": {
+          "keys_all": ["path"],
+          "arg_values": {
+            "path": "/etc/passwd"
+          }
+        }
+      }
+    }
+  ]
+}

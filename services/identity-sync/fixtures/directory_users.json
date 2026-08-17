@@ -1,0 +1,114 @@
+[
+  {
+    "id": "1001",
+    "primaryEmail": "jdoe@example.com",
+    "name": {"fullName": "Jane Doe"},
+    "orgUnitPath": "/Engineering/Platform",
+    "suspended": false
+  },
+  {
+    "id": "1002",
+    "primaryEmail": "asmith@example.com",
+    "name": {"fullName": "Alex Smith"},
+    "orgUnitPath": "/Engineering/Product",
+    "suspended": false
+  },
+  {
+    "id": "1003",
+    "primaryEmail": "rpatel@example.com",
+    "name": {"fullName": "Riya Patel"},
+    "orgUnitPath": "/Security",
+    "suspended": false
+  },
+  {
+    "id": "1004",
+    "primaryEmail": "mlee@example.com",
+    "name": {"fullName": "Min Lee"},
+    "orgUnitPath": "/Engineering/Platform",
+    "suspended": true
+  },
+  {
+    "id": "1005",
+    "primaryEmail": "agarcia@example.com",
+    "name": {"fullName": "Ana Garcia"},
+    "orgUnitPath": "/Data",
+    "suspended": false
+  },
+  {
+    "id": "1006",
+    "primaryEmail": "tkim@example.com",
+    "name": {"fullName": "Tom Kim"},
+    "orgUnitPath": "/Design",
+    "suspended": false
+  },
+  {
+    "id": "1007",
+    "primaryEmail": "nguyen@example.com",
+    "name": {"fullName": "Linh Nguyen"},
+    "orgUnitPath": "/Marketing",
+    "suspended": false
+  },
+  {
+    "id": "1008",
+    "primaryEmail": "owallace@example.com",
+    "name": {"fullName": "Omar Wallace"},
+    "orgUnitPath": "/Sales",
+    "suspended": false
+  },
+  {
+    "id": "1009",
+    "primaryEmail": "hschmidt@example.com",
+    "name": {"fullName": "Hanna Schmidt"},
+    "orgUnitPath": "/Finance",
+    "suspended": false
+  },
+  {
+    "id": "1010",
+    "primaryEmail": "bkumar@example.com",
+    "name": {"fullName": "Bala Kumar"},
+    "orgUnitPath": "/People",
+    "suspended": false
+  },
+  {
+    "id": "1011",
+    "primaryEmail": "eivanova@example.com",
+    "name": {"fullName": "Elena Ivanova"},
+    "orgUnitPath": "/Legal",
+    "suspended": false
+  },
+  {
+    "id": "1012",
+    "primaryEmail": "cmoore@example.com",
+    "name": {"fullName": "Chris Moore"},
+    "orgUnitPath": "/Support",
+    "suspended": false
+  },
+  {
+    "id": "1013",
+    "primaryEmail": "ytanaka@example.com",
+    "name": {"fullName": "Yuki Tanaka"},
+    "orgUnitPath": "/IT",
+    "suspended": false
+  },
+  {
+    "id": "1014",
+    "primaryEmail": "fosei@example.com",
+    "name": {"fullName": "Fiifi Osei"},
+    "orgUnitPath": "/Research",
+    "suspended": false
+  },
+  {
+    "id": "1015",
+    "primaryEmail": "lwright@example.com",
+    "name": {"fullName": "Liam Wright"},
+    "orgUnitPath": "/Engineering/Platform",
+    "suspended": false
+  },
+  {
+    "id": "1016",
+    "primaryEmail": "zahmed@example.com",
+    "name": {"fullName": "Zara Ahmed"},
+    "orgUnitPath": "/Security",
+    "suspended": false
+  }
+]

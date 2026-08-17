@@ -1,0 +1,168 @@
+/* AIM-131 — onboarding view. Reuses the shared design tokens (panel, card,
+   pill, btn) from styles.css; only view-specific layout lives here. */
+
+/* Loud security warning (insecure default enroll token). styles.css ships
+   .banner.info / .banner.warn but no danger variant — add it here from the
+   shared --bad tokens so the AIM-131 warning reads as high-severity. */
+.banner.danger {
+  background: var(--bad-soft);
+  border: 1px solid var(--bad-border);
+  color: var(--bad);
+}
+.banner.danger code { background: var(--code-bg); }
+
+.ob-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px 20px;
+  align-items: start;
+}
+.ob-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ob-form label .hint { font-weight: 400; }
+.ob-form input {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: inherit;
+  font-size: var(--text-base);
+}
+.ob-form input:focus { border-color: var(--accent); outline: none; }
+.ob-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ob-err { color: var(--bad); font-size: var(--text-sm); }
+
+/* Armed destructive action: filled, so the committing click is unmistakably
+   different from the arming one. Replaces a native confirm() (AIM-151). */
+.ob-armed { background: var(--bad); color: #ffffff; border-color: var(--bad); }
+
+.ob-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.ob-empty { color: var(--muted); padding: 18px; text-align: center; }
+.ob-actions { text-align: right; }
+
+/* One-time minted-token panel */
+.ob-minted {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--good);
+  border-radius: var(--radius-md);
+  background: var(--good-soft);
+}
+.ob-minted-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+/* AIM-744: platform switcher — Linux and Windows are equal, not nested. */
+.ob-platforms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  width: fit-content;
+  max-width: 100%;
+}
+.ob-plat-tab {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: calc(var(--radius-sm) - 1px);
+  cursor: pointer;
+}
+.ob-plat-tab:hover { color: var(--text); }
+.ob-plat-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.ob-plat-tab.is-active {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.ob-plat-hint {
+  margin: 0 0 8px;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.ob-cmd-label { display: block; font-size: 13px; font-weight: 600; }
+.ob-cmd {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 6px;
+}
+.ob-cmd code {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 13px;
+  overflow-x: auto;
+  white-space: pre;
+  user-select: all;
+}
+/* Measured bound from the mint response — not decorative copy. */
+.ob-ttfe {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: baseline;
+}
+.ob-ttfe b { font-weight: 600; }
+.ob-ttfe .pseudo-link {
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ob-future { margin-top: 10px; }
+.ob-future code { font-size: 12px; }
+
+.ob-firstrun { margin-bottom: 4px; }
+
+/* Nav marker for a live enrollment-token warning (AIM-152). The warning used
+   to announce itself by claiming the main area; this keeps it visible from
+   every view without taking the view away from the operator. */
+.ob-badge {
+  background: var(--bad);
+  color: #fff;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 1.5px 6px;
+  margin-left: 2px;
+}

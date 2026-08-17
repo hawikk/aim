@@ -1,0 +1,191 @@
+/* AIM-160 — unified alert inbox + stack health strip. Loaded by inbox.js at
+ * runtime. Reuses the design tokens from styles.css :root (with fallbacks so
+ * a token rename degrades gracefully), same contract as findings.css. */
+
+/* ---------- Stack health strip (topbar, next to #pipeline-health) ---------- */
+.stack-health {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 10px;
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--text-xs, 11px);
+  color: var(--muted);
+}
+.stack-svc { display: inline-flex; align-items: center; gap: 5px; }
+.stack-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--muted);
+}
+.stack-dot.ok { background: var(--good); }
+.stack-dot.warn { background: var(--warn); }
+.stack-dot.down { background: var(--muted); }
+
+/* ---------- Filter bar ---------- */
+.inbox-controls { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.inbox-dropped {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--warn-border, rgba(250, 204, 21, 0.35));
+  border-radius: var(--radius-sm, 4px);
+  background: var(--warn-soft, rgba(250, 204, 21, 0.08));
+  color: var(--warn, #facc15);
+  font-size: var(--text-sm, 12.5px);
+}
+
+/* ---------- Pillar deep links ---------- */
+.inbox-pillars { margin: 2px 0 12px; font-size: var(--text-sm, 12.5px); }
+.inbox-pillars a { color: var(--accent, #4d7cfe); text-decoration: none; }
+.inbox-pillars a:hover { text-decoration: underline; }
+
+/* ---------- Alert rows ---------- */
+#inbox-list { display: flex; flex-direction: column; gap: 8px; }
+
+.inbox-alert {
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-left-width: 3px;
+  border-radius: var(--radius-md, 6px);
+  background: var(--panel, rgba(148, 163, 255, 0.045));
+  overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.inbox-alert:hover { border-color: var(--border-strong, rgba(148, 163, 255, 0.22)); }
+.inbox-alert.sev-critical { border-left-color: var(--sev-critical); }
+.inbox-alert.sev-high { border-left-color: var(--sev-high); }
+.inbox-alert.sev-medium { border-left-color: var(--sev-medium); }
+.inbox-alert.sev-low { border-left-color: var(--sev-low); }
+.inbox-alert.sev-informational { border-left-color: var(--muted); }
+
+.a-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 6px;
+}
+.a-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.a-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.a-meta {
+  color: var(--muted);
+  font-size: var(--text-xs, 11px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* AIM-482: AI-native field chips (tool / session / rule / exposure / user / repo). */
+.a-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.a-field {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  max-width: 100%;
+  padding: 1px 7px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--info-soft, rgba(148, 163, 255, 0.08));
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  font-size: var(--text-xs, 11px);
+  line-height: 1.4;
+}
+.a-field-k {
+  color: var(--faint, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+  font-weight: 600;
+}
+.a-field-v {
+  color: var(--text);
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 18em;
+}
+.a-summary {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-xs, 11px);
+  margin-top: 4px;
+  line-height: 1.35;
+}
+.a-side { display: inline-flex; align-items: center; gap: 8px; flex: none; }
+.a-time { color: var(--muted); font-size: var(--text-xs, 11px); white-space: nowrap; }
+
+.a-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 10px;
+  font-size: var(--text-sm, 12.5px);
+}
+.a-actions .spacer { flex: 1; }
+.a-evidence { color: var(--accent, #4d7cfe); text-decoration: none; }
+.a-evidence:hover { text-decoration: underline; }
+.a-evidence-raw { color: var(--muted); font-size: var(--text-xs, 11px); }
+.a-snooze {
+  background: var(--panel, rgba(148, 163, 255, 0.045));
+  color: var(--text);
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-sm, 4px);
+  font-size: var(--text-sm, 12.5px);
+  padding: 3px 6px;
+}
+
+/* ---------- State badges (severity pills live in styles.css) ---------- */
+.pill.st-open {
+  background: var(--accent-soft, rgba(77, 124, 254, 0.12));
+  color: var(--accent, #4d7cfe);
+  box-shadow: inset 0 0 0 1px var(--border-strong, rgba(148, 163, 255, 0.22));
+}
+.pill.st-acknowledged {
+  background: var(--warn-soft, rgba(250, 204, 21, 0.08));
+  color: var(--warn, #facc15);
+  box-shadow: inset 0 0 0 1px var(--warn-border, rgba(250, 204, 21, 0.35));
+}
+.pill.st-snoozed {
+  background: var(--info-soft, rgba(148, 163, 255, 0.08));
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--border-strong, rgba(148, 163, 255, 0.22));
+}
+
+.inbox-empty { color: var(--muted); padding: 18px 4px; font-size: var(--text-sm, 12.5px); }
+.inbox-pager { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+
+/* ---------- AIM-702 auto-triage hint pills ---------- */
+.a-triage-hint {
+  display: block;
+  margin-top: 5px;
+}
+.pill.auto-triage {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pill.auto-triage-false_positive {
+  background: var(--info-soft, rgba(148, 163, 255, 0.1));
+  color: var(--accent, #4d7cfe);
+  box-shadow: inset 0 0 0 1px var(--border-strong, rgba(148, 163, 255, 0.28));
+}
+.pill.auto-triage-resolved {
+  background: var(--good-soft, rgba(34, 197, 94, 0.1));
+  color: var(--good, #22c55e);
+  box-shadow: inset 0 0 0 1px var(--good-border, rgba(34, 197, 94, 0.35));
+}

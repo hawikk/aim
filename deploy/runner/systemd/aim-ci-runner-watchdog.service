@@ -1,0 +1,12 @@
+[Unit]
+Description=AIM CI runner orphaned-job watchdog (AIM-406)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/aim/runner-watchdog.env
+ExecStart=/usr/local/bin/aim-ci-runner-watchdog
+# Root required for systemctl restart of the actions runner unit.
+User=root
+Nice=10

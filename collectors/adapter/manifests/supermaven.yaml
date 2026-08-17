@@ -1,0 +1,65 @@
+# Supermaven — named unsanctioned presence (AIM-1185).
+# Inspected supermaven-inc/supermaven-nvim (2026-08-14):
+#   Cache: ~/.supermaven/binary/v20/<platform>-<arch>/sm-agent
+#   or $XDG_DATA_HOME/supermaven/binary/v20/...
+#   VS Code marketplace id supermaven.supermaven
+# Autocomplete agent; no local model/token usage table. Do not invent
+# sessions. schema_tool=other + tool_raw=supermaven.
+# Catalogue rule id stays supermaven.
+id: supermaven
+display_name: Supermaven
+provider: supermaven
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.supermaven"
+        - "~/.local/share/supermaven"
+        - "~/Library/Application Support/supermaven"
+        - "${APPDATA}/supermaven"
+        - "${XDG_DATA_HOME}/supermaven"
+        - "~/.config/Code/User/globalStorage/supermaven.supermaven"
+        - "~/.config/Code - Insiders/User/globalStorage/supermaven.supermaven"
+        - "~/.config/Cursor/User/globalStorage/supermaven.supermaven"
+        - "~/.config/VSCodium/User/globalStorage/supermaven.supermaven"
+        - "~/.vscode-server/data/User/globalStorage/supermaven.supermaven"
+        - "~/Library/Application Support/Code/User/globalStorage/supermaven.supermaven"
+        - "~/Library/Application Support/Cursor/User/globalStorage/supermaven.supermaven"
+        - "${APPDATA}/Code/User/globalStorage/supermaven.supermaven"
+      binaries: ["sm-agent"]
+    extraction:
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - supermaven.supermaven
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - supermaven.com
+        - api.supermaven.com
+      catalogue_rule_ids: ["supermaven"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+  forbidden_keys:
+    - prompt
+    - completion
+    - message
+notes: >
+  Presence-only: ~/.supermaven binary cache + extension + existing proxy
+  catalogue. Residual is vendor usage; no local token column. Autocomplete
+  payloads are contentful and are not parsed. Unsanctioned. Do not auto-promote.

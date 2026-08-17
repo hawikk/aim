@@ -1,0 +1,65 @@
+# Sourcegraph Cody — named presence (AIM-1176).
+# Inspected sourcegraph/cody-public-snapshot (2026-08-13):
+#   Chat lives in VS Code globalState key cody-local-chatHistory-v2
+#   (state.vscdb / Memento) as SerializedChatTranscript with humanMessage.text.
+#   env-paths('Cody') yields ~/.local/share/Cody + macOS Application Support.
+#   Workspace .cody/ is per-repo config, not a usage table.
+# No metadata-only model/token surface. Do not parse transcripts or state.vscdb.
+# schema_tool=other + tool_raw=cody. Catalogue rule id stays sourcegraph-cody.
+id: cody
+display_name: Sourcegraph Cody
+provider: sourcegraph
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.cody"
+        - "~/.local/share/Cody"
+        - "~/.config/Cody"
+        - "~/Library/Application Support/Cody"
+        - "~/Library/Caches/Cody"
+        - "~/.config/Code/User/globalStorage/sourcegraph.cody-ai"
+        - "~/.config/Code - Insiders/User/globalStorage/sourcegraph.cody-ai"
+        - "~/.config/Cursor/User/globalStorage/sourcegraph.cody-ai"
+        - "~/.config/VSCodium/User/globalStorage/sourcegraph.cody-ai"
+        - "~/.vscode-server/data/User/globalStorage/sourcegraph.cody-ai"
+        - "~/Library/Application Support/Code/User/globalStorage/sourcegraph.cody-ai"
+        - "~/Library/Application Support/Cursor/User/globalStorage/sourcegraph.cody-ai"
+        - "${APPDATA}/Code/User/globalStorage/sourcegraph.cody-ai"
+        - "${APPDATA}/Cody"
+        - "${LOCALAPPDATA}/Cody"
+      binaries: ["cody"]
+    extraction:
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - sourcegraph.cody-ai
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - sourcegraph.com
+        - cody.sourcegraph.com
+        - cody-gateway.sourcegraph.com
+        - sourcegraph.app
+      catalogue_rule_ids: ["sourcegraph-cody"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: >
+  Presence-only: no metadata surface. Residual is vendor/Sourcegraph instance
+  analytics, not a local token column. Do not SELECT VS Code state.vscdb.
+  Distinct from Amp (catalogue ampcode). Unsanctioned. Do not auto-promote.

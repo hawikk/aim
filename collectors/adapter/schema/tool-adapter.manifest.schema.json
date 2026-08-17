@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aimonitoring.dev/schemas/v1/tool-adapter.manifest.schema.json",
+  "title": "AIM tool adapter manifest (AIM-304)",
+  "description": "Declarative tool adapter. Adding a tool that uses an existing surface type is a new manifest file; only a new surface type requires code.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "display_name", "surfaces", "schema_tool", "privacy"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,62}$",
+      "description": "Stable tool id. Used as tool_raw when schema_tool is 'other'."
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "provider": {
+      "type": ["string", "null"],
+      "maxLength": 64
+    },
+    "schema_tool": {
+      "type": "string",
+      "enum": [
+        "claude_code",
+        "cursor",
+        "kilo_code",
+        "kimi_code",
+        "grok_build",
+        "other",
+        "genai_app"
+      ],
+      "description": "Value written to ai-usage-event.tool. Non-first-class tools use 'other'."
+    },
+    "sanctioned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Policy hint only. Security/CEO own the real allowlist; false ⇒ unapproved-tool flag when observed."
+    },
+    "implementation": {
+      "type": "string",
+      "enum": ["generic", "legacy"],
+      "default": "generic",
+      "description": "generic = surface drivers only; legacy = delegate depth extraction to an existing collector package."
+    },
+    "legacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "package": {
+          "type": "string",
+          "description": "Repo-relative path to the existing collector package."
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Why depth stays in a hand-written package."
+        }
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "local_session_logs",
+              "editor_extension_hooks",
+              "proxy_domain",
+              "provider_api"
+            ]
+          },
+          "fidelity": {
+            "type": "string",
+            "enum": ["presence", "depth"],
+            "description": "Honest fidelity class for this surface on this tool."
+          },
+          "discovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "paths": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Path templates with ~, ${ENV}, and optional glob (* / **) expansion. File hits are discovery-only unless the basename matches session_glob."
+              },
+              "extension_ids": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "binaries": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "domains": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "catalogue_rule_ids": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Ids from collectors/proxy/endpoints.json."
+              }
+            }
+          },
+          "extraction": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "session_glob": {
+                "type": "string",
+                "description": "Glob under a discovery path for session/usage files. Comma-separated globs are OR'd (pathlib has no brace expansion)."
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "jsonl_usage",
+                  "json_session",
+                  "sqlite_table",
+                  "proxy_host_hit",
+                  "legacy"
+                ],
+                "description": "Generic parser key. 'sqlite_table' SELECTs only field_map columns from a local SQLite state DB. 'legacy' defers to the legacy package."
+              },
+              "field_map": {
+                "type": "object",
+                "additionalProperties": { "type": "string" },
+                "description": "Map logical fields (model, tokens_in, tokens_out, session_id, ts, tool_version, provider, repo_key) to source keys/columns."
+              },
+              "records_key": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+                "description": "For format=json_session, if the file is an object, read this array key (e.g. taskHistory on Cline ~/.cline/data/globalState.json). Defaults to 'events' when present."
+              },
+              "sqlite": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Options for format=sqlite_table. Only field_map source columns are SELECTed; content columns are hard-denied.",
+                "properties": {
+                  "table": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+                    "description": "Table name (e.g. threads for Codex CLI state_*.sqlite)."
+                  }
+                }
+              },
+              "source": {
+                "type": "string",
+                "enum": ["endpoint", "proxy", "os_egress", "otel"],
+                "description": "ai-usage-event.source value for events from this surface."
+              }
+            }
+          }
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metadata_only"],
+      "properties": {
+        "metadata_only": {
+          "type": "boolean",
+          "const": true
+        },
+        "forbidden_keys": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Extra keys to strip beyond the runtime default set."
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  }
+}

@@ -1,0 +1,205 @@
+/* AIM-689 — Analyst-facing policy editor (safe subset). Injected by policy.js.
+   Reuses tokens, .panel, .banner, .pill, .btn from styles.css. */
+
+#view-policy .pol-grid {
+  display: grid;
+  gap: 16px;
+}
+
+#view-policy .pol-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 960px) {
+  #view-policy .pol-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+#view-policy .pol-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+#view-policy .pol-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 8rem;
+}
+
+#view-policy .pol-toolbar input,
+#view-policy .pol-toolbar select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 6px 8px;
+  min-width: 10rem;
+}
+
+#view-policy .pol-toolbar .pol-grow {
+  flex: 1 1 12rem;
+  min-width: 12rem;
+}
+
+#view-policy .pol-err {
+  color: var(--sev-critical, #f87171);
+  font-size: 12.5px;
+  margin: 6px 0 0;
+  min-height: 1.2em;
+}
+
+#view-policy .pol-ok {
+  color: var(--good, #2dd4a8);
+  font-size: 12.5px;
+  margin: 6px 0 0;
+  min-height: 1.2em;
+}
+
+#view-policy .pol-table-wrap {
+  overflow-x: auto;
+}
+
+#view-policy table.pol-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+#view-policy table.pol-table th,
+#view-policy table.pol-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+#view-policy table.pol-table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+#view-policy table.pol-table tbody tr:hover {
+  background: var(--hover, rgba(255, 255, 255, 0.03));
+}
+
+#view-policy .pol-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#view-policy .pol-actions button {
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-strong);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+#view-policy .pol-actions button:hover {
+  border-color: var(--accent, #2dd4a8);
+}
+
+#view-policy .pol-actions button.primary {
+  background: var(--accent, #2dd4a8);
+  color: #0a0a0b;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+#view-policy .pol-actions button.danger {
+  color: var(--sev-critical, #f87171);
+  border-color: color-mix(in srgb, var(--sev-critical, #f87171) 40%, var(--border));
+}
+
+#view-policy .pol-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#view-policy .mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-md);
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+}
+
+#view-policy .mode-pill.observe {
+  color: var(--muted);
+}
+
+#view-policy .mode-pill.enforce {
+  color: var(--sev-high, #fb923c);
+  border-color: color-mix(in srgb, var(--sev-high, #fb923c) 45%, var(--border));
+  font-weight: 600;
+}
+
+#view-policy .pol-adv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#view-policy .pol-adv a.pol-link {
+  color: var(--accent, #2dd4a8);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+#view-policy .pol-adv a.pol-link:hover {
+  text-decoration: underline;
+}
+
+#view-policy .pol-rule-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#view-policy .pol-rule-modes .chip {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+#view-policy .pol-rule-modes .chip code {
+  font-size: 11.5px;
+}
+
+#view-policy .pol-readonly-note {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+#view-policy .pol-empty {
+  padding: 16px 0;
+}

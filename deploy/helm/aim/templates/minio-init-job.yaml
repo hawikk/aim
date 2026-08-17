@@ -1,0 +1,53 @@
+{{- if .Values.minio.enabled }}
+# One-shot bucket bootstrap, equivalent to the compose minio-init service.
+# Runs after every install/upgrade; mc mb --ignore-existing makes it idempotent.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "aim.fullname" . }}-minio-init
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "minio-init" "context" .) | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        {{- include "aim.selectorLabels" (dict "component" "minio-init" "context" .) | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: mc
+          image: {{ include "aim.image" (dict "image" .Values.minioInit.image "context" .) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: OBJECT_STORE_ACCESS_KEY
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: OBJECT_STORE_SECRET_KEY
+            - name: MINIO_BUCKET
+              value: {{ .Values.secrets.minioBucket | quote }}
+            - name: MINIO_ENDPOINT
+              value: {{ printf "http://%s-minio:%v" (include "aim.fullname" .) .Values.minio.service.apiPort | quote }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              # Tolerate the startup race with the minio pod.
+              until mc alias set local "$MINIO_ENDPOINT" "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"; do
+                echo "waiting for minio..."; sleep 3
+              done
+              mc mb --ignore-existing "local/$MINIO_BUCKET"
+              mc anonymous set none "local/$MINIO_BUCKET"
+{{- end }}

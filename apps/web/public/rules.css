@@ -1,0 +1,679 @@
+/* AIM-81 — Guardrail rules transparency viewer (injected by rules.js).
+   Reuses tokens, .card/.cards, .panel, .banner, .pill (incl. the shared
+   .pill.sev-* severity palette) from styles.css. */
+
+#view-rules .rule {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--sev-low);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin: 10px 0;
+  background: var(--panel);
+}
+#view-rules .rule.sev-critical { border-left-color: var(--sev-critical); }
+#view-rules .rule.sev-high { border-left-color: var(--sev-high); }
+#view-rules .rule.sev-medium { border-left-color: var(--sev-medium); }
+#view-rules .rule.sev-low { border-left-color: var(--sev-low); }
+
+#view-rules .rule-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#view-rules .rule-type {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 1px 8px;
+}
+#view-rules .rule-title { font-weight: 600; }
+#view-rules .rule-id { margin-left: auto; color: var(--muted); font-size: 11.5px; }
+
+#view-rules .rule-desc {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  max-width: 90ch;
+}
+
+#view-rules .rule-why { margin-top: 10px; }
+#view-rules .rule-why-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+#view-rules .rule-why pre {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--code-bg, rgba(0, 0, 0, 0.25));
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#view-rules .rule-thresh {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+#view-rules .rule-stats {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+#view-rules .rule-stats b { color: inherit; }
+
+#view-rules .mini-table { border-collapse: collapse; }
+#view-rules .mini-table td { padding: 1px 10px 1px 0; font-size: 12.5px; }
+/* Tool/provider names are identifiers — never wrap them mid-word
+   ("claude_cod e" in the Approved providers cell, AIM-230 audit). */
+#view-rules .mini-table td code { white-space: nowrap; }
+
+#view-rules code {
+  background: var(--code-bg, rgba(0, 0, 0, 0.25));
+  border-radius: var(--radius-sm);
+  padding: 0 4px;
+  font-size: 11.5px;
+}
+
+/* ---------- AIM-94: inline rule tuning ---------- */
+#view-rules .chip {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent, #2dd4a8);
+  background: var(--accent-soft, rgba(45, 212, 168, 0.14));
+  border: 1px solid var(--border-strong, rgba(148, 163, 255, 0.22));
+  border-radius: var(--radius-md);
+  padding: 1px 8px;
+}
+
+/* ---------- AIM-788: endpoint enforcement mode matrix ---------- */
+#view-rules .er-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: baseline;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+#view-rules .er-meta b { color: var(--text, #e6ebf8); font-weight: 600; }
+#view-rules .er-export {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent, #2dd4a8);
+  text-decoration: none;
+}
+#view-rules .er-export:hover { text-decoration: underline; }
+#view-rules .er-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+#view-rules .er-table th,
+#view-rules .er-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  vertical-align: top;
+}
+#view-rules .er-table thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 600;
+}
+#view-rules .er-title {
+  margin-top: 2px;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 12px;
+}
+#view-rules .er-counts b { color: var(--text, #e6ebf8); }
+#view-rules .er-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--faint, #5c6580);
+  max-width: 95ch;
+}
+#view-rules .chip.mode-enforce {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+#view-rules .chip.mode-confirm {
+  color: #fcd34d;
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+#view-rules .chip.mode-observe {
+  color: #7dd3fc;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+#view-rules .chip.mode-not_configured {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+#view-rules .chip.action-block {
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+}
+#view-rules .chip.action-redact {
+  color: #c4b5fd;
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+/* AIM-441: rule posture labels (active / inert / discovery) */
+#view-rules .chip.posture-active {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+#view-rules .chip.posture-inert {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+#view-rules .chip.posture-discovery {
+  color: #7dd3fc;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+#view-rules .rule.posture-inert {
+  opacity: 0.88;
+  background: rgba(251, 191, 36, 0.04);
+}
+#view-rules .rule-inert {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  font-size: 12px;
+  color: #fde68a;
+}
+
+#view-rules .rule-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+#view-rules .rule-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--faint, #5c6580);
+}
+
+#view-rules .rbtn {
+  background: var(--panel, rgba(148, 163, 255, 0.045));
+  border: 1px solid var(--border-strong, rgba(148, 163, 255, 0.22));
+  color: var(--text, #e6ebf8);
+  border-radius: var(--radius-md);
+  padding: 5px 11px;
+  font: 600 12px var(--font, -apple-system, "Segoe UI", Roboto, sans-serif);
+  cursor: pointer;
+}
+#view-rules .rbtn:hover { background: var(--panel-hover, rgba(148, 163, 255, 0.08)); }
+#view-rules .rbtn.primary {
+  background: var(--accent-solid);
+  border: none;
+  color: #fff;
+}
+#view-rules .rbtn:disabled { opacity: 0.5; cursor: default; }
+
+#view-rules .rule-edit {
+  margin-top: 10px;
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-md);
+  padding: 12px;
+  background: var(--bg-soft, #0a101e);
+}
+#view-rules .re-grid {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+#view-rules .re-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+#view-rules .re-grid input,
+#view-rules .re-grid select,
+#view-rules .alert-card input,
+#view-rules .alert-card select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text, #e6ebf8);
+  padding: 6px 9px;
+  font: 13px var(--font, -apple-system, "Segoe UI", Roboto, sans-serif);
+}
+#view-rules .re-grid input:focus,
+#view-rules .re-grid select:focus,
+#view-rules .alert-card input:focus,
+#view-rules .alert-card select:focus {
+  border-color: var(--accent, #2dd4a8);
+  outline: none;
+}
+#view-rules .re-value { width: 120px; }
+#view-rules .re-window-custom { width: 140px; }
+#view-rules .re-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+#view-rules .re-err, #view-rules .ac-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
+#view-rules .ac-ok { color: var(--good, #45d483); font-size: 12.5px; }
+
+/* ---------- AIM-94 / AIM-584: alert destinations + multi-route summary ---------- */
+#view-rules .alert-routing-summary {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--panel-2, var(--panel));
+}
+#view-rules .alert-routing-summary[data-routing-state="empty"] {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+#view-rules .alert-routing-summary[data-routing-state="empty"] .empty-state {
+  margin: 0 0 4px;
+}
+#view-rules .alert-routing-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #e6ebf8);
+  margin-bottom: 8px;
+}
+#view-rules .alert-routing-label .hint {
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 6px;
+}
+#view-rules .alert-routing-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+#view-rules .alert-routing-warn {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--warn, #e6a23c);
+}
+#view-rules .alert-cards-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+/* AIM-998: Rules → Audit deep-link for destination config changes */
+#view-rules .alert-audit-link {
+  font-size: 12.5px;
+  color: var(--accent, #7aa2ff);
+  text-decoration: none;
+  margin-right: auto;
+}
+#view-rules .alert-audit-link:hover,
+#view-rules .alert-audit-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+#view-rules .ac-all-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
+#view-rules .ac-all-ok { color: var(--good, #45d483); font-size: 12.5px; }
+#view-rules .alert-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+#view-rules .alert-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#view-rules .alert-card.is-enabled {
+  border-color: var(--good-border, var(--border));
+}
+#view-rules .alert-card.is-secret-missing {
+  border-color: var(--warn-border, var(--border));
+}
+#view-rules .alert-card h3 {
+  margin: 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#view-rules .alert-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+#view-rules .alert-card .ac-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text, #e6ebf8);
+  cursor: pointer;
+}
+#view-rules .ac-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#view-rules .ac-hint {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+#view-rules .ac-hint code {
+  font-size: 11px;
+}
+#view-rules .secret-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 1px 8px;
+}
+#view-rules .secret-badge.ok {
+  color: var(--good);
+  background: var(--good-soft);
+  border: 1px solid var(--good-border);
+}
+#view-rules .secret-badge.missing {
+  color: var(--warn);
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-border);
+}
+#view-rules .alert-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 90ch;
+}
+
+/* Per-rule multi-destination fan-out chips (AIM-584) */
+#view-rules .rule-routes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 6px 0 2px;
+  font-size: 12px;
+}
+#view-rules .rule-routes-label {
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 10.5px;
+}
+#view-rules .rule-routes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+#view-rules .rule-routes-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+#view-rules .route-chip {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: var(--radius-md);
+  color: var(--text, #e6ebf8);
+  background: var(--panel-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border);
+}
+#view-rules .route-chip-warn {
+  color: var(--warn, #e6a23c);
+  background: var(--warn-soft, rgba(230, 162, 60, 0.12));
+  border-color: var(--warn-border, rgba(230, 162, 60, 0.35));
+}
+
+/* ---------- AIM-987: escalation policy stages (read-only) ---------- */
+#view-rules .escalation-panel {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+#view-rules .escalation-panel h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#view-rules .escalation-panel h3 .hint {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+#view-rules .esc-panel-warn {
+  margin: 6px 0 10px;
+  font-size: 12.5px;
+  color: var(--warn, #e6a23c);
+}
+#view-rules .esc-policy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#view-rules .esc-policy {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--panel);
+}
+#view-rules .esc-policy.is-invalid {
+  border-color: var(--bad-border, rgba(255, 107, 107, 0.45));
+}
+#view-rules .esc-policy-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+#view-rules .esc-policy-head h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+#view-rules .esc-policy-floor,
+#view-rules .esc-policy-scope {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+#view-rules .esc-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 1px 8px;
+  margin-left: auto;
+}
+#view-rules .esc-badge.ok {
+  color: var(--good);
+  background: var(--good-soft);
+  border: 1px solid var(--good-border);
+}
+#view-rules .esc-badge.bad {
+  color: var(--bad, #ff6b6b);
+  background: var(--bad-soft, rgba(255, 107, 107, 0.12));
+  border: 1px solid var(--bad-border, rgba(255, 107, 107, 0.35));
+}
+#view-rules .esc-errors,
+#view-rules .esc-warnings {
+  margin: 0 0 8px;
+  padding-left: 1.2em;
+  font-size: 12px;
+}
+#view-rules .esc-errors { color: var(--bad, #ff6b6b); }
+#view-rules .esc-warnings { color: var(--warn, #e6a23c); }
+#view-rules .esc-stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#view-rules .esc-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--panel-2, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border);
+}
+#view-rules .esc-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 12rem;
+}
+#view-rules .esc-stage-n {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+#view-rules .esc-stage-delay {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+#view-rules .esc-stage-cum {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+#view-rules .esc-stage-dests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+#view-rules .esc-dest-chip {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: var(--radius-md);
+  color: var(--text, #e6ebf8);
+  background: var(--panel, #121722);
+  border: 1px solid var(--border-strong, var(--border));
+}
+#view-rules .esc-dest-empty,
+#view-rules .esc-stage-empty {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+
+/* AIM-990 — escalation policy editor form controls */
+#view-rules .esc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 10px 0 12px;
+}
+#view-rules .esc-all-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
+#view-rules .esc-all-ok { color: var(--good); font-size: 12.5px; }
+#view-rules .esc-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 10px 14px;
+  margin-bottom: 12px;
+}
+#view-rules .esc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  min-width: 0;
+}
+#view-rules .esc-field-wide { grid-column: 1 / -1; }
+#view-rules .esc-field-label {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+#view-rules .esc-field input[type="text"],
+#view-rules .esc-field input[type="number"],
+#view-rules .esc-field select {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--input-bg, var(--panel-2, #0e131c));
+  color: var(--text);
+  min-height: 2rem;
+}
+#view-rules .esc-field input:focus,
+#view-rules .esc-field select:focus {
+  outline: 2px solid var(--focus, #5b8def);
+  outline-offset: 1px;
+}
+#view-rules .esc-field input[readonly] { opacity: 0.75; cursor: default; }
+#view-rules .esc-field-hint { font-size: 11px; color: var(--muted); }
+#view-rules .esc-field-dests select { min-height: 5.5rem; }
+#view-rules .esc-stage-edit {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(8rem, 10rem) minmax(12rem, 1fr) auto;
+  gap: 10px 14px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  #view-rules .esc-stage-edit { grid-template-columns: 1fr; }
+}
+#view-rules .esc-stage-actions { margin-top: 10px; }
+#view-rules .esc-policy-head { justify-content: space-between; }
+#view-rules .rbtn.danger {
+  color: var(--bad, #ff6b6b);
+  border-color: var(--bad-border, rgba(255, 107, 107, 0.4));
+}
+#view-rules .rbtn.danger:hover,
+#view-rules .rbtn.danger:focus-visible {
+  background: var(--bad-soft, rgba(255, 107, 107, 0.12));
+}

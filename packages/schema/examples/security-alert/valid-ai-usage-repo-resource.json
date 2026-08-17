@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "7c4e2a90-8d31-4f6b-b0a5-2e9f1c3d5a70",
+  "dedupe_key": "b8d0f2a4c6e81032b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1",
+  "pillar": "ai_usage",
+  "producer": {
+    "name": "aim-guardrail",
+    "version": "631bd5b"
+  },
+  "finding_type": "ai_usage.unapproved_provider_or_model",
+  "title": "Unapproved provider for AI tool traffic",
+  "severity": "high",
+  "severity_id": 4,
+  "status": "new",
+  "observed_at": "2026-07-21T09:25:00Z",
+  "first_seen_at": "2026-07-21T09:25:00Z",
+  "last_seen_at": "2026-07-21T09:25:00Z",
+  "observed_count": 1,
+  "resource": {
+    "kind": "repo",
+    "ref": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "display": "repo:cccccccc",
+    "provider": null,
+    "account_ref": null,
+    "region": null
+  },
+  "subject_ref": {
+    "user_ref": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "host_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "evidence": {
+    "source_uri": "aim:/findings/1a01a7a6-6dde-4f22-95c6-49192f41778f",
+    "detail_count": 1,
+    "summary": "claude_code 1.0.62 routed claude-sonnet-4-5 via provider 'openrouter'."
+  },
+  "labels": {
+    "rule_id": "unapproved-provider-or-model",
+    "ruleset_version": "1",
+    "decision": "observe"
+  },
+  "remediation_hint": "Confirm intent with the engineer; if unsanctioned, remove the ANTHROPIC_BASE_URL override."
+}

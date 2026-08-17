@@ -1,0 +1,63 @@
+# Example `.gatehouse.yml` — copy to the ROOT of a scanned repository.
+#
+# gatehouse reads this file from the pull request's BASE branch, never from the
+# head. Reading it from the head would let one commit introduce a vulnerability
+# and the suppression that hides it, and pass its own gate.
+#
+# A suppressed finding is not a deleted finding: it stops failing the check, but
+# it is still listed in the check summary and still published to the security
+# alert bus with `status: suppressed` and the reason below attached. Security
+# keeps visibility into what is being muted and why.
+
+suppressions:
+  # `rule` matches a scanner rule id, a CVE, or a gatehouse finding type.
+  # Globs are allowed; a bare "*" is refused.
+  - rule: "CKV_AWS_20"
+    path: "infra/legacy/**"        # optional; defaults to the whole repo
+    # REQUIRED. An entry without a reason is refused and reported on the check.
+    reason: >
+      Legacy export buckets are fronted by CloudFront with an origin access
+      identity; direct public reads are blocked at the edge. Reviewed by
+      security 2026-07-20, ticket SEC-3312.
+    # Optional. An expired entry stops applying and says so on the check run.
+    # An unparseable date counts as expired — otherwise `expires: soon` would
+    # be permanent.
+    expires: 2026-12-31
+
+  - rule: "python-sql-injection-format"
+    path: "tests/**"
+    reason: Test fixtures build deliberately unsafe queries against a scratch DB.
+
+# Turn a scanner off for this repository entirely.
+scanners:
+  trivy: true
+  semgrep: true
+  gitleaks: true
+  checkov: true
+
+# AIM-298: per-repo severity threshold for which findings fail the check.
+# Service default is GATEHOUSE_FAIL_ON (compose ships `high`). Uncomment to
+# override for this repo only. Security/CEO owns the value; engineering owns
+# the mechanism. See docs/security/enforcing-ci-gates.md.
+# enforcement:
+#   # One of: critical | high | medium | low | informational
+#   # Start narrow (critical) when precision is unmeasured; widen on evidence.
+#   block_on: critical
+
+# The AI reviewer (AIM-162). Runs only when the service has a provider
+# configured (GATEHOUSE_AI_PROVIDER); this block is per-repo policy on top.
+# ai_review:
+#   # Opt this repository out of AI review entirely. Default: follow the
+#   # service configuration.
+#   enabled: true
+#   # Let AI findings fail this check at the GATEHOUSE_FAIL_ON threshold.
+#   # Default false: the AI section is advisory and can never block a merge.
+#   blocking: false
+
+# One-click suggested fixes (AIM-234). Default on. Gatehouse posts a GitHub
+# ```suggestion review comment for small, self-scanned catalogue patches;
+# larger fixes route to the sentinel draft-PR path only when the repo is on
+# the AIM-185 allowlist (GATEHOUSE_DRAFT_PR_REPOS / remediation.draft_pr.repos).
+# suggested_fixes:
+#   # Opt this repository out of suggestion comments. Findings still report.
+#   enabled: true

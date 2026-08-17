@@ -1,0 +1,105 @@
+{
+  "description": "AIM-664 evaluation cases against valid-policy-full.json. Call inputs use shape metadata only (or tool_input that is shaped away before assert).",
+  "policy_fixture": "valid-policy-full.json",
+  "cases": [
+    {
+      "id": "deny-force-delete",
+      "call": {
+        "mcp_server": "github",
+        "tool_name": "delete_repo",
+        "action_class": "mcp_call",
+        "tool_input": { "owner": "acme", "repo": "secrets", "force": true }
+      },
+      "expect": {
+        "effect": "deny",
+        "rule_id": "deny-github-delete-with-force"
+      },
+      "assert_no_values_in_matched": true
+    },
+    {
+      "id": "allow-delete-without-force-key",
+      "call": {
+        "mcp_server": "github",
+        "tool_name": "delete_repo",
+        "action_class": "mcp_call",
+        "tool_input": { "owner": "acme", "repo": "secrets" }
+      },
+      "expect": {
+        "effect": "allow",
+        "rule_id": null
+      }
+    },
+    {
+      "id": "confirm-filesystem-write",
+      "call": {
+        "mcp_server": "filesystem",
+        "tool_name": "write_file",
+        "action_class": "mcp_call",
+        "tool_input": { "path": "/tmp/x", "content": "NEVER_IN_EVIDENCE" }
+      },
+      "expect": {
+        "effect": "confirm",
+        "rule_id": "confirm-filesystem-write"
+      },
+      "assert_no_values_in_matched": true,
+      "forbidden_substrings_in_decision_json": ["NEVER_IN_EVIDENCE", "/tmp/x"]
+    },
+    {
+      "id": "deny-secret-tool-name",
+      "call": {
+        "mcp_server": "vault-proxy",
+        "tool_name": "read_secret",
+        "action_class": "mcp_call",
+        "arg_keys": ["name"],
+        "arg_key_types": { "name": "string" }
+      },
+      "expect": {
+        "effect": "deny",
+        "rule_id": "deny-credential-shaped-tool-name"
+      }
+    },
+    {
+      "id": "allow-github-search-by-prefix",
+      "call": {
+        "mcp_server": "github",
+        "tool_name": "search_code",
+        "action_class": "mcp_call",
+        "arg_keys": ["query"],
+        "arg_key_types": { "query": "string" }
+      },
+      "expect": {
+        "effect": "allow",
+        "rule_id": "allow-github-search"
+      }
+    },
+    {
+      "id": "default-allow-unmatched",
+      "call": {
+        "mcp_server": "ide",
+        "tool_name": "getDiagnostics",
+        "action_class": "mcp_call",
+        "arg_keys": [],
+        "arg_key_types": {}
+      },
+      "expect": {
+        "effect": "allow",
+        "rule_id": null
+      }
+    },
+    {
+      "id": "priority-deny-beats-allow-search-prefix",
+      "note": "tool_name contains 'secret' and also starts with search_ — deny rule priority 180 > allow 100",
+      "call": {
+        "mcp_server": "github",
+        "tool_name": "search_secrets",
+        "action_class": "mcp_call",
+        "arg_keys": ["query"],
+        "arg_key_types": { "query": "string" }
+      },
+      "expect": {
+        "effect": "deny",
+        "rule_id": "deny-credential-shaped-tool-name"
+      }
+    }
+  ]
+}

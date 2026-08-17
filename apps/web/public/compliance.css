@@ -1,0 +1,171 @@
+/* AIM-87 — Compliance evidence report view. Reuses app-wide panel/card/table
+ * classes; only compliance-specific bits live here. */
+
+.cmp-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.cmp-badge.tone-good { background: var(--good-soft); color: var(--good); box-shadow: inset 0 0 0 1px var(--good-border); }
+.cmp-badge.tone-warn { background: var(--warn-soft); color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn-border); }
+.cmp-badge.tone-bad { background: var(--bad-soft); color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad-border); }
+
+.cmp-table { width: 100%; border-collapse: collapse; }
+.cmp-table th, .cmp-table td { text-align: left; padding: 6px 10px; vertical-align: top; }
+.cmp-table td.num, .cmp-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+tr.cmp-ctrl.has-findings:hover { background: var(--panel-hover); }
+/* AIM-694 continuous control monitoring row cues */
+tr.cmp-ctrl.is-fail td:first-child { box-shadow: inset 3px 0 0 var(--bad, #c0392b); }
+tr.cmp-ctrl.is-unknown td:first-child { box-shadow: inset 3px 0 0 var(--warn, #b78103); }
+tr.cmp-ctrl.is-pass td:first-child { box-shadow: inset 3px 0 0 var(--good, #1a7f37); }
+/* AIM-696: deep-link target from a high-sev finding control chip */
+tr.cmp-ctrl.cmp-focus {
+  background: var(--accent-soft, rgba(99, 132, 255, 0.12));
+  box-shadow: inset 3px 0 0 var(--accent, #8da2ff);
+  outline: 1px solid var(--border-strong, rgba(148, 163, 255, 0.22));
+}
+
+.cmp-rule-chip {
+  display: inline-block;
+  margin: 1px 2px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-sm);
+}
+
+.cmp-drill-body { padding: 8px 4px; }
+.cmp-drill-rule { margin-bottom: 10px; }
+
+.cmp-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  font: inherit;
+  font-family: var(--mono);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.cmp-findings { margin: 6px 0 0 12px; }
+
+/* AIM-693 — auditor self-serve offline pack portal */
+.cmp-portal {
+  border: 1px solid var(--accent-border, var(--border));
+  box-shadow: inset 0 0 0 1px var(--accent-soft, transparent);
+}
+.cmp-portal-lead {
+  margin: 0 0 12px;
+  max-width: 72ch;
+  color: var(--muted, inherit);
+  line-height: 1.45;
+}
+.cmp-portal-controls {
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.cmp-pack-btn {
+  font-weight: 600;
+  background: var(--accent-soft, var(--panel-hover));
+  color: var(--accent, inherit);
+  box-shadow: inset 0 0 0 1px var(--accent-border, var(--border));
+}
+.cmp-pack-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.cmp-pack-status {
+  min-height: 1.4em;
+  margin: 10px 0 4px;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: 1.4;
+}
+.cmp-pack-status[data-tone="loading"] { color: var(--muted, inherit); }
+.cmp-pack-status[data-tone="good"] { color: var(--good, inherit); }
+.cmp-pack-status[data-tone="bad"] { color: var(--bad, inherit); }
+.cmp-pack-details {
+  margin: 8px 0 12px;
+  font-size: var(--text-sm, 0.875rem);
+}
+.cmp-pack-details summary {
+  cursor: pointer;
+  color: var(--accent, inherit);
+  font-weight: 500;
+}
+.cmp-pack-contents {
+  margin: 6px 0 0 1.1rem;
+  padding: 0;
+  line-height: 1.5;
+}
+.cmp-single-exports {
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding-top: 4px;
+  border-top: 1px solid var(--border, rgba(127,127,127,0.25));
+}
+
+/* AIM-695 — active control → framework map + gaps */
+.cmp-map-lead {
+  margin: 0 0 12px;
+  max-width: 80ch;
+  color: var(--muted, inherit);
+  line-height: 1.45;
+}
+.cmp-map-table th,
+.cmp-map-table td {
+  white-space: normal;
+}
+.cmp-map-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 4px 2px 0;
+  padding: 2px 4px 2px 6px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--panel-hover, rgba(127, 127, 127, 0.08));
+  box-shadow: inset 0 0 0 1px var(--border, rgba(127, 127, 127, 0.2));
+  font-size: var(--text-sm, 0.875rem);
+}
+.cmp-map-row.is-fail td:first-child {
+  box-shadow: inset 3px 0 0 var(--bad, #c0392b);
+}
+.cmp-map-row.is-pass td:first-child {
+  box-shadow: inset 3px 0 0 var(--good, #1a7f37);
+}
+.cmp-gaps-banner {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md, 6px);
+  line-height: 1.4;
+}
+.cmp-gaps-banner.tone-good {
+  background: var(--good-soft, rgba(26, 127, 55, 0.08));
+  box-shadow: inset 0 0 0 1px var(--good-border, rgba(26, 127, 55, 0.35));
+}
+.cmp-gaps-banner.tone-bad {
+  background: var(--bad-soft, rgba(192, 57, 43, 0.08));
+  box-shadow: inset 0 0 0 1px var(--bad-border, rgba(192, 57, 43, 0.35));
+}
+.cmp-gaps-block {
+  margin: 0 0 14px;
+}
+.cmp-gaps-sub {
+  margin: 0 0 6px;
+  font-size: var(--text-md, 1rem);
+  font-weight: 600;
+}
+.cmp-gaps-list {
+  margin: 0 0 0 1.1rem;
+  padding: 0;
+  line-height: 1.5;
+}
+.cmp-gaps-empty {
+  line-height: 1.45;
+}

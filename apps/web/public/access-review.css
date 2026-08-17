@@ -1,0 +1,148 @@
+/* AIM-718 — Access review / attestation workflow. Reuses app-wide panel/card
+ * tokens; only access-review-specific bits live here. */
+
+.ar-status {
+  min-height: 1.25rem;
+  margin: 0 0 0.75rem;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.ar-note {
+  margin: 0.75rem 0 0;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.ar-sub {
+  font-size: var(--text-sm);
+  margin-top: 2px;
+}
+
+.ar-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  background: var(--panel-2, var(--panel));
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.ar-badge.tone-good {
+  background: var(--good-soft);
+  color: var(--good);
+  box-shadow: inset 0 0 0 1px var(--good-border);
+}
+
+.ar-badge.tone-warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+  box-shadow: inset 0 0 0 1px var(--warn-border);
+}
+
+.ar-badge.tone-bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+  box-shadow: inset 0 0 0 1px var(--bad-border);
+}
+
+.ar-chip {
+  display: inline-block;
+  margin: 1px 2px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-family: var(--mono);
+}
+
+.ar-dialog {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 6px);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0;
+  max-width: min(960px, 96vw);
+  width: 100%;
+  max-height: 90vh;
+}
+
+.ar-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.ar-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.ar-dialog-head h2 {
+  margin: 0;
+  font-size: var(--text-lg, 1.125rem);
+}
+
+.ar-dialog-body {
+  padding: 1rem 1.25rem 1.25rem;
+  overflow: auto;
+  max-height: calc(90vh - 4rem);
+}
+
+.ar-campaign-meta {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-size: var(--text-sm);
+}
+
+.ar-dialog-stats {
+  margin-bottom: 1rem;
+}
+
+.ar-dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.ar-statement-label {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.ar-dialog-actions textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  resize: vertical;
+  font: inherit;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg, var(--panel-2, var(--panel)));
+  color: var(--text);
+}
+
+.ar-attest-seal {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--good-soft);
+  box-shadow: inset 0 0 0 1px var(--good-border);
+}
+
+.ar-statement {
+  margin: 0.5rem 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--good);
+  font-style: italic;
+  color: var(--text);
+}

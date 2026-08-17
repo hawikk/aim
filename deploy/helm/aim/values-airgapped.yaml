@@ -1,0 +1,40 @@
+# Air-gapped shape.
+#
+# No image ever leaves the cluster's network: images come from the offline
+# bundle (deploy/airgap/build-bundle.sh) either pre-loaded onto the nodes
+# (imagePullPolicy: Never) or mirrored to an internal registry
+# (global.imageRegistry). deploy/airgap/install-offline.sh emits exactly
+# these settings — prefer running it over hand-editing.
+#
+# Full procedure: docs/deployment/air-gapped-install.md.
+
+global:
+  # Internal registry mirror, e.g. "registry.corp.local/aim". Leave empty
+  # when images are pre-loaded directly onto the nodes.
+  imageRegistry: ""
+  # Never = fail rather than reach for the internet when a node lacks the
+  # image. install-offline.sh sets IfNotPresent instead when REGISTRY is
+  # used.
+  imagePullPolicy: Never
+
+# Air-gapped sites are by definition production — inherit the standard
+# shape's posture: persistent, in-app OIDC SSO (point api.oidc at the
+# site-internal IdP), real secrets via existingSecret. There is no
+# proxy-auth mode; client-supplied identity headers are never trusted.
+#
+# AIM-601: fail-closed the same way as values-standard.yaml. You still need
+# to pass real secrets + api.oidc (or secrets.existingSecret) at install time.
+
+security:
+  allowInsecureDefaults: false
+  allowPublicServices: false
+
+# Image tags are pinned to the bundle's appVersion by install-offline.sh
+# (--set <component>.image.tag=<version>). If installing by hand, set them
+# to the bundle version:
+#
+#   helm upgrade --install aim ./chart/aim \
+#     -f values-airgapped.yaml \
+#     --set ingest.image.tag=<bundle-version> \
+#     --set api.image.tag=<bundle-version> \
+#     --set guardrail.image.tag=<bundle-version>

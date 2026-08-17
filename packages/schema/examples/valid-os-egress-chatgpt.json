@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.9",
+  "event_id": "a1b2c3d4-e5f6-4789-a012-3456789abcde",
+  "ts": "2026-07-29T12:00:00Z",
+  "host_ref": "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+  "user_ref": null,
+  "tool": "other",
+  "tool_raw": "chatgpt",
+  "model": null,
+  "provider": "openai",
+  "session_id": "0123456789abcdef0123456789abcdef",
+  "match_flags": [
+    {
+      "detector": "policy:unapproved-tool",
+      "category": "policy",
+      "severity": "medium"
+    }
+  ],
+  "source": "os_egress",
+  "traffic_class": "employee"
+}

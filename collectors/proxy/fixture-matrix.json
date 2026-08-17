@@ -1,0 +1,61 @@
+{
+  "_comment": [
+    "AIM-1118 multi-vendor proxy fixture matrix. CI runs scripts/check_proxy_fixture_matrix.py",
+    "against this file on every PR. Adding a vendor: see docs/proxy-ci-matrix.md."
+  ],
+  "policy": {
+    "require_squid": true,
+    "min_enterprise_formats": 3,
+    "min_events_per_fixture": 1
+  },
+  "fixtures": [
+    {
+      "id": "squid",
+      "format": "squid_native",
+      "sample": "samples/squid_access.sample.log",
+      "tier": "squid",
+      "min_events": 11,
+      "identity": "rfc931"
+    },
+    {
+      "id": "zscaler_nss",
+      "format": "zscaler_nss",
+      "sample": "samples/zscaler_nss.sample.jsonl",
+      "tier": "enterprise",
+      "min_events": 10,
+      "identity": "user"
+    },
+    {
+      "id": "paloalto_csv",
+      "format": "paloalto_csv",
+      "sample": "samples/paloalto_url.sample.csv",
+      "tier": "enterprise",
+      "min_events": 10,
+      "identity": "user"
+    },
+    {
+      "id": "bluecoat_main",
+      "format": "bluecoat_main",
+      "sample": "samples/bluecoat_main.sample.log",
+      "tier": "enterprise",
+      "min_events": 10,
+      "identity": "user"
+    },
+    {
+      "id": "umbrella_csv",
+      "format": "umbrella_csv",
+      "sample": "samples/umbrella_proxy.sample.csv",
+      "tier": "enterprise",
+      "min_events": 10,
+      "identity": "user"
+    },
+    {
+      "id": "identity_jsonl",
+      "format": "jsonl",
+      "sample": "samples/identity_jsonl.sample.jsonl",
+      "tier": "enterprise",
+      "min_events": 10,
+      "identity": "user"
+    }
+  ]
+}

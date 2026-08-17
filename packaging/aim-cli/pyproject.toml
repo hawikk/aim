@@ -1,0 +1,52 @@
+# Metadata source of truth for the packaged `aim` CLI (AIM-135 / AIM-489).
+#
+# The authoritative, dependency-free build is `scripts/build_aim_cli.py`,
+# which reads name/version/entry-point from this file and emits a wheel + sdist
+# using only the Python standard library (no build backend, works offline on an
+# air-gapped IT mirror). This file is also a valid PEP 621 project definition,
+# so `pip install .` / `python -m build` work for anyone who prefers setuptools
+# — but the stdlib builder is the documented one command.
+#
+# Distribution name is `aimonitoring-security` (PyPI; D-489-3). The `aim` name
+# on PyPI is AimStack's unrelated experiment tracker. The installed console
+# script and import package remain `aim`.
+# setuptools>=77 is required for the PEP 639 SPDX `license` expression below;
+# older versions reject a plain string and want the legacy `{ text = ... }` table.
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aimonitoring-security"
+version = "0.1.1"
+description = "AI Monitoring endpoint collectors + local dashboard behind one `aim` CLI"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "AI Monitoring" }]
+keywords = ["ai-monitoring", "telemetry", "security", "claude-code", "cursor"]
+
+# Runtime dependencies: NONE. Collectors are stdlib-only by contract; the
+# whole point of this package is that installing the wheel pulls nothing else.
+dependencies = []
+
+[project.scripts]
+aim = "aim.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/hawikk/aim"
+"GitHub Releases" = "https://github.com/hawikk/aim/releases"
+Repository = "https://github.com/hawikk/aim"
+Issues = "https://github.com/hawikk/aim/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# The vendored collector trees and dashboard assets are copied under
+# src/aim/_vendor/ by the build script before packaging, and shipped as
+# package data (hyphenated dir names are data, not importable sub-packages).
+[tool.setuptools.package-data]
+aim = ["_vendor/**/*"]

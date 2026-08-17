@@ -1,0 +1,72 @@
+# GitHub App manifest for sentinel's draft-PR remediation (AIM-185).
+#
+# THIS IS A SECOND APP. It is not gatehouse's, and gatehouse's must not be
+# widened to do this job. Create it from this file (Settings -> Developer
+# settings -> GitHub Apps -> New GitHub App -> "from a manifest") so the
+# permission set is reviewed as a diff in this repo rather than clicked through
+# a web form once and forgotten.
+#
+# The justification for each permission is in
+# docs/sentinel-remediation-github-app.md §2. Adding one here without adding it
+# there is a review failure, not an oversight.
+#
+# Why two Apps and not one credential with three permissions:
+#
+#   gatehouse runs four third-party scanners over other people's pull-request
+#   source on a runner. Its App is `contents: read` so that a scanner escape or
+#   a crafted .semgrep.yml buys the attacker reading a repo they could already
+#   read by opening the PR.
+#
+#   sentinel consumes the alert bus — an input any of the three pillars writes,
+#   and therefore an input a compromised pillar can shape.
+#
+# Joining those two blast radii with a shared private key means one scanner
+# escape can push a commit, and one poisoned triage input can reach a repo.
+# Separate Apps, separate keys, separate env var names.
+name: sentinel-remediation
+url: https://github.com/hawikk/aim
+description: >-
+  Opens draft pull requests carrying a fix from sentinel's reviewed remediation
+  catalogue, on repositories that have explicitly opted in. Never merges,
+  never approves, never writes to a default branch.
+public: false
+
+# No webhook. This App is outbound-only: sentinel calls GitHub when it decides
+# to propose a fix, and GitHub never needs to call sentinel. An App with no
+# webhook is one fewer unauthenticated endpoint to get wrong.
+hook_attributes:
+  active: false
+
+default_permissions:
+  # Read the flagged file at the base ref, create a branch, and commit one file
+  # to that branch. This is the ONE write scope in the whole stack (epic
+  # decision D4 exception, recorded in docs/sentinel-remediation-github-app.md
+  # §1) — the service still holds zero cloud credentials.
+  contents: write
+  # Open the draft pull request and label it machine-generated. `write` is the
+  # minimum GitHub offers for opening a PR; note that it does NOT grant merging
+  # or approving, and sentinel holds no code for either.
+  pull_requests: write
+
+# Deliberately NOT requested, and each for a specific reason:
+#
+#   checks: write         -> would let sentinel mark its own PR's checks green.
+#   workflows: write      -> would let a merged PR change what runs on the
+#                            runners. patch.py refuses `.github/` paths for the
+#                            same reason; not holding the scope is the stronger
+#                            version of that control.
+#   administration        -> branch protection, merge settings, collaborators.
+#   members / org perms   -> sentinel has no reason to enumerate humans.
+#   contents: write on
+#   the default branch    -> not separately grantable; enforced in code instead
+#                            (a commit only ever lands on a sentinel/fix/*
+#                            branch) and asserted in
+#                            tests/test_draft_pr.py::test_the_default_branch_is_never_written_to
+
+default_events: []
+
+# Installation is PER REPOSITORY, never "All repositories". The install is half
+# of the opt-in: a repo is eligible only if it is listed in
+# `remediation.draft_pr.repos` in sentinel.yml AND this App is installed on it.
+# The config half is ours and lives in git; the install half is the repo admin's
+# and they can revoke it without asking us. Neither alone is consent.

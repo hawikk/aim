@@ -1,0 +1,42 @@
+# NEW TOOL via contract — no core/surface code changes (AIM-304).
+# Primary signal: local session / usage JSONL under ~/.gemini.
+# Secondary: provider API domain presence.
+id: gemini_cli
+display_name: Gemini CLI
+provider: google
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.gemini"
+        - "~/.config/gemini"
+      binaries: ["gemini"]
+    extraction:
+      format: jsonl_usage
+      session_glob: "**/*usage*.jsonl"
+      source: endpoint
+      field_map:
+        model: model
+        tokens_in: input_tokens
+        tokens_out: output_tokens
+        session_id: session_id
+        ts: timestamp
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - generativelanguage.googleapis.com
+        - gemini.google.com
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: >
+  Chosen as config-only proof tool #2 — CLI session logs map cleanly onto
+  local_session_logs without a hand-written collector fork. Exercisable with
+  fixtures when the binary is absent.

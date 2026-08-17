@@ -1,0 +1,36 @@
+id: claude_code
+display_name: Claude Code
+provider: anthropic
+schema_tool: claude_code
+sanctioned: true
+implementation: legacy
+legacy:
+  package: collectors/claude-code
+  reason: >
+    PreToolUse/UserPromptSubmit hooks, transcript scanners, and phase-2a
+    enforcement are Claude-specific parsers. They register through this
+    contract but keep the hand-written package for depth.
+surfaces:
+  - type: editor_extension_hooks
+    fidelity: depth
+    discovery:
+      binaries: ["claude"]
+      paths:
+        - "~/.claude"
+        - "~/.config/claude"
+    extraction:
+      format: legacy
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - api.anthropic.com
+        - api.claude.ai
+      catalogue_rule_ids: ["anthropic-api"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: CEO AIM-16 sanctioned tool.

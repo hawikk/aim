@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Monitoring | Monitor and govern AI behavior in real time</title>
+<meta name="description" content="Security visibility and guardrails for every AI coding tool your engineers use. CNAPP, AI usage monitoring, and CI/CD gates in one stack.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='white'/%3E%3C/svg%3E">
+<style>
+  /* No external font endpoints (AIM-353 standing rule): Inter / JetBrains Mono
+     are used when installed locally and degrade to the system stacks. */
+  :root {
+    --sans: "Inter", -apple-system, "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --fg: #fff;
+    --dim: #888;
+    --faint: #555;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  /* Page uses a custom black-hole cursor; restore a normal pointer on
+     clickable controls so CTAs like Get Started feel safe to press. */
+  html, body { cursor: none; }
+  a, button, input, select, textarea, label, summary,
+  [role="button"], [role="link"] {
+    cursor: pointer;
+  }
+  body {
+    background: #000;
+    color: var(--fg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
+
+  /* Black-hole cursor: real black core (WebGL additive can't paint black). */
+  #bh {
+    position: fixed;
+    left: 0; top: 0;
+    width: 18px; height: 18px;
+    margin: 0;
+    border-radius: 50%;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 0 14px 2px rgba(255,255,255,0.22),
+      0 0 36px 8px rgba(255,255,255,0.08),
+      inset 0 0 10px rgba(255,255,255,0.12);
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%) scale(1);
+    will-change: transform, width, height, box-shadow;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  #bh.is-on { opacity: 1; }
+  #bh.is-on.is-over-ui { opacity: 0; }
+  #bh.is-press {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.1),
+      0 0 22px 4px rgba(255,255,255,0.35),
+      0 0 60px 14px rgba(255,255,255,0.14),
+      0 0 100px 28px rgba(232,170,170,0.06),
+      inset 0 0 14px rgba(255,255,255,0.18);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #bh { transition: none; }
+  }
+
+  .skip-link {
+    position: absolute; left: -9999px; top: 12px; z-index: 100;
+    background: #fff; color: #000; padding: 8px 16px; border-radius: 999px;
+    font-size: 13px;
+  }
+  .skip-link:focus { left: 12px; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 44px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  .brand .dot { width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px rgba(255,255,255,0.55); }
+  .nav-links { display: flex; gap: 36px; position: absolute; left: 50%; transform: translateX(-50%); }
+  .nav-links a { font-size: 14px; color: #999; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+
+  .pill {
+    display: inline-block; border-radius: 999px; font-size: 14px; font-weight: 500;
+    padding: 9px 22px; line-height: 1.3; white-space: nowrap;
+    transition: box-shadow 0.25s, color 0.2s, border-color 0.2s;
+  }
+  .pill-solid {
+    background: #fff; color: #000;
+    box-shadow: 0 0 30px rgba(255,255,255,0.4);
+  }
+  .pill-solid:hover { box-shadow: 0 0 44px rgba(255,255,255,0.6); }
+  .pill-outline { border: 1px solid rgba(255,255,255,0.28); color: #ddd; }
+  .pill-outline:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; }
+  /* Fixed to the viewport so the galaxy + accretion hole stay screen-aligned
+     while the page scrolls. Hero-absolute placement made uCursor (viewport
+     css) drift from particle space (canvas css) as soon as scrollY > 0 —
+     the hole appeared stuck "up" until you scrolled back to the top. */
+  #field {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    display: block; z-index: 0; pointer-events: none;
+  }
+  /* Content above the fixed field (field is z-index 0, pointer-events none). */
+  main, footer { position: relative; z-index: 1; }
+  .hero-inner {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 21vh 24px 0;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.34em;
+    color: var(--dim); text-transform: uppercase; margin-bottom: 34px;
+  }
+  h1 {
+    font-size: clamp(46px, 5.4vw, 72px);
+    font-weight: 200; letter-spacing: -0.02em; line-height: 1.12;
+    color: #fff;
+  }
+  .hero-cta { margin-top: 46px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+  .hero-cta .pill-solid { font-size: 15px; padding: 12px 28px; }
+  .demo-link { font-size: 15px; color: #aaa; transition: color 0.2s; }
+  .demo-link:hover { color: #fff; }
+  .demo-link .arrow { display: inline-block; transition: transform 0.2s; margin-left: 4px; }
+  .demo-link:hover .arrow { transform: translateX(3px); }
+
+  /* ---------- Features ---------- */
+  .features {
+    max-width: 1180px; margin: 0 auto;
+    padding: 150px 44px 60px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 72px;
+  }
+  .features h3 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 16px; }
+  .features p { font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--dim); }
+
+  /* ---------- Pricing ---------- */
+  .pricing { max-width: 1180px; margin: 0 auto; padding: 150px 44px 120px; }
+  .pricing-head { text-align: center; margin-bottom: 110px; }
+  .pricing-head h2 { font-size: clamp(34px, 3.4vw, 48px); font-weight: 200; letter-spacing: -0.02em; }
+  .pricing-head p { font-family: var(--mono); font-size: 13px; color: var(--dim); margin-top: 20px; }
+  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 88px; }
+  .tier-name { font-family: var(--mono); font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim); }
+  .tier-price { font-size: 44px; font-weight: 200; letter-spacing: -0.02em; margin-top: 26px; }
+  .tier-price small { font-size: 15px; font-weight: 400; color: var(--dim); letter-spacing: 0; }
+  .tier-for { font-size: 15px; color: #ccc; margin-top: 14px; line-height: 1.5; }
+  .tier ul { list-style: none; margin-top: 30px; }
+  .tier li { font-family: var(--mono); font-size: 13px; color: var(--dim); line-height: 2.1; }
+  .tier .tier-cta { margin-top: 36px; display: inline-block; }
+  .tier .link-cta { font-size: 14px; color: #aaa; }
+  .tier .link-cta:hover { color: #fff; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 44px; margin-top: 40px;
+  }
+  footer .brand { font-size: 14px; color: #ccc; }
+  footer .brand .dot { width: 9px; height: 9px; }
+  footer .fine { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  footer nav { display: flex; gap: 26px; }
+  footer nav a { font-size: 13px; color: #777; }
+  footer nav a:hover { color: #fff; }
+
+  @media (max-width: 960px) {
+    .nav-links { display: none; }
+    .features { grid-template-columns: repeat(2, 1fr); gap: 56px; padding-top: 110px; }
+    .tiers { grid-template-columns: 1fr; gap: 80px; }
+    .hero-inner { padding-top: 24vh; }
+  }
+  @media (max-width: 560px) {
+    .nav { padding: 20px 24px; }
+    .nav-cta .pill-outline { display: none; }
+    .features { grid-template-columns: 1fr; }
+    .features, .pricing { padding-left: 24px; padding-right: 24px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<!-- Viewport-fixed field + hole live on body so scroll never traps them in a
+     section stacking context (see v9 scroll fix). -->
+<canvas id="field" aria-hidden="true"></canvas>
+<div id="bh" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="brand" href="#" aria-label="AI Monitoring home">
+    <span class="dot" aria-hidden="true"></span>
+    <span>AI Monitoring</span>
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#">Research</a>
+    <a href="#features">Features</a>
+    <a href="#">Careers</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="pill pill-solid" href="#pricing">Get Started</a>
+    <a class="pill pill-outline" href="mailto:sales@getaimonitoring.com">Contact Sales</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" aria-label="Introduction">
+    <div class="hero-inner">
+      <p class="eyebrow">cnapp&ensp;·&ensp;ai usage monitoring&ensp;·&ensp;ci/cd guardrails</p>
+      <h1>Monitor and govern<br>AI behavior in real time</h1>
+      <div class="hero-cta">
+        <a class="pill pill-solid" href="#pricing">Get Started</a>
+        <a class="demo-link" href="mailto:sales@getaimonitoring.com?subject=Demo%20request">Request a Demo<span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features" aria-label="What it does">
+    <div>
+      <h3>Observe</h3>
+      <p>every prompt, tool call,<br>file touch, every agent</p>
+    </div>
+    <div>
+      <h3>Govern</h3>
+      <p>guardrails enforced inline<br>before the action runs</p>
+    </div>
+    <div>
+      <h3>Analyze</h3>
+      <p>attribution, coverage, risk<br>across your entire fleet</p>
+    </div>
+    <div>
+      <h3>Improve</h3>
+      <p>fix findings, tighten rules<br>watch exposure trend down</p>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing" aria-label="Pricing">
+    <div class="pricing-head">
+      <h2>Simple, honest pricing</h2>
+      <p>free for individuals and open source, forever</p>
+    </div>
+    <div class="tiers">
+      <div class="tier">
+        <p class="tier-name">Free</p>
+        <p class="tier-price">$0</p>
+        <p class="tier-for">Personal projects and open&nbsp;source. No card, no time limit.</p>
+        <ul>
+          <li>up to 5 seats</li>
+          <li>all collectors &amp; dashboards</li>
+          <li>30-day event retention</li>
+          <li>community support</li>
+        </ul>
+        <a class="pill pill-solid tier-cta" href="#">Start free</a>
+      </div>
+      <div class="tier">
+        <p class="tier-name">Team</p>
+        <p class="tier-price">$9 <small>per user / month</small></p>
+        <p class="tier-for">For engineering orgs rolling out AI tools with guardrails on.</p>
+        <ul>
+          <li>unlimited seats &amp; SSO</li>
+          <li>inline policy enforcement</li>
+          <li>1-year event retention</li>
+          <li>priority support</li>
+        </ul>
+        <a class="pill pill-outline tier-cta" href="#">Start a trial</a>
+      </div>
+      <div class="tier">
+        <p class="tier-name">Enterprise</p>
+        <p class="tier-price">Let’s talk</p>
+        <p class="tier-for">700-seat fleets, on-prem or VPC, custom retention and compliance.</p>
+        <ul>
+          <li>self-hosted or dedicated cloud</li>
+          <li>custom retention &amp; audit export</li>
+          <li>compliance reporting</li>
+          <li>dedicated support &amp; SLA</li>
+        </ul>
+        <a class="link-cta tier-cta" href="mailto:sales@getaimonitoring.com">Contact Sales<span aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="brand"><span class="dot" aria-hidden="true"></span>AI Monitoring</span>
+  <nav aria-label="Footer">
+    <a href="#">Research</a>
+    <a href="#features">Features</a>
+    <a href="#">Careers</a>
+    <a href="#">Security</a>
+  </nav>
+  <span class="fine">© 2026 AI Monitoring</span>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+  // Screen-space WebGL particle band: a comet-tail arc sweeping upper-left →
+  // lower-right across the whole viewport. Vanilla WebGL1, zero dependencies
+  // (AIM-353 rule). The curve lives in normalized viewport coordinates and is
+  // evaluated in the vertex shader, so resize costs nothing.
+  //
+  // v5 after board review: system pointer still visible + two white glows
+  // (fixed arc focal + cursor aura) fighting each other. Replace both with a
+  // single black-hole cursor (CSS core, particles feed into it). Hide the OS
+  // cursor. Click enlarges the event horizon; particles swirl in harder.
+  //
+  // v6 board polish: restore the normal OS pointer on buttons/links (Get
+  // Started, Contact Sales, etc.) and hide the black hole while hovering them
+  // so CTAs stay obviously clickable.
+  //
+  // v7 board polish: field was effectively static without mouse input. Drive
+  // continuous ambient motion (rightward crawl + slow rotation) even when the
+  // pointer is idle, and strip every em dash from page copy.
+  //
+  // v8 board polish: "move a little bit more and constant" — raise ambient
+  // speeds, keep whole-field rotation + crawl always on (not mouse-gated).
+  //
+  // v9 board polish: hole drifted / stuck "up" while scrolling. Canvas is now
+  // viewport-fixed, cursor→shader mapping uses canvas-local coords, and scroll
+  // refreshes hit-testing so the hole stays under the pointer at any scrollY.
+  //
+  // v13 board fix: drop whole-field rotation / pivot weave / ambient orbit.
+  // The wanted look is a slow, almost-still comet tail, not a spinning galaxy.
+  //
+  // v14 board fix (Chrome/Windows): v13 looked right on Brave/Mac and
+  // other browsers, but Chrome on a 1x PC was completely still. Two
+  // causes: (1) Windows "Animation effects" maps to prefers-reduced-motion
+  // and we zeroed uMotion; (2) ANGLE snaps sub-pixel POINTS, so a
+  // minutes-long crawl + 0.3px jitter never changes a pixel. Keep the
+  // band from rotating. Restore a quiet CSS-px crawl/jitter that stays
+  // visible at 1x and never fully freeze on reduced-motion.
+  const canvas = document.getElementById('field');
+  const holeEl = document.getElementById('bh');
+  const rmQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  const gl = canvas.getContext('webgl', {
+    alpha: true, antialias: false, depth: false, stencil: false,
+    powerPreference: 'default', preserveDrawingBuffer: false,
+  });
+
+  // Black-hole cursor state lives outside WebGL so the page still feels
+  // interactive even if the decorative GL layer fails to init.
+  const BASE_R = 9;           // css px radius at rest
+  let mxCss = 0, myCss = 0;   // raw pointer, css px (viewport / client)
+  let hx = 0, hy = 0;         // eased hole center, css px (viewport)
+  let holeScale = 1;          // rendered scale
+  let holeTarget = 1;         // 1 at rest, larger while held / after click
+  let hasPointer = false;
+  let isPressing = false;
+  let overUi = false;         // true while hovering a clickable control
+  // Cached canvas viewport origin so shader space tracks the field even if
+  // layout ever drifts from a pure fixed full-viewport rect.
+  let canvasLeft = 0, canvasTop = 0;
+  const HOLE_EASE = 0.22;
+  const POS_EASE = 0.28;      // snappy follow so it feels like the real pointer
+  const CLICK_PEAK = 2.8;     // scale on mousedown
+  const CLICK_PULSE = 1.55;   // residual after mouseup before settle
+  const UI_SELECTOR = 'a, button, input, select, textarea, label, summary, [role="button"], [role="link"]';
+
+  function placeHole() {
+    if (!holeEl) return;
+    const r = BASE_R * holeScale;
+    holeEl.style.width = (r * 2) + 'px';
+    holeEl.style.height = (r * 2) + 'px';
+    holeEl.style.transform = 'translate(-50%, -50%)';
+    // #bh is position:fixed — always client/viewport coords, never pageY.
+    holeEl.style.left = hx + 'px';
+    holeEl.style.top = hy + 'px';
+  }
+
+  function syncCanvasOrigin() {
+    const rect = canvas.getBoundingClientRect();
+    canvasLeft = rect.left;
+    canvasTop = rect.top;
+  }
+
+  // During scroll the pointer stays put (no mousemove) but content slides
+  // under it — re-hit-test so CTAs hide the hole correctly mid-scroll.
+  function refreshPointerHit() {
+    if (!hasPointer) return;
+    let hit = null;
+    try { hit = document.elementFromPoint(mxCss, myCss); } catch (_) { hit = null; }
+    setOverUi(isInteractiveTarget(hit));
+  }
+
+  function isInteractiveTarget(el) {
+    if (!el || el === document || el === document.documentElement || el === document.body) {
+      return false;
+    }
+    if (typeof el.closest === 'function') {
+      return !!el.closest(UI_SELECTOR);
+    }
+    const tag = (el.tagName || '').toLowerCase();
+    return tag === 'a' || tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'label' || tag === 'summary';
+  }
+
+  function setOverUi(next) {
+    if (next === overUi) return;
+    overUi = next;
+    if (holeEl) {
+      holeEl.classList.toggle('is-over-ui', overUi);
+      // Don't leave a stuck press state under a CTA.
+      if (overUi) holeEl.classList.remove('is-press');
+    }
+    if (overUi) {
+      // Settle the hole so it doesn't reappear mid-grow after leaving a button.
+      isPressing = false;
+      holeTarget = 1;
+    }
+  }
+
+  function setPointer(clientX, clientY, target) {
+    mxCss = clientX;
+    myCss = clientY;
+    if (!hasPointer) {
+      // Snap on first contact so the hole doesn't trail in from center.
+      hx = clientX; hy = clientY;
+      hasPointer = true;
+      if (holeEl) holeEl.classList.add('is-on');
+    }
+    // Prefer the event target (accurate under the black-hole element, which
+    // has pointer-events:none). Fall back to elementFromPoint if needed.
+    let hit = target;
+    if (!hit || hit === document || hit === document.documentElement) {
+      try { hit = document.elementFromPoint(clientX, clientY); } catch (_) { hit = null; }
+    }
+    setOverUi(isInteractiveTarget(hit));
+  }
+  function onPointer(e) {
+    if (e.pointerType === 'touch') return;
+    setPointer(e.clientX, e.clientY, e.target);
+  }
+  function onMouse(e) { setPointer(e.clientX, e.clientY, e.target); }
+  function onTouch(e) {
+    const t = e.touches && e.touches[0];
+    if (t) setPointer(t.clientX, t.clientY, e.target);
+  }
+  function onDown(e) {
+    if (e.pointerType === 'touch') return;
+    if (typeof e.clientX === 'number') setPointer(e.clientX, e.clientY, e.target);
+    // Keep the black-hole press animation off CTAs; OS pointer is the affordance.
+    if (overUi || isInteractiveTarget(e.target)) {
+      setOverUi(true);
+      return;
+    }
+    isPressing = true;
+    holeTarget = CLICK_PEAK;
+    if (holeEl) holeEl.classList.add('is-press');
+  }
+  function onUp() {
+    isPressing = false;
+    // Grow further on release impulse, then ease back to rest.
+    if (!overUi) holeTarget = Math.max(holeScale, CLICK_PULSE);
+    if (holeEl) holeEl.classList.remove('is-press');
+    // Schedule settle so a held click doesn't fight the residual pulse.
+    clearTimeout(onUp._t);
+    onUp._t = setTimeout(() => {
+      if (!isPressing) holeTarget = 1;
+    }, 180);
+  }
+  function onLeave() {
+    // Keep the hole visible at last position; only hide if we truly leave the page.
+  }
+  function onDocLeave() {
+    hasPointer = false;
+    overUi = false;
+    if (holeEl) {
+      holeEl.classList.remove('is-on');
+      holeEl.classList.remove('is-over-ui');
+      holeEl.classList.remove('is-press');
+    }
+  }
+
+  for (const target of [window, document]) {
+    target.addEventListener('pointermove', onPointer, { passive: true });
+    target.addEventListener('mousemove', onMouse, { passive: true });
+    target.addEventListener('touchmove', onTouch, { passive: true });
+  }
+  window.addEventListener('pointerdown', onDown, { passive: true });
+  window.addEventListener('mousedown', onDown, { passive: true });
+  window.addEventListener('pointerup', onUp, { passive: true });
+  window.addEventListener('mouseup', onUp, { passive: true });
+  document.addEventListener('mouseleave', onDocLeave);
+  document.documentElement.addEventListener('mouseleave', onDocLeave);
+  window.addEventListener('blur', onUp);
+  // Scroll changes what sits under a still cursor and (historically) desynced
+  // canvas-local accretion from the fixed hole. Keep both in lockstep.
+  window.addEventListener('scroll', () => {
+    syncCanvasOrigin();
+    refreshPointerHit();
+  }, { passive: true });
+
+  // Seed at viewport center until first move.
+  mxCss = hx = (window.innerWidth || 1) * 0.5;
+  myCss = hy = (window.innerHeight || 1) * 0.45;
+  syncCanvasOrigin();
+  placeHole();
+
+  if (!gl) {
+    // No WebGL: still drive the black-hole cursor alone.
+    (function cursorOnly(now) {
+      requestAnimationFrame(cursorOnly);
+      hx += (mxCss - hx) * POS_EASE;
+      hy += (myCss - hy) * POS_EASE;
+      if (!isPressing && holeTarget > 1) {
+        holeTarget += (1 - holeTarget) * 0.04;
+        if (holeTarget < 1.02) holeTarget = 1;
+      }
+      holeScale += (holeTarget - holeScale) * HOLE_EASE;
+      placeHole();
+    })();
+    return;
+  }
+
+  const N = 15000;
+  let spare = null;
+  function gauss() {
+    if (spare !== null) { const v = spare; spare = null; return v; }
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    const m = Math.sqrt(-2 * Math.log(u));
+    spare = m * Math.sin(2 * Math.PI * v);
+    return m * Math.cos(2 * Math.PI * v);
+  }
+
+  // Interleaved: a0(t, off, speed, depth) a1(size, alpha, phase, pinkSeed)
+  //              a2(glow, jitterAmp, _) = 11 floats. No focal / cursor point
+  // sprites. The black hole is a DOM layer so it can be truly black.
+  const STRIDE = 11;
+  const COUNT = N;
+  const data = new Float32Array(COUNT * STRIDE);
+  for (let i = 0; i < N; i++) {
+    const o = i * STRIDE;
+    // Position along the arc: mostly uniform so the band sweeps corner to
+    // corner, with a mild bump of extra density mid-band.
+    const t = Math.random() < 0.68
+      ? Math.random()
+      : Math.min(1, Math.max(0, 0.5 + gauss() * 0.17));
+    // Perpendicular scatter in sigma units; ~8% flung wide for the feathered
+    // haze around the band.
+    const off = gauss() * (Math.random() < 0.08 ? 2.8 : 1);
+    const depth = Math.random();
+    data[o + 0] = t;
+    data[o + 1] = off;
+    // Along-curve speed: almost still (~3–8 min lap). v8's 8–22s lap read as
+    // a streaming/spinning galaxy; the board wants a quiet comet tail.
+    data[o + 2] = (0.0022 + 0.0038 * Math.random()) * (0.6 + 0.7 * depth);
+    data[o + 3] = depth;
+    data[o + 4] = 0.6 + 1.1 * Math.random(); // 0.6-1.7 px at dpr 1
+    data[o + 5] = (0.2 + 0.8 * Math.pow(Math.random(), 1.6)) *
+                  (0.55 + 0.45 * depth) *
+                  (0.35 + 0.65 * Math.exp(-(off * off) / 9)); // bright spine, faint haze
+    data[o + 6] = Math.random() * Math.PI * 2;
+    // Pink seed on ~6.5% of particles; the shader gates it to the left third
+    // of the arc (P(t<⅓)≈⅓), so ≈2% of the visible field is pink.
+    data[o + 7] = Math.random() < 0.065 ? 0.7 + 0.3 * Math.random() : 0;
+    data[o + 8] = 0;
+    data[o + 9] = 0.8 + 1.7 * Math.random();
+    data[o + 10] = 0;
+  }
+
+  const VS = `
+    attribute vec4 a0; // t, off, speed, depth
+    attribute vec4 a1; // size px, base alpha, phase, pink seed
+    attribute vec3 a2; // glow, jitter amp px, unused
+    uniform vec2 uRes;    // css px
+    uniform vec2 uPar;    // eased parallax offset, px
+    uniform vec2 uCursor; // eased hole center, css px
+    uniform float uHoleR; // hole radius, css px (grows on click)
+    uniform float uTime, uDpr, uMaxPoint;
+    uniform float uMotion; // 1 = ambient motion, 0 = reduced-motion calm field
+    uniform vec2 uA, uB, uC, uD; // bezier control points, normalized viewport
+    varying float vAlpha, vPink, vGlow;
+    void main() {
+      // v14: Chrome/Windows at 1x (and Windows "Animation effects off" →
+      // prefers-reduced-motion) snapped v13's sub-pixel jitter + 3–8 min
+      // crawl to a frozen field. Boost crawl/jitter in CSS px on low-DPR
+      // displays. Never multiply motion by zero.
+      float dprBoost = (uDpr >= 1.75) ? 1.0 : max(1.0, 3.2 / max(uDpr, 0.75));
+      float live = max(uMotion, 0.65);
+      float t = fract(a0.x + fract(uTime * a0.z * dprBoost) * live);
+      float ph = a1.z;
+      float s = 1.0 - t;
+      vec2 p = s*s*s*uA + 3.0*s*s*t*uB + 3.0*s*t*t*uC + t*t*t*uD;
+      vec2 tn = 3.0*s*s*(uB-uA) + 6.0*s*t*(uC-uB) + 3.0*t*t*(uD-uC);
+      vec2 pp = p * uRes;
+      vec2 tp = normalize(tn * uRes + vec2(1e-5));
+      // comet profile: wide feathered tail upper-left, tight head lower-right
+      float sigma = uRes.y * 0.052 * mix(1.75, 0.7, t);
+      pp += vec2(-tp.y, tp.x) * a0.y * sigma;
+      // Quiet per-particle jitter. Floor at 1.2 CSS px on 1x so ANGLE cannot
+      // snap the whole field to the same pixel.
+      float jAmp = max(a2.y * 0.35 * dprBoost * live, (uDpr < 1.75) ? 1.2 : 0.0);
+      pp += vec2(sin(uTime * 0.55 + ph), cos(uTime * 0.41 + ph * 1.31)) * jAmp;
+      // Whole-field parallax: deeper particles shift more (mouse only).
+      pp += uPar * mix(0.35, 1.15, a0.w);
+
+      // v13: no whole-field rotation and no pivot weave. The band stays a
+      // fixed upper-left → lower-right comet tail.
+
+      // Black-hole accretion: radial pull + tangential swirl, stronger when the
+      // hole is large (click). Particles near the event horizon dim/vanish.
+      vec2 toC = uCursor - pp;
+      float d = length(toC);
+      float inv = 1.0 / max(d, 1.0);
+      vec2 dir = toC * inv;
+      vec2 tang = vec2(-dir.y, dir.x);
+      float reach = uRes.y * (0.22 + 0.12 * (uHoleR / 9.0));
+      float fall = exp(-d * d / (reach * reach));
+      float mass = (uHoleR / 9.0);
+      float pull = (38.0 + 55.0 * mass) * a0.w * fall;
+      float swirl = (18.0 + 30.0 * mass) * a0.w * fall * uMotion;
+      pp += dir * pull + tang * swirl;
+
+      // Eat particles that enter the event horizon.
+      float eat = smoothstep(uHoleR * 0.6, uHoleR * 2.4, d);
+
+      gl_Position = vec4(pp.x / uRes.x * 2.0 - 1.0,
+                         1.0 - pp.y / uRes.y * 2.0, 0.0, 1.0);
+      float twinkle = 0.62 + 0.38 * sin(uTime * (0.8 + a0.w * 1.6) * live + ph * 7.0);
+      twinkle = mix(0.85, twinkle, live);
+      // fade both ends of the arc so the fract() wrap is invisible
+      float ends = smoothstep(0.0, 0.06, t) * (1.0 - smoothstep(0.94, 1.0, t));
+      vAlpha = a1.y * twinkle * ends * eat;
+      vPink = a1.w * (1.0 - smoothstep(0.26, 0.36, t));
+      vGlow = a2.x;
+      float px = a1.x * uDpr * mix(0.75, 1.2, a0.w);
+      // Shrink slightly as particles fall in.
+      px *= mix(0.35, 1.0, eat);
+      float pxc = clamp(px, 1.0, uMaxPoint);
+      vAlpha *= min(1.0, (px * px) / (pxc * pxc)); // sub-pixel sizes dim, not vanish
+      gl_PointSize = pxc;
+    }`;
+  const FS = `
+    precision mediump float;
+    varying float vAlpha, vPink, vGlow;
+    void main() {
+      vec2 uv = gl_PointCoord - 0.5;
+      float d = length(uv) * 2.0;
+      if (d > 1.0) discard;
+      float disc = smoothstep(1.0, 0.3, d);
+      float glow = exp(-5.0 * d * d);
+      float fall = mix(disc, glow, vGlow);
+      vec3 col = mix(vec3(1.0), vec3(0.933, 0.533, 0.667), vPink); // #e8a
+      gl_FragColor = vec4(col * vAlpha * fall, vAlpha * fall);
+    }`;
+  function shader(type, src) {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src); gl.compileShader(sh);
+    return sh;
+  }
+
+  // All GL state lives in initGL so a restored context can rebuild everything
+  // (program, buffer, attribs, uniforms; locations change across a re-link).
+  let U = null, maxPoint = 64, buf = null;
+  function initGL() {
+    const prog = gl.createProgram();
+    gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+    gl.useProgram(prog);
+
+    buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    const BYTES = STRIDE * 4;
+    for (const [name, size, offset] of [
+      ['a0', 4, 0], ['a1', 4, 16], ['a2', 3, 32],
+    ]) {
+      const loc = gl.getAttribLocation(prog, name);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, size, gl.FLOAT, false, BYTES, offset);
+    }
+    U = {};
+    for (const n of [
+      'uRes', 'uPar', 'uCursor', 'uHoleR', 'uTime', 'uDpr', 'uMaxPoint', 'uMotion',
+      'uA', 'uB', 'uC', 'uD',
+    ]) {
+      U[n] = gl.getUniformLocation(prog, n);
+    }
+    maxPoint = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1] || 64;
+
+    // The arc, in normalized viewport coords (0,0 = top-left): enters
+    // off-screen upper-left, sweeps through center, exits lower-right.
+    gl.uniform2f(U.uA, -0.10, 0.14);
+    gl.uniform2f(U.uB, 0.32, 0.44);
+    gl.uniform2f(U.uC, 0.66, 0.50);
+    gl.uniform2f(U.uD, 1.10, 0.88);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE); // additive (colors are premultiplied in the FS)
+    gl.clearColor(0, 0, 0, 0);
+    return true;
+  }
+
+  let W = 0, H = 0, dpr = 1;
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = canvas.clientWidth || 1; H = canvas.clientHeight || 1;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  // Parallax targets in -1..1 from center; hole position is absolute css px.
+  let mx = 0, my = 0;
+  let cx = 0, cy = 0;
+  let px = 0, py = 0;
+  const EASE = 0.14;
+  const PAR_X = 110;
+  const PAR_Y = 80;
+
+  function draw(now) {
+    // Hole follows pointer tightly (feels like the real cursor).
+    hx += (mxCss - hx) * POS_EASE;
+    hy += (myCss - hy) * POS_EASE;
+    if (!isPressing && holeTarget > 1) {
+      holeTarget += (1 - holeTarget) * 0.045;
+      if (holeTarget < 1.02) holeTarget = 1;
+    }
+    holeScale += (holeTarget - holeScale) * HOLE_EASE;
+    placeHole();
+
+    // Parallax is mouse-only. No ambient orbit — that plus rotation is what
+    // made the live field look like it was tumbling when the pointer sat still.
+    const iw = window.innerWidth || 1;
+    const ih = window.innerHeight || 1;
+    mx = (mxCss / iw) * 2 - 1;
+    my = (myCss / ih) * 2 - 1;
+    const pointerW = hasPointer ? 0.55 : 0;
+    const targetX = mx * pointerW;
+    const targetY = my * pointerW;
+    cx += (targetX - cx) * EASE;
+    cy += (targetY - cy) * EASE;
+    const k = rmQuery.matches ? 0.55 : 1;
+    const tpx = -cx * PAR_X * k;
+    const tpy = -cy * PAR_Y * k;
+    px += (tpx - px) * EASE;
+    py += (tpy - py) * EASE;
+
+    // No pointer yet (or hole hidden): do not leave a gravity well under the
+    // headline. That idle swirl read as a second spin.
+    const holeR = (hasPointer && !overUi) ? BASE_R * holeScale : 0;
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform2f(U.uRes, W, H);
+    gl.uniform2f(U.uPar, px, py);
+    // Viewport (fixed #bh) → canvas-local. With a viewport-fixed field this
+    // is near identity, but getBoundingClientRect keeps accretion glued to
+    // the hole if layout or scroll ever shifts the canvas origin.
+    gl.uniform2f(U.uCursor, hx - canvasLeft, hy - canvasTop);
+    gl.uniform1f(U.uHoleR, holeR);
+    gl.uniform1f(U.uTime, now / 1000);
+    gl.uniform1f(U.uDpr, dpr);
+    gl.uniform1f(U.uMaxPoint, maxPoint);
+    // Never pass 0: Windows Chrome maps "Animation effects off" to
+    // prefers-reduced-motion and a zero here freezes the field.
+    gl.uniform1f(U.uMotion, rmQuery.matches ? 0.65 : 1);
+    gl.drawArrays(gl.POINTS, 0, COUNT);
+  }
+
+  // One unconditional loop, rescheduled BEFORE drawing so nothing (not a GL
+  // hiccup, not an observer misfire) can permanently stop the scene. Hidden
+  // tabs cost nothing (the browser throttles rAF); a lost context skips the
+  // draw until webglcontextrestored rebuilds state.
+  let lost = false;
+  function loop(now) {
+    requestAnimationFrame(loop);
+    if (lost) return;
+    draw(now);
+  }
+
+  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); lost = true; });
+  canvas.addEventListener('webglcontextrestored', () => { lost = !initGL(); resize(); syncCanvasOrigin(); });
+  addEventListener('resize', () => { resize(); syncCanvasOrigin(); refreshPointerHit(); });
+
+  if (!initGL()) {
+    // Fall back to cursor-only path if program link fails.
+    (function cursorOnly() {
+      requestAnimationFrame(cursorOnly);
+      hx += (mxCss - hx) * POS_EASE;
+      hy += (myCss - hy) * POS_EASE;
+      if (!isPressing && holeTarget > 1) {
+        holeTarget += (1 - holeTarget) * 0.04;
+        if (holeTarget < 1.02) holeTarget = 1;
+      }
+      holeScale += (holeTarget - holeScale) * HOLE_EASE;
+      placeHole();
+    })();
+    return;
+  }
+  resize();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

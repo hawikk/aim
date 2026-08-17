@@ -1,0 +1,54 @@
+# JetBrains AI Assistant — named presence (AIM-1176).
+# Marketplace xmlId com.intellij.ml.llm. Inspected layout (2026-08-13):
+#   Config: <IDE_CONFIG>/options/llm.settings.xml (and llm.xml)
+#   Plugin dir: <IDE_CONFIG>/plugins/ml-llm or "AI Assistant"
+#   Versioned trees: ~/.config/JetBrains/<Product><Year.N>/
+# Chat / agent transcripts under ml-llm/ are contentful. No metadata-only
+# usage table. Do not invent sessions. schema_tool=other + tool_raw=jetbrains_ai.
+# Catalogue rule id stays jetbrains-ai; tool=jetbrains_ai.
+id: jetbrains_ai
+display_name: JetBrains AI Assistant
+provider: jetbrains
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.config/JetBrains/*/plugins/ml-llm"
+        - "~/.config/JetBrains/*/plugins/AI Assistant"
+        - "~/.config/JetBrains/*/options/llm.settings.xml"
+        - "~/.config/JetBrains/*/options/llm.xml"
+        - "~/.local/share/JetBrains/*/plugins/ml-llm"
+        - "~/.config/Google/*/options/llm.settings.xml"
+        - "~/Library/Application Support/JetBrains/*/plugins/ml-llm"
+        - "~/Library/Application Support/JetBrains/*/plugins/AI Assistant"
+        - "~/Library/Application Support/JetBrains/*/options/llm.settings.xml"
+        - "~/Library/Application Support/Google/*/options/llm.settings.xml"
+        - "${APPDATA}/JetBrains/*/plugins/ml-llm"
+        - "${APPDATA}/JetBrains/*/plugins/AI Assistant"
+        - "${APPDATA}/JetBrains/*/options/llm.settings.xml"
+        - "${APPDATA}/Google/*/options/llm.settings.xml"
+    extraction:
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - api.jetbrains.ai
+        - grazie.ai
+        - api.jetbrains.com
+      catalogue_rule_ids: ["jetbrains-ai"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: >
+  Presence-only: plugin/config path + proxy. Residual is JetBrains account
+  usage export, not a local token column. Continue-in-IntelliJ is tool_raw=
+  continue, not this manifest. Unsanctioned. Do not auto-promote.

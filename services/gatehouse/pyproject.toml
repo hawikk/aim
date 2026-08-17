@@ -1,0 +1,42 @@
+[project]
+name = "gatehouse"
+version = "0.1.0"
+description = "PR-time security scanner service (pillar 3) — GitHub App, diff-scoped SAST/secrets/IaC/deps"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",        # .gatehouse.yml
+    "jsonschema>=4.20",   # publisher-side security.alert/v1 validation (non-optional: see bus.py)
+    "PyJWT>=2.8",         # GitHub App JWT (RS256)
+    "cryptography>=42.0", # PyJWT's RS256 backend
+    "redis>=5.0",         # alert bus (XADD)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+gatehouse = "gatehouse.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# The vendored semgrep ruleset ships inside the package: the rules ARE the
+# scanner's behaviour, so they are versioned and installed with the code
+# rather than fetched from a registry at scan time (see scanners/semgrep.py).
+gatehouse = [
+    "rules/semgrep/*.yaml",
+    "schema/*.json",
+    "catalogue/*.yml",
+    "cnapp_parity/*.yml",
+    "gate_modes.json",  # AIM-334: per-gate enforce/observe (precision budget)
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

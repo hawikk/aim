@@ -1,0 +1,36 @@
+[project]
+name = "hygiene"
+version = "0.1.0"
+description = "Secrets & token hygiene scanner (pillar 4) — history leaks, worktree hygiene, token scope audit"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",        # hygiene.yml
+    "jsonschema>=4.20",   # publisher-side security.alert/v1 validation (non-optional: see bus.py)
+    "redis>=5.0",         # alert bus (XADD)
+]
+
+# Deliberately no boto3/botocore. The only AWS call this service makes is
+# sts:GetCallerIdentity, signed by hand in checks/liveness.py — a ~30 line
+# SigV4 implementation against the stdlib. A service whose job is credential
+# hygiene is a poor place to add a large transitive dependency tree.
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+hygiene = "hygiene.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hygiene = ["schema/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "event_id": "7a1b2c3d-4e5f-4a6b-8c9d-0e1f2a3b4c5d",
+  "ts": "2026-07-21T14:07:55Z",
+  "host_ref": "daf1e7e84249fd873937dae072c239bfbbdaa5acb0d65542b9b2e0dda55e8571",
+  "user_ref": "496c3853b253fe37312af07db73024c5b8d312b261c3164be87ae7ba94653c9f",
+  "tool": "cursor",
+  "tool_version": "0.49.4",
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "session_id": "cursor-20260721-140700-ab12",
+  "tokens_in": 5210,
+  "tokens_out": 388,
+  "cost_estimate_usd": 0.0214,
+  "repo_ref": "5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+  "match_flags": [],
+  "source": "endpoint"
+}

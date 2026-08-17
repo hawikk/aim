@@ -1,0 +1,98 @@
+# Standard on-prem / pilot production shape.
+#
+# Persistent storage, two replicas for the stateless services, resource
+# requests, and in-app OIDC SSO — the API terminates the authorization code
+# flow itself and maps IdP groups to roles (AIM-95 / AIM-302). Client-supplied
+# identity headers are never trusted; there is no proxy-auth mode. Fill in
+# api.oidc for your IdP per docs/deployment/hosted-preview-sso-runbook.md.
+#
+# REQUIRED before use: set secrets.existingSecret (recommended) or override
+# every value under `secrets:` — the defaults are local-only.
+# `scripts/aim-553-helm-security-audit.sh` fails if this profile still carries
+# localdev-only secrets or enables authDev.
+
+# Fail-closed security posture for pilot / on-prem (AIM-553).
+# REQUIRED before use (AIM-601 fail-closed):
+#   - security.allowInsecureDefaults is false here — helm refuses local-only
+#     secrets, authDev, missing OIDC, public data-store services, and
+#     ingress without TLS. See docs/security/helm-values-security-defaults.md.
+#   - set secrets.existingSecret (recommended) OR override every secrets.*
+#     value away from the documented local-only placeholders
+#   - set api.oidc.issuer + clientId + client secret
+#
+# AIM-557: requireSso=true + authDev=false so pilot cannot enable personal
+# mode or /auth/dev/* without an explicit chart override. The API also
+# fails closed at boot if AIM_REQUIRE_SSO=1 without complete OIDC.
+#
+# AIM-553: multi-replica + PDBs; audit script:
+# scripts/aim-553-helm-security-audit.sh
+
+security:
+  allowInsecureDefaults: false
+  allowPublicServices: false
+
+podDisruptionBudgets:
+  enabled: true
+  minAvailable: 1
+
+api:
+  replicas: 2
+  # Pilot identity posture (AIM-545 / AIM-557): OIDC-only; no personal/dev auth.
+  authDev: false
+  requireSso: true
+  oidc:
+    issuer: ""       # REQUIRED for production, e.g. https://accounts.google.com
+    clientId: ""
+    # Prefer secrets.existingSecret with an AIM_OIDC_CLIENT_SECRET key.
+    clientSecret: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+ingest:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+# Multi-replica is safe: findings + evaluated_events use ON CONFLICT DO NOTHING.
+guardrail:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+# Prefer an operator-managed secret over chart-inlined localdev defaults.
+secrets:
+  existingSecret: ""  # set me, e.g. aim-prod-secrets
+
+postgres:
+  persistence:
+    size: 50Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+minio:
+  persistence:
+    size: 100Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+ingress:
+  enabled: false # enable + annotate for your TLS-terminating ingress
+  className: ""
+  host: aim-dashboard.corp.example
+  tls: true

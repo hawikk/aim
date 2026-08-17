@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "event_id": "b8c9d0e1-f2a3-4b4c-9d0e-1f2a3b4c5d6e",
+  "ts": "2026-07-21T14:12:40Z",
+  "host_ref": "26bd900438d8fc176051fae9e6369ad056dbce709681b3dd2f455a265ceeed13",
+  "user_ref": "e8254386624b41503e3c1c878d9960a83ed3a9f03a38aac715c50121ced22ac6",
+  "tool": "kilo_code",
+  "tool_version": "4.31.0",
+  "model": "gpt-4.1",
+  "provider": "openai",
+  "session_id": "kilo-sess-77aa01bb",
+  "tokens_in": 9904,
+  "tokens_out": 731,
+  "cost_estimate_usd": 0.0342,
+  "repo_ref": null,
+  "match_flags": [],
+  "source": "endpoint"
+}

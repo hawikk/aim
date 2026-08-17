@@ -1,0 +1,53 @@
+{{- /*
+PodDisruptionBudgets for multi-replica stateless services (AIM-553).
+Single-replica components (postgres, minio) skip PDBs — minAvailable:1 on a
+single pod would block voluntary drain forever.
+Nil-safe: missing podDisruptionBudgets key → disabled.
+*/ -}}
+{{- $pdb := .Values.podDisruptionBudgets | default dict }}
+{{- if $pdb.enabled }}
+{{- if gt (int .Values.ingest.replicas) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "aim.fullname" . }}-ingest
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "ingest" "context" .) | nindent 4 }}
+spec:
+  minAvailable: {{ $pdb.minAvailable | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "ingest" "context" .) | nindent 6 }}
+---
+{{- end }}
+{{- if gt (int .Values.api.replicas) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "aim.fullname" . }}-api
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 4 }}
+spec:
+  minAvailable: {{ $pdb.minAvailable | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "api" "context" .) | nindent 6 }}
+---
+{{- end }}
+{{- if gt (int .Values.guardrail.replicas) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "aim.fullname" . }}-guardrail
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "guardrail" "context" .) | nindent 4 }}
+spec:
+  minAvailable: {{ $pdb.minAvailable | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "guardrail" "context" .) | nindent 6 }}
+{{- end }}
+{{- end }}

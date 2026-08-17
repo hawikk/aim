@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "policy_hash": "aim793-secret-cohort-25-2026-08-01",
+  "mode": "enforce",
+  "rules": {
+    "secret-pattern-in-prompt": {
+      "enforce": true,
+      "cohort": {
+        "percent": 25,
+        "salt": "secret-pattern-canary-2026-08"
+      }
+    },
+    "unapproved-mcp-server": {
+      "enforce": false
+    },
+    "restricted-repo-access": {
+      "enforce": false
+    },
+    "pii-in-prompt": {
+      "enforce": false
+    }
+  },
+  "approved_mcp_servers": [
+    "claude_ai_Gmail",
+    "claude_ai_Google_Calendar",
+    "ide"
+  ],
+  "restricted_repo_paths": [
+    "/home/vaque/dogfood/security-stack/secrets",
+    "/home/vaque/security-stack/secrets",
+    "/home/vaque/dogfood/security-stack/secrets/idp",
+    "/home/vaque/security-stack/secrets/idp",
+    "/home/vaque/dogfood/security-stack/secrets/gcp",
+    "/home/vaque/security-stack/secrets/gcp",
+    "/home/vaque/.aws"
+  ],
+  "pii_confirm_ttl_seconds": 120,
+  "secret_override_ttl_seconds": 120
+}

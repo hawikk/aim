@@ -1,0 +1,66 @@
+# hygiene.yml — pillar 4 configuration (AIM-163).
+#
+# Mount read-only and point HYGIENE_CONFIG at it. No credential is ever read
+# from this file: tokens come from the environment, because a file describing
+# our secret hygiene is a poor place to keep secrets.
+
+scan:
+  # Checkouts to scan. Each is scanned in place and read-only; the service
+  # never writes to a repository, never pushes, and never remediates (D4).
+  repos:
+    - /repos/ai-monitoring
+    - /repos/littlewiz
+
+  # The documented minimum for this stack's GitHub token. Check 3 reports every
+  # scope granted beyond this list.
+  #
+  # gatehouse reads pull request contents and writes check runs. Nothing in the
+  # stack needs to write repository contents, administer the org, or edit
+  # workflows — so those, if present, are standing blast radius.
+  minimum_scopes:
+    - repo:status
+    - read:org
+
+  # Optional gitleaks config. Defaults to the repo's own .gitleaks.toml when
+  # present, then to gitleaks' bundled ruleset.
+  #
+  # Careful with allowlists here: gitleaks' default ruleset already allowlists
+  # AWS's documented AKIAIOSFODNN7EXAMPLE, and a path allowlist blinds the
+  # scanner to that directory permanently.
+  gitleaks_config: ""
+
+liveness:
+  # Verify whether a leaked credential still authenticates, by calling the
+  # issuer's own read-only identity endpoint (sts:GetCallerIdentity, GET /user,
+  # auth.test). This is what turns a `high` history finding into the `critical`
+  # alert sentinel pages on.
+  #
+  # The trade-off, stated plainly: the credential is transmitted to the party
+  # that issued it, over TLS, to a hardcoded host allowlist, once, with no
+  # retries. It is never sent anywhere else and never to AI Monitoring. Probes
+  # are read-only identity calls only — never a write, never a resource listing.
+  #
+  # Set false to skip it. Findings then report liveness `unknown`, which is
+  # rendered as "treat as live until proven otherwise" rather than as clean.
+  # `HYGIENE_LIVENESS=off` in the environment also disables it, and can only
+  # ever turn it off — never on.
+  enabled: true
+
+integrations:
+  # Cloud Sentry's CIEM view. When a leaked cloud credential is verified live,
+  # STS returns the principal's ARN and the finding deep-links to its effective
+  # permissions there (D2 — integrate, don't rebuild the policy evaluator).
+  ciem_base_url: https://cloud-sentry.internal
+
+storage:
+  # Findings state, the HMAC fingerprint key, and rendered reports. 0700.
+  state_dir: /var/lib/hygiene
+  # The standard window used across the stack. Enforced at the start of every
+  # run, not on a timer — retention that depends on a separate scheduler is
+  # retention that stops silently the first time that scheduler breaks.
+  retention_days: 30
+  report_dir: /var/lib/hygiene/reports
+
+bus:
+  # Shared cross-pillar alert stream (D3.1). Leave empty for the default.
+  stream_key: ""

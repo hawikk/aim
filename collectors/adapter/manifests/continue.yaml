@@ -1,0 +1,70 @@
+# Continue (continue.dev) — named unsanctioned adapter (AIM-1176).
+# Depth from inspected local token stores only:
+#   ~/.continue/dev_data/devdata.sqlite  table tokens_generated
+#     (model, provider, tokens_prompt, tokens_generated, timestamp)
+#   ~/.continue/dev_data/<semver>/tokensGenerated.jsonl
+#     (same fields as JSONL; Continue writes both for the same events)
+# Do not parse sessions/*.json, sessions.json, chatInteraction.jsonl,
+# autocomplete.jsonl (prompt/completion). schema_tool=other + tool_raw=continue.
+# Catalogue rule id stays continue-dev; tool=continue.
+id: continue
+display_name: Continue
+provider: continue
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.continue"
+        - "${CONTINUE_GLOBAL_DIR}"
+      binaries: ["cn"]
+    extraction:
+      format: sqlite_table
+      session_glob: "dev_data/devdata.sqlite"
+      source: endpoint
+      sqlite:
+        table: tokens_generated
+      field_map:
+        session_id: id
+        model: model
+        provider: provider
+        tokens_in: tokens_prompt
+        tokens_out: tokens_generated
+        ts: timestamp
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - Continue.continue
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - continue.dev
+        - hub.continue.dev
+        - api.continue.dev
+      catalogue_rule_ids: ["continue-dev"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+  forbidden_keys:
+    - prompt
+    - completion
+    - userId
+    - title
+    - workspaceDirectory
+    - history
+    - message
+notes: >
+  Inspected continuedev/continue (2026-08-13): tokens_generated is metadata-only.
+  tokensGenerated.jsonl is the same series — not parsed (avoids double-count).
+  chatInteraction and sessions are contentful (basename hard-refuse). BYOK to
+  Anthropic/OpenAI is not named Continue at the proxy. Unsanctioned.

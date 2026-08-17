@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "e1a7b3c5-2d94-4f08-8b16-9c0d2e4f6a83",
+  "dedupe_key": "c9e1a3b5d7f90214c6e8a0b2d4f6c8e0a2b4d6f8c0e2a4b6d8f0c2e4a6b8d0f2",
+  "pillar": "pr_security",
+  "producer": {
+    "name": "gatehouse",
+    "version": "0.1.0"
+  },
+  "finding_type": "pr_security.secret_in_diff",
+  "title": "AWS access key committed in pull request",
+  "severity": "critical",
+  "severity_id": 5,
+  "status": "new",
+  "observed_at": "2026-07-25T11:02:41Z",
+  "first_seen_at": "2026-07-25T11:02:41Z",
+  "last_seen_at": "2026-07-25T11:02:41Z",
+  "observed_count": 1,
+  "resource": {
+    "kind": "pull_request",
+    "ref": "github.com/hawikk/littlewiz#417",
+    "display": "littlewiz #417",
+    "provider": "github",
+    "account_ref": "hawikk",
+    "region": null
+  },
+  "subject_ref": null,
+  "evidence": {
+    "source_uri": "gatehouse:/checks/9f31c0/findings/4",
+    "detail_count": 1,
+    "summary": "gitleaks aws-access-token at backend/settings.py:48, key AKIA****WXYZ (masked)."
+  },
+  "labels": {
+    "scanner": "gitleaks",
+    "rule": "aws-access-token",
+    "head_sha": "3e91b2c"
+  },
+  "remediation_hint": "Rotate the key in IAM, then remove it from history. Do not merge."
+}

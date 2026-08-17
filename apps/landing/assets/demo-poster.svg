@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="AI Monitoring demo poster">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="55%" stop-color="#050505"/>
+      <stop offset="100%" stop-color="#000"/>
+    </radialGradient>
+    <radialGradient id="core" cx="50%" cy="48%" r="18%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="35%" stop-color="#fff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="band" x1="8%" y1="18%" x2="92%" y2="82%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#fff" stop-opacity="0.07"/>
+      <stop offset="50%" stop-color="#fff" stop-opacity="0.14"/>
+      <stop offset="65%" stop-color="#fff" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#000"/>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+
+  <!-- Soft particle field (synthetic brand still — not product UI) -->
+  <g fill="#fff" opacity="0.55">
+    <circle cx="210" cy="180" r="1.2"/><circle cx="340" cy="260" r="0.9"/><circle cx="480" cy="140" r="1.4"/>
+    <circle cx="620" cy="320" r="0.8"/><circle cx="760" cy="200" r="1.1"/><circle cx="900" cy="280" r="0.7"/>
+    <circle cx="1040" cy="160" r="1.3"/><circle cx="1180" cy="300" r="0.9"/><circle cx="1320" cy="220" r="1.0"/>
+    <circle cx="1460" cy="360" r="0.8"/><circle cx="1600" cy="190" r="1.2"/><circle cx="1740" cy="270" r="0.9"/>
+    <circle cx="280" cy="520" r="0.8"/><circle cx="420" cy="640" r="1.1"/><circle cx="560" cy="480" r="0.7"/>
+    <circle cx="700" cy="700" r="1.0"/><circle cx="840" cy="560" r="0.9"/><circle cx="980" cy="680" r="1.2"/>
+    <circle cx="1120" cy="520" r="0.8"/><circle cx="1260" cy="720" r="1.0"/><circle cx="1400" cy="580" r="0.7"/>
+    <circle cx="1540" cy="740" r="1.1"/><circle cx="1680" cy="600" r="0.9"/><circle cx="1820" cy="680" r="0.8"/>
+    <circle cx="180" cy="820" r="0.9"/><circle cx="360" cy="900" r="1.0"/><circle cx="540" cy="860" r="0.7"/>
+    <circle cx="720" cy="940" r="0.8"/><circle cx="1280" cy="900" r="1.1"/><circle cx="1500" cy="860" r="0.9"/>
+    <circle cx="1720" cy="920" r="0.8"/>
+  </g>
+
+  <!-- Comet band echo of landing particle field -->
+  <path d="M120 220 C 520 180, 780 360, 960 500 S 1380 780, 1800 860" fill="none" stroke="url(#band)" stroke-width="90" stroke-linecap="round"/>
+  <circle cx="960" cy="500" r="220" fill="url(#core)"/>
+  <circle cx="960" cy="500" r="7" fill="#fff"/>
+  <circle cx="960" cy="500" r="18" fill="none" stroke="#fff" stroke-opacity="0.22" stroke-width="1"/>
+  <circle cx="960" cy="500" r="36" fill="none" stroke="#fff" stroke-opacity="0.1" stroke-width="1"/>
+
+  <text x="960" y="640" text-anchor="middle" fill="#888" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="0.42em">AI MONITORING</text>
+  <text x="960" y="680" text-anchor="middle" fill="#555" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" letter-spacing="0.18em">PRODUCT WALKTHROUGH</text>
+</svg>

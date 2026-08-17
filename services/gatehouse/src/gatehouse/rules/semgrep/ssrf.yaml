@@ -1,0 +1,61 @@
+# Vendored semgrep pack — SSRF / untrusted URL fetch (AIM-445 depth).
+#
+# Complements injection/authz with a high-signal network-egress class that
+# upstream packs often bury in noisy rules. Kept narrow: user-controlled URL
+# into requests/httpx without a host allowlist.
+rules:
+  - id: python-ssrf-requests-user-url
+    languages: [python]
+    severity: ERROR
+    message: >-
+      HTTP client fetches a caller-supplied URL. Without a host allowlist this
+      is classic SSRF (metadata endpoints, internal admin, cloud IMDS).
+    metadata:
+      gatehouse_type: ssrf
+      cwe: "CWE-918: Server-Side Request Forgery"
+      short_description: SSRF — requests to user-controlled URL
+      remediation: >-
+        Parse the URL, allowlist scheme+host, and block link-local / metadata
+        ranges (169.254.169.254, localhost). Prefer server-side resource ids.
+      confidence: MEDIUM
+      category: ssrf
+    patterns:
+      - pattern-either:
+          - pattern: |
+              def $FN(..., $URL, ...):
+                ...
+                requests.$METHOD($URL, ...)
+          - pattern: |
+              def $FN(..., $URL, ...):
+                ...
+                httpx.$METHOD($URL, ...)
+          - pattern: |
+              async def $FN(..., $URL, ...):
+                ...
+                await httpx.$METHOD($URL, ...)
+
+  - id: python-ssrf-urlopen-user-url
+    languages: [python]
+    severity: ERROR
+    message: >-
+      urllib fetches a caller-supplied URL. Same SSRF class as requests — block
+      internal destinations before open.
+    metadata:
+      gatehouse_type: ssrf
+      cwe: "CWE-918: Server-Side Request Forgery"
+      short_description: SSRF — urlopen on user-controlled URL
+      remediation: >-
+        Allowlist hosts and schemes before urlopen. Do not pass request
+        parameters straight into urllib.request.urlopen.
+      confidence: MEDIUM
+      category: ssrf
+    patterns:
+      - pattern-either:
+          - pattern: |
+              def $FN(..., $URL, ...):
+                ...
+                urllib.request.urlopen($URL, ...)
+          - pattern: |
+              def $FN(..., $URL, ...):
+                ...
+                urlopen($URL, ...)

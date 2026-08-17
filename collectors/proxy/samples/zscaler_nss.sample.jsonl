@@ -1,0 +1,16 @@
+# Zscaler NSS (Nanolog Streaming Service) web log — synthetic JSON lines.
+# Sanitized RFC1918 clients, fake corporate logins, no real customer data.
+# Field names mirror common NSS JSON export keys (url/urlhost/cip/login/…).
+# Replay: ./replay_sample.sh samples/zscaler_nss.sample.jsonl
+# Pin:    --format zscaler_nss   (or auto / jsonl — same alias path)
+{"datetime":"2026-07-21 10:00:00","cip":"10.12.3.41","login":"jsmith@corp.example","url":"https://api.anthropic.com/v1/messages","urlhost":"api.anthropic.com","reqmethod":"POST","respcode":"200","reqsize":1840,"respsize":15234,"stime":1753092000}
+{"datetime":"2026-07-21 10:00:01","cip":"10.12.3.41","login":"jsmith@corp.example","url":"https://statsig.anthropic.com/v1/rgstr","urlhost":"statsig.anthropic.com","reqmethod":"POST","respcode":"200","reqsize":512,"respsize":2201,"stime":1753092001}
+{"datetime":"2026-07-21 10:00:02","cip":"10.12.7.19","login":"agarcia@corp.example","url":"https://api2.cursor.sh/aiserver.v1.AiService/StreamChat","urlhost":"api2.cursor.sh","reqmethod":"POST","respcode":"200","reqsize":4096,"respsize":88210,"stime":1753092002}
+{"datetime":"2026-07-21 10:00:03","cip":"10.12.9.77","login":"bchen@corp.example","url":"https://api.kilocode.ai/v1/chat","urlhost":"api.kilocode.ai","reqmethod":"POST","respcode":"200","reqsize":2048,"respsize":5120,"stime":1753092003}
+{"datetime":"2026-07-21 10:00:05","cip":"10.12.4.55","login":"dpatel@corp.example","url":"https://api.githubcopilot.com/chat/completions","urlhost":"api.githubcopilot.com","reqmethod":"POST","respcode":"200","reqsize":3000,"respsize":24012,"stime":1753092005}
+{"datetime":"2026-07-21 10:00:08","cip":"10.12.6.23","login":"emiller@corp.example","url":"https://chatgpt.com/c/abc123?model=gpt-4o","urlhost":"chatgpt.com","reqmethod":"GET","respcode":"200","reqsize":256,"respsize":4096,"stime":1753092008}
+{"datetime":"2026-07-21 10:00:09","cip":"10.12.8.31","login":"fjones@corp.example","url":"https://api.deepseek.com/chat/completions","urlhost":"api.deepseek.com","reqmethod":"POST","respcode":"200","reqsize":2200,"respsize":33210,"stime":1753092009}
+{"datetime":"2026-07-21 10:00:11","cip":"10.12.8.31","login":"fjones@corp.example","url":"https://openrouter.ai/api/v1/chat/completions","urlhost":"openrouter.ai","reqmethod":"POST","respcode":"200","reqsize":1800,"respsize":512,"stime":1753092011}
+{"datetime":"2026-07-21 10:00:15","cip":"10.12.2.10","login":"ci-runner@corp.example","url":"https://api.openai.com/v1/chat/completions","urlhost":"api.openai.com","reqmethod":"POST","respcode":"200","reqsize":4096,"respsize":20480,"stime":1753092015}
+{"datetime":"2026-07-21 10:00:20","cip":"10.12.3.41","login":"jsmith@corp.example","url":"https://www.google.com/search?q=weather","urlhost":"www.google.com","reqmethod":"GET","respcode":"200","reqsize":128,"respsize":2048,"stime":1753092020}
+{"datetime":"2026-07-21 10:00:22","cip":"10.12.5.60","login":"hkim@corp.example","url":"https://server.codeium.com/exa.api_server_pb.ApiServerService/GetCompletions","urlhost":"server.codeium.com","reqmethod":"POST","respcode":"200","reqsize":1024,"respsize":9999,"stime":1753092022}

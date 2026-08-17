@@ -1,0 +1,123 @@
+# sentinel.yml — committable configuration for the sentinel agent.
+#
+# Same rule as the launcher's stack.yaml: this file holds *what is on*, and
+# .env holds *credentials*. A Slack webhook URL is a bearer credential — anyone
+# who has it can post as the app — so it is referenced as `env:NAME` and the
+# service refuses to start if you paste a literal URL here.
+#
+#   cp services/sentinel/sentinel.example.yml deploy/sentinel.yml
+#   SENTINEL_CONFIG=deploy/sentinel.yml sentinel serve
+
+notifications:
+  # Set SLACK_WEBHOOK_URL in .env. Unset = the channel is listed as disabled at
+  # startup and pings are recorded as undelivered, never silently discarded.
+  slack_webhook: env:SLACK_WEBHOOK_URL
+
+  # Generic webhooks — SIEM, PagerDuty event API, an internal bot. Signed with
+  # HMAC-SHA256 over the exact body bytes as `X-AIM-Signature: sha256=<hex>`,
+  # the same scheme AIM's guardrail notifier already uses.
+  webhooks: []
+  #  - name: siem
+  #    url: env:SENTINEL_SIEM_WEBHOOK
+  #    secret: env:SENTINEL_SIEM_SECRET
+
+  email:
+    enabled: false
+    to: security@example.com
+    from: sentinel@example.com
+    smtp_host: ""
+    smtp_port: 25
+
+sentinel:
+  # Where the alert bus lives. Overridden by ALERT_BUS_URL in compose.
+  bus_url: redis://redis-bus:6379/0
+  stream_key: secstack:alerts:v1
+  state_db: /var/lib/sentinel/state.db
+
+  # Seconds between reads. The 2-minute ping bar has ~100s of headroom at this
+  # value even with a fully timed-out LLM call in the path.
+  poll_interval_seconds: 2
+
+  # The severity at which a human is interrupted. Everything below rolls into
+  # the daily digest. SECURITY OWNS THIS NUMBER — this is the shipped proposal,
+  # not a decision the engineering side gets to make.
+  page_from: high
+
+  # Alerts sharing a correlation key inside this window are one parent
+  # incident; each alert is retained as a child link (tool / user / resource /
+  # evidence). Configurable (AIM-700). One `terraform apply` that turns 40
+  # buckets public — or one secret pattern firing in Claude Code and Cursor —
+  # should produce one page, not a storm.
+  burst_window_seconds: 900
+  # An incident that has already paged stays quiet this long, unless its
+  # severity escalates — escalation always speaks.
+  renotify_cooldown_seconds: 3600
+  # The fields whose values together identify one root cause. Default groups
+  # across tools and users (AIM-700) — do NOT add labels.tool or
+  # subject_ref.user_ref unless you intentionally want per-tool/per-user pages.
+  # Add `resource.region` if one account spans environments; use `resource.ref`
+  # instead of `resource.account_ref` to page per resource (noisier, and the
+  # right call for a small estate).
+  correlate_on:
+    - pillar
+    - finding_type
+    - resource.account_ref
+
+  # Hour (UTC) at which the medium/low rollup is sent.
+  digest_hour_utc: 8
+  # If the bus has been unreadable for this long, the agent notifies about
+  # *itself*. A stack that has gone blind must not look like a quiet week.
+  bus_stall_alert_seconds: 300
+
+  triage:
+    enabled: true
+    # OpenAI-compatible /chat/completions (vLLM, Ollama, LiteLLM, a gateway),
+    # or flavor: anthropic for the Messages API. Leave the endpoint empty to
+    # run in pass-through mode: pings still go out, carrying the raw alert and
+    # the catalogue remediation, labelled as un-triaged.
+    #
+    # TRUST BOUNDARY (D5 boundary 3): alert *metadata* crosses this hop —
+    # title, finding type, severity, resource display name, account ref,
+    # region, evidence summary, labels. Never prompt content, secret values or
+    # plaintext identity. The allowlist is enforced in triage._prompt_payload.
+    flavor: openai
+    endpoint: ""
+    model: claude-sonnet-5
+    # API key comes from SENTINEL_LLM_API_KEY in .env, never from this file.
+    timeout_seconds: 20
+
+  remediation:
+    draft_pr:
+      # Off by default (board answer Q7: the agent proposes, a human applies).
+      #
+      # Turning this on opens DRAFT pull requests carrying a fix from the
+      # reviewed remediation catalogue. Never merges, never approves, never
+      # writes to a default branch, and the diff is never model-authored.
+      # Full runbook and the D4 decision record:
+      #   docs/sentinel-remediation-github-app.md
+      enabled: false
+
+      # Half one of the opt-in, and the half that lives in git. Full
+      # `owner/repo` names only — a bare repo name or a URL is rejected at
+      # load, because it would silently never match anything on the bus.
+      #
+      # Half two is the sentinel-remediation GitHub App actually being
+      # installed on the repo, which a repo admin grants (and can revoke)
+      # without touching this file. Neither half alone is consent.
+      #
+      # `enabled: true` with an empty list makes the service refuse to start:
+      # nothing would ever be opened, so the flag would be a lie.
+      repos: []
+      #  - hawikk/infra
+
+      # The App credential is NOT configurable here. There is no YAML key for
+      # the App id or the private key — not even an `env:NAME` indirection — so
+      # there is no shape of this file that can leak the key into git. Set them
+      # in .env instead:
+      #
+      #   SENTINEL_GITHUB_APP_ID=123456
+      #   SENTINEL_GITHUB_PRIVATE_KEY_FILE=/run/secrets/sentinel-remediation.pem
+      #
+      # This App is SEPARATE from gatehouse's on purpose — gatehouse's is
+      # read-only by design and must not be widened. Do not point these at
+      # GATEHOUSE_* values.

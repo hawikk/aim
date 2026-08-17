@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Monitoring — Monitor and govern AI behavior in real time</title>
+<meta name="description" content="Visibility, guardrails and governance for every AI coding tool your engineers use. CNAPP-aware free PR security, free for personal projects and open source.">
+<style>
+  /* Self-contained: no external fonts, images, or scripts.
+     Inter / JetBrains Mono are referenced by name and fall back to system stacks. */
+  :root {
+    --sans: "Inter", -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --fg: #fff;
+    --dim: #888;
+    --glow: 0 0 30px rgba(255, 255, 255, 0.4);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: #000;
+    color: var(--fg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0; z-index: 10;
+    background: #fff; color: #000; padding: 8px 16px; border-radius: 999px;
+  }
+  .skip:focus { left: 16px; top: 16px; }
+
+  /* ---------- Nav ---------- */
+  header {
+    position: absolute; inset: 0 0 auto 0; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 15px; letter-spacing: 0.01em; }
+  .brand .dot {
+    width: 10px; height: 10px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+  }
+  nav.center { display: flex; gap: 36px; font-size: 14px; color: #aaa; }
+  nav.center a:hover { color: #fff; }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+
+  .pill {
+    display: inline-block; border-radius: 999px; font-size: 14px;
+    padding: 10px 22px; line-height: 1; white-space: nowrap;
+    transition: box-shadow 0.25s ease, background 0.25s ease;
+  }
+  .pill.solid { background: #fff; color: #000; box-shadow: var(--glow); }
+  .pill.solid:hover { box-shadow: 0 0 44px rgba(255, 255, 255, 0.55); }
+  .pill.outline { border: 1px solid rgba(255, 255, 255, 0.28); color: #fff; }
+  .pill.outline:hover { border-color: rgba(255, 255, 255, 0.6); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  #field {
+    position: absolute; left: 0; width: 100%;
+    top: 20vh; height: 60vh;      /* the middle 60% of the viewport */
+    z-index: 1; pointer-events: none;
+  }
+  .hero-copy {
+    position: relative; z-index: 2;
+    text-align: center; padding-top: 17vh;
+  }
+  h1 {
+    font-size: clamp(56px, 6.5vw, 72px);
+    font-weight: 300; letter-spacing: -0.02em; line-height: 1.08;
+  }
+  .hero-actions {
+    margin-top: 40px; display: flex; align-items: center; justify-content: center; gap: 28px;
+  }
+  .hero-actions .pill.solid { padding: 13px 28px; font-size: 15px; }
+  .demo-link { font-size: 14px; color: #aaa; }
+  .demo-link:hover { color: #fff; }
+
+  /* ---------- Feature row ---------- */
+  .features {
+    position: relative; z-index: 2;
+    margin-top: auto; padding: 0 64px 72px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px;
+  }
+  .features h2 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+  .features p {
+    margin-top: 12px; font-family: var(--mono);
+    font-size: 13px; line-height: 1.65; color: var(--dim);
+  }
+
+  /* ---------- Pricing ---------- */
+  .pricing { padding: 160px 64px 140px; max-width: 1120px; margin: 0 auto; }
+  .pricing > p.kicker {
+    font-family: var(--mono); font-size: 13px; color: var(--dim);
+    text-align: center; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .pricing h2 {
+    margin-top: 16px; text-align: center;
+    font-size: 40px; font-weight: 300; letter-spacing: -0.02em;
+  }
+  .tiers {
+    margin-top: 88px; display: grid;
+    grid-template-columns: repeat(3, 1fr); gap: 72px;
+  }
+  .tier h3 { font-size: 18px; font-weight: 500; }
+  .tier .price { margin-top: 14px; font-size: 34px; font-weight: 300; letter-spacing: -0.02em; }
+  .tier .price small { font-size: 14px; color: var(--dim); font-weight: 400; letter-spacing: 0; }
+  .tier ul {
+    margin-top: 22px; list-style: none;
+    font-family: var(--mono); font-size: 13px; line-height: 2.1; color: var(--dim);
+  }
+  .tier .pill { margin-top: 26px; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    padding: 48px 64px 56px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 12px; color: #555;
+  }
+  footer nav { display: flex; gap: 28px; }
+  footer a:hover { color: #aaa; }
+
+  @media (max-width: 960px) {
+    header { padding: 20px 24px; }
+    nav.center { display: none; }
+    h1 { font-size: clamp(40px, 9vw, 56px); }
+    .features { grid-template-columns: repeat(2, 1fr); padding: 0 32px 56px; gap: 36px; }
+    .tiers { grid-template-columns: 1fr; gap: 56px; }
+    .pricing { padding: 110px 32px 90px; }
+    footer { flex-direction: column; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header>
+  <a class="brand" href="#" aria-label="AI Monitoring home">
+    <span class="dot" aria-hidden="true"></span>
+    <span>AI Monitoring</span>
+  </a>
+  <nav class="center" aria-label="Primary">
+    <a href="#">Research</a>
+    <a href="#features">Features</a>
+    <a href="#">Careers</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="pill outline" href="#pricing">Contact Sales</a>
+    <a class="pill solid" href="#pricing">Get Started</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <canvas id="field" aria-hidden="true"></canvas>
+
+    <div class="hero-copy">
+      <h1>Monitor and govern<br>AI behavior in real time</h1>
+      <div class="hero-actions">
+        <a class="pill solid" href="#pricing">Get Started</a>
+        <a class="demo-link" href="#pricing">Request a Demo</a>
+      </div>
+    </div>
+
+    <div class="features" id="features">
+      <div>
+        <h2>Observe</h2>
+        <p>Every agent session, tool call<br>and repo touch, as it happens.</p>
+      </div>
+      <div>
+        <h2>Govern</h2>
+        <p>Guardrails on prompts, MCP<br>servers and pull requests.</p>
+      </div>
+      <div>
+        <h2>Analyze</h2>
+        <p>Attribution, coverage and risk<br>rolled up per team and repo.</p>
+      </div>
+      <div>
+        <h2>Harden</h2>
+        <p>Findings routed to owners,<br>from CNAPP down to the commit.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <p class="kicker">Pricing</p>
+    <h2>Free where it should be.</h2>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Free</h3>
+        <p class="price">$0</p>
+        <ul>
+          <li>personal projects &amp; open source</li>
+          <li>up to 5 seats</li>
+          <li>full monitoring &amp; guardrails</li>
+          <li>community support</li>
+        </ul>
+        <a class="pill outline" href="#">Start free</a>
+      </div>
+      <div class="tier">
+        <h3>Team</h3>
+        <p class="price">$9 <small>per seat / month</small></p>
+        <ul>
+          <li>everything in free</li>
+          <li>unlimited seats, SSO</li>
+          <li>90-day retention</li>
+          <li>priority support</li>
+        </ul>
+        <a class="pill outline" href="#">Start a trial</a>
+      </div>
+      <div class="tier">
+        <h3>Enterprise</h3>
+        <p class="price">Custom</p>
+        <ul>
+          <li>self-hosted or dedicated cloud</li>
+          <li>SIEM export, custom policy</li>
+          <li>compliance evidence &amp; audit</li>
+          <li>dedicated support</li>
+        </ul>
+        <a class="pill solid" href="#">Contact Sales</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© 2026 AI Monitoring</span>
+  <nav aria-label="Footer">
+    <a href="#">security</a>
+    <a href="#">privacy</a>
+    <a href="#">status</a>
+  </nav>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  const canvas = document.getElementById("field");
+  const ctx = canvas.getContext("2d");
+  const N = 15000;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let W = 0, H = 0, dpr = 1;
+
+  // Per-particle state (struct-of-arrays for speed).
+  const pt = new Float32Array(N);      // position along the curve, 0..1
+  const off = new Float32Array(N);     // gaussian offset across the band, in half-widths
+  const depth = new Float32Array(N);   // 0.35..1, scales parallax + size
+  const size = new Float32Array(N);    // 0.5..1.5 css px
+  const speed = new Float32Array(N);   // drift along the curve, per second
+  const jFreq = new Float32Array(N);   // jitter frequency
+  const jPhase = new Float32Array(N);  // jitter phase
+  // Draw buckets: particles grouped by fillStyle so we set it once per group.
+  const ALPHAS = [0.10, 0.18, 0.28, 0.40, 0.55, 0.75];
+  const buckets = []; // { style, idx: [] }
+
+  const gauss = () => {
+    // Box–Muller
+    const u = 1 - Math.random(), v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  };
+
+  // Sweeping band: cubic bezier from off-screen upper-left to off-screen
+  // lower-right, bowed like a galaxy arm seen edge-on.
+  let P0x, P0y, C1x, C1y, C2x, C2y, P3x, P3y;
+  const setCurve = () => {
+    P0x = -0.08 * W; P0y = 0.16 * H;
+    C1x =  0.38 * W; C1y = -0.10 * H;
+    C2x =  0.62 * W; C2y =  0.55 * H;
+    P3x =  1.08 * W; P3y =  1.02 * H;
+  };
+  const FOCAL_T = 0.24; // the bright head of the comet
+
+  const curve = (t, out) => {
+    const s = 1 - t;
+    const a = s * s * s, b = 3 * s * s * t, c = 3 * s * t * t, d = t * t * t;
+    out.x = a * P0x + b * C1x + c * C2x + d * P3x;
+    out.y = a * P0y + b * C1y + c * C2y + d * P3y;
+    // derivative, for the band normal
+    const dx = 3 * s * s * (C1x - P0x) + 6 * s * t * (C2x - C1x) + 3 * t * t * (P3x - C2x);
+    const dy = 3 * s * s * (C1y - P0y) + 6 * s * t * (C2y - C1y) + 3 * t * t * (P3y - C2y);
+    const len = Math.hypot(dx, dy) || 1;
+    out.nx = -dy / len;
+    out.ny = dx / len;
+  };
+  // Comet tail: narrow at the head, feathering wider toward the tail.
+  const halfWidth = (t) => H * (0.035 + 0.16 * t * t);
+
+  const init = () => {
+    buckets.length = 0;
+    const map = new Map();
+    for (let i = 0; i < N; i++) {
+      // Bias density toward the head of the band.
+      const r = Math.random();
+      pt[i] = Math.min(1, Math.pow(r, 1.35));
+      off[i] = gauss() * 0.5;
+      depth[i] = 0.35 + Math.random() * 0.65;
+      size[i] = 0.5 + Math.random();
+      speed[i] = (0.004 + Math.random() * 0.008) * (Math.random() < 0.5 ? 1 : -1);
+      jFreq[i] = 0.3 + Math.random() * 0.9;
+      jPhase[i] = Math.random() * Math.PI * 2;
+      // Brighter at the band core, dimmer at the feathered edges.
+      const core = Math.max(0, 1 - Math.abs(off[i]) * 0.8);
+      let ai = Math.min(ALPHAS.length - 1,
+        Math.floor((core * 0.7 + Math.random() * 0.5) * ALPHAS.length));
+      // ~2% of the field tinted soft pink, only on the left third.
+      const pink = pt[i] < 0.33 && Math.random() < 0.055;
+      const style = pink
+        ? `rgba(238,136,170,${(ALPHAS[ai] * 0.9).toFixed(2)})`
+        : `rgba(255,255,255,${ALPHAS[ai]})`;
+      if (!map.has(style)) { map.set(style, { style, idx: [] }); buckets.push(map.get(style)); }
+      map.get(style).idx.push(i);
+    }
+  };
+
+  const resize = () => {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = canvas.clientWidth;
+    H = canvas.clientHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    setCurve();
+  };
+
+  // Mouse parallax, eased.
+  const par = { x: 0, y: 0, tx: 0, ty: 0 };
+  addEventListener("mousemove", (e) => {
+    par.tx = (e.clientX / innerWidth - 0.5) * 2;
+    par.ty = (e.clientY / innerHeight - 0.5) * 2;
+  }, { passive: true });
+
+  const p = { x: 0, y: 0, nx: 0, ny: 0 };
+  const draw = (time) => {
+    ctx.clearRect(0, 0, W, H);
+    par.x += (par.tx - par.x) * 0.04;
+    par.y += (par.ty - par.y) * 0.04;
+
+    for (const b of buckets) {
+      ctx.fillStyle = b.style;
+      const idx = b.idx;
+      for (let k = 0; k < idx.length; k++) {
+        const i = idx[k];
+        const t = pt[i];
+        curve(t, p);
+        const w = halfWidth(t);
+        const jit = reduced ? 0 : Math.sin(time * jFreq[i] + jPhase[i]) * 1.2;
+        const d = depth[i];
+        const x = p.x + p.nx * (off[i] * w + jit) + par.x * d * 18;
+        const y = p.y + p.ny * (off[i] * w + jit) + par.y * d * 12;
+        const s = size[i] * (0.6 + d * 0.6);
+        ctx.fillRect(x, y, s, s);
+      }
+    }
+
+    // Focal point: one larger glowing white dot at the head of the band.
+    curve(FOCAL_T, p);
+    const fx = p.x + par.x * 14, fy = p.y + par.y * 10;
+    const pulse = reduced ? 1 : 1 + Math.sin(time * 1.1) * 0.12;
+    const glow = ctx.createRadialGradient(fx, fy, 0, fx, fy, 46 * pulse);
+    glow.addColorStop(0, "rgba(255,255,255,0.85)");
+    glow.addColorStop(0.25, "rgba(255,255,255,0.25)");
+    glow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(fx, fy, 46 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(fx, fy, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  let last = 0;
+  const frame = (ms) => {
+    const time = ms / 1000;
+    const dt = Math.min(0.05, time - last);
+    last = time;
+    for (let i = 0; i < N; i++) {
+      pt[i] += speed[i] * dt;
+      if (pt[i] > 1) pt[i] -= 1;
+      else if (pt[i] < 0) pt[i] += 1;
+    }
+    draw(time);
+    requestAnimationFrame(frame);
+  };
+
+  let resizeTimer = 0;
+  addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { resize(); if (reduced) draw(0); }, 120);
+  });
+
+  resize();
+  init();
+  if (reduced) draw(0);
+  else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

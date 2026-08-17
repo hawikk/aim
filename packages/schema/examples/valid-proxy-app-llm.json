@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.4",
+  "event_id": "b7c1d2e3-f4a5-4b6c-9d0e-1f2a3b4c5d6e",
+  "ts": "2026-07-22T03:41:17Z",
+  "host_ref": "f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3",
+  "user_ref": null,
+  "tool": "other",
+  "tool_raw": "openai",
+  "model": null,
+  "provider": "openai",
+  "session_id": "9f8e7d6c5b4a39281706f5e4d3c2b1a0",
+  "repo_ref": null,
+  "match_flags": [],
+  "source": "proxy",
+  "traffic_class": "application",
+  "bytes_up": null,
+  "bytes_down": 18233,
+  "duration_ms": 1240,
+  "http_status": 200
+}

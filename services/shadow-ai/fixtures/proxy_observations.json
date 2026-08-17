@@ -1,0 +1,96 @@
+{
+  "comment": "Synthetic fixture mirroring the PostgresEventsProxySource aggregate row shape (derived from stored proxy events, metadata only). No real hosts. Used by FixtureProxySource in dev/test.",
+  "observations": [
+    {
+      "tool_raw": "chatgpt",
+      "first_seen": "2026-07-10T08:00:00Z",
+      "last_seen": "2026-07-27T17:30:00Z",
+      "host_count": 41,
+      "event_count": 5203,
+      "traffic_classes": [
+        "employee"
+      ]
+    },
+    {
+      "tool_raw": "deepseek",
+      "first_seen": "2026-07-14T12:00:00Z",
+      "last_seen": "2026-07-26T09:12:00Z",
+      "host_count": 12,
+      "event_count": 340,
+      "traffic_classes": [
+        "employee"
+      ]
+    },
+    {
+      "tool_raw": "windsurf",
+      "first_seen": "2026-07-21T15:00:00Z",
+      "last_seen": "2026-07-25T11:45:00Z",
+      "host_count": 3,
+      "event_count": 96,
+      "traffic_classes": [
+        "employee"
+      ]
+    },
+    {
+      "tool_raw": "openai",
+      "first_seen": "2026-07-12T00:00:00Z",
+      "last_seen": "2026-07-27T23:59:00Z",
+      "host_count": 7,
+      "event_count": 1889,
+      "traffic_classes": [
+        "application"
+      ]
+    },
+    {
+      "tool_raw": "openrouter.ai",
+      "first_seen": "2026-07-18T10:00:00Z",
+      "last_seen": "2026-07-30T14:00:00Z",
+      "host_count": 9,
+      "event_count": 412,
+      "traffic_classes": [
+        "employee"
+      ]
+    },
+    {
+      "tool_raw": "continue.dev",
+      "first_seen": "2026-07-22T09:00:00Z",
+      "last_seen": "2026-07-31T11:00:00Z",
+      "host_count": 5,
+      "event_count": 180,
+      "traffic_classes": [
+        "employee"
+      ]
+    },
+    {
+      "tool_raw": "huggingface.co",
+      "first_seen": "2026-07-15T00:00:00Z",
+      "last_seen": "2026-07-29T18:00:00Z",
+      "host_count": 14,
+      "event_count": 970,
+      "traffic_classes": [
+        "employee",
+        "application"
+      ]
+    },
+    {
+      "tool_raw": "openhands",
+      "first_seen": "2026-07-25T08:00:00Z",
+      "last_seen": "2026-07-31T12:00:00Z",
+      "host_count": 4,
+      "event_count": 120,
+      "traffic_classes": [
+        "employee"
+      ]
+    },
+    {
+      "tool_raw": "mentat.ai",
+      "first_seen": "2026-07-26T09:00:00Z",
+      "last_seen": "2026-07-31T15:00:00Z",
+      "host_count": 2,
+      "event_count": 47,
+      "traffic_classes": [
+        "employee"
+      ]
+    }
+  ]
+}

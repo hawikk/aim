@@ -1,0 +1,23 @@
+[Unit]
+Description=AI Monitoring out-of-band collector health (AIM-639)
+Documentation=file:///usr/share/doc/aim-collector/adr-independence-from-agent-loop.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+# Independent of any coding-agent user session. Agent cannot stop this unit
+# without root (MDM / config-management owns enablement).
+# Same layout as aim-collector-scan (install.sh → /opt/aim-collector/).
+ExecStart=/opt/aim-collector/aim-collector-oob-health.sh
+Nice=10
+# Harden surface: no home, limited writes
+ProtectHome=read-only
+ProtectSystem=strict
+ReadWritePaths=/var/lib/aim /etc/aim-collector
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

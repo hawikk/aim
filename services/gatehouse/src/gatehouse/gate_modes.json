@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "description": "Runtime mode per gate. enforce = findings may fail the check; observe = report only. Written by the precision harness on FP-budget breach (AIM-334).",
+  "updated_at": null,
+  "source_report": null,
+  "gates": {
+    "gitleaks": "enforce",
+    "semgrep": "enforce",
+    "checkov": "enforce",
+    "trivy": "enforce"
+  }
+}

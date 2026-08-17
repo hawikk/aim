@@ -1,0 +1,209 @@
+/* AIM-708 — custom dashboard builder.
+ * Tokens only (docs/frontend-design-system.md). No new hues. */
+
+.dashboards-view .db-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  margin-bottom: var(--space-4, 16px);
+}
+
+.dashboards-view .db-toolbar-spacer {
+  flex: 1 1 12px;
+  min-width: 12px;
+}
+
+.dashboards-view .db-toolbar #db-select {
+  min-width: 12rem;
+  max-width: 20rem;
+}
+
+.dashboards-view .db-err {
+  margin: 0 0 var(--space-3, 12px);
+  padding: 8px 12px;
+  border: 1px solid var(--bad-border);
+  border-radius: var(--radius-md, 6px);
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-size: 12.5px;
+}
+
+.dashboards-view .db-delete-confirm {
+  color: var(--bad);
+  border-color: var(--bad-border);
+}
+
+.dashboards-view .db-builder {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 6px);
+  background: var(--panel);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  margin-bottom: var(--space-4, 16px);
+}
+
+.dashboards-view .db-builder-head h2 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dashboards-view .db-builder-head .hint {
+  margin: 0 0 var(--space-3, 12px);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.dashboards-view .db-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3, 12px);
+}
+
+.dashboards-view .db-catalog-kind {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.dashboards-view .db-catalog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboards-view .db-catalog-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 6px);
+  background: var(--bg-soft);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.dashboards-view .db-catalog-item:hover,
+.dashboards-view .db-catalog-item:focus-visible {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  outline: none;
+}
+
+.dashboards-view .db-catalog-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dashboards-view .db-catalog-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+/* ---------- canvas ---------- */
+
+.dashboards-view .db-canvas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4, 16px);
+}
+
+.dashboards-view .db-kpi-row,
+.dashboards-view .db-block.db-size-full,
+.dashboards-view .db-canvas > .empty-state {
+  grid-column: 1 / -1;
+}
+
+.dashboards-view .db-kpi-row {
+  margin: 0;
+}
+
+.dashboards-view .db-widget-kpi .db-widget-body .card,
+.dashboards-view .db-widget-kpi .db-widget-body .skel {
+  width: 100%;
+}
+
+.dashboards-view .db-block {
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboards-view .db-widget {
+  min-width: 0;
+}
+
+.dashboards-view .db-widget .panel {
+  margin-bottom: 0;
+}
+
+.dashboards-view .db-widget .chart-box {
+  height: 220px;
+  position: relative;
+}
+
+/* ---------- edit chrome ---------- */
+
+.dashboards-view.is-editing .db-widget {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md, 6px);
+  padding: 8px;
+  background: var(--bg-soft);
+}
+
+.dashboards-view .db-widget-chrome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.dashboards-view .db-widget-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: var(--mono, ui-monospace, monospace);
+}
+
+.dashboards-view .db-widget-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dashboards-view .db-widget-actions .btn-control {
+  padding: 3px 8px;
+  font-size: 11.5px;
+}
+
+.dashboards-view .db-widget-actions .db-remove {
+  color: var(--bad);
+}
+
+.dashboards-view .db-widget-actions .btn-control:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .dashboards-view .db-canvas {
+    grid-template-columns: 1fr;
+  }
+  .dashboards-view .db-block.db-size-half {
+    grid-column: 1 / -1;
+  }
+}

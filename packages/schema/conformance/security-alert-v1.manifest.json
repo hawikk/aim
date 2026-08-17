@@ -1,0 +1,190 @@
+{
+  "schema": "security.alert/v1.1",
+  "source": "AIM-157 decision record D3.1 revision 6, \u00a77 + \u00a712 item 9",
+  "entries": [
+    {
+      "line": 1,
+      "case": "baseline",
+      "rule": "\u00a73",
+      "validity": "publisher-valid",
+      "disposition": "accept",
+      "note": "Well-formed alert. Establishes the happy path the rest of the corpus deviates from."
+    },
+    {
+      "line": 2,
+      "case": "out-of-order: newer first",
+      "rule": "\u00a77.1",
+      "validity": "publisher-valid",
+      "disposition": "accept",
+      "note": "Published before an older alert. A consumer that sorts by stream id shows these inverted."
+    },
+    {
+      "line": 3,
+      "case": "out-of-order: older second",
+      "rule": "\u00a77.1",
+      "validity": "publisher-valid",
+      "disposition": "accept",
+      "note": "MUST sort after the previous line when ordered by last_seen_at. Assert ordering, not arrival."
+    },
+    {
+      "line": 4,
+      "case": "duplicate alert_id (redelivery)",
+      "rule": "\u00a77.2",
+      "validity": "publisher-valid",
+      "disposition": "accept-idempotent",
+      "note": "Byte-identical redelivery of line 1. MUST NOT create a second row or fire a second notification."
+    },
+    {
+      "line": 5,
+      "case": "same dedupe_key, two pillars",
+      "rule": "\u00a77.2 / \u00a73.1.1",
+      "validity": "publisher-valid",
+      "disposition": "accept-separate",
+      "note": "dedupe_key is only unique WITHIN a pillar. Merging across pillars collapses two real findings into one."
+    },
+    {
+      "line": 6,
+      "case": "unknown severity value",
+      "rule": "\u00a77.4",
+      "validity": "consumer-only",
+      "disposition": "accept-degraded",
+      "note": "Rank and threshold on severity_id (here 5 -- the critical band), NOT on the unrecognized string; degrade the label for display only, count unknown_severity, and surface it. Corrected in revision 6: 'treat it as medium' applied to ranking would file a critical-band finding in the middle of the inbox, which is the quiet half of the same failure as dropping it."
+    },
+    {
+      "line": 7,
+      "case": "unknown pillar",
+      "rule": "\u00a77.4",
+      "validity": "consumer-only",
+      "disposition": "accept-degraded",
+      "note": "A pillar added after this consumer shipped. Still display and still group."
+    },
+    {
+      "line": 8,
+      "case": "future minor + unknown field",
+      "rule": "\u00a77.4 / \u00a76",
+      "validity": "consumer-only",
+      "disposition": "accept-degraded",
+      "note": "Minor bumps are additive-only. Ignore the unknown field; do not reject the alert."
+    },
+    {
+      "line": 9,
+      "case": "unknown MAJOR version",
+      "rule": "\u00a77.4 / \u00a76",
+      "validity": "invalid",
+      "disposition": "reject",
+      "note": "The only version-based rejection. v2 gets its own stream key; seeing it here is a misconfiguration."
+    },
+    {
+      "line": 10,
+      "case": "truncated JSON",
+      "rule": "\u00a77.10",
+      "validity": "unparseable",
+      "disposition": "reject",
+      "note": "Not parseable. MUST increment a counter and continue -- never crash, never stall the consumer group."
+    },
+    {
+      "line": 11,
+      "case": "JSON array, not an object",
+      "rule": "\u00a77.10",
+      "validity": "unparseable",
+      "disposition": "reject",
+      "note": "Parses, but is not an alert. Type-check before field access."
+    },
+    {
+      "line": 12,
+      "case": "HTML/JS in title",
+      "rule": "\u00a77.9",
+      "validity": "publisher-valid",
+      "disposition": "accept-escaped",
+      "note": "Schema-valid: a bucket name can legally contain these bytes. MUST render as text, never as markup."
+    },
+    {
+      "line": 13,
+      "case": "template delimiters in resource.display",
+      "rule": "\u00a77.9",
+      "validity": "publisher-valid",
+      "disposition": "accept-escaped",
+      "note": "Must not reach a template engine, a log formatter with %-expansion, or a shell."
+    },
+    {
+      "line": 14,
+      "case": "prompt injection in evidence.summary",
+      "rule": "\u00a77.9 / AIM-165",
+      "validity": "publisher-valid",
+      "disposition": "accept-delimited",
+      "note": "The sentinel feeds this to a model. Alert text is DATA, not instruction, and the prompt must say so."
+    },
+    {
+      "line": 15,
+      "case": "prompt injection in a label value",
+      "rule": "\u00a77.9",
+      "validity": "publisher-valid",
+      "disposition": "accept-delimited",
+      "note": "Labels are the field most likely to be interpolated straight into a query or a prompt."
+    },
+    {
+      "line": 16,
+      "case": "source_uri path traversal",
+      "rule": "\u00a73.4 / \u00a77.6",
+      "validity": "invalid",
+      "disposition": "reject",
+      "note": "The gateway resolves this value into a real URL. Schema-invalid, and the gateway allowlist is the second gate."
+    },
+    {
+      "line": 17,
+      "case": "source_uri open redirect",
+      "rule": "\u00a73.4",
+      "validity": "invalid",
+      "disposition": "reject",
+      "note": "Query values may not contain ':' or '/'."
+    },
+    {
+      "line": 18,
+      "case": "plaintext identity in subject_ref",
+      "rule": "\u00a77.7 / \u00a75",
+      "validity": "invalid",
+      "disposition": "reject",
+      "note": "Pseudonymisation is enforced by the schema so a publisher bug cannot leak a name onto the bus."
+    },
+    {
+      "line": 19,
+      "case": "detail_count > 1 with path-form source_uri",
+      "rule": "\u00a73.4",
+      "validity": "publisher-valid",
+      "disposition": "accept-flagged",
+      "note": "Schema-valid but contract-violating: the link points at one member of a set of 37. Publisher bug; count it."
+    },
+    {
+      "line": 20,
+      "case": "severity / severity_id disagree",
+      "rule": "\u00a73.2",
+      "validity": "publisher-valid",
+      "disposition": "accept-flagged",
+      "note": "Schema-valid; both fields are in range. Trust the string, flag the mismatch -- do not silently pick one."
+    },
+    {
+      "line": 21,
+      "case": "first_seen_at after last_seen_at",
+      "rule": "\u00a73.1",
+      "validity": "publisher-valid",
+      "disposition": "accept-flagged",
+      "note": "Schema-valid; the ordering invariant is not expressible in JSON Schema. Windowing must not go negative."
+    },
+    {
+      "line": 22,
+      "case": "observed_count 1 across a first_seen..last_seen span",
+      "rule": "\u00a73.1.1(e)",
+      "validity": "publisher-valid",
+      "disposition": "accept-flagged",
+      "note": "The placeholder 1 that (e) forbids, in the one shape that is machine-detectable: the alert claims a multi-hour span yet reports a single observation. Schema-valid, so a consumer MUST keep it, but an inbox that renders it as '1 occurrence' under-reports the group. Publishers without an aggregation table MUST omit observed_count instead (lines with no such field are the honest form)."
+    },
+    {
+      "line": 23,
+      "case": "future minor + unknown field inside resource",
+      "rule": "\u00a77.4 / \u00a76",
+      "validity": "consumer-only",
+      "disposition": "accept-degraded",
+      "note": "Additive-only applies at every depth, not just the root. Ignore the unknown nested field -- project it away per \u00a72 rather than storing it -- and keep the alert. A consumer that rejects this one is validating a subobject more strictly than the contract it claims to implement, and the loss is invisible: the alert simply never appears."
+    }
+  ]
+}

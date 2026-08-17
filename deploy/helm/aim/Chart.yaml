@@ -1,0 +1,18 @@
+apiVersion: v2
+name: aim
+description: >-
+  AI Monitoring platform — AI dev-tool telemetry ingestion, guardrail
+  evaluation, and the security dashboard. Full stack: ingest, api+web,
+  guardrail, Postgres, MinIO.
+type: application
+# Chart version: bumped on every chart change (semver).
+version: 0.1.3
+# appVersion: the platform release the chart installs by default. Image tags
+# default to this value; air-gapped bundles are built per appVersion.
+appVersion: "0.1.0"
+keywords:
+  - security
+  - ai-governance
+  - monitoring
+maintainers:
+  - name: AI Monitoring engineering

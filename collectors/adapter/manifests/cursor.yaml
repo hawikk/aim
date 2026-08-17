@@ -1,0 +1,41 @@
+id: cursor
+display_name: Cursor
+provider: cursor
+schema_tool: cursor
+sanctioned: true
+implementation: legacy
+legacy:
+  package: collectors/cursor
+  reason: >
+    Cursor state.vscdb layout and hook wiring are proprietary/private;
+    depth extraction stays in collectors/cursor while honouring this contract.
+surfaces:
+  - type: local_session_logs
+    fidelity: depth
+    discovery:
+      paths:
+        - "~/.config/Cursor/User/globalStorage"
+        - "~/Library/Application Support/Cursor/User/globalStorage"
+    extraction:
+      format: legacy
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: depth
+    discovery:
+      binaries: ["cursor"]
+    extraction:
+      format: legacy
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - cursor.sh
+        - cursor.com
+        - cursorapi.com
+      catalogue_rule_ids: ["cursor-backend"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true

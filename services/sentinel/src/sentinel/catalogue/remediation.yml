@@ -1,0 +1,350 @@
+# Remediation catalogue — curated, reviewable fixes keyed by finding type.
+#
+# Why a catalogue at all, when there is an LLM in the loop: the LLM writes the
+# *explanation*, this file writes the *command*. A model that hallucinates one
+# flag in `aws s3api put-public-access-block` produces a snippet that looks
+# right, is pasted by a tired human at 02:00, and either fails or does
+# something else. Commands are code; they belong in review, in git, and in a
+# diff — not in a sampled token stream.
+#
+# Every entry is written to be safe to paste as-is: least-privilege, no
+# wildcards over resources, and nothing destructive. Anything that could drop
+# data says so in `caution` and the renderer surfaces it above the snippet.
+#
+# Matching is first-match-wins, top to bottom. `finding_type` is a regex
+# anchored at both ends against the alert's finding_type, so the pillar
+# namespace is always explicit.
+#
+# Placeholders available: {resource_ref} {resource_display} {region}
+# {account_ref} {provider}. Missing values render as <unknown-…> rather than an
+# empty string, so a half-filled command is obvious instead of subtly wrong.
+
+version: 1
+
+entries:
+  # ---- cloud posture: AWS -------------------------------------------------
+  - id: s3-public-access
+    finding_type: 'cloud_posture\..*s3.*public.*'
+    title: Block all public access on the bucket
+    explanation: >-
+      The bucket allows public read. Applying the account-level and
+      bucket-level public access blocks removes it immediately; the bucket
+      policy or ACL that granted it should then be deleted so the block is not
+      the only thing holding the door shut.
+    caution: >-
+      If anything legitimately serves objects from this bucket over the public
+      internet (a static site, a CDN origin without OAC), blocking public
+      access breaks it. Check CloudFront/access-log traffic before applying in
+      production.
+    cli: |
+      # 1. Confirm what is public right now (read-only)
+      aws s3api get-public-access-block --bucket {resource_display}
+      aws s3api get-bucket-policy-status --bucket {resource_display}
+
+      # 2. Block it
+      aws s3api put-public-access-block --bucket {resource_display} \
+        --public-access-block-configuration \
+        BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+
+      # 3. Remove the grant itself, once you know which one it was
+      aws s3api get-bucket-policy --bucket {resource_display}
+      # aws s3api delete-bucket-policy --bucket {resource_display}
+    terraform: |
+      resource "aws_s3_bucket_public_access_block" "this" {
+        bucket                  = "{resource_display}"
+        block_public_acls       = true
+        block_public_policy     = true
+        ignore_public_acls      = true
+        restrict_public_buckets = true
+      }
+    console: >-
+      S3 → {resource_display} → Permissions → Block public access → Edit → tick
+      all four → Save.
+    docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
+
+  - id: sg-open-ingress
+    finding_type: 'cloud_posture\..*(security_group|sg)_.*(open|unrestricted|0_0_0_0|ingress).*'
+    title: Close the world-open ingress rule
+    explanation: >-
+      A security group allows inbound traffic from 0.0.0.0/0. Replace the
+      source with the corporate CIDR or an SSM Session Manager path; leaving it
+      open exposes the port to internet-wide scanning within minutes.
+    cli: |
+      # Inspect first — the rule id is what you revoke, not the port
+      aws ec2 describe-security-group-rules \
+        --filters Name=group-id,Values={resource_display} --region {region}
+
+      # Revoke (substitute the rule id you found above)
+      # aws ec2 revoke-security-group-ingress --group-id {resource_display} \
+      #   --security-group-rule-ids sgr-EXAMPLE --region {region}
+    terraform: |
+      # Narrow the rule rather than deleting it, so the intent stays visible:
+      resource "aws_vpc_security_group_ingress_rule" "corp_only" {
+        security_group_id = "{resource_display}"
+        cidr_ipv4         = var.corporate_cidr  # was 0.0.0.0/0
+        from_port         = var.port
+        to_port           = var.port
+        ip_protocol       = "tcp"
+      }
+    docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules.html
+
+  - id: iam-key-age
+    finding_type: 'cloud_posture\..*(access_key|iam_user_.*key).*'
+    title: Rotate and disable the stale access key
+    explanation: >-
+      A long-lived IAM access key is the credential most often found in a leak.
+      Create the replacement first, deploy it, then deactivate the old key and
+      delete it once nothing breaks.
+    caution: Deactivating a key in use takes the workload down. Rotate, then deactivate.
+    cli: |
+      aws iam list-access-keys --user-name {resource_display}
+      aws iam create-access-key --user-name {resource_display}
+      # after the new key is deployed:
+      # aws iam update-access-key --user-name {resource_display} \
+      #   --access-key-id AKIAEXAMPLE --status Inactive
+    docs: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
+
+  - id: public-db
+    finding_type: 'cloud_posture\..*(rds|db_instance|database).*(public|snapshot).*'
+    title: Make the database private
+    explanation: >-
+      The database (or a snapshot of it) is reachable from outside the VPC.
+      Turning off public accessibility is a single API call and takes effect at
+      the next maintenance window or immediately with --apply-immediately.
+    cli: |
+      aws rds modify-db-instance --db-instance-identifier {resource_display} \
+        --no-publicly-accessible --apply-immediately --region {region}
+    terraform: |
+      resource "aws_db_instance" "this" {
+        # ...
+        publicly_accessible = false
+      }
+    docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html
+
+  - id: attack-path
+    finding_type: 'cloud_posture\.attack_path'
+    title: Break the attack path at its cheapest edge
+    explanation: >-
+      This is a chain, not a single misconfiguration: the finding is that an
+      external entry point reaches a sensitive resource through a sequence of
+      permissions and network hops. Fix the edge that is cheapest to remove —
+      usually the network exposure or one over-broad IAM grant — and re-run the
+      path query to confirm the chain is broken.
+    console: >-
+      Cloud Sentry → Attack paths → open this path → each edge lists the exact
+      grant or route that creates it.
+
+  # ---- AI usage (AIM guardrail) ------------------------------------------
+  - id: aim-secret-in-prompt
+    finding_type: 'ai_usage\..*(secret|credential|key).*'
+    autofix_mode: guided
+    title: Treat the secret as leaked — rotate it
+    explanation: >-
+      A credential pattern was detected in traffic to an AI tool. Prompt
+      content is not stored by this stack, so the value itself is not
+      recoverable from here — which means the only safe assumption is that it
+      left the building. Rotate the credential, then confirm the collector's
+      redaction rule covers the pattern that matched. There is no git history
+      to rewrite here; do not open a force-push PR.
+    caution: >-
+      Guided remediation only. AIM never auto-rotates cloud credentials and
+      never rewrites repository history for this finding class.
+    cli: |
+      # 1. ROTATE the credential at its issuer immediately.
+      # 2. Revoke any session tokens minted with it.
+      # 3. Confirm collector redaction covers the matched pattern.
+      # There is no git history purge for prompt-traffic findings.
+    console: >-
+      AIM → Findings → open this finding for the rule id, the pseudonymous
+      actor and the tool. Identity resolution needs the analyst role.
+
+  - id: aim-unapproved-tool
+    finding_type: 'ai_usage\..*(unapproved|blocked|shadow).*'
+    title: Decide the tool's status, then let policy enforce it
+    explanation: >-
+      An AI tool outside the approved list was used. This is a policy call, not
+      an incident: either the tool gets approved and added to the allowlist, or
+      the blocklist entry stands and the user needs a sanctioned alternative.
+      Blocking without offering the alternative is what drives engineers onto
+      personal accounts, where there is no telemetry at all.
+    console: AIM → Policy → Tool rules.
+
+  # ---- PR-time IaC, with a reviewed patch (AIM-185) -----------------------
+  #
+  # These are the only entries that can produce a *diff* rather than a snippet,
+  # and the bar for adding one is deliberately high:
+  #
+  #   * the fix must be a single attribute set to a single literal value;
+  #   * `block_types` must name every block the value is correct for, and
+  #     nothing else — this is the guard that stops a mis-selected entry from
+  #     editing whatever happens to sit at the flagged line;
+  #   * `value` is a literal and is never placeholder-filled, so no
+  #     publisher-controlled string can reach a committed diff;
+  #   * applying it must not destroy or replace data. `storage_encrypted` on an
+  #     existing RDS instance is a correct fix and is deliberately NOT here,
+  #     because merging it replaces the database.
+  #
+  # `when.labels` narrows by scanner rule: every checkov finding shares the
+  # finding_type `pr_security.iac_misconfig`, so the rule id is what tells one
+  # of these apart from the generic entry below.
+
+  - id: iac-rds-public
+    finding_type: 'pr_security\.iac_misconfig'
+    when:
+      labels:
+        check: 'CKV_AWS_17'
+    title: Make the RDS instance private in Terraform
+    explanation: >-
+      The instance is declared with `publicly_accessible = true`, which gives it
+      a public IP and puts the database engine's port on the internet. Unless
+      something outside the VPC genuinely connects to it, this should be false;
+      access from outside belongs behind a bastion, VPN or SSM session.
+    caution: >-
+      If anything currently connects to this database over its public endpoint,
+      applying this cuts it off. Check the DB's connection sources before merge.
+    patch:
+      kind: set_attribute
+      block_types: [aws_db_instance, aws_rds_cluster_instance]
+      attribute: publicly_accessible
+      value: 'false'
+    docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html
+
+  - id: iac-s3-public-acl
+    finding_type: 'pr_security\.iac_misconfig'
+    when:
+      labels:
+        check: 'CKV_AWS_(20|57)'
+    title: Make the bucket ACL private in Terraform
+    explanation: >-
+      The bucket is declared with an ACL that grants public read or write. `acl
+      = "private"` removes the grant at the source; the account-level public
+      access block should hold the door shut behind it.
+    caution: >-
+      A bucket that intentionally serves objects publicly (a static site, a CDN
+      origin without OAC) breaks when this merges. Front it with CloudFront and
+      an origin access control instead of a public ACL.
+    patch:
+      kind: set_attribute
+      block_types: [aws_s3_bucket, aws_s3_bucket_acl]
+      attribute: acl
+      value: '"private"'
+    docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
+
+  - id: iac-ec2-public-ip
+    finding_type: 'pr_security\.iac_misconfig'
+    when:
+      labels:
+        check: 'CKV_AWS_88'
+    title: Stop assigning the instance a public IP
+    explanation: >-
+      The instance requests a public IP address, which makes it directly
+      reachable from the internet and exposes whatever its security groups
+      allow. Egress through a NAT gateway and access through SSM Session
+      Manager cover almost every reason this gets set.
+    caution: >-
+      If the instance is reached over the internet today — SSH from an office
+      IP, an inbound webhook — that path stops working when this is applied.
+    patch:
+      kind: set_attribute
+      block_types: [aws_instance]
+      attribute: associate_public_ip_address
+      value: 'false'
+    docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html
+
+  # ---- SCA dep-bump autofix (AIM-330) -------------------------------------
+  #
+  # MUST sit above the generic `pr_security\..*` catch-all (first-match-wins).
+
+  - id: sca-dep-bump
+    finding_type: 'pr_security\.vulnerable_dependency'
+    title: Bump the vulnerable dependency to the fixed version
+    explanation: >-
+      A known CVE is present in a dependency declared by this repository. The
+      fixed version comes from the scanner (trivy), not from a model. This
+      draft PR only edits the manifest pin; re-run `npm install` / `pip-compile`
+      / `poetry lock` so the lockfile matches before merge.
+    caution: >-
+      Major-version bumps can break callers. Read the changelog excerpt in the
+      PR body, run the project's test suite on the branch, and only then merge.
+    cli: |
+      # After merge (or on the draft branch), refresh the lockfile:
+      # npm install   OR   pnpm install   OR   yarn install
+      # pip-compile requirements.in   OR   poetry lock
+    patch:
+      kind: bump_dep_version
+      path_suffixes:
+        - package.json
+        - requirements.txt
+        - requirements-dev.txt
+        - requirements-test.txt
+        - pyproject.toml
+      summary: bump dependency to scanner fixed_version
+    docs: https://osv.dev/
+
+  # ---- secrets: guided remediation only (AIM-330) -------------------------
+
+  - id: pr-secret-guided
+    finding_type: 'pr_security\.(secret_in_diff|hardcoded_secret)'
+    autofix_mode: guided
+    title: Rotate the leaked credential — do not rewrite history yet
+    explanation: >-
+      A credential pattern was found in the pull request diff. Treat it as
+      leaked the moment it reached the remote. Rotation is the fix. Deleting
+      the line only stops the check from failing; the value is already in the
+      PR head, in CI logs, and in any clone that fetched the branch.
+    caution: >-
+      AIM never auto-rewrites git history. Force-push / filter-repo is a
+      deliberate human action that needs change-management approval because it
+      rewrites shared history and every collaborator must re-clone.
+    cli: |
+      # 1. ROTATE at the issuer first (this is the security control).
+      #    Example AWS:
+      # aws iam create-access-key --user-name <USER>
+      # aws iam update-access-key --access-key-id <LEAKED> --status Inactive --user-name <USER>
+
+      # 2. REMOVE the value from the PR branch with a normal commit (not a
+      #    history rewrite). Point the code at the secret store instead.
+
+      # 3. PURGE history ONLY after rotation AND only with explicit approval:
+      # pip install git-filter-repo
+      # git filter-repo --invert-paths --path '<path>' --force
+      # git push --force --all   # REQUIRES APPROVAL — rewrites shared history
+    console: >-
+      Open the PR's gatehouse check → annotation on the offending line. Rotate
+      at the issuer, then push a normal fix commit. History rewrite is out of
+      band and never agent-driven.
+    docs: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository
+
+  # ---- PR-time security (gatehouse) — generic catch-all, keep last --------
+  - id: gatehouse-finding
+    finding_type: 'pr_security\..*'
+    title: Fix in the pull request, before merge
+    explanation: >-
+      The finding is scoped to the diff of an open PR and the check run carries
+      the exact line and a masked evidence snippet. The cheapest fix is a
+      commit on the branch; the check re-runs on push and clears itself.
+    console: >-
+      Open the PR's "gatehouse" check run — the annotation is on the offending
+      line.
+
+  # ---- secrets hygiene ----------------------------------------------------
+  - id: secrets-hygiene
+    finding_type: 'secrets_hygiene\..*'
+    autofix_mode: guided
+    title: Rotate first, remove second — history rewrite needs approval
+    explanation: >-
+      A live credential was found outside a secret store. Rotation is the fix;
+      deleting the file only hides it, because the value is already in git
+      history and in whatever cache pulled it. Rotate, then purge, then add the
+      path to the scanner's allowlist only if the value is genuinely a fixture.
+      Sentinel will never open a PR that force-pushes or runs filter-repo;
+      those steps are posted as guided remediation for a human with approval.
+    caution: >-
+      Never force-push history rewrite without change-management approval.
+      Rotation first; purge second; only after the credential is dead.
+    cli: |
+      # 1. ROTATE at the issuer (security control) — before any git rewrite.
+      # 2. Confirm no abuse in the issuer audit log for this credential.
+      # 3. Remove the value from the working tree with a normal commit.
+      # 4. PURGE history only with explicit approval (filter-repo + force-push).
+      #    AIM agents will not run step 4 for you.

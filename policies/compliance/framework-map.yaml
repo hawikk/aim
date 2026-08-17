@@ -1,0 +1,564 @@
+# Compliance framework mapping v2 (AIM-87, extended by AIM-99).
+#
+# Maps every live guardrail rule and every audit event class to the
+# compliance frameworks the evidence supports:
+#   - EU AI Act (Regulation (EU) 2024/1689) articles
+#   - OWASP Top 10 for LLM Applications (2025)
+#   - NIST AI Risk Management Framework 1.0 (NIST AI 100-1) subcategories
+#   - ISO/IEC 42001:2023 (AI management systems) clauses + Annex A controls
+#
+# This file is POLICY-ADJACENT: version-controlled and PR-reviewed like
+# policies/guardrail/v1/*, but deliberately kept OUT of that directory —
+# the engine and the API hash every *.yaml in policies/guardrail/v1 into
+# findings.policy_hash, and the mapping layer must not perturb that hash.
+# It has its own version + content hash, reported alongside policy_hash.
+#
+# Coverage rule (acceptance criterion): every rule in the live guardrail
+# ruleset MUST appear under `rules:` with at least one control per
+# framework — or an explicit justified `n/a` entry.
+# The /api/compliance/report endpoint computes and exposes this coverage.
+version: 2
+
+frameworks:
+  eu_ai_act:
+    name: EU AI Act — Regulation (EU) 2024/1689
+    # High-risk obligations apply from 2026-08-02. Article mappings below
+    # indicate which obligations our recorded evidence SUPPORTS; see
+    # scoping_note. Controls are keyed art-<n>.
+    controls:
+      art-4:
+        ref: "Art. 4"
+        title: AI literacy
+        summary: >-
+          Deployers and providers must ensure a sufficient level of AI
+          literacy of staff dealing with AI systems. Usage visibility
+          (which tools, by whom, how much) is the baseline input.
+      art-9:
+        ref: "Art. 9"
+        title: Risk management system
+        summary: >-
+          Establish, implement, document and maintain a risk management
+          system for high-risk AI systems. Findings on data-exposure and
+          supply-chain risks are risk-management inputs.
+      art-12:
+        ref: "Art. 12"
+        title: Record-keeping / logging
+        summary: >-
+          High-risk AI systems must allow automatic recording of events
+          (logs). Our append-only, hash-chained, HMAC-sealed audit trail
+          evidences that oversight activity itself is recorded and
+          tamper-evident.
+      art-14:
+        ref: "Art. 14"
+        title: Human oversight
+        summary: >-
+          High-risk AI systems must be effectively overseen by natural
+          persons. Finding triage, alert routing and oversight dashboards
+          evidence that human review actually happens.
+      art-26:
+        ref: "Art. 26"
+        title: Deployer obligations
+        summary: >-
+          Deployers must use AI systems per instructions, ensure input
+          data is relevant to the intended purpose, monitor operation,
+          and retain logs under their control. Guardrail findings on
+          unapproved tools/providers and sensitive-data exposure are the
+          deployer-side monitoring record.
+      art-72:
+        ref: "Art. 72"
+        title: Post-market monitoring
+        summary: >-
+          Systematic collection and review of experience gained from AI
+          systems in use. Anomaly/volume signals are the continuous
+          monitoring feed.
+  owasp_llm:
+    name: OWASP Top 10 for LLM Applications (2025)
+    controls:
+      llm01:
+        ref: "LLM01"
+        title: Prompt Injection
+        summary: >-
+          Crafted inputs that attempt to override a model's system prompt,
+          jailbreak its guardrails, or extract its instructions — whether
+          from a user or via pasted/retrieved content.
+      llm02:
+        ref: "LLM02"
+        title: Sensitive Information Disclosure
+        summary: >-
+          Secrets, PII, or confidential data entering LLM prompts or
+          leaving approved boundaries.
+      llm03:
+        ref: "LLM03"
+        title: Supply Chain
+        summary: >-
+          Unvetted models, providers, plugins, or tools in the AI
+          development supply chain.
+      llm06:
+        ref: "LLM06"
+        title: Excessive Agency
+        summary: >-
+          AI systems acting with more autonomy/access than intended,
+          e.g. against restricted codebases.
+      llm10:
+        ref: "LLM10"
+        title: Unbounded Consumption
+        summary: >-
+          Abnormal volume or consumption patterns — runaway automation,
+          credential sharing, or bulk data movement.
+  nist_ai_rmf:
+    name: NIST AI Risk Management Framework 1.0 (NIST AI 100-1)
+    # Subcategory mappings (GOVERN / MAP / MEASURE / MANAGE) indicate which
+    # risk-management activities our recorded evidence SUPPORTS; see
+    # scoping_note. Controls are keyed <function>-<n.n>.
+    controls:
+      govern-1.2:
+        ref: "GOVERN 1.2"
+        title: Trustworthy AI integrated into policies
+        summary: >-
+          The characteristics of trustworthy AI are integrated into
+          organizational policies, processes, procedures and practices.
+          The guardrail ruleset is policy-as-code; changes are PR-reviewed
+          and audit-logged.
+      govern-1.6:
+        ref: "GOVERN 1.6"
+        title: AI system inventory
+        summary: >-
+          Mechanisms are in place to inventory AI systems in use.
+          Tool/provider discovery findings are exactly that inventory feed
+          for AI coding tools.
+      govern-6.1:
+        ref: "GOVERN 6.1"
+        title: Third-party / supply-chain risk
+        summary: >-
+          Policies and procedures address AI risks arising from
+          third-party software, data and supply-chain issues. Unapproved
+          tool/provider/MCP-server findings are the third-party risk
+          record.
+      measure-1.1:
+        ref: "MEASURE 1.1"
+        title: Risk metrics identified
+        summary: >-
+          Appropriate metrics are identified and documented. Volume
+          anomalies, finding rates and audit-chain verification runs are
+          the measured trustworthiness indicators.
+      measure-2.7:
+        ref: "MEASURE 2.7"
+        title: Security & resilience evaluated
+        summary: >-
+          AI system security and resilience are evaluated and documented.
+          Secret/PII exposure and restricted-scope findings are the
+          security evaluation evidence for AI tool usage.
+      manage-1.4:
+        ref: "MANAGE 1.4"
+        title: Ongoing monitoring for sustained value
+        summary: >-
+          Mechanisms are in place to monitor AI systems on an ongoing
+          basis. Scheduled snapshots and continuous dashboards evidence
+          sustained, not point-in-time, oversight.
+      manage-2.4:
+        ref: "MANAGE 2.4"
+        title: Response to out-of-bounds behavior
+        summary: >-
+          Mechanisms exist to supersede or disengage AI usage that is
+          inconsistent with intended use. Exposure findings with human
+          triage are the response record (enforcement itself is a policy
+          decision, AIM-15).
+      manage-4.1:
+        ref: "MANAGE 4.1"
+        title: Post-deployment monitoring
+        summary: >-
+          Post-deployment monitoring plans are implemented, including
+          feedback capture. Weekly snapshots, alerts and triage outcomes
+          are the post-deployment monitoring trail.
+  iso_42001:
+    name: ISO/IEC 42001:2023 — AI management systems
+    # Clause and Annex A control mappings indicate which AIMS requirements
+    # our recorded evidence SUPPORTS; see scoping_note. Controls are keyed
+    # cl-<clause> / a-<annex ref>.
+    controls:
+      a-2.2:
+        ref: "A.2.2"
+        title: AI policy
+        summary: >-
+          An AI policy aligned with organizational objectives is
+          documented and maintained. The version-controlled guardrail
+          ruleset and this mapping are AI-policy artifacts.
+      a-5.2:
+        ref: "A.5.2"
+        title: AI system impact assessment
+        summary: >-
+          Processes assess the impacts of AI systems on individuals and
+          groups. Findings on unapproved providers, MCP servers and
+          restricted-scope access are impact-assessment inputs.
+      a-9.2:
+        ref: "A.9.2"
+        title: Responsible use of AI systems
+        summary: >-
+          Processes for the responsible use of AI systems are defined and
+          followed. Allowlist/scope findings evidence that responsible-use
+          rules are monitored in practice.
+      a-10.2:
+        ref: "A.10.2"
+        title: Third-party & supplier relationships
+        summary: >-
+          Risks from third-party AI suppliers, partners and tools are
+          managed. Unapproved tool/provider/MCP findings are the supplier
+          risk record for AI coding tools.
+      cl-7.5:
+        ref: "Clause 7.5"
+        title: Documented information
+        summary: >-
+          Documented information required by the AIMS is controlled.
+          The append-only, hash-chained, HMAC-sealed audit trail is the
+          controlled documented-information store for oversight activity.
+      cl-9.1:
+        ref: "Clause 9.1"
+        title: Monitoring, measurement, analysis, evaluation
+        summary: >-
+          The organization monitors and measures AIMS performance and
+          evaluates results. Dashboards, findings metrics and scheduled
+          snapshots are the performance-evaluation feed.
+      cl-10.1:
+        ref: "Clause 10.1"
+        title: Continual improvement
+        summary: >-
+          The organization continually improves the suitability and
+          effectiveness of the AIMS. Anomaly-driven triage and snapshot
+          history evidence the improvement loop.
+
+# Every live guardrail rule (policies/guardrail/v1/core.yaml) mapped.
+# Each framework lists control keys from the frameworks above; use
+# `n/a: "<justification>"` instead of a list only where genuinely no
+# framework control applies.
+rules:
+  unapproved-tool:
+    eu_ai_act: [art-26, art-4]
+    owasp_llm: [llm03]
+    nist_ai_rmf: [govern-1.6, govern-6.1]
+    iso_42001: [a-10.2, a-9.2]
+    rationale: >-
+      An AI coding tool outside the sanctioned allowlist is an unvetted
+      component in the AI supply chain (LLM03) and evidence for the
+      deployer's obligation to know and control which AI systems are in
+      use (Art. 26) and to build staff AI literacy (Art. 4). It is the
+      AI-system inventory record (GOVERN 1.6) and third-party risk input
+      (GOVERN 6.1 / A.10.2), and monitors responsible-use policy (A.9.2).
+  unapproved-provider-or-model:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm03, llm02]
+    nist_ai_rmf: [govern-6.1, measure-2.7]
+    iso_42001: [a-10.2, a-5.2]
+    rationale: >-
+      Traffic to a provider outside the approved matrix (personal API key
+      endpoints, third-party relays) is both a supply-chain gap (LLM03)
+      and a sensitive-data egress risk (LLM02); it is a core input to the
+      risk management system (Art. 9), deployer monitoring (Art. 26),
+      third-party risk management (GOVERN 6.1 / A.10.2) and the impact /
+      security assessment record (A.5.2 / MEASURE 2.7).
+  # AIM-383 model allow-list: fires when a non-empty per-team/org allow-list
+  # is configured and the observed model is outside it (distinct from the
+  # provider-endpoint matrix above).
+  model-provider-not-permitted:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm03, llm02]
+    nist_ai_rmf: [govern-6.1, measure-2.7]
+    iso_42001: [a-10.2, a-5.2]
+    rationale: >-
+      A model outside a configured allow-list is an unvetted component in
+      the AI supply chain (LLM03) and a sensitive-data egress risk when
+      traffic leaves the approved model set (LLM02). Findings feed the
+      risk management system (Art. 9), deployer monitoring (Art. 26),
+      third-party risk (GOVERN 6.1 / A.10.2) and security assessment
+      (A.5.2 / MEASURE 2.7).
+  restricted-repo-access:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm02, llm06]
+    nist_ai_rmf: [measure-2.7, govern-1.2]
+    iso_42001: [a-9.2, a-5.2]
+    rationale: >-
+      AI tools operating against restricted (secrets-heavy, regulated,
+      customer-data) repositories risk sensitive information disclosure
+      (LLM02) via tools acting beyond their intended scope (LLM06).
+      Findings feed risk management (Art. 9), deployer input-data control
+      (Art. 26), the security evaluation (MEASURE 2.7), trustworthy-AI
+      policy enforcement (GOVERN 1.2) and responsible-use / impact
+      processes (A.9.2 / A.5.2).
+  secret-pattern-in-prompt:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm02]
+    nist_ai_rmf: [measure-2.7, manage-2.4]
+    iso_42001: [a-9.2, cl-9.1]
+    rationale: >-
+      Secret-like patterns in AI tool traffic are the canonical LLM02
+      sensitive-information-disclosure signal and the security-evaluation
+      evidence under MEASURE 2.7 / Clause 9.1; triage of these findings is
+      the response mechanism (MANAGE 2.4) for responsible use (A.9.2).
+      Only the detector outcome is stored — never the matched content —
+      keeping the evidence itself data-minimizing.
+  pii-in-prompt:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm02]
+    nist_ai_rmf: [measure-2.7, manage-2.4]
+    iso_42001: [a-9.2, cl-9.1]
+    rationale: >-
+      PII-like patterns in prompts are LLM02 exposure (and GDPR-adjacent,
+      out of scope here). Recorded detector outcomes support risk
+      management (Art. 9), the deployer's input-data oversight (Art. 26),
+      the security evaluation (MEASURE 2.7 / Clause 9.1), response
+      (MANAGE 2.4) and responsible use (A.9.2).
+  injection-attempt-in-prompt:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm01]
+    nist_ai_rmf: [measure-2.7, manage-2.4]
+    iso_42001: [a-9.2, cl-9.1]
+    rationale: >-
+      Prompt-injection / jailbreak phrasing in AI tool traffic is the
+      canonical LLM01 signal: attempts to override a sanctioned tool's
+      guardrails, whether by the operator or through pasted/retrieved
+      content. Recorded detector outcomes (never the matched text) feed
+      risk management (Art. 9), deployer input-data oversight (Art. 26),
+      the security evaluation (MEASURE 2.7 / Clause 9.1), the response
+      record (MANAGE 2.4) and responsible-use monitoring (A.9.2).
+  shell-tool-restricted-repo:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm02, llm06]
+    nist_ai_rmf: [measure-2.7, govern-1.2]
+    iso_42001: [a-9.2, a-5.2]
+    rationale: >-
+      Autonomous shell/command execution inside a restricted (secrets-heavy
+      or regulated) repository is the highest-risk tool action there:
+      sensitive-information-disclosure exposure (LLM02) via a tool acting
+      beyond its intended scope (LLM06). Findings feed risk management
+      (Art. 9), deployer input-data control (Art. 26), the security
+      evaluation (MEASURE 2.7), policy enforcement (GOVERN 1.2) and
+      responsible-use / impact processes (A.9.2 / A.5.2).
+  network-tool-restricted-repo:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm02, llm06]
+    nist_ai_rmf: [measure-2.7, govern-1.2]
+    iso_42001: [a-9.2, a-5.2]
+    rationale: >-
+      Network-egress tool calls (web fetch/search) against a restricted
+      repository are possible data movement out of a regulated codebase:
+      LLM02 exposure via tool agency beyond reviewed scope (LLM06). Same
+      evidence chain as shell-tool-restricted-repo: risk management
+      (Art. 9), deployer monitoring (Art. 26), the security evaluation
+      (MEASURE 2.7), policy enforcement (GOVERN 1.2) and responsible-use /
+      impact processes (A.9.2 / A.5.2).
+  unapproved-mcp-tool:
+    # AIM-627 tool-level MCP matrix: server approved but a specific tool denied.
+    # Same evidence chain as unapproved-mcp-server (supply-chain + agency),
+    # scoped to tool granularity. Fixed from a non-schema stub so the map
+    # loader (and AIM-696 high-sev attachment) can load the live file.
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm03, llm06]
+    nist_ai_rmf: [govern-6.1, measure-2.7]
+    iso_42001: [a-10.2, a-5.2]
+    rationale: >-
+      Tool-level MCP deny (server on the allowlist, specific tool denied) is
+      supply-chain control at finer grain than server inventory (LLM03) and
+      limits agent agency beyond reviewed tool scope (LLM06). Findings feed
+      risk management (Art. 9), deployer monitoring (Art. 26), third-party
+      risk (GOVERN 6.1 / A.10.2) and impact / security assessment
+      (A.5.2 / MEASURE 2.7). Metadata only — never tool args or results.
+
+  unapproved-mcp-server-configured:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm03, llm06]
+    nist_ai_rmf: [govern-6.1, measure-2.7]
+    iso_42001: [a-10.2, a-5.2]
+    rationale: >-
+      An unapproved MCP server present in a tool's config is intent-to-use
+      of an unvetted executable integration: supply-chain risk (LLM03) and
+      expanded agent agency beyond reviewed scope (LLM06), even before any
+      observed traffic. Inventory findings feed the risk management system
+      (Art. 9), deployer monitoring (Art. 26), third-party risk
+      (GOVERN 6.1 / A.10.2) and impact / security assessment
+      (A.5.2 / MEASURE 2.7).
+  unapproved-mcp-server:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm03, llm06]
+    nist_ai_rmf: [govern-6.1, measure-2.7]
+    iso_42001: [a-10.2, a-5.2]
+    rationale: >-
+      MCP servers are executable integrations the agent can invoke —
+      an unapproved server is an unvetted supply-chain component (LLM03)
+      and expands the agent's effective agency beyond reviewed scope
+      (LLM06). Discovery-mode findings inventory these integrations for
+      the risk management system (Art. 9), deployer monitoring (Art. 26),
+      third-party risk (GOVERN 6.1 / A.10.2) and impact / security
+      assessment (A.5.2 / MEASURE 2.7).
+  anomalous-volume-hourly:
+    eu_ai_act: [art-9, art-72]
+    owasp_llm: [llm10]
+    nist_ai_rmf: [measure-1.1, manage-4.1]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      Abnormal hourly token volume maps to LLM10 unbounded consumption —
+      proxy for runaway automation, credential sharing, or bulk data
+      movement. Continuous volume monitoring is post-market / post-
+      deployment monitoring evidence (Art. 72 / MANAGE 4.1), a measured
+      risk indicator (MEASURE 1.1 / Clause 9.1) and a risk-management
+      input (Art. 9).
+  off-hours-bulk-usage:
+    eu_ai_act: [art-14, art-72]
+    owasp_llm: [llm10]
+    nist_ai_rmf: [manage-4.1, manage-1.4]
+    iso_42001: [cl-9.1, cl-10.1]
+    rationale: >-
+      Bulk off-hours usage is an LLM10 consumption anomaly surfacing
+      unattended workloads or account misuse for human review (Art. 14)
+      as part of ongoing monitoring (Art. 72 / MANAGE 4.1 / MANAGE 1.4 /
+      Clause 9.1) feeding the improvement loop (Clause 10.1).
+
+# Audit event classes (packages/audit action families) mapped to the
+# record-keeping / oversight controls they evidence. Keys are action
+# prefixes; `finding.*` covers finding.open|ack|resolve|triage.
+  # AIM-441 additions — map entries required for compliance coverage AC
+  # (apps/api/test/compliance.test.js: every live rule → every framework).
+  credential-shaped-tool-call:
+    eu_ai_act: [art-9, art-26]
+    owasp_llm: [llm02, llm06]
+    nist_ai_rmf: [measure-2.7, manage-2.4]
+    iso_42001: [a-9.2, cl-9.1]
+    rationale: >-
+      Credential-shaped tool names (e.g. get_secret, read_env) in MCP or
+      tool_use traffic are a sensitive-information-disclosure signal (LLM02)
+      via tools acting beyond reviewed scope (LLM06). Findings feed risk
+      management (Art. 9), deployer monitoring (Art. 26), the security
+      evaluation / response (MEASURE 2.7 / MANAGE 2.4) and responsible-use
+      / monitoring evidence (A.9.2 / Clause 9.1). Detector outcome only —
+      never tool arguments or secret values.
+  high-volume-repo-egress:
+    eu_ai_act: [art-9, art-72]
+    owasp_llm: [llm10, llm02]
+    nist_ai_rmf: [measure-1.1, manage-4.1]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      High-volume repository-scoped egress via AI tools maps to unbounded
+      consumption (LLM10) and possible sensitive-data movement (LLM02).
+      Continuous volume monitoring is post-market monitoring evidence
+      (Art. 72 / MANAGE 4.1), a measured risk indicator (MEASURE 1.1 /
+      Clause 9.1) and a risk-management input (Art. 9).
+  bulk-shell-hourly:
+    eu_ai_act: [art-9, art-72]
+    owasp_llm: [llm10, llm06]
+    nist_ai_rmf: [measure-1.1, manage-4.1]
+    iso_42001: [cl-9.1, a-9.2]
+    rationale: >-
+      Burst shell/command tool use is unbounded agent agency (LLM06) and a
+      consumption / automation signal (LLM10). Hourly bulk findings feed
+      post-market monitoring (Art. 72 / MANAGE 4.1), measured indicators
+      (MEASURE 1.1 / Clause 9.1), risk management (Art. 9) and responsible-
+      use policy enforcement (A.9.2).
+  high-volume-repo-tokens:
+    eu_ai_act: [art-9, art-72]
+    owasp_llm: [llm10]
+    nist_ai_rmf: [measure-1.1, manage-4.1]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      High token volume against a single repository is the per-repo form of
+      LLM10 unbounded consumption — proxy for bulk summarization, extraction,
+      or runaway automation on one codebase. Same monitoring evidence chain
+      as anomalous-volume-hourly: Art. 72 / MANAGE 4.1, MEASURE 1.1 /
+      Clause 9.1, Art. 9.
+
+audit_events:
+  dashboard.view:
+    eu_ai_act: [art-12]
+    nist_ai_rmf: [manage-4.1]
+    iso_42001: [cl-7.5]
+    rationale: >-
+      Every oversight-console access — including denied attempts — is
+      recorded in the tamper-evident log: record-keeping of the oversight
+      activity itself (Art. 12), controlled documented information
+      (Clause 7.5) and the post-deployment monitoring trail (MANAGE 4.1).
+  finding.triage:
+    eu_ai_act: [art-14]
+    nist_ai_rmf: [manage-2.4]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      Human triage decisions (acknowledge / resolve / false-positive, by
+      whom, when) are the direct evidence that human oversight operates
+      in practice (Art. 14), that out-of-bounds usage gets a response
+      (MANAGE 2.4) and that results are evaluated (Clause 9.1).
+  policy.change:
+    eu_ai_act: [art-9]
+    nist_ai_rmf: [govern-1.2]
+    iso_42001: [a-2.2]
+    rationale: >-
+      Guardrail policy mutations (policy-as-code PRs, rule changes) are
+      risk-management-system change records (Art. 9), evidence that
+      trustworthy-AI characteristics live in controlled policy
+      (GOVERN 1.2) and AI-policy maintenance (A.2.2).
+  alert.forwarded:
+    eu_ai_act: [art-14]
+    nist_ai_rmf: [manage-4.1]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      Per-finding alert delivery ledger entries evidence that findings
+      reach human reviewers (Art. 14) as part of the monitoring and
+      evaluation loop (MANAGE 4.1 / Clause 9.1).
+  audit.verify:
+    eu_ai_act: [art-12]
+    nist_ai_rmf: [measure-1.1]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      Full-chain verification runs (including this report's) are
+      themselves logged, proving the record-keeping control is exercised
+      (Art. 12) and that integrity metrics are measured and evaluated
+      (MEASURE 1.1 / Clause 9.1).
+  compliance.export:
+    eu_ai_act: [art-12]
+    iso_42001: [cl-7.5]
+    rationale: >-
+      Every regulator-ready evidence bundle export is sealed into the
+      audit chain with the bundle's content hash, so the exported
+      artifact is hash-linked to the tamper-evident record (Art. 12 /
+      Clause 7.5).
+  compliance.snapshot:
+    eu_ai_act: [art-12, art-72]
+    nist_ai_rmf: [manage-4.1]
+    iso_42001: [cl-9.1]
+    rationale: >-
+      Scheduled weekly snapshots (and on-demand ones) are logged with
+      their bundle hash: the continuous-monitoring record (Art. 72 /
+      MANAGE 4.1 / Clause 9.1) is itself tamper-evident (Art. 12).
+  repo.labels:
+    eu_ai_act: [art-12]
+    iso_42001: [cl-7.5]
+    rationale: >-
+      Access to and mutation of deanonymizing repo labels is restricted
+      and logged (Art. 12 record-keeping / Clause 7.5 documented
+      information around pseudonymized data).
+
+# Evidence retention policy per report type (AIM-99). Parsed by
+# compliance-map.js; enforced by the snapshot store in the API
+# (purge runs on every snapshot). Day counts are calendar days.
+retention:
+  # Weekly posture snapshots: kept just over a year so an annual audit
+  # cycle always has full history to sample.
+  weekly_snapshot_days: 400
+  # On-demand snapshots (ad-hoc investigations): shorter — the underlying
+  # findings remain queryable regardless.
+  on_demand_snapshot_days: 90
+  note: >-
+    Live JSON/CSV reports and signed export bundles are generated on
+    demand and NOT retained server-side (data minimization — the
+    recipient owns the artifact). What the server retains: (1) weekly and
+    on-demand snapshots in compliance_snapshots, purged per the day
+    counts above whenever a snapshot runs; (2) the compliance.export /
+    compliance.snapshot audit events sealing each artifact's hash, which
+    live as long as the audit trail itself (AIM-27).
+
+scoping_note: >-
+  AI Monitoring is a monitoring and oversight tool operated by the
+  deployer organization. This report evidences OVERSIGHT OF AI TOOL
+  USAGE: governance telemetry, guardrail findings, and tamper-evident
+  audit records about how employees use third-party AI coding tools.
+  It does not claim that the AI Monitoring platform itself is a
+  high-risk AI system under Regulation (EU) 2024/1689, nor that the
+  organization operates a certified NIST AI RMF program or an
+  ISO/IEC 42001-certified AIMS; control mappings indicate which
+  obligations and controls the recorded evidence SUPPORTS — they are
+  not, by themselves, fulfillment of those obligations.

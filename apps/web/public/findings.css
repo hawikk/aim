@@ -1,0 +1,456 @@
+/* AIM-70 — findings triage console. Loaded by findings.js at runtime.
+ * Reuses the design tokens from styles.css :root (with fallbacks so a token
+ * rename in parallel design-system work degrades gracefully instead of
+ * breaking the console). */
+
+/* ---------- Nav badge (open critical count) ---------- */
+.badge {
+  background: var(--bad);
+  color: #fff;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 1.5px 6px;
+  margin-left: 2px;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+/* ---------- Status pills (severity pills now live in styles.css) ---------- */
+.pill.st-false_positive {
+  background: var(--sev-low-soft);
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--sev-low-border);
+}
+.pill.st-new {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.pill.st-acknowledged {
+  background: var(--warn-soft);
+  color: var(--warn);
+  box-shadow: inset 0 0 0 1px var(--warn-border);
+}
+.pill.st-resolved {
+  background: var(--good-soft);
+  color: var(--good);
+  box-shadow: inset 0 0 0 1px var(--good-border);
+}
+
+/* ---------- Inbox ---------- */
+.find-controls { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+
+/* AIM-590: CSV + JSON export cluster for SOC handoff */
+.find-export {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+button.btn-export {
+  font: inherit;
+  cursor: pointer;
+}
+button.btn-export:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+#findings-list { display: flex; flex-direction: column; gap: 8px; }
+
+.finding {
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  background: var(--panel, rgba(148, 163, 255, 0.045));
+  overflow: hidden;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.finding:hover { border-color: var(--border-strong, rgba(148, 163, 255, 0.22)); }
+.finding.open { background: var(--panel-hover, rgba(148, 163, 255, 0.08)); }
+.finding.sev-critical { border-left-color: var(--sev-critical); }
+.finding.sev-high { border-left-color: var(--sev-high); }
+.finding.sev-medium { border-left-color: var(--sev-medium); }
+.finding.sev-low { border-left-color: var(--sev-low); }
+
+.f-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  padding: 11px 14px;
+  cursor: pointer;
+  text-align: left;
+}
+.f-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.f-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.f-meta {
+  color: var(--muted, #8a94b0);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.f-side { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.f-assignee {
+  color: var(--muted, #8a94b0);
+  font-size: 11.5px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.f-time {
+  color: var(--faint, #5c6580);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+  text-align: right;
+}
+
+/* ---------- Expanded detail / triage ---------- */
+.f-detail {
+  border-top: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  padding: 14px 16px 16px;
+  display: grid;
+  gap: 14px;
+}
+.f-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px 18px;
+  margin: 0;
+}
+.f-fields dt {
+  color: var(--faint, #5c6580);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.f-fields dd { margin: 3px 0 0; font-size: 13px; word-break: break-word; }
+/* AIM-81: human-readable rule condition in the finding detail */
+.f-why { white-space: pre-line; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.55; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+
+/* AIM-696: compliance control evidence chips on high-sev findings */
+.f-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+.f-control-chip {
+  display: inline-block;
+  font: 600 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--accent-soft, rgba(99, 132, 255, 0.12));
+  color: var(--accent, #8da2ff);
+  box-shadow: inset 0 0 0 1px var(--border-strong, rgba(148, 163, 255, 0.22));
+  text-decoration: none;
+  white-space: nowrap;
+}
+.f-control-chip:hover,
+.f-control-chip:focus-visible {
+  background: var(--panel-hover, rgba(148, 163, 255, 0.14));
+  outline: 2px solid var(--accent, #8da2ff);
+  outline-offset: 1px;
+}
+.f-control-rationale {
+  flex-basis: 100%;
+  margin-top: 4px;
+  max-width: 48rem;
+  line-height: 1.45;
+}
+
+.f-evidence {
+  margin: 0;
+  background: var(--bg-soft, #0a101e);
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--muted, #8a94b0);
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* AIM-925 / AIM-696: compliance control evidence links on high-sev findings */
+.f-compliance {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-md);
+  background: var(--panel, rgba(148, 163, 255, 0.04));
+}
+.f-compliance-h {
+  margin: 0;
+  color: var(--faint, #5c6580);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.f-compliance-hint {
+  margin: 0;
+  color: var(--muted, #8a94b0);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.f-cmp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.f-cmp-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  font-size: 12.5px;
+}
+.f-cmp-fw {
+  color: var(--faint, #5c6580);
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 7.5rem;
+}
+.f-cmp-link {
+  color: var(--accent, #8aa4ff);
+  text-decoration: none;
+}
+.f-cmp-link:hover,
+.f-cmp-link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+/* AIM-223: disposition transition history in the finding detail */
+.f-history { display: grid; gap: 6px; }
+.f-history h3 {
+  margin: 0;
+  color: var(--faint, #5c6580);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.f-history ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.f-history li { font-size: 12.5px; color: var(--muted, #8a94b0); }
+.f-history .f-h-change { color: var(--text, #e6ebf8); font-weight: 600; }
+.f-history .f-h-reason { color: var(--text, #e6ebf8); }
+.f-history .f-h-empty { font-size: 12.5px; color: var(--faint, #5c6580); }
+
+.f-triage { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+.f-note {
+  flex: 1;
+  min-width: 240px;
+  background: var(--bg-soft, #0a101e);
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-md);
+  color: var(--text, #e6ebf8);
+  padding: 8px 10px;
+  font: 13px var(--font, -apple-system, "Segoe UI", Roboto, sans-serif);
+  resize: vertical;
+}
+.f-note:focus { border-color: var(--border-strong, rgba(148, 163, 255, 0.22)); outline: none; }
+.f-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Findings uses `.btn`/`.btn.primary` (its own convention). Scope to the
+   findings view so it does not override the design-system `.btn` on other
+   tabs once findings.css is lazily injected into <head>. */
+#view-findings .btn {
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: 7px 14px;
+  font: 600 var(--text-sm) var(--font);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+#view-findings .btn:hover { background: var(--panel-hover); }
+#view-findings .btn.primary {
+  background: var(--accent-solid);
+  border: none;
+  color: var(--accent-contrast);
+}
+#view-findings .btn:disabled { opacity: 0.5; cursor: default; }
+
+.find-empty { color: var(--muted); text-align: center; padding: 28px 0; font-size: var(--text-sm); }
+
+/* ---------- Saved views (AIM-94 / AIM-587) ---------- */
+.find-views { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.find-views .btn { padding: 5px 10px; font-size: 12px; }
+.find-view-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: -8px 0 18px;
+}
+#find-view-name, #act-view-name {
+  background: var(--bg-soft, #0a101e);
+  border: 1px solid var(--border-strong, rgba(148, 163, 255, 0.22));
+  border-radius: var(--radius-md);
+  color: var(--text, #e6ebf8);
+  padding: 7px 10px;
+  font: 13px var(--font, -apple-system, "Segoe UI", Roboto, sans-serif);
+  min-width: 240px;
+}
+#find-view-name:focus, #act-view-name:focus { border-color: var(--accent, #2dd4a8); outline: none; }
+.find-form-err { color: var(--bad, #ff6b6b); font-size: 12.5px; }
+
+/* ---------- Bulk triage (AIM-94) ---------- */
+.find-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  border: 1px solid var(--border-strong, rgba(148, 163, 255, 0.22));
+  border-radius: var(--radius-md);
+  background: var(--panel-hover, rgba(148, 163, 255, 0.08));
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 12.5px;
+}
+.find-bulkbar .btn { padding: 5px 10px; font-size: 12px; }
+.find-bulk-note {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg-soft, #0a101e);
+  border: 1px solid var(--border, rgba(148, 163, 255, 0.12));
+  border-radius: var(--radius-md);
+  color: var(--text, #e6ebf8);
+  padding: 6px 10px;
+  font: 12.5px var(--font, -apple-system, "Segoe UI", Roboto, sans-serif);
+}
+.find-bulk-note:focus { border-color: var(--border-strong, rgba(148, 163, 255, 0.22)); outline: none; }
+.find-list-head { margin-bottom: 8px; }
+.find-list-head label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted, #8a94b0);
+  font-size: 12px;
+  cursor: pointer;
+}
+.f-head { display: flex; align-items: center; }
+.f-head .f-row { flex: 1; min-width: 0; }
+.f-check { margin: 0 0 0 12px; flex-shrink: 0; accent-color: var(--accent, #2dd4a8); cursor: pointer; }
+.finding.selected {
+  border-color: var(--accent, #2dd4a8);
+  background: var(--accent-soft, rgba(45, 212, 168, 0.14));
+}
+
+/* ---------- Toasts ---------- */
+#toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 380px;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(13, 20, 36, 0.95);
+  border: 1px solid var(--border-strong, rgba(148, 163, 255, 0.22));
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow, 0 8px 28px rgba(2, 6, 18, 0.55));
+  font-size: 13px;
+  color: var(--text, #e6ebf8);
+  animation: toast-in 0.25s ease both;
+}
+.toast.crit {
+  border-color: rgba(255, 107, 107, 0.5);
+  box-shadow: 0 8px 28px rgba(255, 60, 60, 0.25);
+}
+.toast.clickable { cursor: pointer; }
+.toast.clickable:hover { border-color: var(--accent, #2dd4a8); }
+.toast.out { opacity: 0; transform: translateX(12px); transition: opacity 0.25s ease, transform 0.25s ease; }
+.t-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent, #2dd4a8); flex-shrink: 0; }
+.toast.crit .t-dot { background: var(--bad, #ff6b6b); box-shadow: 0 0 8px var(--bad, #ff6b6b); animation: t-pulse 1.2s infinite; }
+.toast.ok .t-dot { background: var(--good, #45d483); }
+.toast.bad .t-dot { background: var(--bad, #ff6b6b); }
+.t-msg { flex: 1; }
+.t-close {
+  background: none;
+  border: none;
+  color: var(--muted, #8a94b0);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+}
+.t-close:hover { color: var(--text, #e6ebf8); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes t-pulse {
+  50% { opacity: 0.4; }
+}
+
+/* AIM-541: fixture fingerprint allowlist → suggest incident cluster A */
+.pill.cluster-a {
+  background: color-mix(in srgb, var(--good, #45d483) 18%, transparent);
+  color: var(--good, #45d483);
+  border: 1px solid color-mix(in srgb, var(--good, #45d483) 35%, transparent);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+.fp-fixture-hint {
+  color: var(--good, #45d483);
+  font-size: 12px;
+  font-family: inherit;
+}
+
+/* AIM-702: auto-triage disposition hints from policy_hash + history */
+.pill.auto-triage {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  max-width: 22em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pill.auto-triage-false_positive {
+  background: color-mix(in srgb, var(--accent, #4d7cfe) 16%, transparent);
+  color: var(--accent, #4d7cfe);
+  border: 1px solid color-mix(in srgb, var(--accent, #4d7cfe) 32%, transparent);
+}
+.pill.auto-triage-resolved {
+  background: color-mix(in srgb, var(--good, #45d483) 16%, transparent);
+  color: var(--good, #45d483);
+  border: 1px solid color-mix(in srgb, var(--good, #45d483) 32%, transparent);
+}
+
+@media (max-width: 720px) {
+  .f-row { flex-wrap: wrap; }
+  .f-side { width: 100%; justify-content: flex-end; }
+}

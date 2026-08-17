@@ -1,0 +1,11 @@
+[Unit]
+Description=AI Monitoring collector: transcript scan + spool flush
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/aim-collector/aim-collector-scan.sh
+# Never let a hung scan pile up; the timer fires again in 5 minutes.
+TimeoutStartSec=240
+Nice=10

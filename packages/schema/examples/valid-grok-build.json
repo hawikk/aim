@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.8",
+  "event_id": "c1d2e3f4-a5b6-4789-8c0d-1e2f3a4b5c6d",
+  "ts": "2026-07-29T00:15:30Z",
+  "host_ref": "26bd900438d8fc176051fae9e6369ad056dbce709681b3dd2f455a265ceeed13",
+  "user_ref": null,
+  "tool": "grok_build",
+  "tool_version": "paperclip-grok_local/0.1.0",
+  "model": "grok-4.5",
+  "provider": "xai",
+  "session_id": "a3f1c9e2b4d5060708090a0b0c0d0e0f1a2b3c4d5e6f708192a3b4c5d6e7f809",
+  "tokens_in": 4200,
+  "tokens_out": 890,
+  "repo_ref": null,
+  "match_flags": [],
+  "source": "endpoint"
+}

@@ -1,0 +1,33 @@
+# AIM-1126 / AIM-1123 — Pilot control-plane profile filter.
+#
+# Cold pilot path only needs the telemetry control plane:
+#   postgres, minio (+ init), redis-bus, identity-sync, ingest, guardrail, api
+#
+# Non-pilot pillars default-on in docker-compose.yml (gatehouse, sentinel,
+# hygiene-cron, shadow-ai) still carry `build:` and dominate wall-clock on a
+# clean host. This override gates them behind profiles so
+# `docker compose -f docker-compose.yml -f deploy/compose/docker-compose.pilot.yml up`
+# does not cold-build them.
+#
+# Opt back in when needed:
+#   docker compose --profile gatehouse --profile sentinel ... up -d
+#   # or omit this file entirely for the full local stack.
+
+name: aim-local
+
+services:
+  # SaaS-grant discovery — optional for first-device pilot green.
+  shadow-ai:
+    profiles: ["shadow-ai"]
+
+  # PR-security pillar (AIM-161) — not required for collector → ingest → dashboard.
+  gatehouse:
+    profiles: ["gatehouse"]
+
+  # Alerting / SIEM forwarder — optional after pilot green.
+  sentinel:
+    profiles: ["sentinel"]
+
+  # Scheduled hygiene scanner — tools profile already; cron is default-on.
+  hygiene-cron:
+    profiles: ["hygiene"]

@@ -1,0 +1,67 @@
+# Database migrations, applied after install and before every upgrade
+# (roll-forward only — see docs/deployment/upgrades.md). Uses the ingest
+# image, which bundles the migration set for its release, so the schema
+# always matches the code being deployed.
+#
+# post-install (not pre-install): on first install Postgres only exists once
+# the release resources are created, so the job tolerates the startup race
+# with a retry loop. On upgrade the pre-upgrade phase runs the job against
+# the existing database before any pod rolls. The `node -e` entrypoint is
+# required: dist/migrate.js only exports runMigrations and has no CLI of its
+# own. (Ingest also self-migrates at startup, mirroring docker-compose; this
+# job makes the schema state explicit in the release record.)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "aim.fullname" . }}-migrate
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "migrate" "context" .) | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-failed
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "aim.selectorLabels" (dict "component" "migrate" "context" .) | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      {{- with include "aim.appPodSecurityContext" . }}
+      securityContext:
+        {{- . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: migrate
+          {{- with include "aim.appContainerSecurityContext" . }}
+          securityContext:
+            {{- . | nindent 12 }}
+          {{- end }}
+          image: {{ include "aim.image" (dict "image" .Values.ingest.image "context" .) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: DATABASE_URL
+          command:
+            - sh
+            - -c
+            - |
+              for i in $(seq 1 36); do
+                node -e '
+                  const { Pool } = require("pg");
+                  const { runMigrations, defaultMigrationsDir } = require("/app/dist/migrate.js");
+                  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+                  runMigrations(pool, defaultMigrationsDir())
+                    .then((applied) => { console.log("applied:", applied); return pool.end(); })
+                    .catch((err) => { console.error(err); process.exit(1); });
+                ' && exit 0
+                echo "migrate attempt $i failed (postgres not ready yet?) — retrying in 5s"
+                sleep 5
+              done
+              echo "migrations did not succeed after 36 attempts" >&2
+              exit 1

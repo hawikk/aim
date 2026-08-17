@@ -1,0 +1,71 @@
+# Tabnine — named unsanctioned presence (AIM-1185).
+# Inspected codota/tabnine-vscode (2026-08-14):
+#   Config: ~/.config/TabNine/tabnine_config.json
+#   Cloud token: ~/.config/TabNine/.refresh_token_v2 (credential — refuse)
+#   Binaries: VS Code globalStorage/tabnine.tabnine-vscode/binaries
+#   Chat: extension webview / globalState (contentful)
+# No metadata-only model/token table. Do not invent sessions.
+# schema_tool=other + tool_raw=tabnine. Catalogue rule id stays tabnine.
+id: tabnine
+display_name: Tabnine
+provider: tabnine
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.config/TabNine"
+        - "~/.tabnine"
+        - "~/.local/share/TabNine"
+        - "~/Library/Application Support/TabNine"
+        - "${APPDATA}/TabNine"
+        - "${XDG_CONFIG_HOME}/TabNine"
+        - "~/.config/Code/User/globalStorage/tabnine.tabnine-vscode"
+        - "~/.config/Code - Insiders/User/globalStorage/tabnine.tabnine-vscode"
+        - "~/.config/Cursor/User/globalStorage/tabnine.tabnine-vscode"
+        - "~/.config/VSCodium/User/globalStorage/tabnine.tabnine-vscode"
+        - "~/.vscode-server/data/User/globalStorage/tabnine.tabnine-vscode"
+        - "~/Library/Application Support/Code/User/globalStorage/tabnine.tabnine-vscode"
+        - "~/Library/Application Support/Cursor/User/globalStorage/tabnine.tabnine-vscode"
+        - "${APPDATA}/Code/User/globalStorage/tabnine.tabnine-vscode"
+      binaries: ["tabnine", "TabNine"]
+    extraction:
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - TabNine.tabnine-vscode
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - tabnine.com
+        - update.tabnine.com
+        - api.tabnine.com
+        - app.tabnine.com
+      catalogue_rule_ids: ["tabnine"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+  forbidden_keys:
+    - prompt
+    - completion
+    - access_token
+    - refresh_token
+    - api_key
+    - user_name
+notes: >
+  Presence-only: config/binary/extension + existing proxy catalogue. Residual
+  is Tabnine account/admin usage, not a local token column. Do not parse
+  tabnine_config.json or .refresh_token_v2. Chat is contentful. Unsanctioned.

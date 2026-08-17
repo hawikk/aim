@@ -1,0 +1,42 @@
+[project]
+name = "shadow-ai"
+version = "0.1.0"
+description = "Shadow AI discovery: IdP OAuth-grant ingest (Entra/Okta/Google) + unapproved_ai_saas_grant findings + proxy corroboration (AIM-504/AIM-300)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "sqlalchemy>=2.0",
+    # Postgres driver for the compose/prod DATABASE_URL (postgresql://). The
+    # sqlite dev default needs no driver, which hid this at unit-test time;
+    # the deployed stack points at Postgres and create_engine() imports
+    # psycopg2. Binary wheel avoids a compiler in the slim image.
+    # (AIM-1061)
+    "psycopg2-binary>=2.9",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+]
+
+[project.optional-dependencies]
+# Only needed when pulling grants from the real Google Admin SDK Reports API.
+google = [
+    "google-api-python-client>=2.120",
+    "google-auth>=2.28",
+]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+shadow-ai = "shadow_ai.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

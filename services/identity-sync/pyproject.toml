@@ -1,0 +1,39 @@
+[project]
+name = "identity-sync"
+version = "0.1.0"
+description = "Google Workspace directory sync + identity resolution + pseudonymization for the AI Monitoring platform"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "sqlalchemy>=2.0",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    # Verified-JWT caller authentication for the gated endpoints (AIM-306).
+    # The crypto extra backs RS/ES verification against an IdP JWKS in prod.
+    "PyJWT[crypto]>=2.8",
+]
+
+[project.optional-dependencies]
+# Only needed when syncing against the real Google Admin SDK Directory API.
+google = [
+    "google-api-python-client>=2.120",
+    "google-auth>=2.28",
+]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+identity-sync = "identity_sync.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

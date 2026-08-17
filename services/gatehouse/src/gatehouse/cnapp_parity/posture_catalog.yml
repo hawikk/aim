@@ -1,0 +1,156 @@
+# CNAPP posture rules that have (or must have) an IaC pre-merge equivalent.
+# Source of truth for rule *semantics*: littlewiz `backend/rules/<slug>.yaml`
+# (Cloud Sentry / CNAPP). This file is a vendored contract for gatehouse so
+# PR-time scans can name the would-be cloud finding without a live CNAPP call.
+#
+# Drift is reported by `gatehouse iac-parity --check` (and CI): every mapping
+# entry must point at a catalog slug; every catalog rule with
+# `iac_required: true` must have ≥1 IaC rule mapped to it.
+#
+# AIM-329.
+
+version: 1
+source: littlewiz/backend/rules
+notes: >
+  Catalog is intentionally the CNAPP rules that IaC can prevent before deploy.
+  Runtime-only / inventory-only rules (toxic combos, live attack paths) are
+  out of scope for PR IaC parity.
+
+rules:
+  - slug: aws_s3_public
+    severity: high
+    title: S3 bucket is publicly accessible
+    iac_required: true
+    frameworks: [CIS-AWS, SOC2-CC6]
+
+  - slug: aws_sg_wide_open
+    severity: critical
+    title: Security Group allows 0.0.0.0/0 on privileged port
+    iac_required: true
+    frameworks: [CIS-AWS]
+
+  - slug: aws_rds_unencrypted
+    severity: high
+    title: RDS instance is not encrypted at rest
+    iac_required: true
+    frameworks: [CIS-AWS, HIPAA]
+
+  - slug: aws_iam_wildcard
+    severity: critical
+    title: IAM policy contains wildcard Action + Resource
+    iac_required: true
+    frameworks: [CIS-AWS]
+
+  - slug: gcp_gcs_public
+    severity: high
+    title: GCS bucket is publicly accessible
+    iac_required: true
+    frameworks: [CIS-GCP]
+
+  - slug: gcp_compute_public
+    severity: medium
+    title: GCE instance has a public IP address
+    iac_required: true
+    frameworks: [CIS-GCP]
+
+  - slug: gcp_bq_public
+    severity: high
+    title: BigQuery dataset is publicly accessible
+    iac_required: true
+    frameworks: [CIS-GCP]
+
+  - slug: azure_storage_blob_public
+    severity: high
+    title: Azure Storage account allows blob public access
+    iac_required: true
+    frameworks: [CIS-Azure]
+
+  - slug: azure_public_ip
+    severity: medium
+    title: Azure public IP address is allocated
+    iac_required: false
+    frameworks: [CIS-Azure]
+
+  - slug: k8s_pod_privileged_container
+    severity: critical
+    title: Kubernetes pod runs a privileged container
+    iac_required: true
+    frameworks: [K8S-PSS:Baseline, CIS-Kubernetes]
+
+  - slug: k8s_pod_runs_as_root
+    severity: high
+    title: Kubernetes pod is configured to run as root
+    iac_required: true
+    frameworks: [K8S-PSS:Restricted, CIS-Kubernetes]
+
+  - slug: k8s_pod_allows_privilege_escalation
+    severity: medium
+    title: Kubernetes pod allows privilege escalation
+    iac_required: true
+    frameworks: [K8S-PSS:Restricted, CIS-Kubernetes]
+
+  - slug: k8s_pod_host_namespace
+    severity: high
+    title: Kubernetes pod shares host namespaces
+    iac_required: true
+    frameworks: [K8S-PSS:Baseline, CIS-Kubernetes]
+
+  - slug: k8s_pod_hostpath_volume
+    severity: high
+    title: Kubernetes pod mounts hostPath volumes
+    iac_required: true
+    frameworks: [K8S-PSS:Restricted, CIS-Kubernetes]
+
+  - slug: k8s_pod_dangerous_capabilities
+    severity: high
+    title: Kubernetes pod adds disallowed Linux capabilities
+    iac_required: true
+    frameworks: [K8S-PSS:Restricted, CIS-Kubernetes]
+
+  - slug: k8s_pod_default_namespace_sa_token
+    severity: medium
+    title: Default-namespace pod mounts a service account token
+    iac_required: true
+    frameworks: [CIS-Kubernetes]
+
+  - slug: k8s_admission_webhook_fail_open
+    severity: medium
+    title: Kubernetes admission webhook fails open
+    iac_required: true
+    frameworks: [CIS-Kubernetes]
+
+  - slug: k8s_namespace_pod_security_admission_missing
+    severity: medium
+    title: Namespace does not enforce Pod Security Admission
+    iac_required: true
+    frameworks: [K8S-PSS]
+
+  - slug: kspm_rbac_cluster_admin_binding
+    severity: critical
+    title: Kubernetes RBAC grants cluster-admin
+    iac_required: true
+    frameworks: [CIS-Kubernetes]
+
+  - slug: kspm_rbac_wildcard_role
+    severity: critical
+    title: Kubernetes RBAC role grants wildcard admin
+    iac_required: true
+    frameworks: [CIS-Kubernetes]
+
+  - slug: kspm_rbac_sensitive_permission
+    severity: high
+    title: Kubernetes RBAC grants sensitive exec/secret/bind/escalate
+    iac_required: true
+    frameworks: [CIS-Kubernetes]
+
+  - slug: kspm_rbac_default_service_account
+    severity: high
+    title: Default ServiceAccount has RBAC grants with auto-mounted token
+    iac_required: true
+    frameworks: [CIS-Kubernetes]
+
+  - slug: kspm_rbac_public_group
+    severity: high
+    title: Kubernetes RBAC grants broad groups non-discovery permissions
+    iac_required: true
+    frameworks: [CIS-Kubernetes]

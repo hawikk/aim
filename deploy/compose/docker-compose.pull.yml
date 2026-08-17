@@ -1,0 +1,67 @@
+# AIM-1126 — Prefer prebuilt GHCR images over cold `compose build`.
+#
+# Use with the base stack (and optionally the pilot profile filter):
+#
+#   # Resolve tags/digests first (install-pilot does this):
+#   export AIM_INGEST_IMAGE=ghcr.io/hawikk/aim-ingest@sha256:…
+#   export AIM_API_IMAGE=ghcr.io/hawikk/aim-api@sha256:…
+#   export AIM_GUARDRAIL_IMAGE=ghcr.io/hawikk/aim-guardrail@sha256:…
+#   export AIM_IDENTITY_SYNC_IMAGE=ghcr.io/hawikk/aim-identity-sync@sha256:…
+#
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f deploy/compose/docker-compose.pilot.yml \
+#     -f deploy/compose/docker-compose.pull.yml \
+#     up -d
+#
+# Or tag mode via install-pilot:
+#   AIM_IMAGE_TAG=main-<shortsha> ./scripts/install-pilot.sh --pull
+#
+# There is deliberately no floating `latest` tag on GHCR (see
+# .github/workflows/release-images.yml). Always pin tag or digest.
+#
+# Compose v2: `build: !reset null` clears the base file's `build:` keys.
+# Plain `build: null` does NOT clear them (AIM-599 drill).
+
+name: aim-local
+
+services:
+  # identity-sync is required by ingest health; include in the pilot pull set.
+  identity-sync:
+    image: ${AIM_IDENTITY_SYNC_IMAGE:?set AIM_IDENTITY_SYNC_IMAGE — see docs/deployment/prebuilt-images.md}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}
+
+  ingest:
+    image: ${AIM_INGEST_IMAGE:?set AIM_INGEST_IMAGE — see docs/deployment/prebuilt-images.md}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}
+
+  # Dashboard UI is served by apps/api (no separate dashboard image).
+  api:
+    image: ${AIM_API_IMAGE:?set AIM_API_IMAGE — see docs/deployment/prebuilt-images.md}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}
+
+  guardrail:
+    image: ${AIM_GUARDRAIL_IMAGE:?set AIM_GUARDRAIL_IMAGE — see docs/deployment/prebuilt-images.md}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}
+
+  # Optional pillars — only started when not filtered by
+  # docker-compose.pilot.yml. Image pins stay here so a full-stack pull
+  # (omit pilot.yml) still skips source builds for published images.
+  gatehouse:
+    image: ${AIM_GATEHOUSE_IMAGE:-${AIM_IMAGE_REGISTRY:-ghcr.io/hawikk}/aim-gatehouse:${AIM_IMAGE_TAG:-unset}}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}
+
+  sentinel:
+    image: ${AIM_SENTINEL_IMAGE:-${AIM_IMAGE_REGISTRY:-ghcr.io/hawikk}/aim-sentinel:${AIM_IMAGE_TAG:-unset}}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}
+
+  hygiene-cron:
+    image: ${AIM_HYGIENE_IMAGE:-${AIM_IMAGE_REGISTRY:-ghcr.io/hawikk}/aim-hygiene:${AIM_IMAGE_TAG:-unset}}
+    build: !reset null
+    pull_policy: ${AIM_PULL_POLICY:-always}

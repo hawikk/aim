@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.2",
+  "event_id": "9d3e5f7a-1b2c-4d5e-8f0a-2b3c4d5e6f7a",
+  "event_type": "inventory",
+  "ts": "2026-07-22T10:05:11Z",
+  "host_ref": "c5a874cf36ad04aef75c4d85765ad02fbf3c240c35aac68c0b2f39372fbd0867",
+  "user_ref": "0db271bf0b35a7379e8474b26bd3c199e11f8cb40b778304dba418a1dfc6848f",
+  "tool": "kilo_code",
+  "tool_version": "4.55.0",
+  "model": null,
+  "provider": null,
+  "session_id": "inv_2026-07-22_c5a874cf36ad",
+  "configured_mcp_servers": [
+    { "name": "github", "scope": "user" },
+    { "name": "internal-wiki", "scope": "project" }
+  ],
+  "match_flags": [],
+  "source": "endpoint"
+}

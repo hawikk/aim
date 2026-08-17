@@ -1,0 +1,20 @@
+{
+  "name": "@aim/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "vendor": "node vendor.js",
+    "test": "node --test test/*.test.js",
+    "screenshot": "node scripts/screenshot.mjs",
+    "screenshot:install": "playwright install chromium",
+    "perf:budget": "node scripts/perf-budget.mjs"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0"
+  },
+  "devDependencies": {
+    "jsdom": "29.1.1",
+    "playwright": "1.55.1"
+  }
+}

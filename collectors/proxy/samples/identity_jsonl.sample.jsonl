@@ -1,0 +1,19 @@
+# Identity-bearing JSONL — synthetic (AIM-1094).
+# Models a cloud-proxy / SSE export that already joins directory identity
+# onto each flow (login / UPN / nested identity block). Metadata only:
+# hostnames + pseudonymizable labels; no real customer data.
+# user_ref stays null at emit time until AIM-24/38 mapping; the user/login
+# fields are used for coverage reporting only and never leave the collector.
+# Replay: ./replay_sample.sh samples/identity_jsonl.sample.jsonl
+# Pin:    --format jsonl   (or auto)
+{"ts":"2026-07-21T10:00:00Z","src_ip":"10.12.3.41","login":"jsmith@corp.example","host":"api.anthropic.com","port":443,"action":"CONNECT","status":200,"bytes_down":15234,"duration_ms":45,"identity":{"upn":"jsmith@corp.example","device_id":"dev-syn-001"}}
+{"ts":"2026-07-21T10:00:01Z","src_ip":"10.12.3.41","authenticated_user":"jsmith@corp.example","url":"https://statsig.anthropic.com/v1/rgstr","action":"POST","status":200,"bytes_down":2201,"duration_ms":12}
+{"ts":"2026-07-21T10:00:02Z","client_ip":"10.12.7.19","useremail":"agarcia@corp.example","host":"api2.cursor.sh","port":443,"action":"CONNECT","status":200,"bytes_down":88210,"duration_ms":210,"identity":{"upn":"agarcia@corp.example","sam":"agarcia"}}
+{"ts":"2026-07-21T10:00:03Z","src_ip":"10.12.9.77","username":"bchen@corp.example","domain":"api.kilocode.ai","action":"CONNECT","status":200,"bytes_down":5120,"duration_ms":33}
+{"ts":"2026-07-21T10:00:05Z","src_ip":"10.12.4.55","login":"dpatel@corp.example","host":"api.githubcopilot.com","action":"CONNECT","status":200,"bytes_down":24012,"duration_ms":61}
+{"ts":"2026-07-21T10:00:08Z","src_ip":"10.12.6.23","email":"emiller@corp.example","url":"https://chatgpt.com/c/abc123?model=gpt-4o","action":"GET","status":200,"bytes_down":4096,"duration_ms":15}
+{"ts":"2026-07-21T10:00:09Z","src_ip":"10.12.8.31","login":"fjones@corp.example","host":"api.deepseek.com","action":"CONNECT","status":200,"bytes_down":33210,"duration_ms":44}
+{"ts":"2026-07-21T10:00:11Z","src_ip":"10.12.8.31","login":"fjones@corp.example","host":"openrouter.ai","action":"CONNECT","status":200,"bytes_down":512,"duration_ms":29}
+{"ts":"2026-07-21T10:00:15Z","src_ip":"10.12.2.10","login":"ci-runner@corp.example","host":"api.openai.com","action":"CONNECT","status":200,"bytes_down":20480,"duration_ms":120,"identity":{"upn":"ci-runner@corp.example","service_account":true}}
+{"ts":"2026-07-21T10:00:20Z","src_ip":"10.12.3.41","login":"jsmith@corp.example","host":"www.google.com","action":"CONNECT","status":200,"bytes_down":2048,"duration_ms":5}
+{"ts":"2026-07-21T10:00:22Z","src_ip":"10.12.5.60","login":"hkim@corp.example","host":"server.codeium.com","action":"CONNECT","status":200,"bytes_down":9999,"duration_ms":40}

@@ -1,0 +1,43 @@
+[project]
+name = "sentinel"
+version = "0.1.0"
+description = "Sentinel agent — consumes the unified alert bus, correlates, triages, notifies, proposes fixes (AIM-165)"
+requires-python = ">=3.11"
+# Deliberately short. This service holds zero cloud credentials (D4), so it has
+# no cloud SDK; it talks to the LLM and to Slack over stdlib HTTP so that the
+# set of things that can reach the network from here stays auditable by reading
+# one import list.
+dependencies = [
+    "PyYAML>=6.0",        # sentinel.yml
+    "jsonschema>=4.20",   # consumer-profile validation of every bus entry
+    "redis>=5.0",         # alert bus (XRANGE, read-only usage)
+    # Signs the App JWT for the draft-PR path only (AIM-185). Still zero cloud
+    # credentials — the one repo write scope is the documented exception, and
+    # `jwt` is imported inside github.app_jwt rather than at module scope so a
+    # deployment with draft PRs off never loads it.
+    "PyJWT[crypto]>=2.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+sentinel = "sentinel.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# The remediation catalogue and the alert contract ship inside the package:
+# both are behaviour, not configuration, and a missing catalogue must be a
+# build failure rather than a runtime "no remediation available".
+sentinel = ["catalogue/*.yml", "schema/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

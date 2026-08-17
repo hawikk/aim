@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.1",
+  "alert_id": "13ba0c34-dfc0-41c0-8ec9-6fc6992bfee0",
+  "dedupe_key": "b13f819a43b3029d8a76a9b316b6333ca82d1d1988a3d8b1675d976c4e111f7a",
+  "pillar": "ai_usage",
+  "producer": {
+    "name": "aim-guardrail",
+    "version": "631bd5b"
+  },
+  "finding_type": "ai_usage.unapproved_tool",
+  "title": "Unapproved AI coding tool in use",
+  "severity": "high",
+  "severity_id": 4,
+  "status": "new",
+  "observed_at": "2026-07-21T09:20:00Z",
+  "first_seen_at": "2026-07-21T09:20:00Z",
+  "last_seen_at": "2026-07-21T09:20:00Z",
+  "resource": {
+    "kind": "host",
+    "ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "display": "host:aaaaaaaa",
+    "provider": null,
+    "account_ref": null,
+    "region": null
+  },
+  "subject_ref": {
+    "user_ref": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "host_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "evidence": {
+    "source_uri": "aim:/findings/13ba0c34-dfc0-41c0-8ec9-6fc6992bfee0",
+    "detail_count": 1,
+    "summary": "windsurf flagged by rule unapproved-tool."
+  },
+  "labels": {
+    "rule_id": "unapproved-tool",
+    "ruleset_version": "1",
+    "decision": "observe"
+  }
+}

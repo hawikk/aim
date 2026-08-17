@@ -1,0 +1,145 @@
+{
+  "title": "Service-host principal_kind residual scenarios (AIM-1117 / AIM-1114 companion)",
+  "inventory": {
+    "binding_path": [
+      "Collector attests device_id (from ~/.aim-collector/device_id) and/or os_user in the batch collector envelope",
+      "Enrolled device-token auth can inject authenticated device_id even when the envelope omits it (ingest)",
+      "Ingest POST /resolve to identity-sync with {device_id, os_user}",
+      "identity-sync resolver rule 0: service_identities match on device_id (preferred) or os_user",
+      "On match: principal_kind=service (service_identity or service_operator); never human",
+      "On miss: fall through device_mappings / email heuristic, else unresolved + principal_kind=unknown",
+      "Rebind: POST /join-keys/rebind-device moves service_identities.device_id after re-enroll (AIM-868)"
+    ],
+    "residual_patterns": [
+      {
+        "id": "missing_local_device_id",
+        "refs": ["AIM-1114"],
+        "summary": "Service row is device_id-only; collector attests os_user only → unresolved/unknown even though the host is registered."
+      },
+      {
+        "id": "post_rebind_orphan",
+        "refs": ["AIM-868", "AIM-1114"],
+        "summary": "Service row still points at pre-re-enroll device_id; live traffic uses the new id until rebind."
+      },
+      {
+        "id": "missing_service_identity",
+        "refs": ["AIM-149"],
+        "summary": "No service_identities row and no directory mapping → principal_kind=unknown (must not invent human)."
+      },
+      {
+        "id": "spoof_or_absent_principal",
+        "refs": ["AIM-306"],
+        "summary": "Spoofed role headers / anonymous callers cannot register a service principal; absent identity stays unknown."
+      }
+    ]
+  },
+  "dogfood_shape": {
+    "service_id": "svc:agent-host-hawik",
+    "kind": "agent_host",
+    "display_name": "Dogfood host 0",
+    "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
+    "os_user": null,
+    "team": "Platform",
+    "operator_os_user": "vaque",
+    "rebind": {
+      "from_device_id": "121dc40d-3aa9-4b37-952a-cd46d345d065",
+      "to_device_id": "587fbf63-37e2-44c0-ab29-bed2e8194b70"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "happy_path_bound_device_id",
+      "description": "Bound service host with attested device_id resolves principal_kind=service.",
+      "service_identity": {
+        "service_id": "svc:agent-host-hawik",
+        "kind": "agent_host",
+        "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
+        "os_user": null,
+        "team": "Platform"
+      },
+      "resolve": {
+        "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
+        "os_user": "vaque"
+      },
+      "expect": {
+        "resolution": "service_identity",
+        "principal_kind": "service",
+        "service_id": "svc:agent-host-hawik"
+      }
+    },
+    {
+      "id": "residual_os_user_only_device_id_keyed",
+      "description": "AIM-1114 residual (failing-before): device_id-only service row + os_user-only resolve → unknown.",
+      "service_identity": {
+        "service_id": "svc:agent-host-hawik",
+        "kind": "agent_host",
+        "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
+        "os_user": null,
+        "team": "Platform"
+      },
+      "resolve": {
+        "device_id": null,
+        "os_user": "vaque"
+      },
+      "expect": {
+        "resolution": "unresolved",
+        "principal_kind": "unknown",
+        "service_id": null
+      }
+    },
+    {
+      "id": "passing_after_dual_join_key",
+      "description": "Passing-after for AIM-1114 residual: bind os_user as secondary join key so os_user-only resolve stays service.",
+      "service_identity": {
+        "service_id": "svc:agent-host-hawik",
+        "kind": "agent_host",
+        "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
+        "os_user": "vaque",
+        "team": "Platform"
+      },
+      "resolve": {
+        "device_id": null,
+        "os_user": "vaque"
+      },
+      "expect": {
+        "resolution": "service_identity",
+        "principal_kind": "service",
+        "service_id": "svc:agent-host-hawik"
+      }
+    },
+    {
+      "id": "missing_identity",
+      "description": "No service row and no mapping → principal_kind=unknown (never invent human).",
+      "service_identity": null,
+      "resolve": {
+        "device_id": "deadbeef-0000-0000-0000-000000000000",
+        "os_user": "nobody"
+      },
+      "expect": {
+        "resolution": "unresolved",
+        "principal_kind": "unknown",
+        "service_id": null
+      }
+    },
+    {
+      "id": "absent_principal_keys",
+      "description": "Neither device_id nor os_user → unresolved/unknown.",
+      "service_identity": {
+        "service_id": "svc:agent-host-hawik",
+        "kind": "agent_host",
+        "device_id": "a4e864b4-3254-4a72-ab11-9b731907766b",
+        "os_user": null,
+        "team": "Platform"
+      },
+      "resolve": {
+        "device_id": null,
+        "os_user": null
+      },
+      "expect": {
+        "resolution": "unresolved",
+        "principal_kind": "unknown",
+        "service_id": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+/* AIM-290 — system status screen */
+
+.status-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.status-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.status-sub {
+  margin: 0;
+  color: var(--muted);
+  max-width: 46rem;
+  font-size: 0.92rem;
+}
+
+.status-overall {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  white-space: nowrap;
+}
+
+.status-overall[data-state="ok"] { border-color: var(--good-border); background: var(--good-soft); }
+.status-overall[data-state="degraded"] { border-color: var(--warn-border); background: var(--warn-soft); }
+.status-overall[data-state="broken"] { border-color: var(--bad-border); background: var(--bad-soft); }
+.status-overall[data-state="never_configured"] { border-color: var(--border-strong); background: var(--info-soft); }
+
+.status-overall-label {
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.status-overall-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.status-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.st-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+
+.st-dot.ok { background: var(--good); }
+.st-dot.degraded { background: var(--warn); }
+.st-dot.broken { background: var(--bad); }
+.st-dot.never_configured { background: var(--faint); box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.status-tile {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 10.5rem;
+}
+
+.status-tile.state-ok { border-color: var(--good-border); }
+.status-tile.state-degraded { border-color: var(--warn-border); }
+.status-tile.state-broken { border-color: var(--bad-border); }
+.status-tile.state-never_configured { border-style: dashed; }
+
+.status-tile-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-tile-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+.status-tile.state-ok .status-tile-state { color: var(--good); }
+.status-tile.state-degraded .status-tile-state { color: var(--warn); }
+.status-tile.state-broken .status-tile-state { color: var(--bad); }
+
+.status-tile-pillar {
+  font-size: 0.72rem;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-tile-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.status-tile-msg {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  flex: 1;
+}
+
+.status-tile-meta {
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+}
+
+.status-tile-meta > div {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.4rem;
+}
+
+.status-tile-meta dt {
+  color: var(--faint);
+  margin: 0;
+}
+
+.status-tile-meta dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.status-alerts-panel h2 {
+  font-size: 0.95rem;
+}
+
+.status-alerts-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+}
+
+.status-alert-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.status-alert-table th,
+.status-alert-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.status-alert-table th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.status-meta {
+  margin: 0.75rem 0 0;
+  color: var(--faint);
+  font-size: 0.78rem;
+}

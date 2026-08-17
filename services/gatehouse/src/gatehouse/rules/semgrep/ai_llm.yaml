@@ -1,0 +1,470 @@
+# Vendored semgrep pack — AI / LLM code risk (AIM-445).
+#
+# Differentiation thesis: upstream p/security packs cover classic SAST
+# (injection, crypto, authz). They do not systematically flag *how application
+# code wires model outputs into sinks*, hardcodes provider keys, or enables
+# agent/tool remote-code paths. That is the content generic scanners miss and
+# where an AI-monitoring CI product earns its keep.
+#
+# Metadata contract (same as AIM-328 packs):
+#   gatehouse_type, remediation, category: ai_llm, confidence
+# Rules stay high-precision (literal dangerous APIs / flags). FP rate is
+# measured on sast_eval/cases.json before the pack may remain in enforce.
+rules:
+  - id: llm-eval-model-output
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Model / chat completion content is passed to eval(). An attacker who
+      influences the prompt (or a compromised model) gains arbitrary code
+      execution in this process.
+    metadata:
+      gatehouse_type: llm_unsafe_output_handling
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      short_description: eval() on LLM / chat completion output
+      remediation: >-
+        Never eval model text. Parse structured JSON with a schema, or route
+        tool calls through an allowlisted dispatcher.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: eval($MSG.content, ...)
+          - pattern: eval($MSG["content"], ...)
+          - pattern: eval($COMPLETION.choices[0].message.content, ...)
+          - pattern: eval($R.output_text, ...)
+          - pattern: eval($R.text, ...)
+
+  - id: llm-exec-model-output
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Model / chat completion content is passed to exec(). Treat model output
+      as untrusted data, not code.
+    metadata:
+      gatehouse_type: llm_unsafe_output_handling
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      short_description: exec() on LLM / chat completion output
+      remediation: >-
+        Do not exec model text. Use structured tool calls with an allowlist and
+        no dynamic code execution.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: exec($MSG.content, ...)
+          - pattern: exec($MSG["content"], ...)
+          - pattern: exec($COMPLETION.choices[0].message.content, ...)
+          - pattern: exec($R.output_text, ...)
+          - pattern: exec($R.text, ...)
+
+  - id: llm-shell-from-model-output
+    languages: [python]
+    severity: ERROR
+    message: >-
+      A shell command is built from model / chat completion content. Prompt
+      injection or a hostile model response becomes remote code execution.
+    metadata:
+      gatehouse_type: llm_command_from_output
+      cwe: "CWE-78: Improper Neutralization of Special Elements used in an OS Command"
+      short_description: Shell command built from LLM output
+      remediation: >-
+        Map model intents to an allowlisted argv list. Never interpolate
+        message.content into shell=True / os.system.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.$FN($MSG.content, ..., shell=True, ...)
+          - pattern: subprocess.$FN(f"...{$MSG.content}...", ..., shell=True, ...)
+          - pattern: subprocess.$FN("..." + $MSG.content, ..., shell=True, ...)
+          - pattern: subprocess.$FN($COMPLETION.choices[0].message.content, ..., shell=True, ...)
+          - pattern: os.system($MSG.content)
+          - pattern: os.system(f"...{$MSG.content}...")
+          - pattern: os.system("..." + $MSG.content)
+
+  - id: llm-sql-from-model-output
+    languages: [python]
+    severity: ERROR
+    message: >-
+      SQL is built from model / chat completion content. A prompt-injected
+      response can rewrite the query, not just its data.
+    metadata:
+      gatehouse_type: llm_sql_from_output
+      cwe: "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+      short_description: SQL built from LLM output
+      remediation: >-
+        Never concatenate model text into SQL. If the model proposes a query,
+        validate against an allowlist of templates and bind parameters only.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: $CURSOR.execute($MSG.content, ...)
+          - pattern: $CURSOR.execute(f"...{$MSG.content}...", ...)
+          - pattern: $CURSOR.execute("..." + $MSG.content, ...)
+          - pattern: $CURSOR.execute($COMPLETION.choices[0].message.content, ...)
+          - pattern: $CURSOR.execute(f"...{$R.output_text}...", ...)
+          - pattern: $CURSOR.execute("..." + $R.output_text, ...)
+
+  - id: openai-hardcoded-api-key
+    languages: [python]
+    severity: ERROR
+    message: >-
+      An OpenAI-style API key is hard-coded in source. Keys in the tree leak via
+      git history, forks, and CI logs.
+    metadata:
+      gatehouse_type: llm_provider_secret_in_code
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      short_description: Hard-coded OpenAI API key
+      remediation: >-
+        Load keys from a secret manager or environment variable; never commit
+        sk-… values. Rotate any key that has been in source control.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM02
+    patterns:
+      - pattern-either:
+          - pattern: openai.api_key = "..."
+          - pattern: openai.api_key = '...'
+          - pattern: OpenAI(api_key="...")
+          - pattern: OpenAI(api_key='...')
+
+  - id: openai-hardcoded-api-key-js
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      An OpenAI-style API key is hard-coded in source. Keys in the tree leak via
+      git history, forks, and CI logs.
+    metadata:
+      gatehouse_type: llm_provider_secret_in_code
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      short_description: Hard-coded OpenAI API key (JS)
+      remediation: >-
+        Load keys from a secret manager or environment variable; never commit
+        sk-… values. Rotate any key that has been in source control.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM02
+    patterns:
+      - pattern-either:
+          - pattern: 'new OpenAI({..., apiKey: "...", ...})'
+          - pattern: 'process.env.OPENAI_API_KEY = "..."'
+
+  - id: anthropic-hardcoded-api-key
+    languages: [python]
+    severity: ERROR
+    message: >-
+      An Anthropic API key is hard-coded in source. Treat provider keys like
+      production credentials.
+    metadata:
+      gatehouse_type: llm_provider_secret_in_code
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      short_description: Hard-coded Anthropic API key
+      remediation: >-
+        Inject ANTHROPIC_API_KEY from a secret store at runtime. Rotate any key
+        that has been committed.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM02
+    patterns:
+      - pattern-either:
+          - pattern: anthropic.api_key = "..."
+          - pattern: anthropic.api_key = '...'
+          - pattern: Anthropic(api_key="...")
+          - pattern: Anthropic(api_key='...')
+
+  - id: anthropic-hardcoded-api-key-js
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      An Anthropic API key is hard-coded in source. Treat provider keys like
+      production credentials.
+    metadata:
+      gatehouse_type: llm_provider_secret_in_code
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      short_description: Hard-coded Anthropic API key (JS)
+      remediation: >-
+        Inject ANTHROPIC_API_KEY from a secret store at runtime. Rotate any key
+        that has been committed.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM02
+    patterns:
+      - pattern: 'new Anthropic({..., apiKey: "...", ...})'
+
+  - id: huggingface-trust-remote-code
+    languages: [python]
+    severity: ERROR
+    message: >-
+      trust_remote_code=True loads and executes model-repo Python from the
+      Hub. A poisoned model revision is remote code execution at load time.
+    metadata:
+      gatehouse_type: llm_trust_remote_code
+      cwe: "CWE-94: Improper Control of Generation of Code"
+      short_description: Hugging Face trust_remote_code=True
+      remediation: >-
+        Keep trust_remote_code=False (default). Pin revisions and review any
+        custom modeling code before enabling the flag in a controlled sandbox.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM03
+    patterns:
+      - pattern-either:
+          - pattern: $M.from_pretrained(..., trust_remote_code=True, ...)
+          - pattern: pipeline(..., trust_remote_code=True, ...)
+          - pattern: AutoModel.from_pretrained(..., trust_remote_code=True, ...)
+          - pattern: AutoModelForCausalLM.from_pretrained(..., trust_remote_code=True, ...)
+          - pattern: AutoTokenizer.from_pretrained(..., trust_remote_code=True, ...)
+
+  - id: langchain-allow-dangerous-code
+    languages: [python]
+    severity: ERROR
+    message: >-
+      LangChain is configured to allow dangerous code execution (REPL / Python
+      agent). Model-chosen code runs with the app's privileges.
+    metadata:
+      gatehouse_type: llm_dangerous_code_agent
+      cwe: "CWE-94: Improper Control of Generation of Code"
+      short_description: LangChain allow_dangerous_code / Python REPL agent
+      remediation: >-
+        Disable allow_dangerous_code. Prefer structured tools with allowlisted
+        side effects; never give the model a free Python interpreter in prod.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM06
+    patterns:
+      - pattern-either:
+          - pattern: $X(..., allow_dangerous_code=True, ...)
+          - pattern: $X(..., allow_dangerous_tools=True, ...)
+          - pattern: PythonREPLTool(...)
+          - pattern: create_python_agent(...)
+
+  - id: llm-system-prompt-user-concat
+    languages: [python]
+    severity: WARNING
+    message: >-
+      Untrusted user input is concatenated into a system-role message. That is
+      a classic prompt-injection sink: the user can rewrite system instructions.
+    metadata:
+      gatehouse_type: llm_prompt_injection_sink
+      cwe: "CWE-77: Improper Neutralization of Special Elements used in a Command"
+      short_description: User input concatenated into system prompt
+      remediation: >-
+        Keep system prompts static. Put user content only in the user role, with
+        clear delimiters, and enforce tool allowlists server-side.
+      confidence: MEDIUM
+      category: ai_llm
+      owasp_llm: LLM01
+    patterns:
+      - pattern-either:
+          - pattern: |
+              {"role": "system", "content": "..." + $USER, ...}
+          - pattern: |
+              {"role": "system", "content": f"...{$USER}...", ...}
+          - pattern: |
+              {"role": "system", "content": "...".format(..., $USER, ...), ...}
+          - pattern: |
+              dict(role="system", content="..." + $USER)
+          - pattern: |
+              dict(role="system", content=f"...{$USER}...")
+
+  - id: mcp-server-shell-true
+    languages: [python]
+    severity: ERROR
+    message: >-
+      An MCP server is spawned via a shell-interpreted command string. Untrusted
+      MCP config (command / args) becomes command injection at tool startup.
+    metadata:
+      gatehouse_type: mcp_shell_spawn
+      cwe: "CWE-78: Improper Neutralization of Special Elements used in an OS Command"
+      short_description: MCP server process spawned via shell
+      remediation: >-
+        Spawn MCP servers with an argv list and shell=False. Validate command
+        and args against an allowlist from policy, not free-form config strings.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM06
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.$FN($S, shell=True)
+          - pattern: subprocess.$FN($S, ..., shell=True, ...)
+      - metavariable-regex:
+          metavariable: $S
+          regex: (?s).*mcp.*
+
+  - id: mcp-server-shell-true-js
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      An MCP server is spawned via child_process.exec. Untrusted MCP config
+      becomes command injection at tool startup.
+    metadata:
+      gatehouse_type: mcp_shell_spawn
+      cwe: "CWE-78: Improper Neutralization of Special Elements used in an OS Command"
+      short_description: MCP server process spawned via shell (JS)
+      remediation: >-
+        Use child_process.spawn with an argv array. Validate command/args against
+        an allowlist from policy.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM06
+    patterns:
+      - pattern-either:
+          - pattern: child_process.exec($S, ...)
+          - pattern: child_process.exec($S)
+          - pattern: child_process.execSync($S, ...)
+          - pattern: child_process.execSync($S)
+      - metavariable-regex:
+          metavariable: $S
+          regex: (?s).*mcp.*
+
+  - id: llm-html-render-unescaped
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Model / completion text is rendered as HTML without escaping. Prompt
+      injection becomes stored XSS in the product UI.
+    metadata:
+      gatehouse_type: llm_xss_from_output
+      cwe: "CWE-79: Improper Neutralization of Input During Web Page Generation"
+      short_description: Unescaped LLM output rendered as HTML
+      remediation: >-
+        Treat model text as untrusted: escape on render. Never mark_safe /
+        Markup model strings.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: mark_safe($MSG.content)
+          - pattern: mark_safe($R.output_text)
+          - pattern: Markup($MSG.content)
+          - pattern: Markup($R.output_text)
+
+  - id: llm-html-render-unescaped-js
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      Model / completion text is rendered via dangerouslySetInnerHTML. Prompt
+      injection becomes stored XSS in the product UI.
+    metadata:
+      gatehouse_type: llm_xss_from_output
+      cwe: "CWE-79: Improper Neutralization of Input During Web Page Generation"
+      short_description: Unescaped LLM output rendered as HTML (JS)
+      remediation: >-
+        Treat model text as untrusted: use textContent or a strict HTML
+        sanitizer. Never dangerouslySetInnerHTML model strings.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: |
+              {dangerouslySetInnerHTML: {__html: $X}}
+          - pattern: |
+              <$Y dangerouslySetInnerHTML={{__html: $X}} />
+          - pattern: |
+              <$Y dangerouslySetInnerHTML={{__html: $X}}>...</$Y>
+
+  - id: openai-insecure-http-base-url
+    languages: [python]
+    severity: ERROR
+    message: >-
+      The OpenAI-compatible client points at an http:// base URL. API keys and
+      prompts transit in cleartext to that endpoint.
+    metadata:
+      gatehouse_type: llm_insecure_transport
+      cwe: "CWE-319: Cleartext Transmission of Sensitive Information"
+      short_description: LLM client base_url uses http://
+      remediation: >-
+        Use https:// for every model endpoint, including self-hosted gateways.
+        Prefer mTLS or private network access for internal model servers.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM02
+    patterns:
+      - pattern-either:
+          - pattern: OpenAI(..., base_url=$URL, ...)
+          - pattern: OpenAI(base_url=$URL)
+          - pattern: OpenAI(..., api_base=$URL, ...)
+          - pattern: Anthropic(..., base_url=$URL, ...)
+          - pattern: openai.base_url = $URL
+      - metavariable-regex:
+          metavariable: $URL
+          regex: ^["']http://
+
+  - id: openai-insecure-http-base-url-js
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      The OpenAI-compatible client points at an http:// base URL. API keys and
+      prompts transit in cleartext to that endpoint.
+    metadata:
+      gatehouse_type: llm_insecure_transport
+      cwe: "CWE-319: Cleartext Transmission of Sensitive Information"
+      short_description: LLM client baseURL uses http:// (JS)
+      remediation: >-
+        Use https:// for every model endpoint, including self-hosted gateways.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM02
+    patterns:
+      - pattern-either:
+          - pattern: 'new OpenAI({..., baseURL: $U, ...})'
+          - pattern: 'new OpenAI({baseURL: $U})'
+      - metavariable-regex:
+          metavariable: $U
+          regex: ^["']http://
+
+  - id: agent-unrestricted-tool-auto-run
+    languages: [python]
+    severity: ERROR
+    message: >-
+      An agent is configured to auto-run tools without human confirmation. A
+      prompt-injected instruction can invoke any registered tool immediately.
+    metadata:
+      gatehouse_type: llm_excessive_agency
+      cwe: "CWE-862: Missing Authorization"
+      short_description: Agent auto-runs tools without confirmation
+      remediation: >-
+        Require confirmation for side-effecting tools, or enforce a tight
+        server-side allowlist. Prefer "require_approval" / human-in-the-loop
+        modes in production.
+      confidence: MEDIUM
+      category: ai_llm
+      owasp_llm: LLM06
+    patterns:
+      - pattern-either:
+          - pattern: $X(..., require_approval="never", ...)
+          - pattern: $X(..., approval_mode="never", ...)
+          - pattern: $X(..., auto_run=True, ...)
+          - pattern: $X(..., human_input_mode="NEVER", ...)
+
+  - id: llm-pickle-tool-payload
+    languages: [python]
+    severity: ERROR
+    message: >-
+      pickle is used on a payload associated with an LLM / agent tool result.
+      Untrusted tool or model-adjacent bytes become code execution.
+    metadata:
+      gatehouse_type: llm_unsafe_tool_payload
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      short_description: pickle on LLM / agent tool payload
+      remediation: >-
+        Exchange tool results as JSON (or a schema-validated format). Never
+        pickle.loads tool_call / function_call arguments or model attachments.
+      confidence: HIGH
+      category: ai_llm
+      owasp_llm: LLM05
+    patterns:
+      - pattern-either:
+          - pattern: pickle.loads($TOOL.result, ...)
+          - pattern: pickle.loads($TOOL.output, ...)
+          - pattern: pickle.loads($TC.function.arguments, ...)
+          - pattern: pickle.loads($TC.arguments, ...)
+          - pattern: pickle.loads($MSG.function_call.arguments, ...)

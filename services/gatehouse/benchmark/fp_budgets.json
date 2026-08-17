@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "description": "Published false-positive budgets per gate (AIM-334). A gate whose measured clean-control FP rate exceeds max_fp_rate auto-reverts to observe mode; a gate whose recall falls below min_recall fails its own release CI.",
+  "gates": {
+    "gitleaks": {
+      "class": "secret",
+      "max_fp_rate": 0.05,
+      "min_recall": 0.95,
+      "min_precision": 0.95,
+      "default_mode": "enforce"
+    },
+    "semgrep": {
+      "class": "sast",
+      "max_fp_rate": 0.10,
+      "min_recall": 0.90,
+      "min_precision": 0.90,
+      "default_mode": "enforce"
+    },
+    "checkov": {
+      "class": "iac",
+      "max_fp_rate": 0.10,
+      "min_recall": 0.85,
+      "min_precision": 0.90,
+      "default_mode": "enforce"
+    },
+    "trivy": {
+      "class": "sca",
+      "max_fp_rate": 0.15,
+      "min_recall": 0.80,
+      "min_precision": 0.85,
+      "default_mode": "enforce"
+    }
+  }
+}

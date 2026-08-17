@@ -1,0 +1,91 @@
+# Python
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+*.pyc
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local data / scratch
+*.db
+ai-monitoring/  # nested pilot scratch repo — kept out of the platform repo
+
+# Environment & secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+.terraform.lock.hcl
+
+# Scan / SBOM artifacts
+sbom.json
+sbom.*.json
+gitleaks-report.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Logs
+*.log
+logs/
+.claude/
+
+# Dogfood multi-host fleet state (device tokens) — never commit (AIM-1057)
+deploy/dogfood/multi-host/state/
+
+# Air-gap bundle output (AIM-98)
+deploy/airgap/out/
+# Intune Win32 staging output (AIM-742)
+deploy/windows/out/
+
+# `aim` CLI build artifacts (AIM-130/AIM-135): dist/ is already ignored
+# globally; the intermediate staging tree and the vendored collector tree are
+# not. `_vendor/` is regenerated from the collector source by
+# scripts/build_aim_cli.py on every build — it is build output, never edited by
+# hand, and must not be committed (drift risk against the real collectors).
+packaging/build/
+packaging/aim-cli/src/aim/_vendor/
+
+# Machine-owned policy files written by the dashboard rule-tuning / alert
+# config APIs (AIM-94) — live config, not PR-reviewed policy.
+policies/guardrail/v1/ui-overrides.yaml
+policies/guardrail/v1/alerts.yaml
+
+# GitHub App private key and any other local PEM/secret material (AIM-161).
+deploy/secrets/*
+!deploy/secrets/README.md
+
+# AIM-209: local CI attestations are per-run evidence, not source
+ci-local-attestation.json
+evasion-report.json
+
+# Headless UI captures (AIM-515) — regenerate with apps/web npm run screenshot
+apps/web/test/screenshots/
+
+# Friend-preview basic-auth secret (AIM-1048)
+apps/landing/deploy/.htpasswd
+
+# Local image pin file for pilot pull path (AIM-1126) — copy from
+# deploy/compose/images.pin.env.example; may hold site-specific digests.
+deploy/compose/images.pin.env

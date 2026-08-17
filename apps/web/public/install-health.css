@@ -1,0 +1,494 @@
+/* AIM-746 — install health / first-evidence SLO screen */
+
+.ih-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ih-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.ih-sub {
+  margin: 0;
+  color: var(--muted);
+  max-width: 46rem;
+  font-size: 0.92rem;
+}
+
+.ih-overall {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  white-space: nowrap;
+}
+
+.ih-overall[data-state="ok"] { border-color: var(--good-border); background: var(--good-soft); }
+.ih-overall[data-state="degraded"] { border-color: var(--warn-border); background: var(--warn-soft); }
+.ih-overall[data-state="broken"] { border-color: var(--bad-border); background: var(--bad-soft); }
+.ih-overall[data-state="never_configured"] { border-color: var(--border-strong); background: var(--info-soft); }
+
+.ih-overall-label {
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.ih-overall-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.ih-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.ih-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ih-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+
+.ih-dot.ok,
+.ih-dot.met { background: var(--good); }
+.ih-dot.degraded,
+.ih-dot.pending { background: var(--warn); }
+.ih-dot.broken,
+.ih-dot.breached { background: var(--bad); }
+.ih-dot.never_configured { background: var(--faint); box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+.ih-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.ih-tile {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 10.5rem;
+}
+
+.ih-tile.state-ok { border-color: var(--good-border); }
+.ih-tile.state-degraded { border-color: var(--warn-border); }
+.ih-tile.state-broken { border-color: var(--bad-border); }
+.ih-tile.state-never_configured { border-style: dashed; }
+
+.ih-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ih-tile-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.ih-tile-pillar {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.ih-tile-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.ih-tile-msg {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  flex: 1;
+}
+
+.ih-tile-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.ih-tile-meta dt {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.ih-tile-meta dd {
+  margin: 0.1rem 0 0;
+}
+
+.ih-tile-meta > div {
+  min-width: 0;
+}
+
+.ih-alerts-panel {
+  margin-top: 0.5rem;
+}
+
+.ih-meta {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.ih-err {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--bad-border);
+  border-radius: 6px;
+  background: var(--bad-soft);
+  color: var(--bad);
+  font-size: 0.9rem;
+}
+
+.ih-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.ih-alert-table {
+  width: 100%;
+}
+
+/* AIM-933 — health callout + MDM admin runbook */
+
+.ih-health-callout {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.ih-health-callout[data-severity="info"] {
+  border-color: var(--border-strong, var(--border));
+  background: var(--info-soft, var(--panel));
+}
+
+.ih-health-callout[data-severity="warn"] {
+  border-color: var(--warn-border);
+  background: var(--warn-soft);
+}
+
+.ih-health-callout[data-severity="bad"] {
+  border-color: var(--bad-border);
+  background: var(--bad-soft);
+}
+
+.ih-callout-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+}
+
+.ih-callout-body,
+.ih-callout-next,
+.ih-callout-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.88rem;
+  color: var(--text, inherit);
+}
+
+.ih-callout-body,
+.ih-callout-meta {
+  color: var(--muted);
+}
+
+.ih-callout-link {
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+
+.ih-runbook-panel {
+  margin-top: 0.75rem;
+}
+
+.ih-runbook-lead {
+  margin: 0 0 0.85rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 52rem;
+}
+
+.ih-runbook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18.5rem, 1fr));
+  gap: 0.75rem;
+}
+
+.ih-mdm-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg, var(--panel));
+  padding: 0.85rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 12rem;
+}
+
+.ih-mdm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ih-mdm-plat {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.ih-mdm-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.ih-mdm-sum,
+.ih-mdm-verify {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.ih-mdm-steps {
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ih-mdm-steps li {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr;
+  gap: 0.25rem;
+  line-height: 1.35;
+}
+
+.ih-step-n {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.ih-mdm-docs {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.ih-mdm-docs li {
+  margin: 0.15rem 0;
+  overflow-wrap: anywhere;
+}
+
+.ih-privacy {
+  margin: 0.85rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--border);
+  color: var(--muted);
+  font-size: 0.8rem;
+  max-width: 52rem;
+  line-height: 1.4;
+}
+
+/* AIM-928 — OS cohort parity + recovery panel + RAG latency tones */
+
+.ih-cohort-panel {
+  margin-bottom: 0.75rem;
+}
+
+.ih-cohort-intro {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  max-width: 48rem;
+}
+
+.ih-cohorts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14.5rem, 1fr));
+  gap: 0.65rem;
+}
+
+.ih-cohort {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 6.5rem;
+}
+
+.ih-cohort.state-met,
+.ih-cohort.state-ok { border-color: var(--good-border); }
+.ih-cohort.state-pending,
+.ih-cohort.state-degraded { border-color: var(--warn-border); }
+.ih-cohort.state-breached,
+.ih-cohort.state-broken { border-color: var(--bad-border); }
+
+.ih-cohort-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ih-cohort-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.ih-cohort-lat {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.ih-cohort-empty {
+  grid-column: 1 / -1;
+}
+
+.ih-os {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel-2, var(--panel));
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.ih-os-windows {
+  border-color: color-mix(in srgb, var(--info, #3b82f6) 45%, var(--border));
+  background: color-mix(in srgb, var(--info, #3b82f6) 12%, transparent);
+}
+
+.ih-os-linux {
+  border-color: color-mix(in srgb, var(--good) 40%, var(--border));
+  background: color-mix(in srgb, var(--good) 10%, transparent);
+}
+
+.ih-os-darwin {
+  border-color: color-mix(in srgb, var(--muted) 50%, var(--border));
+  background: color-mix(in srgb, var(--faint, var(--muted)) 15%, transparent);
+}
+
+.ih-os-other {
+  color: var(--muted);
+}
+
+/* Latency RAG — text tone classes already used elsewhere; ensure mono inherits. */
+.ih-cohort-lat.tone-ok,
+#ih-devices .tone-ok { color: var(--good); }
+.ih-cohort-lat.tone-warn,
+#ih-devices .tone-warn { color: var(--warn); }
+.ih-cohort-lat.tone-bad,
+#ih-devices .tone-bad { color: var(--bad); }
+.ih-cohort-lat.tone-muted,
+#ih-devices .tone-muted { color: var(--muted); }
+
+.ih-recovery-panel {
+  margin-bottom: 0.75rem;
+  border-left: 3px solid var(--border-strong);
+}
+
+.ih-recovery-panel[data-tone="info"] {
+  border-left-color: var(--info, #3b82f6);
+  background: var(--info-soft, var(--panel));
+}
+
+.ih-recovery-panel[data-tone="warn"] {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.ih-recovery-panel[data-tone="bad"] {
+  border-left-color: var(--bad);
+  background: var(--bad-soft);
+}
+
+.ih-recovery-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ih-recovery-body {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  max-width: 52rem;
+}
+
+.ih-recovery-steps {
+  margin: 0 0 0.65rem;
+  padding-left: 1.25rem;
+  font-size: 0.88rem;
+  max-width: 52rem;
+}
+
+.ih-recovery-steps li {
+  margin: 0.2rem 0;
+}
+
+.ih-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  font-size: 0.88rem;
+}
+
+.ih-recovery-doc code {
+  font-size: 0.82em;
+}

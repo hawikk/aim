@@ -1,0 +1,58 @@
+# Reviewed one-click fixes for PR findings (AIM-234).
+#
+# Same rule as sentinel's remediation catalogue: a model may select an entry
+# and fill nothing here — every `patch:` is a human-written transformation.
+# Gatehouse applies these in the ephemeral workspace, self-scans the result
+# with the same scanner that raised the finding, and only then posts a GitHub
+# ```suggestion block (small) or a draft-PR note (large, AIM-185 opt-in).
+#
+# Keep entries in lockstep with the matching `patch:` blocks in
+# services/sentinel/src/sentinel/catalogue/remediation.yml. A drift between
+# the two is a product bug: the inline suggestion and the draft PR must do
+# the same thing.
+#
+# Matching is first-match-wins. `finding_type` is a full-match regex;
+# `when.labels` all have to match finding.labels (or bus labels of the same
+# name). `check` is what checkov puts on every IaC finding.
+
+version: 1
+
+entries:
+  - id: iac-rds-public
+    finding_type: 'pr_security\.iac_misconfig'
+    when:
+      labels:
+        check: 'CKV_AWS_17'
+    title: Make the RDS instance private
+    summary: Set publicly_accessible = false
+    patch:
+      kind: set_attribute
+      block_types: [aws_db_instance, aws_rds_cluster_instance]
+      attribute: publicly_accessible
+      value: 'false'
+
+  - id: iac-s3-public-acl
+    finding_type: 'pr_security\.iac_misconfig'
+    when:
+      labels:
+        check: 'CKV_AWS_(20|57)'
+    title: Make the bucket ACL private
+    summary: Set acl = "private"
+    patch:
+      kind: set_attribute
+      block_types: [aws_s3_bucket, aws_s3_bucket_acl]
+      attribute: acl
+      value: '"private"'
+
+  - id: iac-ec2-public-ip
+    finding_type: 'pr_security\.iac_misconfig'
+    when:
+      labels:
+        check: 'CKV_AWS_88'
+    title: Stop assigning a public IP
+    summary: Set associate_public_ip_address = false
+    patch:
+      kind: set_attribute
+      block_types: [aws_instance]
+      attribute: associate_public_ip_address
+      value: 'false'

@@ -1,0 +1,86 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aim.fullname" . }}-postgres
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 4 }}
+spec:
+  type: {{ .Values.postgres.service.type | default "ClusterIP" }}
+  selector:
+    {{- include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 4 }}
+  ports:
+    - name: postgres
+      port: {{ .Values.postgres.service.port }}
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "aim.fullname" . }}-postgres
+  labels:
+    {{- include "aim.labels" . | nindent 4 }}
+    {{ include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 4 }}
+spec:
+  serviceName: {{ include "aim.fullname" . }}-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "aim.selectorLabels" (dict "component" "postgres" "context" .) | nindent 8 }}
+    spec:
+      containers:
+        - name: postgres
+          image: {{ include "aim.image" (dict "image" .Values.postgres.image "context" .) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.secrets.postgresUser | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.secrets.postgresDatabase | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aim.secretName" . }}
+                  key: POSTGRES_PASSWORD
+          ports:
+            - name: postgres
+              containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+      {{- if not .Values.postgres.persistence.enabled }}
+      volumes:
+        - name: data
+          emptyDir: {}
+      {{- end }}
+  {{- if .Values.postgres.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.postgres.persistence.storageClass }}
+        storageClassName: {{ .Values.postgres.persistence.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.persistence.size }}
+  {{- end }}
+{{- end }}

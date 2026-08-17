@@ -1,0 +1,59 @@
+# Windsurf (ex-Codeium) — named presence via path/binary/extension + proxy.
+# Inspected 2026-08-13: no local metadata-only usage table in published
+# layout (~/.config/Windsurf is a VS Code-fork user-data tree; Cascade
+# transcripts are contentful). Do not invent tokens. schema_tool=other +
+# tool_raw=windsurf. Catalogue rule id stays codeium-windsurf; tool=windsurf.
+id: windsurf
+display_name: Windsurf
+provider: codeium
+schema_tool: other
+sanctioned: false
+implementation: generic
+surfaces:
+  - type: local_session_logs
+    fidelity: presence
+    discovery:
+      paths:
+        - "~/.config/Windsurf"
+        - "~/.codeium"
+        - "~/.windsurf"
+        - "~/Library/Application Support/Windsurf"
+        - "${APPDATA}/Windsurf"
+      binaries: ["windsurf"]
+    extraction:
+      # No metadata-only usage files observed. Narrow glob so we never ingest
+      # Cascade/chat transcripts under the IDE user-data tree.
+      format: json_session
+      session_glob: "aim-no-depth.usage.json"
+      source: endpoint
+  - type: editor_extension_hooks
+    fidelity: presence
+    discovery:
+      extension_ids:
+        - Codeium.codeium
+    extraction:
+      format: json_session
+      source: endpoint
+  - type: proxy_domain
+    fidelity: presence
+    discovery:
+      domains:
+        - codeium.com
+        - codeiumdata.com
+        - windsurf.com
+        - windsurf.app
+        - windsurf-stable.codeium.com
+        - windsurf-next.codeium.com
+        - server.codeium.com
+        - inference.codeium.com
+        - api.codeium.com
+      catalogue_rule_ids: ["codeium-windsurf"]
+    extraction:
+      format: proxy_host_hit
+      source: proxy
+privacy:
+  metadata_only: true
+notes: >
+  Harmonic-named fleet tool. Proxy catalogue already attributed these hosts as
+  tool=windsurf. Endpoint discovery is install/presence only. Residual: no
+  local model/token surface without reading Cascade content. Unsanctioned.

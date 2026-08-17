@@ -1,0 +1,42 @@
+# Optional host-level unit when the auditor must survive outside compose.
+# Preferred path on the dogfood stack is the `gatehouse-merge-audit` compose
+# service (same image, same bus network). Use this unit only if the auditor
+# runs on a host that already has the gatehouse CLI + ALERT_BUS_URL.
+#
+# Install (ops host):
+#   sudo install -m 0644 deploy/enforcement/gatehouse-merge-audit.service \
+#     /etc/systemd/system/gatehouse-merge-audit.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now gatehouse-merge-audit.service
+#
+# Secrets: EnvironmentFile points at a 0600 env file that defines
+# GATEHOUSE_GITHUB_TOKEN, GATEHOUSE_REVERT_TOKEN, ALERT_BUS_URL.
+# Never put token values in this unit file.
+
+[Unit]
+Description=AIM-298 out-of-band gatehouse merge auditor (bus publish + auto-revert)
+Documentation=https://github.com/hawikk/aim
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Override paths for the install. Defaults assume a venv + repo checkout.
+EnvironmentFile=-/etc/gatehouse/merge-audit.env
+ExecStart=/usr/local/bin/gatehouse merge-audit \
+  --repo hawikk/aim \
+  --repo hawikk/littlewiz \
+  --loop --interval 120 --publish --limit 20
+Restart=always
+RestartSec=30
+# No untrusted PR checkouts in this process, but still drop privileges.
+User=gatehouse
+Group=gatehouse
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/gatehouse
+
+[Install]
+WantedBy=multi-user.target

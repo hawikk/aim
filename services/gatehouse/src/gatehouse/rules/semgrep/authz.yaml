@@ -1,0 +1,67 @@
+# Vendored semgrep pack — authorization / access-control (AIM-328).
+rules:
+  - id: python-jwt-signature-not-verified
+    languages: [python]
+    severity: ERROR
+    message: >-
+      JWT is decoded with signature verification disabled. Anyone can forge a
+      token and assume any identity or role the claims carry.
+    metadata:
+      gatehouse_type: authz_jwt_unverified
+      cwe: "CWE-347: Improper Verification of Cryptographic Signature"
+      short_description: JWT signature verification disabled
+      remediation: >-
+        Verify signatures with the correct key/algorithm: jwt.decode(token, key,
+        algorithms=["RS256"]). Never set verify=False or verify_signature=False
+        outside of local unit tests.
+      confidence: HIGH
+      category: authz
+    patterns:
+      - pattern-either:
+          - pattern: jwt.decode(..., verify=False, ...)
+          - pattern: 'jwt.decode(..., options={"verify_signature": False}, ...)'
+          - pattern: 'jwt.decode(..., options={..., "verify_signature": False, ...}, ...)'
+          - pattern: 'jose.jwt.decode(..., options={"verify_signature": False}, ...)'
+
+  - id: python-authz-check-always-true
+    languages: [python]
+    severity: ERROR
+    message: >-
+      An authorization helper returns constant True. Callers that trust this
+      check grant every request the privileged path.
+    metadata:
+      gatehouse_type: authz_always_allow
+      cwe: "CWE-863: Incorrect Authorization"
+      short_description: Authorization helper hard-coded to allow
+      remediation: >-
+        Implement a real check against the caller's identity and the resource
+        (ownership, role, scope). Do not ship a stub that returns True.
+      confidence: HIGH
+      category: authz
+    patterns:
+      - pattern: |
+          def $CHECK(...):
+              return True
+      - metavariable-regex:
+          metavariable: $CHECK
+          regex: (?i).*(auth|permission|authorize|allowed|can_|is_admin|has_perm|check_access).*
+
+  - id: js-cors-reflect-origin-with-credentials
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      CORS reflects any Origin while credentials are enabled. A malicious site
+      can make credentialed cross-origin requests as the signed-in user.
+    metadata:
+      gatehouse_type: authz_cors_credentials
+      cwe: "CWE-942: Permissive Cross-domain Policy with Untrusted Domains"
+      short_description: CORS reflects Origin with credentials
+      remediation: >-
+        Pin allowed origins to an explicit allowlist. Never combine origin: true
+        (or "*") with credentials: true.
+      confidence: HIGH
+      category: authz
+    patterns:
+      - pattern-either:
+          - pattern: 'cors({..., origin: true, credentials: true, ...})'
+          - pattern: 'cors({..., credentials: true, origin: true, ...})'

@@ -1,0 +1,350 @@
+{
+  "comment": "Synthetic fixture mirroring the Google Admin SDK Reports API `token` activity shape (admin#reports#activity). No real identities or grants. Used by FixtureGrantSource in dev/test.",
+  "items": [
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-20T14:03:11.000Z",
+        "uniqueQualifier": "1001"
+      },
+      "actor": {
+        "email": "rpatel@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "ChatGPT"
+            },
+            {
+              "name": "client_id",
+              "value": "701234-abc.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/drive.readonly"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-22T09:41:02.000Z",
+        "uniqueQualifier": "1002"
+      },
+      "actor": {
+        "email": "atorres@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "ChatGPT"
+            },
+            {
+              "name": "client_id",
+              "value": "701234-abc.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-21T18:22:45.000Z",
+        "uniqueQualifier": "1003"
+      },
+      "actor": {
+        "email": "jsmith@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "GitHub Copilot"
+            },
+            {
+              "name": "client_id",
+              "value": "88223-def.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.profile"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-19T11:05:30.000Z",
+        "uniqueQualifier": "1004"
+      },
+      "actor": {
+        "email": "rpatel@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "Claude Code"
+            },
+            {
+              "name": "client_id",
+              "value": "31337-ghi.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-23T08:15:00.000Z",
+        "uniqueQualifier": "1005"
+      },
+      "actor": {
+        "email": "atorres@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "FauxPilot AI"
+            },
+            {
+              "name": "client_id",
+              "value": "999001-jkl.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/gmail.readonly"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-18T16:44:20.000Z",
+        "uniqueQualifier": "1006"
+      },
+      "actor": {
+        "email": "blee@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "Slack"
+            },
+            {
+              "name": "client_id",
+              "value": "5555-mno.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-04-02T10:00:00.000Z",
+        "uniqueQualifier": "1007"
+      },
+      "actor": {
+        "email": "cnguyen@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "DeepSeek"
+            },
+            {
+              "name": "client_id",
+              "value": "7777-pqr.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-04-20T10:00:00.000Z",
+        "uniqueQualifier": "1008"
+      },
+      "actor": {
+        "email": "cnguyen@example.com"
+      },
+      "events": [
+        {
+          "name": "revoke",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "DeepSeek"
+            },
+            {
+              "name": "client_id",
+              "value": "7777-pqr.apps.googleusercontent.com"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-28T11:00:00.000Z",
+        "uniqueQualifier": "1009"
+      },
+      "actor": {
+        "email": "dchoi@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "Grammarly"
+            },
+            {
+              "name": "client_id",
+              "value": "gram-001.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-29T13:22:00.000Z",
+        "uniqueQualifier": "1010"
+      },
+      "actor": {
+        "email": "mgarcia@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "Hugging Face"
+            },
+            {
+              "name": "client_id",
+              "value": "hf-002.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "admin#reports#activity",
+      "id": {
+        "time": "2026-07-30T16:05:00.000Z",
+        "uniqueQualifier": "1011"
+      },
+      "actor": {
+        "email": "akim@example.com"
+      },
+      "events": [
+        {
+          "name": "authorize",
+          "parameters": [
+            {
+              "name": "app_name",
+              "value": "Replit"
+            },
+            {
+              "name": "client_id",
+              "value": "replit-003.apps.googleusercontent.com"
+            },
+            {
+              "name": "scope",
+              "multiValue": [
+                "openid",
+                "https://www.googleapis.com/auth/userinfo.email"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

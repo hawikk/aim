@@ -1,0 +1,36 @@
+# Official PyPI name reservation for AI Monitoring (AIM-510 / D-489-2a).
+# This is a stub only — no product code, no console scripts.
+# Real install: signed wheel on GitHub Releases (hawikk/aim).
+#
+# Charter names `aimonitoring` / `aim-monitoring` are blocked by PyPI similarity
+# against existing `ai-monitoring` (Whitecircle). Board-configured pending
+# publisher (2026-07-31): aimonitoring-security.
+# setuptools>=77 is required for the PEP 639 SPDX `license` expression below;
+# older versions reject a plain string and want the legacy `{ text = ... }` table.
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aimonitoring-security"
+version = "0.0.1"
+description = "Official name reservation for AI Monitoring — install the CLI from GitHub Releases, not this stub"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "AI Monitoring" }]
+keywords = ["ai-monitoring", "name-reservation", "official", "security"]
+# No runtime dependencies and NO console scripts — must not put `aim` on PATH.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/hawikk/aim"
+"GitHub Releases" = "https://github.com/hawikk/aim/releases"
+Repository = "https://github.com/hawikk/aim"
+Issues = "https://github.com/hawikk/aim/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+# Dev / throwaway-cluster shape (kind, k3d, minikube).
+#
+# Everything ephemeral: no PVCs, no persistence, minimal footprint. This is
+# the shape the acceptance smoke run uses:
+#   helm install aim deploy/helm/aim -f deploy/helm/aim/values-dev.yaml
+
+postgres:
+  persistence:
+    enabled: false
+
+minio:
+  persistence:
+    enabled: false

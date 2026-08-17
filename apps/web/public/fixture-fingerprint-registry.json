@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "description": "Non-reversible fixture fingerprint allowlist (AIM-541). Stores detector+fingerprint+label+source only \u2014 never raw secrets or unsalted digests. Fingerprint \u2208 registry \u2192 suggest incident cluster A (known synthetic / dead-key fixture).",
+  "salt_id": "ci-fixture-registry-v1",
+  "algorithm": "HMAC-SHA256(key=AIM_HASH_SALT, msg='fp1|'+detector+'|'+NFKC_whitespace_stripped) hexdigest[:16]",
+  "domain_separator": "fp1",
+  "generated_at": "2026-08-01T16:45:23Z",
+  "entry_count": 21,
+  "entries": [
+    {
+      "detector": "pii:email",
+      "fingerprint": "aba0954ad39e36c8",
+      "label": "github-classic",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#github-classic",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:anthropic-key",
+      "fingerprint": "9a693d80658918cc",
+      "label": "anthropic-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#anthropic-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:aws-access-key",
+      "fingerprint": "ec88ceb5c56a4481",
+      "label": "aws-access-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#aws-access-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:aws-secret-key",
+      "fingerprint": "f387d473fe8339b2",
+      "label": "aws-secret-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#aws-secret-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:gcp-service-account",
+      "fingerprint": "5cd40bbe008ff21a",
+      "label": "gcp-service-account",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#gcp-service-account",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:generic-api-key-assignment",
+      "fingerprint": "1d5c5460033aba69",
+      "label": "generic-api-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#generic-api-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:github-token",
+      "fingerprint": "1f452cae176eae86",
+      "label": "github-user-server",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#github-user-server",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:github-token",
+      "fingerprint": "5d22b3ff244fe73b",
+      "label": "github-oauth-realformat",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#github-oauth-realformat",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:github-token",
+      "fingerprint": "a4841353b59f27e9",
+      "label": "github-fine-grained",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#github-fine-grained",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:github-token",
+      "fingerprint": "b65c93a7d3b1eb8a",
+      "label": "github-classic",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#github-classic",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:gitlab-token",
+      "fingerprint": "db7a8abd6c393182",
+      "label": "gitlab-token",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#gitlab-token",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:google-api-key",
+      "fingerprint": "a97b7733b63e25ec",
+      "label": "google-api-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#google-api-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:npm-token",
+      "fingerprint": "68c997681a74e491",
+      "label": "npm-token",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#npm-token",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:openai-key",
+      "fingerprint": "05d0486fafa12811",
+      "label": "openai-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#openai-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:openai-key",
+      "fingerprint": "cb96b09c46effe66",
+      "label": "anthropic-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#anthropic-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:private-key-block",
+      "fingerprint": "7c1dac1a1ea61da8",
+      "label": "private-key-block",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#private-key-block",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:private-key-block",
+      "fingerprint": "ed6d976cbdffd949",
+      "label": "gcp-service-account",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#gcp-service-account",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:sendgrid-key",
+      "fingerprint": "8a08ea0e863385ee",
+      "label": "sendgrid-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#sendgrid-key",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:slack-token",
+      "fingerprint": "c17fe9f235487886",
+      "label": "slack-bot-token",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#slack-bot-token",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:slack-webhook",
+      "fingerprint": "7cc24731bcdf4aaa",
+      "label": "slack-webhook",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#slack-webhook",
+      "cluster_hint": "A"
+    },
+    {
+      "detector": "secret:stripe-key",
+      "fingerprint": "6782adb5afba73a9",
+      "label": "stripe-live-key",
+      "source": "collectors/matcher-fixtures/secret-corpus.json#stripe-live-key",
+      "cluster_hint": "A"
+    }
+  ],
+  "note": "Committed CI registry: recompute with the built-in ci salt. For dogfood/production, regenerate with fleet AIM_HASH_SALT and deploy the result as apps/web/public/fixture-fingerprint-registry.json (see docs/security/fixture-fingerprint-registry.md)."
+}

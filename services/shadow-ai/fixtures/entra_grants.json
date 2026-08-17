@@ -1,0 +1,179 @@
+{
+  "comment": "Synthetic Entra/Okta-normalized grant inventory for AIM-504 dogfood. No real identities. Used when SHADOW_AI_GRANT_FIXTURE_PATH points here, or as the multi-source fixture half.",
+  "grants": [
+    {
+      "user_email": "rpatel@example.com",
+      "app_name": "ChatGPT",
+      "client_id": "openai-chatgpt-entra-app-id",
+      "scopes": [
+        "openid",
+        "profile",
+        "email",
+        "offline_access"
+      ],
+      "ts": "2026-07-28T10:15:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "OpenAI"
+    },
+    {
+      "user_email": "atorres@example.com",
+      "app_name": "ChatGPT",
+      "client_id": "openai-chatgpt-entra-app-id",
+      "scopes": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "ts": "2026-07-29T08:00:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "OpenAI"
+    },
+    {
+      "user_email": "jsmith@example.com",
+      "app_name": "Claude.ai",
+      "client_id": "anthropic-claude-web",
+      "scopes": [
+        "openid",
+        "email"
+      ],
+      "ts": "2026-07-27T16:40:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "Anthropic"
+    },
+    {
+      "user_email": "blee@example.com",
+      "app_name": "Microsoft 365 Copilot",
+      "client_id": "ms-copilot-app",
+      "scopes": [
+        "User.Read",
+        "Files.Read.All",
+        "Mail.Read"
+      ],
+      "ts": "2026-07-30T11:22:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "Microsoft"
+    },
+    {
+      "user_email": "cnguyen@example.com",
+      "app_name": "Midjourney",
+      "client_id": "midjourney-sso",
+      "scopes": [
+        "openid"
+      ],
+      "ts": "2026-07-26T09:00:00Z",
+      "action": "authorize",
+      "idp_source": "okta",
+      "publisher": "Midjourney"
+    },
+    {
+      "user_email": "rpatel@example.com",
+      "app_name": "Cursor",
+      "client_id": "cursor-sso",
+      "scopes": [
+        "openid",
+        "email"
+      ],
+      "ts": "2026-07-25T14:00:00Z",
+      "action": "authorize",
+      "idp_source": "okta",
+      "publisher": "Anysphere"
+    },
+    {
+      "user_email": "dchoi@example.com",
+      "app_name": "Grammarly",
+      "client_id": "grammarly-sso",
+      "scopes": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "ts": "2026-07-30T15:00:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "Grammarly"
+    },
+    {
+      "user_email": "mgarcia@example.com",
+      "app_name": "Continue.dev",
+      "client_id": "continue-hub-sso",
+      "scopes": [
+        "openid",
+        "email"
+      ],
+      "ts": "2026-07-29T12:30:00Z",
+      "action": "authorize",
+      "idp_source": "okta",
+      "publisher": "Continue Dev"
+    },
+    {
+      "user_email": "akim@example.com",
+      "app_name": "OpenRouter",
+      "client_id": "openrouter-oauth",
+      "scopes": [
+        "openid",
+        "email"
+      ],
+      "ts": "2026-07-28T19:05:00Z",
+      "action": "authorize",
+      "idp_source": "okta",
+      "publisher": "OpenRouter"
+    },
+    {
+      "user_email": "slee@example.com",
+      "app_name": "Notion",
+      "client_id": "notion-workspace-sso",
+      "scopes": [
+        "openid",
+        "email"
+      ],
+      "ts": "2026-07-27T08:45:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "Notion Labs"
+    },
+    {
+      "user_email": "pwong@example.com",
+      "app_name": "Fireflies.ai",
+      "client_id": "fireflies-sso",
+      "scopes": [
+        "openid",
+        "email",
+        "offline_access"
+      ],
+      "ts": "2026-07-26T17:10:00Z",
+      "action": "authorize",
+      "idp_source": "okta",
+      "publisher": "Fireflies"
+    },
+    {
+      "user_email": "htran@example.com",
+      "app_name": "Mistral AI",
+      "client_id": "mistral-console",
+      "scopes": [
+        "openid",
+        "profile"
+      ],
+      "ts": "2026-07-31T09:20:00Z",
+      "action": "authorize",
+      "idp_source": "entra",
+      "publisher": "Mistral"
+    },
+    {
+      "user_email": "jortiz@example.com",
+      "app_name": "Lovable",
+      "client_id": "lovable-sso",
+      "scopes": [
+        "openid",
+        "email"
+      ],
+      "ts": "2026-07-30T21:00:00Z",
+      "action": "authorize",
+      "idp_source": "okta",
+      "publisher": "Lovable"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "$schema_note": "Pinned tool-version compatibility matrix (AIM-648). CI exercises collectors against these recorded fixtures so version-shaped event emission and discovery cannot silently regress.",
+  "version": 1,
+  "updated": "2026-08-01",
+  "issue": "AIM-648",
+  "parent_issue": "AIM-624",
+  "strategy": "recorded_fixtures",
+  "pin_policy": {
+    "min_versions_per_tool": 2,
+    "max_version_string_len": 64,
+    "notes": "Pin at least N representative versions per supported coding agent. Prefer versions seen in pilot fixtures / package examples; refresh when a collector's version discovery path changes."
+  },
+  "tools": [
+    {
+      "id": "claude_code",
+      "name": "Claude Code",
+      "package_dir": "collectors/claude-code",
+      "python_package": "aim_collector",
+      "discovery": "state_file",
+      "versions": [
+        {
+          "version": "1.0.62",
+          "fixture_dir": "collectors/tool-version-fixtures/claude_code/1.0.62",
+          "source": "packages/schema/examples/valid-claude-code.json",
+          "notes": "Schema example + hook regression baseline"
+        },
+        {
+          "version": "1.0.71",
+          "fixture_dir": "collectors/tool-version-fixtures/claude_code/1.0.71",
+          "source": "pilot_observed",
+          "notes": "Newer pin; discovery must still round-trip into events"
+        }
+      ]
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "package_dir": "collectors/cursor",
+      "python_package": "cursor_collector",
+      "discovery": "state_file",
+      "versions": [
+        {
+          "version": "0.49.4",
+          "fixture_dir": "collectors/tool-version-fixtures/cursor/0.49.4",
+          "source": "packages/schema/examples/valid-cursor.json",
+          "notes": "Schema example baseline"
+        },
+        {
+          "version": "0.50.5",
+          "fixture_dir": "collectors/tool-version-fixtures/cursor/0.50.5",
+          "source": "pilot_observed",
+          "notes": "Newer pin for continuous matrix"
+        }
+      ]
+    },
+    {
+      "id": "kilo_code",
+      "name": "Kilo Code",
+      "package_dir": "collectors/kilo-code",
+      "python_package": "kilo_collector",
+      "discovery": "vscode_extension_dir",
+      "versions": [
+        {
+          "version": "4.31.0",
+          "fixture_dir": "collectors/tool-version-fixtures/kilo_code/4.31.0",
+          "source": "packages/schema/examples/valid-kilo-code.json",
+          "notes": "Schema + unit test baseline"
+        },
+        {
+          "version": "4.55.0",
+          "fixture_dir": "collectors/tool-version-fixtures/kilo_code/4.55.0",
+          "source": "packages/schema/examples/valid-inventory.json",
+          "notes": "Inventory example version pin"
+        }
+      ]
+    },
+    {
+      "id": "kimi_code",
+      "name": "Kimi Code",
+      "package_dir": "collectors/kimi-code",
+      "python_package": "kimi_collector",
+      "discovery": "kimi_install_json",
+      "versions": [
+        {
+          "version": "0.28.0",
+          "fixture_dir": "collectors/tool-version-fixtures/kimi_code/0.28.0",
+          "source": "collectors/kimi-code/tests/test_paths.py",
+          "notes": "paths.tool_version unit baseline"
+        },
+        {
+          "version": "0.28.1",
+          "fixture_dir": "collectors/tool-version-fixtures/kimi_code/0.28.1",
+          "source": "collectors/kimi-code/tests/test_events.py",
+          "notes": "event builder unit baseline"
+        }
+      ]
+    },
+    {
+      "id": "grok_build",
+      "name": "Grok Build",
+      "package_dir": "collectors/grok-build",
+      "python_package": "grok_collector",
+      "discovery": "adapter_compose",
+      "versions": [
+        {
+          "version": "paperclip-grok_local/0.2.1",
+          "fixture_dir": "collectors/tool-version-fixtures/grok_build/paperclip-grok_local-0.2.1",
+          "adapter_type": "grok_local",
+          "source": "collectors/grok-build/grok_collector/__init__.py",
+          "notes": "Default adapter composition from collector __version__"
+        },
+        {
+          "version": "paperclip-codex_cli/0.2.1",
+          "fixture_dir": "collectors/tool-version-fixtures/grok_build/paperclip-codex_cli-0.2.1",
+          "adapter_type": "codex_cli",
+          "source": "collectors/grok-build/grok_collector/events.py",
+          "notes": "Alternate adapter_type must stay within 64 chars and validate"
+        }
+      ]
+    }
+  ]
+}

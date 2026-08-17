@@ -1,0 +1,55 @@
+{
+  "$schema_note": "Operator reference for Microsoft Intune Win32 app fields (AIM-742). Not consumed by IntuneWinAppUtil; copy values into the portal or Graph API payload.",
+  "displayName": "AI Monitoring Collector",
+  "description": "Endpoint collector for AI coding-tool telemetry (Claude Code). Installs payload under Program Files, machine config under ProgramData (ACL SYSTEM+Admins), and a SYSTEM scheduled task every 5 minutes for scan/flush/heartbeat.",
+  "publisher": "AI Monitoring",
+  "appVersion": "0.1.0",
+  "installBehavior": "system",
+  "deviceRestartBehavior": "suppress",
+  "installCommandLine": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File Install-AIMCollector.ps1 -IngestUrl \"%INGEST_URL%\" -TokenFile \"%TOKEN_PATH%\" -EnrollTokenFile \"%ENROLL_TOKEN_PATH%\" -HashSalt \"%HASH_SALT%\" -Ring ring0 -Version 0.1.0",
+  "uninstallCommandLine": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File Uninstall-AIMCollector.ps1",
+  "returnCodes": [
+    { "returnCode": 0, "type": "success" },
+    { "returnCode": 1, "type": "failed" },
+    { "returnCode": 1618, "type": "retry" }
+  ],
+  "requirements": {
+    "osArchitecture": ["x64"],
+    "minimumOperatingSystem": "Windows10_21H2"
+  },
+  "detectionRules": [
+    {
+      "type": "registry",
+      "preferred": true,
+      "keyPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\AIMonitoring\\Collector",
+      "valueName": "Version",
+      "detectionMethod": "versionEquals",
+      "operator": "equals",
+      "detectionValue": "0.1.0"
+    },
+    {
+      "type": "script",
+      "preferred": false,
+      "scriptFile": "Detect-AIMCollector.ps1",
+      "runAs32Bit": false,
+      "enforceSignatureCheck": false
+    }
+  ],
+  "assignments": {
+    "ring0": {
+      "group": "aim-collector-ring0",
+      "intent": "required",
+      "notes": "Security team pilot devices only. Rotate install-command secrets after pilot."
+    }
+  },
+  "secrets": {
+    "neverBakeIntoPackage": ["Token", "EnrollToken", "HashSalt"],
+    "preferredDelivery": "Intune remediation script fetches ring token from secrets broker into %ProgramData%\\AI-Monitoring\\collector\\ before install/detection",
+    "pilotStopgap": "Per-ring install command with -Token / -EnrollToken (visible to Intune admins; rotate after pilot)"
+  },
+  "optionalRemediation": {
+    "name": "AIM Collector WSL bridge",
+    "script": "Install-AIMCollector-WSL.ps1",
+    "notes": "Enrolls each WSL distro with the Linux collector path using the same ring secrets already on the Windows host."
+  }
+}

@@ -1,0 +1,120 @@
+# Enterprise multi-AZ production profile (AIM-722 / AIM-635 package A).
+# Prior chart work also tracked as AIM-769; this profile is the package-A
+# multi-AZ topology deliverable for deploy maturity 8 → 9.
+# Enterprise multi-AZ production profile (AIM-769 / AIM-635 package A).
+#
+# Use on multi-zone clusters with managed Postgres + object store:
+#
+#   helm upgrade --install aim deploy/helm/aim \
+#     -f deploy/helm/aim/values-enterprise.yaml \
+#     --set secrets.existingSecret=aim-prod-secrets \
+#     --set api.oidc.issuer=https://login.example.com \
+#     --set api.oidc.clientId=aim-dashboard \
+#     --set objectStore.endpoint=https://s3.eu-central-1.amazonaws.com \
+#     --set secrets.minioBucket=aim-telemetry-prod
+#
+# REQUIRED:
+#   secrets.existingSecret with keys:
+#     DATABASE_URL, OBJECT_STORE_ACCESS_KEY, OBJECT_STORE_SECRET_KEY,
+#     INGEST_TOKENS, ENROLL_TOKENS, AIM_HASH_SALT, AIM_SESSION_SECRET
+#     (+ AIM_OIDC_CLIENT_SECRET when OIDC is configured)
+#
+# Render + local failover proof: scripts/aim-722-topology-failover-proof.sh
+# (helm-only subset: scripts/aim-769-topology-render-proof.sh)
+# Operator guide: docs/deployment/enterprise-topology.md
+
+# Fail-closed security posture (inherits AIM-553 hardening).
+# Render proof (no cluster): scripts/aim-769-topology-render-proof.sh
+# Operator guide: docs/deployment/enterprise-topology.md
+
+# Fail-closed security posture (AIM-553 PDBs + AIM-601 gates).
+# allowInsecureDefaults=false requires real secrets + OIDC at install time.
+security:
+  allowInsecureDefaults: false
+  allowPublicServices: false
+
+podDisruptionBudgets:
+  enabled: true
+  minAvailable: 1
+
+# Multi-AZ zone spread + node anti-affinity for stateless services.
+topology:
+  spread:
+    enabled: true
+    maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    # Soft by default so partial-zone loss still schedules. Switch to
+    # DoNotSchedule only when the cluster always has ≥2 ready zones.
+    whenUnsatisfiable: ScheduleAnyway
+  antiAffinity:
+    enabled: true
+    weight: 100
+    topologyKey: kubernetes.io/hostname
+
+# Default-deny namespace NetworkPolicies + allow ingest/api/guardrail paths.
+networkPolicy:
+  enabled: true
+  defaultDeny: true
+  # Prefer pinning to VPC private subnets / managed DB CIDRs in real installs.
+  externalEgressCIDRs: []
+  allowIngressFrom: []
+  dnsNamespace: kube-system
+
+# External multi-AZ data plane — no in-cluster Postgres/MinIO.
+postgres:
+  enabled: false
+
+minio:
+  enabled: false
+
+# S3-compatible endpoint (required when minio.enabled=false).
+objectStore:
+  endpoint: "https://s3.amazonaws.com"  # override per region / vendor
+
+# Operator-managed secret — never chart-inlined localdev credentials.
+secrets:
+  existingSecret: aim-prod-secrets  # create before install
+  minioBucket: aim-telemetry-prod
+
+api:
+  replicas: 2
+  authDev: false
+  requireSso: true
+  oidc:
+    issuer: ""       # REQUIRED in real prod, e.g. https://login.example.com
+    clientId: ""
+    clientSecret: ""
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+ingest:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+# Multi-replica is safe: findings + evaluated_events use ON CONFLICT DO NOTHING.
+guardrail:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "500m"
+      memory: 1Gi
+
+ingress:
+  enabled: false
+  className: ""
+  host: aim-dashboard.corp.example
+  tls: true
