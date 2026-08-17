@@ -79,6 +79,17 @@ jobs:
           python scripts/check_proxy_fixture_matrix.py --check
           python scripts/check_proxy_fixture_matrix.py --self-test
 
+      # The no-content-egress invariant end to end: schema rejection of
+      # content-bearing fields, adapter strip-before-emit, and the ingest
+      # archive layer (only validated events are stored verbatim; rejects are
+      # reduced to a hash plus key names). --self-test mutates each control and
+      # asserts the corresponding check fails, so a passing run means the
+      # guard is still capable of catching a regression.
+      - name: no content egress
+        run: |
+          python scripts/no_content_egress.py --check
+          python scripts/no_content_egress.py --self-test
+
   node:
     name: node (lint + typecheck + compose contract tests)
     runs-on: ubuntu-latest
@@ -102,12 +113,19 @@ jobs:
       - name: typecheck
         run: pnpm typecheck
 
-      # `pnpm test` is deliberately NOT run: services/ingest invokes `vitest
-      # run`, and this snapshot ships no test files for it, so vitest exits 1.
-      # The two suites below are real and self-contained. Both assert on the
-      # output of `docker compose config`, which is rendered entirely
-      # client-side — the docker CLI is preinstalled on ubuntu-latest and no
-      # daemon, image pull or registry access is required.
+      # The ingest suites carried by this snapshot. They cover the privacy
+      # contract specifically: schema rejection of content-bearing fields and
+      # content smuggled through property names or schema_version, plus the
+      # archive layer's validated-input-only guarantee and its content canary.
+      # Other packages' suites live in the private monorepo, so `pnpm test` as
+      # a whole is not run here (see README).
+      - name: ingest tests (privacy contract)
+        run: pnpm --filter @aimon/ingest test
+
+      # Both suites below assert on the output of `docker compose config`,
+      # which is rendered entirely client-side — the docker CLI is preinstalled
+      # on ubuntu-latest and no daemon, image pull or registry access is
+      # required.
       - name: compose host-port binding
         run: node --test scripts/test_compose_bind.mjs
 

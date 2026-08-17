@@ -4,17 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Monitoring | Monitor and govern AI behavior in real time</title>
-<meta name="description" content="Security visibility and guardrails for every AI coding tool your engineers use. AI usage monitoring in one stack.">
+<meta name="description" content="Self-hosted, metadata-only visibility and guardrails for every AI coding tool your engineers use. Never prompt text, never source code.">
 <link rel="canonical" href="https://getaimonitoring.com/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://getaimonitoring.com/">
 <meta property="og:title" content="AI Monitoring | Monitor and govern AI behavior in real time">
-<meta property="og:description" content="Security visibility and guardrails for every AI coding tool your engineers use. AI usage monitoring in one stack.">
+<meta property="og:description" content="Self-hosted, metadata-only visibility and guardrails for every AI coding tool your engineers use. Never prompt text, never source code.">
 <meta property="og:image" content="https://getaimonitoring.com/og.png">
+<meta property="og:image:alt" content="AI Monitoring">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AI Monitoring | Monitor and govern AI behavior in real time">
-<meta name="twitter:description" content="Security visibility and guardrails for every AI coding tool your engineers use. AI usage monitoring in one stack.">
+<meta name="twitter:description" content="Self-hosted, metadata-only visibility and guardrails for every AI coding tool your engineers use. Never prompt text, never source code.">
 <meta name="twitter:image" content="https://getaimonitoring.com/og.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='5' fill='white'/%3E%3C/svg%3E">
 <style>
@@ -26,13 +27,18 @@
     --fg: #fff;
     --dim: #888;
     --faint: #555;
+    /* Legible body tone for the four pillars and screenshot captions;
+       --dim (#888) is ~5.9:1 on black and reads muddy at mono 13-14px. */
+    --body: #b9c2be;
+    /* Console accent (apps/web --accent). Flat fills only, no gradients. */
+    --accent: #2dd4a8;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   /* Page uses a custom black-hole cursor; restore a normal pointer on
      clickable controls so CTAs like Get Started feel safe to press.
-     Past half-page scroll, drop the custom cursor entirely (board feedback). */
+     Past half-page scroll, drop the custom cursor entirely. */
   html, body { cursor: none; }
   a, button, input, select, textarea, label, summary, video,
   [role="button"], [role="link"] {
@@ -62,10 +68,8 @@
   :focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
 
   /* Black-hole cursor: real black core (WebGL additive can't paint black).
-     v19: board — v18 size/interaction is fine, but the filled disc looked
-     matte with a dirty gray rim. True-black event horizon, hairline white
-     photon ring (brighter crescent), tight corona. No color, no inset wash,
-     no v15 halo/shock/breathe. */
+     True-black event horizon, hairline white photon ring (brighter crescent),
+     tight corona. No color, no inset wash, no halo or breathe effect. */
   #bh {
     position: fixed;
     left: 0; top: 0;
@@ -159,12 +163,20 @@
   .pill-outline:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
 
   /* ---------- Hero ---------- */
-  /* v10 board trial: hero-only field. Galaxy is painted inside the hero and
-     scrolls away with it (no fixed full-page field). Fixed-viewport v9 is
-     preserved at apps/landing/variants/fixed-viewport.html and git tag
-     landing-fixed-viewport-v9 for instant rollback. */
+  /* Hero-only field: the galaxy is painted inside the hero and scrolls away
+     with it, rather than sitting fixed behind the whole page. A fixed-viewport
+     variant is preserved at apps/landing/variants/fixed-viewport.html. */
+  /* Desktop rhythm: a full 100vh hero left ~400px of dead black under the
+     CTA before the pillars. Cap the hero band and center the copy inside it
+     so the pillar row lands at (or just under) the fold. The <=960px query
+     restores the original 100vh / top-anchored mobile hero verbatim. */
   .hero {
-    position: relative; min-height: 100vh; display: flex; flex-direction: column;
+    /* Sized so the four pillars clear the fold on a 900px-tall viewport once
+       browser chrome is subtracted. At 77vh the hero reserved ~300px of empty
+       space below the CTA and pushed the pillar text to y=895, close enough to
+       the edge that it read as an accidental crop rather than a scroll cue. */
+    position: relative; min-height: clamp(560px, 70vh, 720px);
+    display: flex; flex-direction: column; justify-content: center;
     overflow: hidden; isolation: isolate;
   }
   #field {
@@ -174,7 +186,9 @@
   .hero-inner {
     position: relative; z-index: 1;
     text-align: center;
-    padding: 21vh 24px 0;
+    /* Top pad offsets the absolutely positioned nav so the centered block
+       reads optically centered rather than sitting under the logo. */
+    padding: 48px 24px 0;
   }
   .eyebrow {
     font-family: var(--mono); font-size: 12px; letter-spacing: 0.34em;
@@ -185,7 +199,12 @@
     font-weight: 200; letter-spacing: -0.02em; line-height: 1.12;
     color: #fff;
   }
-  .hero-cta { margin-top: 46px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+  .hero-sub {
+    margin: 24px auto 0; max-width: 44em;
+    font-family: var(--mono); font-size: 14px; line-height: 1.8;
+    letter-spacing: 0.01em; color: var(--body);
+  }
+  .hero-cta { margin-top: 38px; display: flex; align-items: center; justify-content: center; gap: 30px; }
   .hero-cta .pill-solid { font-size: 15px; padding: 12px 28px; }
   .demo-link { font-size: 15px; color: #aaa; transition: color 0.2s; }
   .demo-link:hover { color: #fff; }
@@ -195,11 +214,14 @@
   /* ---------- Features ---------- */
   .features {
     max-width: 1180px; margin: 0 auto;
-    padding: 150px 44px 60px;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 72px;
+    padding: 72px 44px 60px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px;
   }
-  .features h3 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 16px; }
-  .features p { font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--dim); }
+  /* Accent rule reads the four pillars as a grid and carries the console
+     teal onto the page. Flat 2px fill, no glow. */
+  .features > div { border-top: 2px solid var(--accent); padding-top: 24px; }
+  .features h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 14px; }
+  .features p { font-family: var(--mono); font-size: 14px; line-height: 1.85; color: var(--body); }
 
   /* ---------- Video (inline, no card chrome) ---------- */
   .watch {
@@ -236,6 +258,29 @@
     letter-spacing: 0.04em;
   }
 
+  /* ---------- Product screens (static, for people who skip the video) ---------- */
+  .shots { max-width: 1120px; margin: 0 auto; padding: 104px 44px 0; text-align: center; }
+  .shots .eyebrow { margin-bottom: 22px; }
+  .shots h2 {
+    font-size: clamp(30px, 3.2vw, 44px);
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    margin-bottom: 52px;
+  }
+  .shot { margin: 0; text-align: left; }
+  .shot img {
+    display: block; width: 100%; height: auto;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    background: #0b0f0e;
+  }
+  .shot figcaption {
+    font-family: var(--mono); font-size: 13px; line-height: 1.75;
+    color: var(--body); margin-top: 16px;
+  }
+  .shot figcaption b { color: #fff; font-weight: 500; }
+  .shot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 56px; }
+
   /* ---------- Pricing ---------- */
   .pricing { max-width: 1180px; margin: 0 auto; padding: 150px 44px 120px; }
   .pricing-head { text-align: center; margin-bottom: 110px; }
@@ -269,13 +314,22 @@
     .nav-links { display: none; }
     .features { grid-template-columns: repeat(2, 1fr); gap: 56px; padding-top: 110px; }
     .tiers { grid-template-columns: 1fr; gap: 80px; }
+    /* Mobile/tablet hero is byte-for-byte the previous layout. */
+    .hero { min-height: 100vh; justify-content: flex-start; }
     .hero-inner { padding-top: 24vh; }
+    .shots { padding-top: 88px; }
+    .shot-row { grid-template-columns: 1fr; gap: 48px; margin-top: 48px; }
   }
   @media (max-width: 560px) {
     .nav { padding: 20px 24px; }
     .nav-cta .pill-outline { display: none; }
     .features { grid-template-columns: 1fr; }
-    .features, .pricing, .watch { padding-left: 24px; padding-right: 24px; }
+    .features, .pricing, .watch, .shots { padding-left: 24px; padding-right: 24px; }
+    /* The footer row has always overflowed the viewport on phones (it forced
+       ~516px of horizontal scroll before the Screens link existed). Stack and
+       wrap it so the page has no horizontal scroll at any width. */
+    footer { flex-direction: column; align-items: flex-start; gap: 22px; padding: 40px 24px; }
+    footer nav { flex-wrap: wrap; gap: 14px 22px; }
   }
 </style>
 </head>
@@ -292,6 +346,7 @@
   <nav class="nav-links" aria-label="Primary">
     <a href="#features">Features</a>
     <a href="#video">Video</a>
+    <a href="#screens">Screens</a>
     <a href="#pricing">Pricing</a>
   </nav>
   <div class="nav-cta">
@@ -306,6 +361,7 @@
     <div class="hero-inner">
       <p class="eyebrow">ai usage monitoring</p>
       <h1>Monitor and govern<br>AI behavior in real time</h1>
+      <p class="hero-sub">Self-hosted. Metadata only. Never your prompts, never your code.</p>
       <div class="hero-cta">
         <a class="pill pill-solid" href="start.html">Get Started</a>
         <a class="demo-link" href="mailto:sales@getaimonitoring.com?subject=Demo%20request">Request a Demo<span class="arrow" aria-hidden="true">→</span></a>
@@ -316,15 +372,15 @@
   <section class="features" id="features" aria-label="What it does">
     <div>
       <h3>Observe</h3>
-      <p>every prompt, tool call,<br>file touch, every agent</p>
+      <p>every AI tool, agent, and<br>tool call, metadata only</p>
     </div>
     <div>
       <h3>Govern</h3>
-      <p>guardrails enforced inline<br>before the action runs</p>
+      <p>secret rules block inline<br>on Claude Code endpoints</p>
     </div>
     <div>
       <h3>Analyze</h3>
-      <p>attribution, coverage, risk<br>across your entire fleet</p>
+      <p>pseudonymous attribution,<br>coverage and fleet risk</p>
     </div>
     <div>
       <h3>Improve</h3>
@@ -346,6 +402,31 @@
       </video>
     </div>
     <p class="watch-cap">51s walkthrough. Synthetic demo data. No customer traffic.</p>
+  </section>
+
+  <section class="shots" id="screens" aria-label="Product screenshots">
+    <p class="eyebrow">inside the console</p>
+    <h2>What the console shows</h2>
+    <figure class="shot">
+      <img src="assets/shot-overview.webp"
+           alt="AI Monitoring overview dashboard showing active users, events in range, unhandled criticals, estimated spend, a live activity chart, and a list of top open alerts."
+           width="2064" height="1290" loading="lazy" decoding="async">
+      <figcaption><b>Overview.</b> Fleet-wide AI tool usage on one screen: active seats, event volume, open criticals, estimated spend, and sanctioned versus unapproved tools.</figcaption>
+    </figure>
+    <div class="shot-row">
+      <figure class="shot">
+        <img src="assets/shot-activity.webp"
+             alt="Live activity trail listing timestamped events with a security score, pseudonymous user reference, tool, model, token count, estimated cost, and match flags."
+             width="1240" height="620" loading="lazy" decoding="async">
+        <figcaption><b>Live activity.</b> One row per event: security score, pseudonymous user, tool, model, tokens, cost, and match flags. Flags only, never the matched text.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/shot-security.webp"
+             alt="Security view showing guardrail detector match flags by detector name with severity, category, match counts, affected users and tools, and first and last seen dates."
+             width="1240" height="620" loading="lazy" decoding="async">
+        <figcaption><b>Security.</b> Detector hits rolled up by name and severity, plus unapproved tools and MCP servers found on the fleet. Counts, not content.</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section class="pricing" id="pricing" aria-label="Pricing">
@@ -376,7 +457,7 @@
           <li>fleet beyond the community cap</li>
           <li>shared findings &amp; team dashboard</li>
           <li>community + email support</li>
-          <li>community enforce rules that ship free</li>
+          <li>free secret enforce rules (Claude Code)</li>
         </ul>
         <a class="pill pill-outline tier-cta" href="mailto:sales@getaimonitoring.com?subject=AIM%20Team">Contact Sales</a>
       </div>
@@ -402,7 +483,9 @@
   <nav aria-label="Footer">
     <a href="#features">Features</a>
     <a href="#video">Video</a>
+    <a href="#screens">Screens</a>
     <a href="#pricing">Pricing</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
     <a href="/.well-known/security.txt">Security</a>
   </nav>
   <span class="fine">© 2026 AI Monitoring</span>
@@ -416,61 +499,25 @@
   // (AIM-353 rule). The curve lives in normalized viewport coordinates and is
   // evaluated in the vertex shader, so resize costs nothing.
   //
-  // v5 after board review: system pointer still visible + two white glows
-  // (fixed arc focal + cursor aura) fighting each other. Replace both with a
-  // single black-hole cursor (CSS core, particles feed into it). Hide the OS
-  // cursor. Click enlarges the event horizon; particles swirl in harder.
+  // The field is deliberately almost still: mouse parallax and a slow crawl,
+  // no whole-band rotation. A custom black-hole cursor replaces the OS pointer
+  // over the hero; the normal pointer is restored on links and buttons so CTAs
+  // stay obviously clickable, and past half-page scroll the custom cursor is
+  // dropped entirely. The canvas is absolute inside .hero, so the field scrolls
+  // away with the hero and the cursor maps through getBoundingClientRect.
   //
-  // v6 board polish: restore the normal OS pointer on buttons/links (Get
-  // Started, Contact Sales, etc.) and hide the black hole while hovering them
-  // so CTAs stay obviously clickable.
+  // Two browser constraints the animation loop has to respect:
   //
-  // v7 board polish: field was effectively static without mouse input. Drive
-  // continuous ambient motion (rightward crawl + slow rotation) even when the
-  // pointer is idle, and strip every em dash from page copy.
+  //   * Never feed raw rAF / Date timestamps into the shader. Brave Shields
+  //     farbles performance.now(), and some Mac/WebKit paths hand rAF a huge
+  //     epoch-scale "now". Either makes `uTime = now/1000` explode: fract() on
+  //     the arc becomes noise and the field spins chaotically. Drive it from a
+  //     local sim clock with clamped dt, and keep every ease time-based so
+  //     120 Hz ProMotion does not run 2x faster than 60 Hz.
   //
-  // v8 board polish: "move a little bit more and constant" — raise ambient
-  // speeds, keep whole-field rotation + crawl always on (not mouse-gated).
-  //
-  // v9 board polish: hole drifted / stuck "up" while scrolling. Canvas was
-  // viewport-fixed, cursor→shader mapping used canvas-local coords, and scroll
-  // refreshed hit-testing so the hole stayed under the pointer at any scrollY.
-  //
-  // v10 board trial: hero-only field. Canvas is absolute inside .hero so the
-  // galaxy scrolls away with the hero. Cursor still maps via getBoundingClientRect
-  // (canvas-local), so accretion stays glued while the hero is on-screen and
-  // naturally falls off when the field has scrolled away. Fixed-viewport v9
-  // remains at variants/fixed-viewport.html + tag landing-fixed-viewport-v9.
-  //
-  // v11 board polish: after scrolling past half the page, restore the default
-  // OS cursor and hide the black-hole custom cursor (hero only).
-  //
-  // v12 board fix (Brave + Mac): never feed raw rAF / Date timestamps into
-  // the shader. Brave Shields farble performance.now(); some Mac/WebKit
-  // paths hand rAF a huge epoch-scale "now". Either one makes
-  // `uTime = now/1000` explode — fract() on the arc becomes noise and the
-  // whole-field rotation looks like a permanent chaotic spin. Chrome/Firefox
-  // looked correct because their rAF clock stays small and monotonic.
-  // Drive the field from a local sim clock with clamped dt, and keep every
-  // ease time-based so 120 Hz ProMotion does not run 2× faster than 60 Hz.
-  //
-  // v13 board fix: the live field was still twirling. v7/v8 added a 3.4°/s
-  // whole-band rotation + pivot weave + 8–22s crawl + ambient parallax orbit.
-  // The wanted look is the original comet-tail: slow, almost still, not
-  // rotating. Keep mouse parallax + tiny jitter. Drop rotation/orbit.
-  //
-  // v14 board fix (Chrome/Windows): v13 looked right on Brave/Mac and
-  // other browsers, but Chrome on a 1x PC was completely still. Two
-  // causes: (1) Windows "Animation effects" maps to prefers-reduced-motion
-  // and we zeroed uMotion; (2) ANGLE snaps sub-pixel POINTS, so a
-  // minutes-long crawl + 0.3px jitter never changes a pixel. Keep the
-  // band from rotating. Restore a quiet CSS-px crawl/jitter that stays
-  // visible at 1x and never fully freeze on reduced-motion.
-  //
-  // v15 tried a tiny singularity + bright ring + local swirl. Board:
-  // overdone. v16/v17 quieted the disc (then 2x to 28px). Board: size
-  // is right, but it no longer does anything — restore the original
-  // pull/swirl/click gulp, keep it local (not a page-wide well).
+  //   * ANGLE snaps sub-pixel POINTS on Chrome/Windows, so a minutes-long
+  //     crawl plus 0.3px jitter never changes a pixel and the field looks
+  //     frozen at 1x. Ambient motion has to stay in CSS px to remain visible.
   const canvas = document.getElementById('field');
   const holeEl = document.getElementById('bh');
   const rmQuery = matchMedia('(prefers-reduced-motion: reduce)');
@@ -720,8 +767,8 @@
     const depth = Math.random();
     data[o + 0] = t;
     data[o + 1] = off;
-    // Along-curve speed: almost still (~3–8 min lap). v8's 8–22s lap read as
-    // a streaming/spinning galaxy; the board wants a quiet comet tail.
+    // Along-curve speed: almost still (~3–8 min lap). A faster 8–22s lap reads
+    // as a streaming, spinning galaxy; the intended look is a quiet comet tail.
     data[o + 2] = (0.0022 + 0.0038 * Math.random()) * (0.6 + 0.7 * depth);
     data[o + 3] = depth;
     data[o + 4] = 0.6 + 1.1 * Math.random(); // 0.6-1.7 px at dpr 1

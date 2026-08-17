@@ -125,13 +125,30 @@ addFormats(ajv);
 
 const compiled: ValidateFunction = ajv.compile(schema);
 
+/**
+ * Longest client-controlled token we will ever echo back into an error string.
+ * Rejection errors are persisted (rejected_events, and the archive stub), so
+ * anything echoed here is a content-egress path: a collector that puts prompt
+ * text in a property name or a schema_version must not get it stored.
+ */
+const MAX_ECHO_LENGTH = 40;
+const SAFE_ECHO_RE = /^[0-9A-Za-z._-]+$/;
+
+/** Bounded, character-restricted echo of a client-supplied token. */
+function safeEcho(value: unknown): string {
+  if (typeof value !== "string") return `<${typeof value}>`;
+  if (value.length === 0) return "<empty>";
+  if (value.length > MAX_ECHO_LENGTH || !SAFE_ECHO_RE.test(value)) return "<malformed>";
+  return value;
+}
+
 function formatError(err: ErrorObject): string {
   const where = err.instancePath || "(root)";
   // ajv messages include the offending *value* for some keywords; strip params
   // so we never echo payload content into logs or API responses.
   if (err.keyword === "additionalProperties") {
     const prop = (err.params as { additionalProperty?: string }).additionalProperty;
-    return `${where}: unexpected property '${prop}'`;
+    return `${where}: unexpected property '${safeEcho(prop)}'`;
   }
   return `${where}: ${err.message ?? err.keyword}`;
 }
@@ -152,7 +169,7 @@ export function validateEvent(event: unknown): ValidationResult {
     majorVersion((event as { schema_version?: unknown }).schema_version) !== "1"
   ) {
     const v = (event as { schema_version?: unknown }).schema_version;
-    return { valid: false, errors: [`unsupported schema_version: ${String(v)}`] };
+    return { valid: false, errors: [`unsupported schema_version: ${safeEcho(v)}`] };
   }
   const ok = compiled(event);
   if (ok) return { valid: true, errors: [] };

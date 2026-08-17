@@ -1,5 +1,4 @@
-import { createHash } from "node:crypto";
-import type { EventSink, EnrichedEvent, RejectedRecord } from "./sink";
+import { fingerprintPayload, type EventSink, type EnrichedEvent, type RejectedRecord } from "./sink";
 import type { PoolLike } from "./migrate";
 
 const INSERT_EVENT = `
@@ -75,13 +74,13 @@ export class PostgresSink implements EventSink {
    */
   async insertRejected(records: RejectedRecord[]): Promise<void> {
     for (const r of records) {
-      const serialized = safeSerialize(r.payload);
-      const hash = createHash("sha256").update(serialized).digest("hex");
-      const keys =
-        r.payload !== null && typeof r.payload === "object" && !Array.isArray(r.payload)
-          ? Object.keys(r.payload)
-          : [];
-      await this.pool.query(INSERT_REJECTED, [r.batchIndex, r.error, hash, JSON.stringify(keys)]);
+      const { payload_hash, payload_keys } = fingerprintPayload(r.payload);
+      await this.pool.query(INSERT_REJECTED, [
+        r.batchIndex,
+        r.error,
+        payload_hash,
+        JSON.stringify(payload_keys),
+      ]);
     }
   }
 
@@ -91,13 +90,5 @@ export class PostgresSink implements EventSink {
 
   async close(): Promise<void> {
     await this.pool.end();
-  }
-}
-
-function safeSerialize(value: unknown): string {
-  try {
-    return JSON.stringify(value) ?? String(value);
-  } catch {
-    return String(value);
   }
 }

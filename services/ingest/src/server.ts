@@ -17,7 +17,12 @@ import {
 } from "./identity";
 import type { DeviceStore, EnrollRequest, HeartbeatRequest } from "./device-store";
 import type { EnrollTokenStore } from "./enroll-token-store";
-import { archiveKey, toArchiveNdjson, type BatchArchive } from "./object-store";
+import {
+  archiveKey,
+  toArchiveNdjson,
+  type ArchiveEntry,
+  type BatchArchive,
+} from "./object-store";
 import { mapOtlpTraceRequest, MAX_OTLP_SPANS } from "./otel";
 import { mapOtlpMetricsRequest, MAX_OTLP_DATAPOINTS } from "./otel-metrics";
 import { mapCopilotMetrics, mapCursorDailyUsage } from "./vendor-admin";
@@ -495,10 +500,36 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
       });
     }
 
-    // Raw-batch archival (AIM-83): persist the batch exactly as received
-    // (valid + rejected events) before any database write, keyed by UTC
-    // date/batch-id, for replay and forensics. Fail-open: an archive error
-    // never blocks ingestion.
+    const valid: UsageEventV1[] = [];
+    const rejected: RejectedRecord[] = [];
+    const archiveEntries: ArchiveEntry[] = [];
+    body.events.forEach((event: unknown, index: number) => {
+      const result = validateEvent(event);
+      if (result.valid) {
+        valid.push(event as UsageEventV1);
+        archiveEntries.push({ kind: "accepted", event: event as UsageEventV1 });
+      } else {
+        const record: RejectedRecord = {
+          batchIndex: index,
+          error: result.errors.join("; ").slice(0, MAX_ERROR_LENGTH),
+          payload: event,
+        };
+        rejected.push(record);
+        archiveEntries.push({ kind: "rejected", rejected: record });
+      }
+    });
+
+    // Raw-batch archival (AIM-83): persist the batch before any database
+    // write, keyed by UTC date/batch-id, for replay and forensics. Fail-open:
+    // an archive error never blocks ingestion.
+    //
+    // Runs AFTER validation, to hold the no-content-egress invariant
+    // (AIM-650) on this path too. The canonical schema is the control that
+    // rejects content-bearing fields, so archiving the raw body first let a
+    // buggy or malicious collector land prompt text in object storage that
+    // Postgres would have refused. Only schema-valid events are written
+    // verbatim; the rest become metadata-only fingerprint stubs, mirroring
+    // how rejected_events has always handled them.
     if (options.archive) {
       const receivedAt = new Date();
       const batchId = randomUUID();
@@ -509,10 +540,14 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
             {
               batch_id: batchId,
               received_at: receivedAt.toISOString(),
-              collector: body.collector ?? null,
-              event_count: body.events.length,
+              // The parsed identity, not body.collector: the wire envelope is
+              // client-controlled and parseCollectorIdentity only allowlists
+              // device_id / os_user / build out of it.
+              collector: hasIdentity(collectorIdentity) ? collectorIdentity : null,
+              event_count: archiveEntries.length,
+              rejected_count: rejected.length,
             },
-            body.events,
+            archiveEntries,
           ),
         );
       } catch (err) {
@@ -521,21 +556,6 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
         metrics.archiveErrorsTotal += 1;
       }
     }
-
-    const valid: UsageEventV1[] = [];
-    const rejected: RejectedRecord[] = [];
-    body.events.forEach((event: unknown, index: number) => {
-      const result = validateEvent(event);
-      if (result.valid) {
-        valid.push(event as UsageEventV1);
-      } else {
-        rejected.push({
-          batchIndex: index,
-          error: result.errors.join("; ").slice(0, MAX_ERROR_LENGTH),
-          payload: event,
-        });
-      }
-    });
 
     // Identity enrichment (AIM-49): one /resolve call per batch, stamped onto
     // every accepted event. Fail-open — resolution errors store the batch
@@ -1075,6 +1095,11 @@ export async function buildServer(options: ServerOptions): Promise<FastifyInstan
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** False for the empty identity a batch without a `collector` block parses to. */
+function hasIdentity(identity: CollectorIdentity): boolean {
+  return Object.keys(identity).length > 0;
+}
 
 function strOrUndef(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { UsageEventV1 } from "./schema";
 
 export interface RejectedRecord {
@@ -7,6 +8,39 @@ export interface RejectedRecord {
   error: string;
   /** Raw rejected payload. Sinks must never persist this directly. */
   payload: unknown;
+}
+
+/**
+ * The only representation of a rejected payload any store we operate is
+ * allowed to hold: a SHA-256 over its JSON serialization plus its top-level
+ * key names. An event that failed schema validation is by definition outside
+ * the metadata-only contract, so it could carry prompt text or code.
+ *
+ * Shared by every rejection sink (Postgres `rejected_events`, the raw-batch
+ * object archive) so a stub in one store joins to the row in the other on
+ * `payload_hash`.
+ */
+export interface PayloadFingerprint {
+  payload_hash: string;
+  payload_keys: string[];
+}
+
+export function fingerprintPayload(payload: unknown): PayloadFingerprint {
+  return {
+    payload_hash: createHash("sha256").update(safeSerialize(payload)).digest("hex"),
+    payload_keys:
+      payload !== null && typeof payload === "object" && !Array.isArray(payload)
+        ? Object.keys(payload)
+        : [],
+  };
+}
+
+function safeSerialize(value: unknown): string {
+  try {
+    return JSON.stringify(value) ?? String(value);
+  } catch {
+    return String(value);
+  }
 }
 
 /**

@@ -2,7 +2,7 @@
 """Continuous no-content-egress CI assertions (AIM-650).
 
 Proves the privacy invariant that collector → ingest payloads cannot carry
-prompt/response body fields. Three layers, all run on every PR (via the
+prompt/response body fields. Four layers, all run on every PR (via the
 python-tests job, which already covers collectors + ingest + schema):
 
   1. Schema static checks
@@ -21,6 +21,13 @@ python-tests job, which already covers collectors + ingest + schema):
        from a fixture row that deliberately carries them
      - the resulting wire event validates against the schema
 
+  4. Ingest archive path (AIM-83 raw-batch object store)
+     - Postgres is safe because the canonical schema runs before the insert.
+       The object archive is a *second* store on the same request path, so
+       these checks pin that it is written after validation, that only
+       schema-valid events reach it verbatim, that rejected payloads are
+       reduced to a fingerprint, and that the regression test stays in place.
+
 Usage:
     python3 scripts/no_content_egress.py              # print report
     python3 scripts/no_content_egress.py --check      # CI gate (exit 1 on fail)
@@ -34,6 +41,7 @@ import argparse
 import copy
 import importlib.util
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -62,6 +70,14 @@ GEMINI_FIXTURE = (
     / "fixtures"
     / "gemini_cli"
     / "usage.jsonl"
+)
+INGEST_SERVER = REPO_ROOT / "services" / "ingest" / "src" / "server.ts"
+INGEST_OBJECT_STORE = REPO_ROOT / "services" / "ingest" / "src" / "object-store.ts"
+INGEST_ARCHIVE_TEST = REPO_ROOT / "services" / "ingest" / "test" / "archive.test.ts"
+ARCHIVE_SOURCES: tuple[Path, ...] = (
+    INGEST_SERVER,
+    INGEST_OBJECT_STORE,
+    INGEST_ARCHIVE_TEST,
 )
 
 # Field names that re-introduce content collection. Exact match (schema style).
@@ -796,11 +812,185 @@ def check_emit(root: Path = REPO_ROOT) -> list[Check]:
     return checks
 
 
+def _strip_ts_comments(src: str) -> str:
+    """Drop // and /* */ comments so prose about a hazard is not read as one.
+
+    Safe on the two ingest sources we scan: neither has a ``//`` inside a
+    string literal (there is a check below that keeps it that way).
+    """
+    src = re.sub(r"/\*.*?\*/", "", src, flags=re.S)
+    return re.sub(r"//[^\n]*", "", src)
+
+
+def _ts_block_after(src: str, anchor: str) -> str | None:
+    """Return the brace-delimited block that opens after `anchor`."""
+    start = src.find(anchor)
+    if start < 0:
+        return None
+    open_at = src.find("{", start)
+    if open_at < 0:
+        return None
+    depth = 0
+    for i in range(open_at, len(src)):
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[open_at : i + 1]
+    return None
+
+
+def check_archive(root: Path = REPO_ROOT) -> list[Check]:
+    """Layer 4: the ingest raw-batch object archive (AIM-83).
+
+    Postgres cannot store content because the canonical schema runs before the
+    insert and `rejected_events` keeps only a hash + key names. The object
+    archive is a second store fed by the same request, so the metadata-only
+    claim only holds end-to-end if the archive obeys the same two rules:
+    validate first, and never write a payload the schema refused.
+    """
+    checks: list[Check] = []
+    paths = {p: root / p.relative_to(REPO_ROOT) for p in ARCHIVE_SOURCES}
+    missing = [p.relative_to(REPO_ROOT) for p, resolved in paths.items() if not resolved.is_file()]
+    if missing:
+        return [
+            Check(
+                "archive.sources_present",
+                "archive",
+                False,
+                f"missing ingest archive sources: {', '.join(str(m) for m in missing)}",
+            )
+        ]
+    checks.append(
+        Check(
+            "archive.sources_present",
+            "archive",
+            True,
+            "ingest server / object-store / archive test present",
+        )
+    )
+
+    server_raw = paths[INGEST_SERVER].read_text(encoding="utf-8")
+    store_raw = paths[INGEST_OBJECT_STORE].read_text(encoding="utf-8")
+    test_src = paths[INGEST_ARCHIVE_TEST].read_text(encoding="utf-8")
+    server = _strip_ts_comments(server_raw)
+    store = _strip_ts_comments(store_raw)
+
+    # Comment stripping is only sound while no string literal carries "//".
+    literal_slashes = re.search(r'"[^"\n]*//', server_raw) or re.search(r'"[^"\n]*//', store_raw)
+    checks.append(
+        Check(
+            "archive.scannable",
+            "archive",
+            not literal_slashes,
+            (
+                "ingest archive sources contain no '//' string literals; comment "
+                "stripping is sound"
+                if not literal_slashes
+                else "a '//' string literal appeared; the static checks below may misread it"
+            ),
+        )
+    )
+
+    # 1. Ordering. The schema is what rejects content-bearing fields, so the
+    #    archive write must not happen until it has run.
+    validate_at = server.find("validateEvent(")
+    put_at = server.find("archive.put(")
+    ordered = validate_at >= 0 and put_at >= 0 and validate_at < put_at
+    checks.append(
+        Check(
+            "archive.validate_before_write",
+            "archive",
+            ordered,
+            (
+                "schema validation runs before the raw-batch archive write"
+                if ordered
+                else "archive.put() is reachable before validateEvent(): unvalidated "
+                "events can land in object storage"
+            ),
+        )
+    )
+
+    # 2. What the archive write is handed. `body.events` is the unvalidated
+    #    wire array and `body.collector` the unparsed envelope; neither may be
+    #    passed into the archive call.
+    block = _ts_block_after(server, "if (options.archive)")
+    if block is None:
+        checks.append(
+            Check(
+                "archive.validated_input_only",
+                "archive",
+                False,
+                "could not locate the `if (options.archive)` block in server.ts",
+            )
+        )
+    else:
+        raw_inputs = sorted(
+            name for name in ("body.events", "body.collector") if name in block
+        )
+        checks.append(
+            Check(
+                "archive.validated_input_only",
+                "archive",
+                not raw_inputs,
+                (
+                    "archive write consumes validated entries and the allowlisted "
+                    "collector identity only"
+                    if not raw_inputs
+                    else f"archive write reads unvalidated wire input: {', '.join(raw_inputs)}"
+                ),
+            )
+        )
+
+    # 3. Rejected payloads are fingerprinted, never serialized. The type of the
+    #    accepted branch is the other half: only a UsageEventV1 goes in verbatim.
+    fingerprinted = "fingerprintPayload(record.payload)" in store
+    typed_accepted = re.search(
+        r'kind:\s*"accepted";\s*event:\s*UsageEventV1', store
+    ) is not None
+    checks.append(
+        Check(
+            "archive.rejects_fingerprinted",
+            "archive",
+            fingerprinted and typed_accepted,
+            (
+                "rejected payloads are reduced to hash + key names; only "
+                "UsageEventV1 is archived verbatim"
+                if fingerprinted and typed_accepted
+                else f"archive serializer weakened (fingerprint={fingerprinted}, "
+                f"typed_accepted={typed_accepted})"
+            ),
+        )
+    )
+
+    # 4. The behavioural regression test must stay. Static reads above cannot
+    #    see runtime behaviour; this is the test that actually posts a
+    #    content-bearing event and proves the bucket never sees it.
+    has_canary = "CANARY" in test_src
+    asserts_absent = "expect(body).not.toContain(CANARY)" in test_src
+    checks.append(
+        Check(
+            "archive.regression_test",
+            "archive",
+            has_canary and asserts_absent,
+            (
+                "archive.test.ts still asserts a content canary never reaches the archive"
+                if has_canary and asserts_absent
+                else "archive.test.ts lost its content-canary assertion"
+            ),
+        )
+    )
+
+    return checks
+
+
 def run_all(root: Path = REPO_ROOT) -> Report:
     report = Report()
     report.checks.extend(check_schema(root))
     report.checks.extend(check_samples(root))
     report.checks.extend(check_emit(root))
+    report.checks.extend(check_archive(root))
     report.ok = all(c.ok for c in report.checks)
     return report
 
@@ -854,6 +1044,12 @@ def self_test(root: Path = REPO_ROOT) -> int:
             fix_dst.parent.mkdir(parents=True, exist_ok=True)
             if fix_src.is_file():
                 shutil.copy2(fix_src, fix_dst)
+            for rel in ARCHIVE_SOURCES:
+                src = root / rel.relative_to(REPO_ROOT)
+                dst = tmp_root / rel.relative_to(REPO_ROOT)
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                if src.is_file():
+                    shutil.copy2(src, dst)
 
             mutator(tmp_root)
             report = run_all(tmp_root)
@@ -904,11 +1100,60 @@ def self_test(root: Path = REPO_ROOT) -> int:
             )
         path.write_text(poisoned, encoding="utf-8")
 
+    def _patch(tmp_root: Path, rel: Path, old: str, new: str, count: int = 1) -> None:
+        path = tmp_root / rel.relative_to(REPO_ROOT)
+        text = path.read_text(encoding="utf-8")
+        if old not in text:
+            raise AssertionError(f"self-test anchor missing in {rel.name}: {old[:60]!r}")
+        path.write_text(text.replace(old, new, count), encoding="utf-8")
+
+    def archive_before_validation(tmp_root: Path) -> None:
+        _patch(
+            tmp_root,
+            INGEST_SERVER,
+            "    const valid: UsageEventV1[] = [];",
+            "    if (options.archive) await options.archive.put('k', 'v');\n"
+            "    const valid: UsageEventV1[] = [];",
+        )
+
+    def archive_raw_body(tmp_root: Path) -> None:
+        _patch(tmp_root, INGEST_SERVER, "            archiveEntries,", "            body.events,")
+
+    def archive_raw_collector(tmp_root: Path) -> None:
+        _patch(
+            tmp_root,
+            INGEST_SERVER,
+            "collector: hasIdentity(collectorIdentity) ? collectorIdentity : null,",
+            "collector: body.collector ?? null,",
+        )
+
+    def archive_raw_reject(tmp_root: Path) -> None:
+        _patch(
+            tmp_root,
+            INGEST_OBJECT_STORE,
+            "      ...fingerprintPayload(record.payload),",
+            "      payload: record.payload,",
+        )
+
+    def drop_archive_canary(tmp_root: Path) -> None:
+        _patch(
+            tmp_root,
+            INGEST_ARCHIVE_TEST,
+            "expect(body).not.toContain(CANARY);",
+            "/* removed */",
+            count=-1,
+        )
+
     expect_fail("open_root_additionalProperties", open_root)
     expect_fail("declare_prompt_text_property", declare_prompt)
     expect_fail("dirty_valid_sample", dirty_valid)
     expect_fail("drop_invalid_prompt_fixture", drop_invalid)
     expect_fail("neuter_strip_forbidden", neuter_strip)
+    expect_fail("archive_before_validation", archive_before_validation)
+    expect_fail("archive_raw_body", archive_raw_body)
+    expect_fail("archive_raw_collector", archive_raw_collector)
+    expect_fail("archive_raw_reject", archive_raw_reject)
+    expect_fail("drop_archive_canary", drop_archive_canary)
 
     print(f"\nself-test: {failures} failure(s)")
     return 1 if failures else 0

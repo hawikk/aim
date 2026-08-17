@@ -52,15 +52,16 @@ use, what they cost, or whether secrets / personal data are flowing into them.
 AIM closes that with a **metadata-only** platform: collectors report
 pseudonymized usage metadata; the dashboard turns it into fleet visibility and
 security findings — without storing prompt text, code, or raw identities.
-Platform findings are observe/alert by default; endpoint hooks can enforce the
-managed secret-in-prompt bundle (see Trust).
+Platform findings are observe/alert by default. Enforcement is deliberately
+narrow: the **Claude Code** hook is the only collector that can block, and only
+for the managed secret-in-prompt bundle. The other five collectors are
+observe-only (see Trust, and `collectors/parity-matrix.json`).
 
 ### Dashboard
 
-Screenshots below are **live captures of the current analyst console**
-(sidebar IA as of 2026-08-14, 2880×1800 @2×): Home, Security, Live activity,
-Fleet, plus light theme. Source: a running personal/standalone stack with
-ingest data. Regenerate anytime with:
+Screenshots below are **live captures of the analyst console** at 2880×1800 @2×:
+Home, Security, Live activity, Fleet, plus light theme. Source: a running
+personal/standalone stack with synthetic data. Regenerate anytime with:
 
 ```bash
 # apps/web has Playwright; demo dashboard is :8081 (or set AIM_BASE / --base)
@@ -248,10 +249,16 @@ events**.
 These are non-negotiable design constraints, enforced in code and tests:
 
 - **Metadata-only telemetry.** The platform never stores prompt text, response
-  text, or code content. The canonical schema uses `additionalProperties: false`
-  and the test suite proves that any property named like `prompt`, `content`,
-  `text`, or `code` is rejected. Detection results are boolean flags plus a
-  detector name — never matched content.
+  text, or code content. The canonical schema uses `additionalProperties: false`,
+  so any property named like `prompt`, `content`, `text`, or `code` is rejected.
+  Detection results are boolean flags plus a detector name — never matched
+  content. You can verify this yourself in this repo, without a running stack:
+  `python scripts/no_content_egress.py` walks the whole invariant end to end
+  (schema rejection, adapter strip-before-emit, and the ingest archive layer),
+  and `--self-test` mutates each control to prove the checks still fail when
+  they should. `pnpm --filter @aimon/ingest test` runs the schema and archive
+  suites, including canaries for content smuggled through property names and
+  `schema_version`. Both run in CI.
 - **Pseudonymization at the edge.** `user_ref`, `host_id`, `team_ref`, and
   `repo_ref` are salted HMACs produced by collectors. Raw identity never
   leaves the endpoint; the salt lives outside this platform, so stored data
@@ -262,9 +269,12 @@ These are non-negotiable design constraints, enforced in code and tests:
   stored raw.
 - **Split enforcement posture.** The **platform** guardrail engine is
   detect-and-alert only — every finding carries `decision: "observe"`. That is
-  intentional and must not be read as "we do not enforce." **Endpoint** hooks
-  apply the managed `enforcement.json` bundle (`mode: enforce` for
-  `secret-pattern-in-prompt` only; other rules stay shadow). Real blocks and
+  intentional and must not be read as "we do not enforce." The **Claude Code**
+  endpoint hook — the only collector with a blocking interception point — applies
+  the managed `enforcement.json` bundle (`mode: enforce` for
+  `secret-pattern-in-prompt` only; other rules stay shadow). Cursor, Kilo Code,
+  Kimi Code, Grok Build and GitHub Copilot are observe-only; see
+  `collectors/parity-matrix.json` for the per-collector capability matrix. Real blocks and
   shadow decisions are audited on usage events as
   `enforcement: {action, rule_id, policy_hash}` (`blocked` | `would_block` |
   `confirmed`). A missing bundle fail-opens to observe. **Fleet enforce
@@ -361,9 +371,11 @@ so vitest exits non-zero on "no test files found". Run the suites listed under
 ### Tests in this snapshot
 
 > **Heads up:** this public repo is a snapshot of a larger internal monorepo and
-> **does not carry the per-collector and per-service `tests/` directories**, so
-> `pytest collectors/...` and `pytest services/...` will collect nothing here.
-> What *is* present and running in CI is listed below.
+> **does not carry most of the per-collector and per-service `tests/`
+> directories**, so `pytest collectors/...` will collect nothing here. The one
+> deliberate exception is `services/ingest/test/`, which carries the schema and
+> archive suites because they are the executable proof of the metadata-only
+> claim above. What *is* present and running in CI is listed below.
 
 The collectors are pure-stdlib Python; the services declare their deps in
 their own `pyproject.toml`.
