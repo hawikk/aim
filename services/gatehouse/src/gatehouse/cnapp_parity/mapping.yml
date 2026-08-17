@@ -2,7 +2,7 @@
 #
 # Each entry: an IaC scanner check (primarily Checkov) that, if it fails on a
 # PR, names the cloud-posture finding the same misconfiguration would become
-# post-deploy under Cloud Sentry (littlewiz policy slug).
+# post-deploy under the CNAPP (CNAPP policy slug).
 #
 # Fields:
 #   iac_rule        Checkov check id (or other scanner rule id)

@@ -20,10 +20,10 @@ So an absent header is reported as `unknown` and carries its own finding.
 collapsing them is precisely the silent pass this product exists to prevent.
 
 **Cloud principals are deep-linked, not re-derived (D2).** Enumerating what an
-IAM principal can do is CIEM, and Cloud Sentry already does it. Rebuilding a
+IAM principal can do is CIEM, and a CNAPP already does it. Rebuilding a
 policy evaluator here would produce a second, worse answer that disagrees with
 the first. When a leaked AWS key is verified live, STS hands back the caller's
-ARN — this module turns that ARN into a link to Cloud Sentry's CIEM view for
+ARN — this module turns that ARN into a link to the CNAPP's CIEM view for
 that exact principal, so "what could the finder have done with this key?" is one
 click away and answered by the component that owns the question.
 """
@@ -269,14 +269,14 @@ def _implied_by(scope: str, allowed: set[str]) -> bool:
 
 
 # --------------------------------------------------------------------------
-# Cloud principals — deep link into Cloud Sentry CIEM (D2).
+# Cloud principals — deep link into the CNAPP CIEM (D2).
 # --------------------------------------------------------------------------
 
-DEFAULT_CIEM_BASE = os.environ.get("CIEM_BASE_URL", "https://cloud-sentry.internal")
+DEFAULT_CIEM_BASE = os.environ.get("CIEM_BASE_URL", "https://cnapp.internal")
 
 
 def ciem_link(principal: str, *, base: str = "") -> str:
-    """A deep link to Cloud Sentry's CIEM view for one principal.
+    """A deep link to the CNAPP's CIEM view for one principal.
 
     The path is configurable because it belongs to another service's routing
     table, and hardcoding another team's URL shape is how a link rots silently.
@@ -293,7 +293,7 @@ def principal_finding(principal: str, *, repo: str, fingerprint_: str = "",
     """Raised when a live leaked cloud credential resolves to a real principal.
 
     This is the finding that answers "so what?" — the leak is the event, the
-    principal's effective permissions are the impact, and Cloud Sentry owns
+    principal's effective permissions are the impact, and the CNAPP owns
     that computation.
     """
     link = ciem_link(principal, base=ciem_base)
@@ -306,7 +306,7 @@ def principal_finding(principal: str, *, repo: str, fingerprint_: str = "",
         repo=repo,
         fingerprint=fingerprint_,
         message=(f"{source} authenticates as {principal}. The impact of this leak is whatever "
-                 "that principal is entitled to do, which is a CIEM question — Cloud Sentry "
+                 "that principal is entitled to do, which is a CIEM question — the CNAPP "
                  "computes it from the live policy graph rather than this pillar guessing "
                  "from the credential's shape."),
         remediation=(
@@ -318,5 +318,5 @@ def principal_finding(principal: str, *, repo: str, fingerprint_: str = "",
             "anything.\n"
             "4. RIGHT-SIZE the principal after the rotation. A leaked credential for a "
             "least-privileged role is a much smaller incident next time."),
-        labels={"principal": safe_label(principal, 128), "ciem": "cloud-sentry"},
+        labels={"principal": safe_label(principal, 128), "ciem": "cnapp-scanner"},
     )

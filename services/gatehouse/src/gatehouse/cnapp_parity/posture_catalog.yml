@@ -1,6 +1,6 @@
 # CNAPP posture rules that have (or must have) an IaC pre-merge equivalent.
-# Source of truth for rule *semantics*: littlewiz `backend/rules/<slug>.yaml`
-# (Cloud Sentry / CNAPP). This file is a vendored contract for gatehouse so
+# Source of truth for rule *semantics*: the CNAPP's own `backend/rules/`
+# definitions. This file is a vendored contract for gatehouse so
 # PR-time scans can name the would-be cloud finding without a live CNAPP call.
 #
 # Drift is reported by `gatehouse iac-parity --check` (and CI): every mapping
@@ -8,7 +8,7 @@
 # `iac_required: true` must have ≥1 IaC rule mapped to it.
 
 version: 1
-source: littlewiz/backend/rules
+source: cnapp/backend/rules
 notes: >
   Catalog is intentionally the CNAPP rules that IaC can prevent before deploy.
   Runtime-only / inventory-only rules (toxic combos, live attack paths) are

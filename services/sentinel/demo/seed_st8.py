@@ -9,10 +9,10 @@ Deliberately NOT part of the ``sentinel`` package. The service is read-only on
 the bus by design — no XADD, no XDEL, no XTRIM anywhere in ``src/sentinel`` —
 and shipping a publisher inside it would put an XADD one import away from the
 consumer, where the next person to need one would find it. This file is a demo
-harness that stands in for Cloud Sentry's publisher; it lives beside the
+harness that stands in for a CNAPP publisher; it lives beside the
 service, not in it.
 
-The alert it emits is shaped exactly like Cloud Sentry's real output
+The alert it emits is shaped exactly like the CNAPP's real output
 (``backend/alert_bus/mapping.py``): ``cloud_posture.prowler_s3_bucket_public_access``,
 ``critical``, an ARN resource ref, a ``cnapp:/…`` evidence ref. It is validated
 against the publisher schema here before it is written, for the same reason the
@@ -61,7 +61,7 @@ def build_alert(bucket: str, *, account: str = "123456789012", region: str = "eu
         "alert_id": _alert_id(dedupe),
         "dedupe_key": dedupe,
         "pillar": PILLAR,
-        "producer": {"name": "cloud-sentry", "version": "0.1.0"},
+        "producer": {"name": "cnapp-scanner", "version": "0.1.0"},
         "finding_type": FINDING_TYPE,
         "title": f"S3 bucket {bucket} is publicly readable",
         "severity": severity,

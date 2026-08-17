@@ -3,7 +3,7 @@
   "alert_id": "0f2b9d1a-6c44-4a7d-9a2e-1b3c5d7e9f01",
   "pillar": "cloud_posture",
   "producer": {
-    "name": "cloud-sentry",
+    "name": "cnapp-scanner",
     "version": "8c9aead"
   },
   "finding_type": "cloud_posture.s3_bucket_public_access",
@@ -25,7 +25,7 @@
   },
   "subject_ref": null,
   "evidence": {
-    "source_uri": "cloud-sentry:/findings/2f9c1d84-5b70-4c2a-9e11-77aa03bd6f19",
+    "source_uri": "cnapp:/findings/2f9c1d84-5b70-4c2a-9e11-77aa03bd6f19",
     "detail_count": 1,
     "summary": "Public access is not blocked at the bucket or account level."
   },

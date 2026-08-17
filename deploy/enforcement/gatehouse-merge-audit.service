@@ -25,7 +25,7 @@ Type=simple
 EnvironmentFile=-/etc/gatehouse/merge-audit.env
 ExecStart=/usr/local/bin/gatehouse merge-audit \
   --repo hawikk/aim \
-  --repo hawikk/littlewiz \
+  --repo hawikk/cnapp \
   --loop --interval 120 --publish --limit 20
 Restart=always
 RestartSec=30

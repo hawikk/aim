@@ -792,9 +792,9 @@ def run_audit_once(
 def parse_repo_specs(specs: list[str], default_ref: str = "main") -> tuple[list[str], dict[str, str]]:
     """Parse `--repo OWNER/NAME[:BASE-REF]` into (repos, {repo: base_ref}).
 
-    The twin repo (littlewiz) gates `master` while ai-monitoring gates `main`,
-    so a single shared `--base-ref` cannot express a multi-repo deployment
-    . A bare `OWNER/NAME` falls back to `default_ref`.
+    A second repo may gate a different default branch -- `master` in one,
+    `main` in another -- so a single shared `--base-ref` cannot express a
+    multi-repo deployment. A bare `OWNER/NAME` falls back to `default_ref`.
     """
     repos: list[str] = []
     refs: dict[str, str] = {}

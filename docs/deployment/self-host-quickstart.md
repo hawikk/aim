@@ -272,10 +272,10 @@ docker compose build gatehouse
 Design: `docs/gatehouse-github-app.md`.  
 **Not** a CI product SKU.
 
-### CNAPP / Cloud Sentry
+### CNAPP
 
 Not required for AIM dashboard green. IaC ↔ CNAPP rule parity for PRs lives
-under Gatehouse (`docs/security/iac-cnapp-parity.md`). Full Cloud Sentry
+under Gatehouse (`docs/security/iac-cnapp-parity.md`). Full CNAPP
 deploy is a separate track — do not expect Wiz-class scale from this laptop
 demo.
 

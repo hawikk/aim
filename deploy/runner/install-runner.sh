@@ -5,7 +5,7 @@
 # from a clean host that must NOT run the product compose stack (D-C2 hard path).
 #
 # Usage (root):
-#   export GH_REPO=hawikk/aim                    # or hawikk/littlewiz
+#   export GH_REPO=hawikk/aim                    # or hawikk/cnapp
 #   export RUNNER_LABELS=self-hosted,Linux,X64,aim-ci
 #   export RUNNER_NAME=aim-ci-gce                # unique per host
 #   # Registration token (short-lived):

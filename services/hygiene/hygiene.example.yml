@@ -9,7 +9,7 @@ scan:
   # never writes to a repository, never pushes, and never remediates (D4).
   repos:
     - /repos/ai-monitoring
-    - /repos/littlewiz
+    - /repos/cnapp
 
   # The documented minimum for this stack's GitHub token. Check 3 reports every
   # scope granted beyond this list.
@@ -47,10 +47,10 @@ liveness:
   enabled: true
 
 integrations:
-  # Cloud Sentry's CIEM view. When a leaked cloud credential is verified live,
+  # the CNAPP's CIEM view. When a leaked cloud credential is verified live,
   # STS returns the principal's ARN and the finding deep-links to its effective
   # permissions there (D2 — integrate, don't rebuild the policy evaluator).
-  ciem_base_url: https://cloud-sentry.internal
+  ciem_base_url: https://cnapp.internal
 
 storage:
   # Findings state, the HMAC fingerprint key, and rendered reports. 0700.

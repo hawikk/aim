@@ -12,7 +12,7 @@ Both use Draft 2020-12 and the same valid-/invalid- example convention, so
 adding a schema is a row in SCHEMAS, not a second script.
 
 security-alert ships in TWO forms and picking the wrong one is the
-defect (D3.1 §6.1). Cloud Sentry and gatehouse vendor from here — one schema,
+defect (D3.1 §6.1). The CNAPP and gatehouse vendor from here — one schema,
 one home — but they must vendor the form that matches their role:
 
   security-alert.schema.json           PUBLISHERS validate against this.

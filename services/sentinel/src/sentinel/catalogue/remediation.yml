@@ -131,7 +131,7 @@ entries:
       usually the network exposure or one over-broad IAM grant — and re-run the
       path query to confirm the chain is broken.
     console: >-
-      Cloud Sentry → Attack paths → open this path → each edge lists the exact
+      The CNAPP → Attack paths → open this path → each edge lists the exact
       grant or route that creates it.
 
   # ---- AI usage (AIM guardrail) ------------------------------------------

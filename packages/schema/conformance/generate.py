@@ -26,7 +26,7 @@ ex1 = {
   "alert_id": "0f2b9d1a-6c44-4a7d-9a2e-1b3c5d7e9f01",
   "dedupe_key": h("cloud_posture|s3_bucket_public_access|arn:aws:s3:::sensitive-data-bucket"),
   "pillar": "cloud_posture",
-  "producer": {"name": "cloud-sentry", "version": "8c9aead"},
+  "producer": {"name": "cnapp-scanner", "version": "8c9aead"},
   "finding_type": "cloud_posture.s3_bucket_public_access",
   "title": "S3 bucket allows public access via ACL or bucket policy",
   "severity": "high",
@@ -46,7 +46,7 @@ ex1 = {
   },
   "subject_ref": None,
   "evidence": {
-    "source_uri": "cloud-sentry:/findings/2f9c1d84-5b70-4c2a-9e11-77aa03bd6f19",
+    "source_uri": "cnapp:/findings/2f9c1d84-5b70-4c2a-9e11-77aa03bd6f19",
     "detail_count": 1,
     "summary": "Public access is not blocked at the bucket or account level."
   },
@@ -151,7 +151,7 @@ INVALID = {
   # §7.7 — plaintext identity must be impossible by construction
   "invalid-plaintext-user-ref.json": mut(ex2, subject_ref={"user_ref": "alice@example.com", "host_ref": h("host:x")}),
   # §3.1 — required field missing
-  "invalid-missing-producer-version.json": mut(ex1, producer={"name": "cloud-sentry"}),
+  "invalid-missing-producer-version.json": mut(ex1, producer={"name": "cnapp-scanner"}),
   # §2 — an alert is a pointer, not a copy: no room for a raw payload
   "invalid-extra-toplevel-field.json": mut(ex1, raw_finding={"body": "..."}),
   # §3.1 — finding_type must be namespaced by pillar

@@ -43,7 +43,7 @@ signal:
    suppressed findings still appear in the summary and on the alert bus as
    `status: suppressed`.
 4. **Alert bus publish** — every finding (and lifecycle change) as
-   `security.alert/v1.1` on the same stream AIM, Cloud Sentry, and Sentinel
+   `security.alert/v1.1` on the same stream AIM, the CNAPP, and Sentinel
    already consume.
 
 Diff scope is merge-base aware: pre-existing findings on lines you did not touch
@@ -113,7 +113,7 @@ posture after deploy**.
   vendored posture catalog and mapping
   (`services/gatehouse/src/gatehouse/cnapp_parity/`).
 - The PR comment includes a **“Would-be cloud findings”** section when a mapped
-  misconfiguration is in scope — same rule family Cloud Sentry would open
+  misconfiguration is in scope — same rule family the CNAPP would open
   post-apply (for example public S3 / open security groups).
 - Drift between the map and the catalog fails closed in CI
   (`gatehouse iac-parity`). See `docs/security/iac-cnapp-parity.md`.

@@ -68,7 +68,7 @@ in a working directory is normal and flagging it trains people to ignore us.
 ### 3. Token scope audit (`checks/tokens.py`)
 
 Compares a token's granted scopes against the documented minimum, and
-deep-links over-scoped **cloud** principals into Cloud Sentry's CIEM view
+deep-links over-scoped **cloud** principals into the CNAPP's CIEM view
 rather than rebuilding a policy evaluator here (D2).
 
 > **The trap this check is built around.** Fine-grained PATs, GitHub App

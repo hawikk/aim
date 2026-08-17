@@ -139,7 +139,7 @@ if (( AGGRESSIVE )); then
     'ai-monitoring-*'
     'localhost:5000/*'
     'localhost:5001/*'
-    'littlewiz-app:aim303*'
+    'cnapp-app:aim303*'
     'portfolio:*'
     'guardraild:e2e'
     'aim/api:*dirty*'

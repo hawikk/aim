@@ -7,8 +7,9 @@ tell the *code-to-cloud* story pre-merge:
 * PR comments surface the would-be cloud finding (severity + rule)
 * drift between the mapping and the posture catalog fails CI
 
-The CNAPP catalog is vendored from Cloud Sentry (littlewiz `backend/rules/`)
-so a PR scan does not need a live CNAPP API call. Live asset correlation is out of scope here; this module is the rule-semantics half.
+The posture catalog is vendored rather than fetched, so a PR scan does not
+need a live CNAPP API call. Live asset correlation is out of scope here;
+this module is the rule-semantics half.
 """
 
 from __future__ import annotations
@@ -346,7 +347,7 @@ def render_would_be_section(
         "### Would-be cloud findings (code → cloud)",
         "",
         "These IaC misconfigurations map to the **same CNAPP posture rules** "
-        "Cloud Sentry enforces post-deploy. Fixing them here prevents the "
+        "the CNAPP enforces post-deploy. Fixing them here prevents the "
         "cloud finding from ever opening.",
         "",
         "| Cloud severity | CNAPP rule | IaC rule | Location |",

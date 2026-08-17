@@ -331,8 +331,8 @@ def discover_lockfiles(root: Path) -> list[str]:
             "wt-aim334",
             "wt-aim381-siem",
             "wt-aim382",
-            "littlewiz-aim198",
-            "littlewiz-aim237",
+            "cnapp-198",
+            "cnapp-237",
             "ai-monitoring",
         }
         dirnames[:] = [d for d in dirnames if d not in skip and not d.startswith("wt-")]

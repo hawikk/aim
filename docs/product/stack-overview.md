@@ -13,7 +13,7 @@ posture (CNAPP) findings. We do **not** sell a CI/CD platform.
   Endpoints / AI tools          Pull requests              Cloud / IaC
   ─────────────────             ─────────────              ──────────
   collectors + proxy            Gatehouse (free)           CNAPP posture
-  guardrail engine              one check + comment        (Cloud Sentry)
+  guardrail engine              one check + comment        (CNAPP)
          │                              │                        │
          └──────────── security.alert/v1.1 bus ──────────────────┘
                               │
@@ -25,7 +25,7 @@ posture (CNAPP) findings. We do **not** sell a CI/CD platform.
 | **AI usage monitoring** | What tools, models, and policy hits appear on the fleet (metadata-only) | Core commercial product |
 | **Guardrails** | Prompt/MCP/tool policy, secret/PII signals, enforcement modes | Core commercial product |
 | **Gatehouse** | Diff-scoped Semgrep + Gitleaks + Checkov + Trivy → one PR check/comment; IaC maps to CNAPP rule IDs | **Free / OSS PR-security pillar** — [gatehouse.md](./gatehouse.md) |
-| **CNAPP / Cloud Sentry** | Post-deploy cloud posture | Paired commercial pillar; same rule family as Gatehouse IaC map |
+| **CNAPP** | Post-deploy cloud posture | Paired commercial pillar; same rule family as Gatehouse IaC map |
 | **Hygiene** | Full-history secret/token hygiene (not PR-diff) | Supporting pillar |
 | **Sentinel / alert bus** | Fan-out of `security.alert/v1.1` to Slack, webhooks, SIEM | Shared fabric |
 

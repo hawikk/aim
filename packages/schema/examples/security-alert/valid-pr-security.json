@@ -18,8 +18,8 @@
   "observed_count": 1,
   "resource": {
     "kind": "pull_request",
-    "ref": "github.com/hawikk/littlewiz#417",
-    "display": "littlewiz #417",
+    "ref": "github.com/hawikk/cnapp#417",
+    "display": "cnapp #417",
     "provider": "github",
     "account_ref": "hawikk",
     "region": null

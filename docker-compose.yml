@@ -649,11 +649,11 @@ services:
     volumes:
       - gatehouse-state:/var/lib/gatehouse
     # Poll every 2 minutes. --publish is required for the bus half of.
-    # Twin repo (littlewiz) is optional: set GATEHOUSE_AUDIT_REPO_TWIN when that
+    # Twin repo  is optional: set GATEHOUSE_AUDIT_REPO_TWIN when that
     # repo ships `.github/required-checks.json` and the read token can see it.
     # Repos may carry a per-repo base-ref suffix, e.g.
     #   GATEHOUSE_AUDIT_REPO=hawikk/aim:main
-    #   GATEHOUSE_AUDIT_REPO_TWIN=hawikk/littlewiz:master
+    #   GATEHOUSE_AUDIT_REPO_TWIN=hawikk/cnapp:master
     # Shared code path — do not fork for the twin.
     entrypoint: ["sh", "-c"]
     command:

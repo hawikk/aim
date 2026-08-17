@@ -29,7 +29,7 @@ wrong fails silently:
 
 | You are a… | Validate against | Why |
 |---|---|---|
-| **publisher** (Cloud Sentry, AIM guardrail, PR scanner) | `schema/v1/security-alert.schema.json` | Strict. A typo'd field name is a publisher bug and must fail loudly at publish time, nearest the code that caused it. |
+| **publisher** (the CNAPP, AIM guardrail, PR scanner) | `schema/v1/security-alert.schema.json` | Strict. A typo'd field name is a publisher bug and must fail loudly at publish time, nearest the code that caused it. |
 | **consumer** (inbox API, sentinel, UI) | `schema/v1/security-alert.consumer.schema.json` | The derived consumer profile (§6.1). Tolerates unknown fields and unknown open-vocabulary enum members, so an additive minor bump stays consumable. |
 
 **A consumer that vendors the strict schema is the defect.** §6 makes
