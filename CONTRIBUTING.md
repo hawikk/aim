@@ -120,8 +120,8 @@ Do not add runtime dependencies without discussing it in an issue first.
 
 ## Commits and pull requests
 
-This snapshot is exported from a private monorepo, so its history does not
-match the upstream one. For contributions here:
+This repository is a curated snapshot, so its history is shorter than the
+development history behind it. For contributions here:
 
 - Write a short imperative subject line, ideally under ~70 characters, e.g.
   `fix cursor collector crash on empty state.vscdb`.
