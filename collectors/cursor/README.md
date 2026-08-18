@@ -42,13 +42,17 @@ Two collection paths, both feeding one local spool:
 
 1. **Hooks** (`hook <event>` subcommand) — registered in the user-level
    `~/.cursor/hooks.json` for `sessionStart`, `sessionEnd`,
-   `beforeSubmitPrompt`, `afterAgentResponse`, `postToolUse`. Cursor pipes
-   a JSON payload to stdin; the collector converts it to one v1 event.
-   Prompt/tool text fields are scanned locally for secret/PII patterns and
-   then discarded — only flags survive. Payload fields vary by Cursor
-   version, so extraction is defensive: take what exists, tolerate
-   everything missing. The hook always exits 0; a broken collector must
-   never break an engineer's session.
+   `beforeSubmitPrompt`, `afterAgentResponse`, `postToolUse`, plus the
+   enforcement hooks `preToolUse`, `beforeShellExecution`, and
+   `beforeMCPExecution`. Cursor pipes a JSON payload to stdin; the
+   collector converts it to one v1 event. Prompt/tool text fields are
+   scanned locally for secret/PII patterns and then discarded — only flags
+   survive. Payload fields vary by Cursor version, so extraction is
+   defensive: take what exists, tolerate everything missing.
+   When a managed `enforcement.json` is in `mode: enforce` and a rule
+   fires, the hook prints Cursor JSON to stdout and exits **2** (block).
+   Missing or broken policy, and any collector exception, **fail open**
+   (exit 0, no stdout) so a broken collector never wedges the session.
 2. **Passive state.vscdb scan** (`scan-once` / `watch` subcommands) —
    reads Cursor's local SQLite state (`globalStorage/state.vscdb` and
    `workspaceStorage/*/state.vscdb`, `ItemTable` keys

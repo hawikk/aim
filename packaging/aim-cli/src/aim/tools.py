@@ -8,12 +8,13 @@ hook registration file.
 
 Two collector shapes exist and both are first-class here:
 
-  * hook-based  (Claude Code, Cursor): register a command hook in the tool's
-    own settings file; telemetry + enforcement fire on tool events.
-  * scan-based  (Kilo Code, Kimi Code, Grok Build): no hook API, so there is nothing to
-    register — coverage comes from enrollment + the periodic scan. `join`
-    still configures + enrolls them; `status` reports them as scan-based
-    rather than "unhooked/broken".
+  * hook-based  (Claude Code, Cursor, Copilot, Kimi, Grok): register a
+    command hook in the tool's own settings file; telemetry + enforcement
+    fire on tool events.
+  * scan-based  (Kilo Code): no hook API, so there is nothing to register —
+    coverage comes from enrollment + the periodic scan. `join` still
+    configures + enrolls it; `status` reports it as scan-based rather than
+    "unhooked/broken".
 
 Device identity: Claude/Kilo/Kimi collectors default to the same state dir
 (`~/.aim-collector`), so they share one host id + device token — one device
@@ -103,7 +104,7 @@ def _detect_cursor(tool) -> bool:
 
 
 def _detect_kilo(tool) -> bool:
-    # IDE globalStorage and/or standalone CLI (dual surface)
+    # IDE globalStorage and/or standalone CLI (AIM-647 dual surface)
     paths = tool.module("paths")
     if hasattr(paths, "any_surface_present"):
         return bool(paths.any_surface_present())
@@ -148,11 +149,11 @@ TOOLS = [
     Tool("kilo-code", "Kilo Code", "kilo-code", "kilo_collector",
          hooks=False, detect=_detect_kilo, scan_mod="watch"),
     Tool("kimi-code", "Kimi Code", "kimi-code", "kimi_collector",
-         hooks=False, detect=_detect_kimi, scan_mod="watch"),
+         hooks=True, detect=_detect_kimi, scan_mod="watch"),
     Tool("grok-build", "Grok Build", "grok-build", "grok_collector",
-         hooks=False, detect=_detect_grok, scan_mod="emit"),
+         hooks=True, detect=_detect_grok, scan_mod="emit"),
     Tool("github-copilot", "GitHub Copilot", "github-copilot", "copilot_collector",
-         hooks=False, detect=_detect_copilot, scan_mod="watch"),
+         hooks=True, detect=_detect_copilot, scan_mod="watch"),
 ]
 
 

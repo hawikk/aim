@@ -9,14 +9,15 @@ commands:
   install                 write config, enroll the device, verify connectivity:
                           install [--ingest-url URL] [--enroll-token TOKEN]
                                   [--token EVENTS_TOKEN] [--ring RING]
-  uninstall               remove the local device token (stops heartbeats)
+  uninstall               remove AIM hooks and the local device token
+  hook                    invoked BY Grok (stdin JSON)
   heartbeat               send one fleet heartbeat (no-op when not enrolled)
   emit-run [--dry-run]    emit one metadata-only usage event for the current
                           Grok Build run (PAPERCLIP_RUN_ID / --run-id)
                           options: --run-id ID --model MODEL --workspace PATH
                                    --tokens-in N --tokens-out N --force
   scan-once [--dry-run]   emit agent-runner presence + tail Grok usage log
-                          for per-session token deltas; then flush
+                          for per-session token deltas (AIM-470); then flush
   scan                    alias for scan-once
   flush                   drain local spool to ingestion API
 """
@@ -74,10 +75,15 @@ def main(argv=None) -> int:
         return inst.main(args)
     if cmd == "uninstall":
         from . import install as inst
+        from . import enroll
         inst.uninstall()
-        print("device token removed; heartbeats stopped "
+        enroll.clear_device_token()
+        print("hooks removed; device token removed; heartbeats stopped "
               "(server-side revocation remains an admin action)")
         return 0
+    if cmd == "hook":
+        from . import hook
+        return hook.main(args)
     if cmd == "heartbeat":
         from . import enroll
         res = enroll.heartbeat()

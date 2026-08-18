@@ -2,9 +2,10 @@
 
 `python -m aim_collector personal` scans this machine's real AI tool data —
 Claude Code transcripts, Cursor state.vscdb, Kilo Code task logs, Kimi Code
-wire logs — into a local SQLite file and serves the existing dashboard bound
-to 127.0.0.1 — no docker, no Postgres, no auth, and (by design) zero outbound
-network calls. Everything stays on the machine.
+wire logs, Grok Build usage logs, GitHub Copilot local sessions — into a
+local SQLite file and serves the existing dashboard bound to 127.0.0.1 —
+no docker, no Postgres, no auth, and (by design) zero outbound network
+calls. Everything stays on the machine.
 
 Detection is real: the local secret/PII matchers run over content
 IN MEMORY at scan time; matched content is discarded immediately and only
@@ -17,6 +18,8 @@ Reuses:
   * cursor_collector.vscdb        — Cursor passive state.vscdb parser
   * kilo_collector.tasks          — Kilo Code ui_messages.json parser
   * kimi_collector.wire           — Kimi Code wire.jsonl parser
+  * grok_collector.usage          — Grok Build unified.jsonl tail
+  * copilot_collector.extract     — GitHub Copilot local surfaces
   * store                         — SQLite event store + read queries
   * apps/web/public               — the shipped dashboard, served as static files
 """
@@ -37,6 +40,8 @@ CHECKPOINT = "personal-checkpoint"  # independent from the network collector
 CURSOR_CHECKPOINT = "personal-cursor-checkpoint"
 KILO_CHECKPOINT = "personal-kilo-checkpoint"
 KIMI_CHECKPOINT = "personal-kimi-checkpoint"
+GROK_CHECKPOINT = "personal-grok-checkpoint"
+COPILOT_CHECKPOINT = "personal-copilot-checkpoint"
 DEFAULT_PORT = 8787
 _CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -60,7 +65,8 @@ def web_root() -> Path:
 
 def _sibling_collectors_root() -> Path | None:
     """Locate the repo's `collectors/` dir (holds cursor/, kilo-code/,
-    kimi-code/) by walking up from this file. AIM_COLLECTORS_ROOT overrides.
+    kimi-code/, grok-build/, github-copilot/) by walking up from this file.
+    AIM_COLLECTORS_ROOT overrides.
     None when running from a Claude-Code-only checkout — the sibling scans
     are then skipped, Claude Code still works."""
     import os
@@ -173,6 +179,125 @@ def _scan_kimi(sink) -> int:
     return len(out)
 
 
+def _scan_grok(sink) -> int:
+    """Grok Build usage-log scan (unified.jsonl) into the personal store."""
+    mod = _import_sibling("grok-build", "grok_collector")
+    if mod is None:
+        return 0
+    import os
+    from grok_collector import events as grok_events, pricing, usage
+    cp = state.load_checkpoint(GROK_CHECKPOINT)
+    try:
+        # First personal scan should see recent history; fleet tail starts at EOF.
+        deltas = usage.scan_inference_log(cp, backfill_bytes=32 * 1024 * 1024)
+    except Exception:
+        return 0
+    model_name = (
+        (os.environ.get("AIM_GROK_MODEL") or "").strip()
+        or (os.environ.get("GROK_MODEL") or "").strip()
+        or "grok-4.5"
+    )
+    out: list[dict] = []
+    for d in deltas:
+        if d.tokens_in <= 0 and d.tokens_out <= 0:
+            continue
+        try:
+            sid = grok_events.daily_session_id(d.session_id, epoch_s=d.last_ts_epoch)
+            tin = d.tokens_in if d.tokens_in > 0 else None
+            tout = d.tokens_out if d.tokens_out > 0 else None
+            cost = pricing.estimate_cost(
+                model_name,
+                d.tokens_in,
+                d.tokens_out,
+                tokens_cached=d.tokens_cached,
+            )
+            ev = grok_events.new_event(
+                session_id=sid,
+                model=model_name,
+                workspace_path=None,
+                tokens_in=tin,
+                tokens_out=tout,
+                cost_estimate_usd=cost,
+                adapter_type="grok_local",
+                flags=[],
+                status="ok",
+                ts_epoch_s=d.last_ts_epoch,
+            )
+        except Exception:
+            continue
+        out.append(ev)
+    state.save_checkpoint(cp, GROK_CHECKPOINT)
+    sink(out)
+    return len(out)
+
+
+def _rewrite_copilot_personal(evs: list[dict]) -> None:
+    """Group Copilot as github_copilot; the user's own install is not unapproved."""
+    for ev in evs:
+        ev["tool"] = "github_copilot"
+        flags = ev.get("match_flags") or []
+        ev["match_flags"] = [
+            f for f in flags
+            if not (isinstance(f, dict) and f.get("detector") == "policy:unapproved-tool")
+        ]
+
+
+def _scan_copilot(sink) -> int:
+    """GitHub Copilot local-surface scan into the personal store."""
+    mod = _import_sibling("github-copilot", "copilot_collector")
+    if mod is None:
+        return 0
+    from copilot_collector import extract, events as copilot_events
+    cp = state.load_checkpoint(COPILOT_CHECKPOINT)
+    seen = cp.setdefault("sources", {})
+    if not isinstance(seen, dict):
+        seen = {}
+        cp["sources"] = seen
+    inv_days = set(cp.get("inventory_days") or [])
+    today = copilot_events.format_ts(None)[:10]
+
+    emitted: list[dict] = []
+    try:
+        records = extract.collect_records()
+    except Exception:
+        records = []
+
+    for rec in records:
+        key = rec.source_key
+        prev = seen.get(key) if isinstance(seen.get(key), dict) else {}
+        if rec.kind == "inventory":
+            day_key = f"{today}|{key}"
+            if day_key in inv_days:
+                continue
+        elif (
+            prev.get("mtime") == rec.mtime
+            and prev.get("size") == rec.size
+        ):
+            continue
+        try:
+            new_events = copilot_events.events_from_record(rec)
+        except Exception:
+            continue
+        emitted.extend(new_events)
+        seen[key] = {"mtime": rec.mtime, "size": rec.size}
+        if rec.kind == "inventory":
+            inv_days.add(f"{today}|{key}")
+
+    if len(seen) > 8000:
+        keys = list(seen.keys())
+        for k in keys[: len(keys) // 2]:
+            seen.pop(k, None)
+    if len(inv_days) > 400:
+        inv_days = set(sorted(inv_days)[-200:])
+    cp["sources"] = seen
+    cp["inventory_days"] = sorted(inv_days)
+
+    _rewrite_copilot_personal(emitted)
+    state.save_checkpoint(cp, COPILOT_CHECKPOINT)
+    sink(emitted)
+    return len(emitted)
+
+
 def scan(db: store.sqlite3.Connection | None = None) -> int:
     """One pass over all local tool data into the personal SQLite store.
     Returns events written. A failure in any single tool's scan never
@@ -197,7 +322,7 @@ def scan(db: store.sqlite3.Connection | None = None) -> int:
             ts_from_transcript=True,
             scan_content=True,
         )
-        for tool_scan in (_scan_cursor, _scan_kilo, _scan_kimi):
+        for tool_scan in (_scan_cursor, _scan_kilo, _scan_kimi, _scan_grok, _scan_copilot):
             try:
                 total += tool_scan(sink)
             except Exception:

@@ -1,8 +1,11 @@
-# copilot-collector — GitHub Copilot depth
+# copilot-collector — GitHub Copilot depth (AIM-1167)
 
 Metadata-only usage collector for GitHub Copilot on the endpoint. Pure
 Python 3 stdlib. Same enroll / spool / heartbeat contract as the other
-scan-based collectors.
+collectors. `aim join` also writes official user hooks to
+`~/.copilot/hooks/aim.json` so VS Code Copilot can refuse a prompt and
+Copilot CLI can deny a tool call when `enforcement.json` is in enforce
+mode.
 
 ## What it collects
 
@@ -23,7 +26,7 @@ fixtures and fail if any marker reaches an event.
 GitHub does **not** persist suggestion-accept or token counters locally.
 This collector does not invent `tokens_in` / `tokens_out`. Org-level
 adoption numbers belong on the Copilot Metrics API
-.
+([AIM-1168](/AIM/issues/AIM-1168)).
 
 ## Commands
 

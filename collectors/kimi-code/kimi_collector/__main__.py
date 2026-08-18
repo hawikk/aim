@@ -9,7 +9,8 @@ commands:
   install                 write config, enroll the device, verify connectivity:
                           install [--ingest-url URL] [--enroll-token TOKEN]
                                   [--token EVENTS_TOKEN] [--ring RING]
-  uninstall               remove the local device token (stops heartbeats)
+  uninstall               remove AIM hooks and the local device token
+  hook                    invoked BY Kimi Code (stdin JSON)
   heartbeat               send one fleet heartbeat (no-op when not enrolled)
   scan-once [--dry-run]   one pass over Kimi Code wire logs; emit usage
                           events, flush spool. --dry-run prints events to
@@ -34,10 +35,15 @@ def main(argv=None) -> int:
         return inst.main(args)
     if cmd == "uninstall":
         from . import install as inst
+        from . import enroll
         inst.uninstall()
-        print("device token removed; heartbeats stopped "
+        enroll.clear_device_token()
+        print("hooks removed; device token removed; heartbeats stopped "
               "(server-side revocation remains an admin action)")
         return 0
+    if cmd == "hook":
+        from . import hook
+        return hook.main(args)
     if cmd == "heartbeat":
         from . import enroll
         res = enroll.heartbeat()

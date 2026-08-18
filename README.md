@@ -36,11 +36,10 @@ and falls back to building from source, which is the supported path here. The
 one artifact that *is* published is the CLI wheel on PyPI
 ([`aimonitoring-security`](https://pypi.org/project/aimonitoring-security/)).
 
-| Tier | Price | How you start |
-| --- | --- | --- |
-| Community | Free (soft cap: 3 seats) | Clone this repo |
-| Team | $12 / seat / mo annual | [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com) |
-| Enterprise | From $28 / seat / mo | [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com) |
+| Path | How you start |
+| --- | --- |
+| Community (free, soft cap: 3 seats) | Clone this repo |
+| Team and Enterprise | [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com) |
 
 The 3-seat Community cap is a license line, not a download gate. SSO, paid
 enforce packs, Sentinel, and evidence packs are commercial. The software in
@@ -64,9 +63,10 @@ AIM closes that with a **metadata-only** platform: collectors report
 pseudonymized usage metadata; the dashboard turns it into fleet visibility and
 security findings — without storing prompt text, code, or raw identities.
 Platform findings are observe/alert by default. Enforcement is deliberately
-narrow: the **Claude Code** hook is the only collector that can block, and only
-for the managed secret-in-prompt bundle. The other five collectors are
-observe-only (see Trust, and `collectors/parity-matrix.json`).
+narrow: **Claude Code and Cursor** can block on the endpoint when a managed
+`enforcement.json` is loaded. Kilo, Kimi, Grok Build and GitHub Copilot have
+no pre-send hook API and stay observe-only (see Trust, and
+`collectors/parity-matrix.json`).
 
 ### Dashboard
 
@@ -140,9 +140,8 @@ below, or write [sales@](mailto:sales@getaimonitoring.com).
 ### 2. Personal mode — your own AI usage in 60 seconds
 
 No company, no SSO, no Docker, no database. Install the single `aim` CLI and
-watch **your own** Claude Code, Cursor, Kilo Code, and Kimi Code usage on a
-local dashboard. Grok Build and GitHub Copilot are fleet / observe-only;
-`aim personal` does not scan them. Everything stays on your machine —
+watch **your own** Claude Code, Cursor, Kilo Code, Kimi Code, Grok Build,
+and GitHub Copilot usage on a local dashboard. Everything stays on your machine —
 **personal mode makes zero outbound network calls** (verify by running it
 with networking off). Requires only Python 3.11+ (standard library only).
 On a single-user machine `user_ref` falls back to `host_ref` — there is
@@ -291,11 +290,10 @@ These are non-negotiable design constraints, enforced in code and tests:
   stored raw.
 - **Split enforcement posture.** The **platform** guardrail engine is
   detect-and-alert only — every finding carries `decision: "observe"`. That is
-  intentional and must not be read as "we do not enforce." The **Claude Code**
-  endpoint hook — the only collector with a blocking interception point — applies
-  the managed `enforcement.json` bundle (`mode: enforce` for
-  `secret-pattern-in-prompt` only; other rules stay shadow). Cursor, Kilo Code,
-  Kimi Code, Grok Build and GitHub Copilot are observe-only; see
+  intentional and must not be read as "we do not enforce." **Claude Code, Cursor, VS Code Copilot, and Kimi Code**
+  can block on the endpoint when a managed `enforcement.json` is
+  loaded (`mode: enforce`). Copilot CLI and Grok Build can deny tool
+  calls only. Kilo Code has no third-party hook API and stays observe-only; see
   [`docs/security/enforcement-capability-matrix.md`](docs/security/enforcement-capability-matrix.md)
   for the per-collector table, backed structurally by
   `collectors/parity-matrix.json`. Real blocks and

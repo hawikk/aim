@@ -1,7 +1,9 @@
 {
-  "$schema_note": "Living tool × OS parity matrix for coding-agent runtime telemetry. Source of truth for CI structural proof. Fleet last-seen cells are optional evidence overlays (see parity-fleet-evidence.json).",
+  "$schema_note": "Living tool \u00d7 OS parity matrix for coding-agent runtime telemetry (AIM-624 / AIM-643). Source of truth for CI structural proof. Fleet last-seen cells are optional evidence overlays (see parity-fleet-evidence.json).",
   "version": 1,
-  "updated": "2026-08-13",
+  "updated": "2026-08-18",
+  "issue": "AIM-624",
+  "child_issue": "AIM-643",
   "target": "category-defining coding-agent runtime telemetry (score 10)",
   "oses": [
     "linux",
@@ -12,7 +14,7 @@
     "supported": "Code path + install path exist; unit/static proof in CI",
     "partial": "Some surfaces work; documented residual blocks full parity",
     "unsupported": "Explicitly out of scope or not implemented",
-    "unknown": "Claimed but not yet evidenced — forbidden in CI"
+    "unknown": "Claimed but not yet evidenced \u2014 forbidden in CI"
   },
   "collectors": [
     {
@@ -98,7 +100,7 @@
             "deploy/macos/install.sh",
             "deploy/macos/jamf/"
           ],
-          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (legacy)",
+          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (AIM-743 legacy)",
           "tool_data_paths": [
             "~/.claude/"
           ],
@@ -166,7 +168,7 @@
             "tool_use"
           ],
           "residuals": [
-            "Windows install does not yet drop enroll-token by default — heartbeat no-ops until enrolled; live host verification residual"
+            "Windows install does not yet drop enroll-token by default \u2014 heartbeat no-ops until enrolled; live host verification residual"
           ]
         }
       }
@@ -193,9 +195,10 @@
           "event_types": [
             "session",
             "usage",
-            "tool_use"
+            "tool_use",
+            "enforcement"
           ],
-          "notes": "hooks.json + state.vscdb passive scan; tool_use requires hooks"
+          "notes": "hooks.json + state.vscdb passive scan; tool_use requires hooks; enforcement via beforeSubmitPrompt/preToolUse/beforeShellExecution/beforeMCPExecution (Cursor JSON + exit 2)"
         }
       },
       "os": {
@@ -244,7 +247,7 @@
             "deploy/macos/install.sh",
             "deploy/macos/jamf/"
           ],
-          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (legacy)",
+          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (AIM-743 legacy)",
           "tool_data_paths": [
             "~/Library/Application Support/Cursor/User",
             "~/.cursor/hooks.json"
@@ -310,7 +313,7 @@
             "tool_use"
           ],
           "residuals": [
-            "Windows install does not yet drop enroll-token by default — heartbeat no-ops until enrolled"
+            "Windows install does not yet drop enroll-token by default \u2014 heartbeat no-ops until enrolled"
           ]
         }
       }
@@ -331,7 +334,7 @@
             "usage",
             "session"
           ],
-          "notes": "standalone kilo CLI via XDG SQLite ~/.local/share/kilo/kilo.db; tool_version cli/<ver>"
+          "notes": "AIM-647: standalone kilo CLI via XDG SQLite ~/.local/share/kilo/kilo.db; tool_version cli/<ver>"
         },
         "ide": {
           "status": "supported",
@@ -344,7 +347,7 @@
             "tool_use",
             "inventory"
           ],
-          "notes": "No vendor hook API; scan-once/watch over globalStorage task logs (Code/Cursor/.vscode-server/.cursor-server). dual-surface proof."
+          "notes": "No vendor hook API; scan-once/watch over globalStorage task logs (Code/Cursor/.vscode-server/.cursor-server). AIM-647 dual-surface proof."
         }
       },
       "os": {
@@ -393,7 +396,7 @@
             "deploy/macos/install.sh",
             "deploy/macos/jamf/"
           ],
-          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (legacy)",
+          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (AIM-743 legacy)",
           "tool_data_paths": [
             "~/Library/Application Support/Code/User/globalStorage/kilocode.kilo-code/"
           ],
@@ -455,7 +458,7 @@
             "inventory"
           ],
           "residuals": [
-            "Windows install does not yet drop enroll-token by default — heartbeat no-ops until enrolled"
+            "Windows install does not yet drop enroll-token by default \u2014 heartbeat no-ops until enrolled"
           ]
         }
       }
@@ -470,6 +473,7 @@
         "cli": {
           "status": "supported",
           "capture": [
+            "hook",
             "session_scan",
             "wire_scan",
             "mcp_inventory"
@@ -477,9 +481,10 @@
           "event_types": [
             "usage",
             "tool_use",
-            "inventory"
+            "inventory",
+            "enforcement"
           ],
-          "notes": "Terminal CLI; no hook API — scan-once/watch over ~/.kimi-code"
+          "notes": "Terminal CLI; [[hooks]] in ~/.kimi-code/config.toml (UserPromptSubmit + PreToolUse) plus scan-once/watch"
         },
         "ide": {
           "status": "unsupported",
@@ -532,7 +537,7 @@
             "deploy/macos/install.sh",
             "deploy/macos/jamf/"
           ],
-          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (legacy)",
+          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (AIM-743 legacy)",
           "tool_data_paths": [
             "~/.kimi-code/"
           ],
@@ -615,14 +620,16 @@
         "cli": {
           "status": "supported",
           "capture": [
+            "hook",
             "usage_log_scan",
             "run_presence"
           ],
           "event_types": [
             "usage",
-            "session"
+            "session",
+            "enforcement"
           ],
-          "notes": "Grok Build adapter surface; scan-once under aim watch"
+          "notes": "Official ~/.grok/hooks PreToolUse is the only blocking event; scan-once under aim watch for usage"
         },
         "ide": {
           "status": "unsupported",
@@ -674,7 +681,7 @@
             "deploy/macos/install.sh",
             "deploy/macos/jamf/"
           ],
-          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (legacy)",
+          "managed_config": "/Library/Application Support/AI-Monitoring/collector/config.json (first-class); ~/Library/Application Support/AI-Monitoring/collector/config.json (per-user); /etc/aim-collector/config.json (AIM-743 legacy)",
           "tool_data_paths": [
             "PAPERCLIP_RUN_SCRATCH_DIR / paperclip run markers"
           ],
@@ -748,13 +755,15 @@
         "cli": {
           "status": "partial",
           "capture": [
+            "hook",
             "cli_home_scan"
           ],
           "event_types": [
             "usage",
-            "session"
+            "session",
+            "enforcement"
           ],
-          "notes": "Copilot CLI ~/.copilot session JSON when present; auth files (hosts.json) never opened"
+          "notes": "Official ~/.copilot/hooks/aim.json; CLI preToolUse can deny, userPromptSubmitted command output is dropped. Auth files (hosts.json) never opened"
         },
         "ide": {
           "status": "partial",
@@ -765,9 +774,10 @@
           ],
           "event_types": [
             "usage",
-            "tool_use"
+            "tool_use",
+            "enforcement"
           ],
-          "notes": "VS Code/Cursor/JetBrains extension ids; chat session files yield hashed session + turn counts + model metadata only. No suggestion-accept or token counters on disk."
+          "notes": "VS Code agent hooks (UserPromptSubmit + PreToolUse) plus extension ids; chat session files yield hashed session + turn counts + model metadata only. No suggestion-accept or token counters on disk."
         }
       },
       "os": {
@@ -812,7 +822,7 @@
             "tool_use"
           ],
           "residuals": [
-            "GitHub does not persist suggestion-accept or token counters locally; org Copilot Metrics API is the sibling ingest path",
+            "GitHub does not persist suggestion-accept or token counters locally; org Copilot Metrics API is the sibling ingest path (AIM-1168)",
             "Chat session JSON contains prompt/completion text — extractor allowlists metadata keys only; leak-marker tests fail the PR if those leak"
           ]
         },
@@ -877,23 +887,37 @@
   "cross_cutting_residuals": [
     {
       "id": "macos_packaging",
-      "summary": "deploy/macos/managed-user LaunchAgent installer + first-class Darwin managed config shipped. Remaining residual: Developer ID signed pkg (unsigned jamf/pkgbuild layout exists). Live MDM rollout is.",
+      "summary": "deploy/macos/managed-user LaunchAgent installer + first-class Darwin managed config shipped (AIM-1170). Remaining residual: Developer ID signed pkg (unsigned jamf/pkgbuild layout exists). Live MDM rollout is AIM-28.",
+      "tracks": [
+        "AIM-1170",
+        "AIM-743",
+        "AIM-635"
+      ],
       "status": "open"
     },
     {
       "id": "windows_enroll_default",
       "summary": "Windows installer now invokes heartbeat on the 5-min task; enroll-token still not dropped by default so fleet coverage needs enroll provisioning",
+      "tracks": [
+        "AIM-645"
+      ],
       "status": "open"
     },
     {
       "id": "fleet_last_seen_slo",
-      "summary": "Freshness SLO for supported cells is enforced against a deployment's own fleet database; the evidence generator is not part of this snapshot.",
+      "summary": "Generator + CI rule shipped (scripts/export_parity_fleet_evidence.py + check_collector_parity_matrix.py). Commit collectors/parity-fleet-evidence.json from pilot DB to enforce the 7d supported-cell SLO in CI; omit in pure unit CI.",
+      "tracks": [
+        "AIM-643"
+      ],
       "status": "open"
     },
     {
       "id": "coverage_slo_99",
       "status": "shipped",
-      "summary": "Shipped: GET /api/fleet coverageSlo + Fleet UI + system-status tile; default target ≥99% enrolled in-scope healthy (version + last_event_at + no active errors). PR #331 merge b7fc5fac.",
+      "summary": "AIM-645 shipped: GET /api/fleet coverageSlo + Fleet UI + system-status tile; default target \u226599% enrolled in-scope healthy (version + last_event_at + no active errors). PR #331 merge b7fc5fac.",
+      "tracks": [
+        "AIM-645"
+      ],
       "evidence": {
         "pr": 331,
         "merge": "b7fc5fac8bbfc003f4ecb312adeec5946b59ac13",
@@ -905,16 +929,25 @@
     {
       "id": "auto_discovery",
       "status": "shipped",
-      "summary": "Shipped: unknown_ai_coding_tool observe-only finding path (IdP/proxy/process heuristics) + coding_discoveries table. PR #289 merge d9b8a136.",
+      "summary": "AIM-644 shipped: unknown_ai_coding_tool observe-only finding path (IdP/proxy/process heuristics) + coding_discoveries table. PR #289 merge d9b8a136.",
+      "tracks": [
+        "AIM-644"
+      ],
       "evidence": {
         "pr": 289,
-        "merge": "d9b8a136e918869d1783715f051330470a99453e"
+        "merge": "d9b8a136e918869d1783715f051330470a99453e",
+        "docs": [
+          "docs/aim-644-unknown-ai-coding-tool.md"
+        ]
       }
     },
     {
       "id": "signed_collector_identity",
       "status": "shipped",
-      "summary": "Shipped: collector build identity + install attestation block on batch envelopes; flag-gated enforce. PR #306 merge 2cc76512.",
+      "summary": "AIM-646 shipped: collector build identity + install attestation block on batch envelopes; flag-gated enforce. PR #306 merge 2cc76512.",
+      "tracks": [
+        "AIM-646"
+      ],
       "evidence": {
         "pr": 306,
         "merge": "2cc76512",
@@ -926,7 +959,10 @@
     {
       "id": "tool_version_matrix_ci",
       "status": "shipped",
-      "summary": "Shipped: collectors/tool-version-matrix.json + scripts/check_tool_version_matrix.py wired in ci.yml. PR #323 merge 1bbf7c40.",
+      "summary": "AIM-648 shipped: collectors/tool-version-matrix.json + scripts/check_tool_version_matrix.py wired in ci.yml. PR #323 merge 1bbf7c40.",
+      "tracks": [
+        "AIM-648"
+      ],
       "evidence": {
         "pr": 323,
         "merge": "1bbf7c40b4cbbec58fb32384f5dd128feead4f86",
@@ -938,11 +974,15 @@
     {
       "id": "dual_surface_completeness",
       "status": "shipped",
-      "summary": "Shipped: Claude shared CLI/IDE path; Cursor IDE-only (no agent CLI on fleet); Kilo IDE+CLI capture + proof script. PR #304 merge dea7a258.",
+      "summary": "AIM-647 shipped: Claude shared CLI/IDE path; Cursor IDE-only (no agent CLI on fleet); Kilo IDE+CLI capture + proof script. PR #304 merge dea7a258.",
+      "tracks": [
+        "AIM-647"
+      ],
       "evidence": {
         "pr": 304,
         "merge": "dea7a258",
         "docs": [
+          "docs/aim-647-dual-surface-completeness.md",
           "docs/aim-647-dual-surface-proof.json"
         ]
       }

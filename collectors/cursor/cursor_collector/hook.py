@@ -1,13 +1,15 @@
 """Hook entrypoint: convert a Cursor hook payload (stdin JSON) into
-metadata-only v1 events.
+metadata-only v1 events, and apply endpoint enforcement when policy says so.
 
 Cursor runs ``python -m cursor_collector hook <event-name>`` and pipes a
 JSON payload on stdin. Payload fields vary by event and Cursor version, so
 extraction is defensive: take what exists, tolerate everything missing.
 
-We never block (always exit 0, no stdout contract) — enforcement is
-observe-only per locked posture, and a slow/broken collector must never
-break an engineer's tool.
+When a managed ``enforcement.json`` is in ``mode: enforce`` and a rule
+fires, we block with Cursor's hook JSON on stdout and exit 2 (see
+``enforce_cursor.py``). Missing/broken policy, matcher errors, and collector
+bugs fail open: exit 0, no stdout. A slow/broken collector must never break
+an engineer's tool.
 """
 
 import json
@@ -23,11 +25,14 @@ HOOK_EVENTS = (
     "beforeSubmitPrompt",
     "afterAgentResponse",
     "postToolUse",
+    "preToolUse",
+    "beforeShellExecution",
+    "beforeMCPExecution",
 )
 
 # Payload fields that may carry content. Scanned locally, flags only.
 _CONTENT_FIELDS = ("prompt", "prompt_text", "input", "tool_input",
-                   "tool_output", "response", "text", "result")
+                   "tool_output", "response", "text", "result", "command")
 
 # Candidate keys for the conversation/session id — Cursor versions differ.
 _SESSION_KEYS = ("conversation_id", "session_id", "chat_id", "conversationId")
@@ -84,7 +89,7 @@ def _duration_ms(payload: dict) -> int | None:
 
 def handle_payload(event_name: str, payload: dict) -> list[dict]:
     """One usage event per hook invocation, plus one tool_use event for
-    postToolUse payloads that name a tool. [] when the hook is
+    postToolUse payloads that name a tool (AIM-86). [] when the hook is
     unregistered or the payload carries no session id (can't correlate,
     so drop)."""
     if event_name not in HOOK_EVENTS:
@@ -115,11 +120,11 @@ def handle_payload(event_name: str, payload: dict) -> list[dict]:
     )
     out = [ev]
 
-    # postToolUse fires for every agent tool (built-in and MCP)
+    # AIM-86: postToolUse fires for every agent tool (built-in and MCP)
     # and carries tool_name + duration. Only the name survives — arguments
     # (tool_input) and results (tool_output) are scanned for flags above
     # and then dropped; they are never read into the event.
-    # emit chain fields (call_id/seq/result_status) + agent_handoffs
+    # AIM-627: emit chain fields (call_id/seq/result_status) + agent_handoffs
     # for Task/Agent tools. Metadata only — never args or result bodies.
     if event_name == "postToolUse":
         tool_name = payload.get("tool_name")
@@ -209,20 +214,57 @@ def _cached_tool_version() -> str | None:
         return None
 
 
-def main(argv=None) -> int:
+def run(event_name: str, raw: bytes) -> tuple[int, str]:
+    """Hook core: (exit code, stdout). Never raises — fail-open.
+
+    Telemetry (handle_payload + spool) is best-effort and isolated from the
+    decision path so a spool error cannot skip a block, and a decision error
+    cannot break the session.
+    """
     try:
-        args = list(sys.argv[1:] if argv is None else argv)
-        event_name = args[0] if args else ""
-        raw = sys.stdin.buffer.read(1 * 1024 * 1024)  # hooks are small; cap anyway
         payload = json.loads(raw or b"{}")
+        if not isinstance(payload, dict):
+            payload = {}
+    except Exception:
+        return 0, ""
+    try:
         evs = handle_payload(event_name, payload)
         spool.append(evs)
         # Best-effort opportunistic flush; failure is fine, spool persists.
         spool.flush()
     except Exception:
+        pass
+    try:
+        from . import enforce_cursor
+        decision = enforce_cursor.decide(event_name, payload)
+        if decision is None:
+            return 0, ""
+        if decision.action == "blocked":
+            out = enforce_cursor.cursor_stdout(decision, event_name)
+            if out:
+                return 2, json.dumps(out) + "\n"
+            return 0, ""
+        if decision.action == "redacted":
+            out = enforce_cursor.cursor_stdout(decision, event_name)
+            if out:
+                return 0, json.dumps(out) + "\n"
+        return 0, ""
+    except Exception:
+        return 0, ""
+
+
+def main(argv=None) -> int:
+    try:
+        args = list(sys.argv[1:] if argv is None else argv)
+        event_name = args[0] if args else ""
+        raw = sys.stdin.buffer.read(1 * 1024 * 1024)  # hooks are small; cap anyway
+        code, out = run(event_name, raw)
+        if out:
+            sys.stdout.write(out)
+        return code
+    except Exception:
         # A collector must never break the engineer's session.
         return 0
-    return 0
 
 
 if __name__ == "__main__":

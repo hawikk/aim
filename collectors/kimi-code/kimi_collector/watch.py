@@ -10,7 +10,7 @@ from . import enroll, mcp_inventory, paths, spool, state, wire
 def scan_once(dry_run: bool = False) -> list[dict]:
     """One pass over all discovered wire.jsonl files. Returns events emitted.
 
-    Also takes the MCP server config inventory: one
+    Also takes the MCP server config inventory (AIM-97): one
     ``event_type="inventory"`` event when the configured server set changed.
 
     With ``dry_run=True`` nothing is persisted: the checkpoint and spool are
@@ -52,7 +52,7 @@ def scan_once(dry_run: bool = False) -> list[dict]:
 
 
 def watch(interval: float = 60.0) -> None:
-    """Daemon: scan forever. Kimi Code has no hook API, so polling the wire
+    """Daemon: scan forever. Hooks cover the live turn; polling the wire
     logs is the collection mechanism (Intune: scheduled task; Linux: cron or
     systemd user timer running scan-once)."""
     last_hb = 0.0  # first iteration heartbeats immediately (liveness on start)

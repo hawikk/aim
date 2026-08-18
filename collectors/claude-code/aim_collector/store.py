@@ -24,7 +24,10 @@ from pathlib import Path
 from . import state
 
 DEFAULT_DB = "personal.db"
-SANCTIONED_TOOLS = {"claude_code", "cursor", "kilo_code", "kimi_code"}
+SANCTIONED_TOOLS = {
+    "claude_code", "cursor", "kilo_code", "kimi_code",
+    "grok_build", "github_copilot",
+}
 
 
 def _sanctioned_sql() -> str:

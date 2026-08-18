@@ -21,14 +21,14 @@ import/CLI guard fails with a human message rather than a mid-command
 
 import sys
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 # Keep this block free of 3.10+ syntax so the message can still render on older
 # interpreters that somehow imported the package (editable / force installs).
 MIN_PYTHON = (3, 11)
 INSTALL_DOCS_URL = (
     "https://github.com/hawikk/aim"
-    "#2-personal-mode--your-own-ai-usage-in-60-seconds"
+    "#monitor-your-own-ai-usage-in-60-seconds-personal-mode"
 )
 
 
