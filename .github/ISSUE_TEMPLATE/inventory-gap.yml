@@ -1,0 +1,46 @@
+name: Inventory gap
+description: A coding agent or MCP server AIM does not see.
+title: "[inventory] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when AIM should list a tool or MCP server and does not.
+        Send **names and scopes only**. Do not paste commands, args, URLs,
+        env, prompts, or file paths.
+  - type: input
+    id: tool
+    attributes:
+      label: Coding agent / tool
+      description: e.g. Claude Code, Cursor, Copilot, something AIM does not know yet.
+      placeholder: cursor
+    validations:
+      required: true
+  - type: input
+    id: mcp_name
+    attributes:
+      label: MCP server `name` (if this is an MCP gap)
+      description: The identifier in the tool's config, not a URL.
+      placeholder: github
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Config `scope` (if known)
+      options:
+        - user
+        - project
+        - unknown / not MCP
+  - type: textarea
+    id: how_configured
+    attributes:
+      label: How you know it is there
+      description: >
+        e.g. "Cursor Settings → MCP shows a server named X at user scope."
+        No config file dumps.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else (metadata only)

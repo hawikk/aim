@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIM docs</title>
+<meta name="description" content="Personal-mode install, trust model, and MCP inventory for AI Monitoring.">
+<link rel="canonical" href="https://hawikk.github.io/aim/">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html">AIM docs</a>
+  <nav>
+    <a href="index.html" aria-current="page">Home</a> <a href="start.html">Start</a> <a href="trust.html">Trust</a> <a href="inventory.html">Inventory</a> <a href="self-host.html">Self-host</a> <a href="changelog.html">Changelog</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
+  </nav>
+</header>
+<main>
+<h1>See every MCP server and coding agent — including the ones nobody approved.</h1>
+<p class="lede">Metadata-only inventory. Self-hosted. Personal mode makes zero outbound calls.</p>
+<pre class="hero-cmd"><code>pipx install aimonitoring-security &amp;&amp; aim personal</code></pre>
+<p>Then open <a href="http://127.0.0.1:8787">http://127.0.0.1:8787</a>. Do not <code>pipx install aim</code> — that name is a different project.</p>
+<div class="cards">
+  <a class="card" href="start.html"><strong>Start</strong> Personal mode in 60 seconds. No Docker, no company, no network.</a>
+  <a class="card" href="trust.html"><strong>Trust</strong> What is collected, what is never collected, retention, and who can see it.</a>
+  <a class="card" href="inventory.html"><strong>Inventory</strong> What a server <code>name</code> + <code>scope</code> means, and approved vs unapproved.</a>
+  <a class="card" href="self-host.html"><strong>Self-host</strong> Full stack on a laptop with the existing compose path.</a>
+  <a class="card" href="changelog.html"><strong>Changelog</strong> Keep a Changelog for 0.1.1–0.1.4 and unreleased work.</a>
+</div>
+<p>This site is the public documentation for <a href="https://github.com/hawikk/aim">hawikk/aim</a>.
+The repo is a curated snapshot of a larger working tree — private fleet evidence and unpublished ADRs are not here.</p>
+
+</main>
+<footer>
+  Apache-2.0 · metadata-only ·
+  <a href="https://github.com/hawikk/aim">hawikk/aim</a> ·
+  <a href="https://pypi.org/project/aimonitoring-security/">PyPI</a> ·
+  Markdown sources live next to these pages in
+  <a href="https://github.com/hawikk/aim/tree/main/docs">docs/</a>.
+</footer>
+</body>
+</html>

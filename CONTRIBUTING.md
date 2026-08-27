@@ -17,6 +17,39 @@ exported, which has two consequences worth knowing:
   collector or service may need to be re-applied upstream by hand rather than
   merged directly. If that happens you will be told, and you will be credited.
 
+## How this snapshot is synced from the working repo
+
+`hawikk/aim` is a curated export, not a git mirror. A full copy of the
+working tree would publish private ADRs, pilot evidence, and host
+inventories. Do not do that.
+
+**Funnel overlay** (changelog, docs site, issue templates) from a checkout
+of the working repo:
+
+```bash
+python3 scripts/sync_public_aim.py --dest /path/to/hawikk/aim
+python3 scripts/check_docs_links.py --root /path/to/hawikk/aim/docs
+```
+
+**Checklist for a wider refresh:**
+
+1. Export only paths already on this `main`. New trees need a privacy pass.
+2. Never copy `docs/aim-*-pilot-evidence*`, fleet evidence, DPIA / works-council
+   packs, legal templates, collector-parity ledgers, or anything with host names.
+3. After copy, `python3 scripts/check_docs_links.py` must be clean.
+   Unpublished ADR targets are dropped or rewritten as prose.
+4. Only `ci.yml` ships here. Release / matrix / attestation workflows stay
+   private. After a private `v*` tag, copy `CHANGELOG.md` across — this
+   snapshot cannot run `release-cli.yml`. Cut the changelog **before**
+   tagging: `python3 scripts/cut_changelog.py X.Y.Z`.
+5. README.md is merged by hand (this file too). Do not overwrite community
+   copy with internal install paths.
+6. Open a PR. Do not force-push `main` over community work.
+7. GitHub Pages: `main` / `docs` → https://hawikk.github.io/aim/
+
+`python3 scripts/sync_public_aim.py --check --dest .` verifies the overlay
+and scans this tree against the denylist.
+
 Response times are best effort: **expect a few days for a first reply, and
 sometimes a couple of weeks for a full review.** There is no team behind this
 and no on-call rotation. A polite nudge on a stale thread is welcome.

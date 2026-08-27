@@ -2,8 +2,17 @@
 
 [![ci](https://github.com/hawikk/aim/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/hawikk/aim/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/aimonitoring-security)](https://pypi.org/project/aimonitoring-security/)
+[![docs](https://img.shields.io/badge/docs-hawikk.github.io%2Faim-2dd4a8)](https://hawikk.github.io/aim/)
 
-See and guard every AI coding tool in your company. Privacy-first, self-hosted.
+See every MCP server and coding agent on the machine — including the ones
+nobody approved. Metadata-only inventory. Self-hosted. Personal mode makes
+zero outbound calls.
+
+```bash
+pipx install aimonitoring-security && aim personal
+# → http://127.0.0.1:8787
+```
 
 Community is **Apache-2.0** and free for personal projects and public open
 source. Team and Enterprise talk to us:
@@ -15,9 +24,11 @@ Postgres, a guardrail engine, identity-sync, shadow-AI discovery, Gatehouse
 dashboard (`apps/web` + `apps/api`), the `aim` CLI, and Helm / Intune / Linux
 install paths. Full map: [docs/architecture.md](docs/architecture.md).
 
-**Docs:** [documentation index](docs/README.md) ·
+**Docs:** [https://hawikk.github.io/aim/](https://hawikk.github.io/aim/) ·
+[documentation index](docs/README.md) ·
 [stack overview](docs/product/stack-overview.md) ·
-[Gatehouse](docs/product/gatehouse.md).
+[Gatehouse](docs/product/gatehouse.md) ·
+[changelog](CHANGELOG.md).
 
 This repository is a curated public snapshot of a larger working repo. It
 carries the code and the documentation you need to run and extend the
@@ -46,14 +57,14 @@ enforce packs, Sentinel, and evidence packs are commercial. The software in
 this tree is not DRM-gated — same NetBird-style model as
 [getaimonitoring.com/start.html](https://getaimonitoring.com/start.html).
 
+Need the full dashboard with Docker (about 30 minutes)?
+
 ```bash
 git clone https://github.com/hawikk/aim.git
 cd aim
 ./scripts/demo-stack-up.sh
 # → http://127.0.0.1:8081  (personal/standalone local admin; no SSO)
 ```
-
-Needs Docker. Target time-to-green is about 30 minutes on a laptop.
 
 ## The goal
 
@@ -63,9 +74,10 @@ AIM closes that with a **metadata-only** platform: collectors report
 pseudonymized usage metadata; the dashboard turns it into fleet visibility and
 security findings — without storing prompt text, code, or raw identities.
 Platform findings are observe/alert by default. Enforcement is deliberately
-narrow: **Claude Code and Cursor** can block on the endpoint when a managed
-`enforcement.json` is loaded. Kilo, Kimi, Grok Build and GitHub Copilot have
-no pre-send hook API and stay observe-only (see Trust, and
+narrow and only where a vendor hook exists: **Claude Code, Cursor, Kimi
+Code, and GitHub Copilot (VS Code)** can block on the endpoint when a
+managed `enforcement.json` is loaded. Grok Build denies **tool calls**
+only. Kilo Code stays observe-only (see Trust, and
 `collectors/parity-matrix.json`).
 
 ### Dashboard
@@ -108,36 +120,10 @@ never-seen, attribution health, and coverage SLO.*
 
 ## Install
 
-Three ways in, from fastest local eval to a private-network pilot.
+Three ways in, from fastest local eval to a private-network pilot. Personal
+mode is the default story; Docker is the full-stack demo.
 
-### 1. Self-host demo (one command)
-
-For an engineer or small team evaluating the full stack on a laptop (loopback +
-demo seed; not only personal mode):
-
-```bash
-git clone https://github.com/hawikk/aim.git
-cd aim
-./scripts/demo-stack-up.sh
-# → http://127.0.0.1:8081
-```
-
-```bash
-make demo-stack              # same script
-make demo-stack-preflight    # Docker / ports / env only
-```
-
-Happy path, failure modes (missing Docker, port conflicts, secret placeholders),
-health checks, optional Gatehouse pointers, and explicit non-goals:
-
-**→ [`docs/deployment/self-host-quickstart.md`](docs/deployment/self-host-quickstart.md)**
-
-This path is **self-hosted demo / small-team laptop eval**, not multi-tenant
-SaaS and not a CI product. For a real private-network company pilot use
-[Enterprise / private-network pilot](#3-enterprise--private-network-pilot)
-below, or write [sales@](mailto:sales@getaimonitoring.com).
-
-### 2. Personal mode — your own AI usage in 60 seconds
+### 1. Personal mode — your own AI usage in 60 seconds
 
 No company, no SSO, no Docker, no database. Install the single `aim` CLI and
 watch **your own** Claude Code, Cursor, Kilo Code, Kimi Code, Grok Build,
@@ -151,7 +137,7 @@ no separate person mapping until you run the fleet identity-sync path.
 pipx install aimonitoring-security
 aim personal
 # → open http://127.0.0.1:8787
-aim --version   # e.g. "aim 0.1.3"
+aim --version   # e.g. "aim 0.1.4"
 ```
 
 > **Do not run `pipx install aim`.** That PyPI name is AimStack's unrelated ML
@@ -159,6 +145,7 @@ aim --version   # e.g. "aim 0.1.3"
 > console script it installs is still **`aim`**.
 
 ```bash
+aim personal --help         # flags + the zero-outbound claim
 aim personal                # scan once + serve the dashboard
 aim personal --watch        # also re-scan every 30s while open
 aim personal --port 9000
@@ -188,6 +175,33 @@ lands in a local SQLite file at `~/.aim-collector/personal.db`. The dashboard
 binds `127.0.0.1` only. Single implicit local user; no auth.
 
 Works on Windows / WSL / Linux / macOS.
+
+### 2. Self-host demo (one command)
+
+For an engineer or small team evaluating the full stack on a laptop (loopback +
+demo seed; not only personal mode):
+
+```bash
+git clone https://github.com/hawikk/aim.git
+cd aim
+./scripts/demo-stack-up.sh
+# → http://127.0.0.1:8081
+```
+
+```bash
+make demo-stack              # same script
+make demo-stack-preflight    # Docker / ports / env only
+```
+
+Happy path, failure modes (missing Docker, port conflicts, secret placeholders),
+health checks, optional Gatehouse pointers, and explicit non-goals:
+
+**→ [`docs/deployment/self-host-quickstart.md`](docs/deployment/self-host-quickstart.md)**
+
+This path is **self-hosted demo / small-team laptop eval**, not multi-tenant
+SaaS and not a CI product. For a real private-network company pilot use
+[Enterprise / private-network pilot](#3-enterprise--private-network-pilot)
+below, or write [sales@](mailto:sales@getaimonitoring.com).
 
 ### 3. Enterprise / private-network pilot
 

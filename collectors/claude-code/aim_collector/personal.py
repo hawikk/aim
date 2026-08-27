@@ -1,4 +1,4 @@
-"""Personal mode: monitor your OWN AI usage, zero infra.
+"""Personal mode (AIM-67): monitor your OWN AI usage, zero infra.
 
 `python -m aim_collector personal` scans this machine's real AI tool data —
 Claude Code transcripts, Cursor state.vscdb, Kilo Code task logs, Kimi Code
@@ -7,7 +7,7 @@ local SQLite file and serves the existing dashboard bound to 127.0.0.1 —
 no docker, no Postgres, no auth, and (by design) zero outbound network
 calls. Everything stays on the machine.
 
-Detection is real: the local secret/PII matchers run over content
+Detection is real (AIM-77): the local secret/PII matchers run over content
 IN MEMORY at scan time; matched content is discarded immediately and only
 detector names land on events. The metadata-only contract is unchanged —
 nothing but the canonical event fields is ever persisted.
@@ -86,7 +86,7 @@ def _import_sibling(pkg_dir: str, pkg: str):
     Two layouts are supported:
       * git clone — the sibling collectors are not installed; their parent
         dir is put on sys.path lazily (AIM_COLLECTORS_ROOT / walk-up).
-      * packaged — the `aim` distribution ships every collector as
+      * packaged (AIM-130) — the `aim` distribution ships every collector as
         a real top-level package, so a plain import already resolves.
     Returns the module, or None when unavailable — a missing sibling must
     never break the rest of the scan."""
@@ -334,7 +334,7 @@ def scan(db: store.sqlite3.Connection | None = None) -> int:
 
 
 def prune_once(db: store.sqlite3.Connection | None = None) -> dict | None:
-    """Enforce retention on the personal store, at most daily.
+    """Enforce retention on the personal store, at most daily (AIM-143).
 
     Fail-closed on a bad config (skip + log, delete nothing); never raises — a
     prune failure must not stop the dashboard from serving. Returns the prune
@@ -488,12 +488,31 @@ def serve(port: int = DEFAULT_PORT, watch: bool = False, watch_interval: float =
         httpd.server_close()
 
 
+USAGE = """usage: aim personal [--watch] [--port N] [--scan-only]
+
+Monitor your own AI coding-tool usage locally.
+
+  --watch        re-scan every 30s while the dashboard is open
+  --port N, -p   bind 127.0.0.1:N (default 8787)
+  --scan-only    refresh the local store and exit (no server)
+  -h, --help     show this help
+
+Personal mode binds 127.0.0.1 only and makes zero outbound network
+calls. It never sends prompt text, tool arguments, file contents, or
+identities off the machine. Metadata (tool/model, token counts,
+pseudonymous refs, detector names) stays in ~/.aim-collector/personal.db.
+"""
+
+
 def main(args: list[str]) -> int:
     port = DEFAULT_PORT
     watch = False
     scan_only = False
     it = iter(args)
     for a in it:
+        if a in ("-h", "--help", "help"):
+            sys.stdout.write(USAGE)
+            return 0
         if a == "--watch":
             watch = True
         elif a == "--scan-only":
@@ -503,8 +522,8 @@ def main(args: list[str]) -> int:
         elif a.startswith("--port="):
             port = int(a.split("=", 1)[1])
         else:
-            import sys
             sys.stderr.write(f"unknown personal option {a!r}\n")
+            sys.stderr.write(USAGE)
             return 2
     if scan_only:
         n = scan()

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Start · AIM docs</title>
+<meta name="description" content="Install AIM personal mode with pipx. Zero outbound network calls.">
+<link rel="canonical" href="https://hawikk.github.io/aim/start.html">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html">AIM docs</a>
+  <nav>
+    <a href="index.html">Home</a> <a href="start.html" aria-current="page">Start</a> <a href="trust.html">Trust</a> <a href="inventory.html">Inventory</a> <a href="self-host.html">Self-host</a> <a href="changelog.html">Changelog</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
+  </nav>
+</header>
+<main>
+<h1>Start — personal mode in one line</h1>
+<p class="lede">See which coding agents and MCP servers are on this machine, including the ones nobody approved.</p>
+<pre><code>pipx install aimonitoring-security &amp;&amp; aim personal</code></pre>
+<p>Open <a href="http://127.0.0.1:8787">http://127.0.0.1:8787</a>. That is the whole path. Requires Python 3.11+. Runtime dependencies: none.</p>
+<blockquote>Do <strong>not</strong> run <code>pipx install aim</code>. That PyPI name is AimStack’s unrelated tracker. Our distribution name is <strong>aimonitoring-security</strong>; the console script is still <strong>aim</strong>.</blockquote>
+<h2>What it does</h2>
+<p><code>aim personal</code> scans local AI-tool state already on disk (Claude Code, Cursor, Kilo Code, Kimi Code, Grok Build, GitHub Copilot) and extracts <strong>metadata only</strong>: tool, model, token counts, session/repo pseudonyms, detector names. Prompt text, code, tool arguments, URLs, and env values are never stored and never leave the box.</p>
+<p>The dashboard binds <strong>127.0.0.1 only</strong>. Personal mode makes <strong>zero outbound network calls</strong> — verify by running it with networking off. Events land in <code>~/.aim-collector/personal.db</code>.</p>
+<h2>Useful flags</h2>
+<pre><code>aim --version                 # expect: aim 0.1.4  (matches PyPI)
+aim personal --help
+aim personal                  # scan once + serve the dashboard
+aim personal --watch          # re-scan every 30s while open
+aim personal --port 9000
+aim personal --scan-only      # refresh the local store, no server
+aim status                    # local, network-free: what's installed</code></pre>
+<h2>What this is not</h2>
+<p>Personal mode is not a fleet control plane and not an enforcement product. It does not send telemetry to us. <code>aim join</code> against <em>your</em> ingest is a different, opt-in command.</p>
+<p><a href="self-host.html">Self-host the full dashboard</a> · <a href="trust.html">Trust</a> · <a href="inventory.html">Inventory</a> · markdown: <a href="start.md">start.md</a></p>
+
+</main>
+<footer>
+  Apache-2.0 · metadata-only ·
+  <a href="https://github.com/hawikk/aim">hawikk/aim</a> ·
+  <a href="https://pypi.org/project/aimonitoring-security/">PyPI</a> ·
+  Markdown sources live next to these pages in
+  <a href="https://github.com/hawikk/aim/tree/main/docs">docs/</a>.
+</footer>
+</body>
+</html>

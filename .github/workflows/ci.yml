@@ -48,6 +48,12 @@ jobs:
       - name: pytest (scripts)
         run: python -m pytest scripts -q
 
+      - name: Keep-a-Changelog covers public releases
+        run: python scripts/check_changelog.py --check
+
+      - name: docs relative links resolve
+        run: python scripts/check_docs_links.py
+
       # The canonical event schema is the privacy contract: it must keep
       # rejecting prompt text, response bodies, tool-call arguments and
       # plaintext identities. Validates every example plus the conformance
