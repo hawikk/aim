@@ -12,6 +12,12 @@ do not read this file as a promise of features that were not in those notes.
 
 ## [Unreleased]
 
+### Changed
+
+- Public Community copy: Community is free and uncapped (no 3-seat license
+  line). Hosted Cloud is 3 agents free, then $2 / agent / month. Enterprise
+  remains contact sales. Copy only; no checkout or metering.
+
 ## [0.1.4] - 2026-08-18
 
 Public Community snapshot of AI Monitoring under Apache-2.0. Endpoint

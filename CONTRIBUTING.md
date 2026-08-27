@@ -184,5 +184,6 @@ By contributing you agree that your contribution is licensed under the
 - **Security vulnerabilities** — do **not** open an issue. Email
   [security@getaimonitoring.com](mailto:security@getaimonitoring.com); see
   [SECURITY.md](SECURITY.md) for what to include and what to expect.
-- **Commercial questions** (Team/Enterprise tiers, SSO, evidence packs) —
-  [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com).
+- **Commercial questions** (Cloud / Enterprise, SSO, evidence packs) —
+  [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com). Published
+  tariff: [docs/pricing.md](docs/pricing.md).

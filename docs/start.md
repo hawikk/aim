@@ -50,6 +50,9 @@ It does not send telemetry to us, to PyPI, or to any ingest URL. To join a
 company stack you would run `aim join` against *your* ingest — that is a
 different command, and it is opt-in.
 
+Community is free and uncapped (Apache-2.0, no DRM). Hosted Cloud and
+Enterprise: [pricing](pricing.md).
+
 Self-host the full dashboard with Docker:
 [self-host demo](deployment/self-host-quickstart.md).
 

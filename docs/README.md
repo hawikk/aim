@@ -9,6 +9,7 @@
 | [Trust](trust.md) | Metadata-only; collected vs never; retention; access control |
 | [Inventory](inventory.md) | MCP server `name` + `scope`; approved vs unapproved |
 | [Self-host](deployment/self-host-quickstart.md) | Compose demo on a laptop |
+| [Pricing](pricing.md) | Community free/uncapped; Cloud $2 / agent / month; Enterprise contact sales |
 | [Changelog](../CHANGELOG.md) | Keep a Changelog, 0.1.1–0.1.4 |
 
 This repository is a curated public snapshot of a larger working repo.
