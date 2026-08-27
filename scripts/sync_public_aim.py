@@ -34,6 +34,8 @@ ALLOWLIST = [
     "docs/trust.html",
     "docs/inventory.html",
     "docs/self-host.html",
+    "docs/pricing.md",
+    "docs/pricing.html",
     "docs/changelog.html",
     "docs/.nojekyll",
     "docs/assets/site.css",
@@ -44,9 +46,21 @@ ALLOWLIST = [
     "scripts/check_changelog.py",
     "scripts/cut_changelog.py",
     "scripts/test_changelog.py",
+    "scripts/test_sync_public_aim.py",
     "scripts/check_docs_links.py",
     "scripts/sync_public_aim.py",
 ]
+
+# Public copy retired by the AIM-1214 CEO record. Fail the overlay if these
+# strings reappear in funnel files or the destination README.
+RETIRED_COPY = (
+    "soft fleet cap: 3 seats",
+    "soft cap: 3 seats",
+    "up to 5 seats",
+    "$9 per user",
+    "$9 / user",
+)
+
 
 # Refuse to copy, and fail --check, if the destination contains these.
 DENY_GLOBS = [
@@ -65,6 +79,11 @@ DENY_GLOBS = [
 ]
 
 
+def _retired_hits(text: str) -> list[str]:
+    lower = text.lower()
+    return [phrase for phrase in RETIRED_COPY if phrase.lower() in lower]
+
+
 def _denied(rel: str) -> bool:
     rel = rel.replace("\\", "/")
     for glob in DENY_GLOBS:
@@ -80,6 +99,10 @@ def overlay(dest: Path, check_only: bool) -> list[str]:
         if not src.exists():
             errors.append(f"missing source {rel}")
             continue
+        if src.suffix.lower() in {".md", ".html"}:
+            retired = _retired_hits(src.read_text(errors="replace"))
+            if retired:
+                errors.append(f"retired public copy in source {rel}: {retired}")
         target = dest / rel
         if check_only:
             if not target.exists():
@@ -87,6 +110,15 @@ def overlay(dest: Path, check_only: bool) -> list[str]:
             continue
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, target)
+    if check_only:
+        for extra in ("README.md", "CONTRIBUTING.md"):
+            extra_path = dest / extra
+            if extra_path.is_file():
+                retired = _retired_hits(extra_path.read_text(errors="replace"))
+                if retired:
+                    errors.append(
+                        f"retired public copy in destination {extra}: {retired}"
+                    )
     for path in dest.rglob("*"):
         if not path.is_file():
             continue

@@ -14,9 +14,11 @@ pipx install aimonitoring-security && aim personal
 # → http://127.0.0.1:8787
 ```
 
-Community is **Apache-2.0** and free for personal projects and public open
-source. Team and Enterprise talk to us:
-[getaimonitoring.com](https://getaimonitoring.com).
+Community is free. Self-host it or run `aim personal`. Uncapped seats,
+uncapped agents, Apache-2.0, no DRM, no phone-home. Personal mode makes
+zero outbound calls. Cloud: 3 agents free, then $2 per monitored agent /
+month. Enterprise: contact sales. Tariff: [docs/pricing.md](docs/pricing.md)
+([HTML](https://hawikk.github.io/aim/pricing.html)).
 
 This repo is the public Community clone. It ships endpoint collectors, ingest +
 Postgres, a guardrail engine, identity-sync, shadow-AI discovery, Gatehouse
@@ -28,6 +30,7 @@ install paths. Full map: [docs/architecture.md](docs/architecture.md).
 [documentation index](docs/README.md) ·
 [stack overview](docs/product/stack-overview.md) ·
 [Gatehouse](docs/product/gatehouse.md) ·
+[pricing](docs/pricing.md) ·
 [changelog](CHANGELOG.md).
 
 This repository is a curated public snapshot of a larger working repo. It
@@ -47,15 +50,15 @@ and falls back to building from source, which is the supported path here. The
 one artifact that *is* published is the CLI wheel on PyPI
 ([`aimonitoring-security`](https://pypi.org/project/aimonitoring-security/)).
 
-| Path | How you start |
-| --- | --- |
-| Community (free, soft cap: 3 seats) | Clone this repo |
-| Team and Enterprise | [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com) |
+| Tier | Price | How you start |
+| --- | --- | --- |
+| **Community** | Free, uncapped | Clone this repo or `pipx install aimonitoring-security && aim personal` |
+| **Cloud** | 3 agents free, then **$2 / agent / month** | [Request Cloud access](mailto:sales@getaimonitoring.com?subject=AIM%20Cloud) |
+| **Enterprise** | Contact sales | [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com) |
 
-The 3-seat Community cap is a license line, not a download gate. SSO, paid
-enforce packs, Sentinel, and evidence packs are commercial. The software in
-this tree is not DRM-gated — same NetBird-style model as
-[getaimonitoring.com/start.html](https://getaimonitoring.com/start.html).
+Community is Apache-2.0: no DRM, no phone-home, no seat file. Cloud is a
+hosted dashboard we operate (copy only — no self-serve checkout yet).
+SSO, enforcement packs, evidence, DPA, and air-gap are Enterprise.
 
 Need the full dashboard with Docker (about 30 minutes)?
 
@@ -198,10 +201,10 @@ health checks, optional Gatehouse pointers, and explicit non-goals:
 
 **→ [`docs/deployment/self-host-quickstart.md`](docs/deployment/self-host-quickstart.md)**
 
-This path is **self-hosted demo / small-team laptop eval**, not multi-tenant
+This path is **self-hosted Community** (free, uncapped), not multi-tenant
 SaaS and not a CI product. For a real private-network company pilot use
 [Enterprise / private-network pilot](#3-enterprise--private-network-pilot)
-below, or write [sales@](mailto:sales@getaimonitoring.com).
+below. Hosted Cloud: [request access](mailto:sales@getaimonitoring.com?subject=AIM%20Cloud).
 
 ### 3. Enterprise / private-network pilot
 
@@ -209,8 +212,7 @@ Company control plane on an EC2 / VM / NetBird overlay. **No manual env
 exports.** Datastores stay loopback; app surfaces publish for collectors; demo
 seed stays off. On success: health green + `enroll.sh` device one-liner.
 
-Team and Enterprise commercial terms: write
-[sales@getaimonitoring.com](mailto:sales@getaimonitoring.com). The installer
+Cloud list price and Enterprise: [pricing](docs/pricing.md). The installer
 itself is in this repo:
 
 ```bash
