@@ -1,10 +1,9 @@
 # Enforcement capability matrix (per collector)
 
 **Status:** live · **Scope:** what AI Monitoring can and cannot *block*.
-**Companions:** [inline-enforcement-design-2026-07.md](../inline-enforcement-design-2026-07.md)
-(the phased proposal) · [aim-440-enforcement-reconcile.md](../aim-440-enforcement-reconcile.md)
-(policy vs delivery) · [gatehouse-enforcing-vs-advisory.md](./gatehouse-enforcing-vs-advisory.md)
-(a different pillar — PR/CI gates, not AI-tool collectors).
+**Companions:** the phased endpoint-hook proposal and Gatehouse
+enforcing-vs-advisory notes live in the working repo and are **not** part
+of this public snapshot. This page is the capability contract.
 
 ## The one-sentence version
 
@@ -69,8 +68,7 @@ matched content, blocked payload, or reason string leaves the endpoint.
 ## Changing this table
 
 Adding a blocking rail to another collector requires (a) a pre-send hook API
-that tool actually exposes, (b) Security sign-off per
-[block-mode-precision-gates.md](./block-mode-precision-gates.md), and (c) an
+that tool actually exposes, (b) Security sign-off on precision gates, and (c) an
 update to this table in the same PR. Do not describe a collector as enforcing
 before its enforce module exists (`enforce.py` / `enforce_cursor.py` /
 `generic_hook.py`) and tests prove the rail.

@@ -5,7 +5,7 @@
 AMENDED 2026-07-22 to "observe + endpoint blocking for
 critical rules": the platform-side engine described here stays detect-and-alert only;
 the amendment authorizes ENDPOINT hook blocking, specified in
-`docs/inline-enforcement-design-2026-07.md` §Phase 1 and policy'd in
+`docs/security/enforcement-capability-matrix.md` and policy'd in
 `policies/guardrail/v1/core.yaml` → `settings.enforcement`)
 
 ## What this is

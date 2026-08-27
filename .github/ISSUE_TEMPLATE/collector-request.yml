@@ -1,0 +1,44 @@
+name: Collector request
+description: Ask AIM to cover a coding agent it does not collect today.
+title: "[collector] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        New collectors have to stay metadata-only. A request that needs prompt
+        text, tool arguments, or file contents will be declined.
+        Start with an issue before writing code (see CONTRIBUTING).
+  - type: input
+    id: tool
+    attributes:
+      label: Tool name
+      placeholder: Codex CLI
+    validations:
+      required: true
+  - type: textarea
+    id: local_surface
+    attributes:
+      label: Local metadata surface
+      description: >
+        Where does this tool already write usage on disk (log path pattern,
+        SQLite, config filename)? Names of files, not contents.
+    validations:
+      required: true
+  - type: dropdown
+    id: hook
+    attributes:
+      label: Does the vendor expose a pre-send hook AIM could use later?
+      options:
+        - Yes, documented hook API
+        - Observe-only (logs / state files)
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this tool
+      description: Roughly how common it is on your fleet. No hostnames.
+    validations:
+      required: true

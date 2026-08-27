@@ -1,0 +1,41 @@
+name: Bug
+description: Something AIM already claims to do is wrong.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks. Metadata-only still applies here: do **not** paste prompt text,
+        tool arguments, URLs, env values, hostnames, or identities.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Observed behaviour, including command and version (`aim --version`).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Install path
+      options:
+        - pipx install aimonitoring-security (personal mode)
+        - Built wheel from this repo
+        - Docker / demo-stack-up.sh
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Smallest local steps. Redact anything that is not metadata.
+    validations:
+      required: true

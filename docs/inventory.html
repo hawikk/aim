@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventory · AIM docs</title>
+<meta name="description" content="MCP server name and scope, approved vs unapproved inventory.">
+<link rel="canonical" href="https://hawikk.github.io/aim/inventory.html">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html">AIM docs</a>
+  <nav>
+    <a href="index.html">Home</a> <a href="start.html">Start</a> <a href="trust.html">Trust</a> <a href="inventory.html" aria-current="page">Inventory</a> <a href="self-host.html">Self-host</a> <a href="changelog.html">Changelog</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
+  </nav>
+</header>
+<main>
+<h1>MCP / agent inventory</h1>
+<p class="lede">Which coding agents and MCP servers are configured — including the ones nobody approved. Names and counts, never arguments.</p>
+<h2>What a row is</h2>
+<p>Collectors emit <code>event_type=inventory</code> with <code>configured_mcp_servers[]</code> when the set of servers in a tool’s config files <strong>changes</strong>. Each entry is exactly:</p>
+<table>
+<thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>name</code></td><td>Server identifier as configured (e.g. <code>github</code>). Cleartext on purpose: it names infrastructure and is matched against an allowlist. Max 128 characters.</td></tr>
+<tr><td><code>scope</code></td><td><code>user</code> = tool-global / user-level config. <code>project</code> = project or workspace-level config.</td></tr>
+</tbody>
+</table>
+<p>That is the whole object. <code>additionalProperties: false</code> — a command, args, URL, or env value makes ingest reject the event.</p>
+<p>Live calls use <code>event_type=tool_use</code> / <code>tool_calls[]</code> (<code>tool_name</code>, optional <code>mcp_server</code>, <code>action_class</code>, <code>count</code>, <code>duration_ms</code>). Still names and counts.</p>
+<h2>Approved vs unapproved</h2>
+<table>
+<thead><tr><th>Allowlist</th><th>What you see</th></tr></thead>
+<tbody>
+<tr><td>Empty (default)</td><td><strong>Discovery mode.</strong> Every configured server and every MCP call is unapproved and fires an <em>observe</em> finding so you can inventory before locking a list.</td></tr>
+<tr><td>Non-empty</td><td>Servers on the list are approved. Anything else is unapproved.</td></tr>
+</tbody>
+</table>
+<p>Unapproved is a status, not a block. The platform engine does not deny MCP calls. A few endpoint collectors can deny an unapproved server locally when a managed <code>enforcement.json</code> is in <code>mode: enforce</code>.</p>
+<h2>What this is not</h2>
+<ul>
+<li>Not an inline MCP gateway — AIM does not mediate or inspect arguments.</li>
+<li>Not a prompt or tool-arg collector. There is no “show me the call” path.</li>
+<li>Not complete for every vendor. Grok Build currently has no local MCP config surface, so inventory rows stay unsupported there until a metadata-only surface exists.</li>
+</ul>
+<p>Missing a tool or MCP server? Open an <a href="https://github.com/hawikk/aim/issues/new?template=inventory-gap.yml">inventory-gap issue</a>. Do not paste prompts, args, URLs, or env. Markdown: <a href="inventory.md">inventory.md</a>.</p>
+
+</main>
+<footer>
+  Apache-2.0 · metadata-only ·
+  <a href="https://github.com/hawikk/aim">hawikk/aim</a> ·
+  <a href="https://pypi.org/project/aimonitoring-security/">PyPI</a> ·
+  Markdown sources live next to these pages in
+  <a href="https://github.com/hawikk/aim/tree/main/docs">docs/</a>.
+</footer>
+</body>
+</html>

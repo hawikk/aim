@@ -1,5 +1,16 @@
 # Documentation
 
+**Docs site (no GitHub blob navigation):**
+[https://hawikk.github.io/aim/](https://hawikk.github.io/aim/)
+
+| Page | What it covers |
+|---|---|
+| [Start](start.md) | `pipx install aimonitoring-security && aim personal` |
+| [Trust](trust.md) | Metadata-only; collected vs never; retention; access control |
+| [Inventory](inventory.md) | MCP server `name` + `scope`; approved vs unapproved |
+| [Self-host](deployment/self-host-quickstart.md) | Compose demo on a laptop |
+| [Changelog](../CHANGELOG.md) | Keep a Changelog, 0.1.1–0.1.4 |
+
 This repository is a curated public snapshot of a larger working repo.
 The documentation here is the subset that is useful if you are evaluating,
 self-hosting, or contributing to AI Monitoring.
@@ -8,6 +19,8 @@ Some documents cross-reference design notes, rollout records, and compliance
 material that are **not** published here. Those links will not resolve, and
 that is deliberate rather than an oversight — the excluded material is either
 specific to one deployment or contains operational data from a private fleet.
+Do not copy `docs/aim-*-pilot-evidence*` or host inventories into the public
+tree.
 
 ## Start here
 
@@ -36,7 +49,7 @@ reading before anything else.
 | Document | What it covers |
 |---|---|
 | [`deployment/self-host-quickstart.md`](deployment/self-host-quickstart.md) | Compose-based install and first login |
-| [`deployment/prebuilt-images.md`](deployment/prebuilt-images.md) | GHCR pull path instead of a source build |
+| [`deployment/prebuilt-images.md`](deployment/prebuilt-images.md) | GHCR pull path instead of a source build (not published on the Community snapshot) |
 | [`deployment/air-gapped-install.md`](deployment/air-gapped-install.md) | Installing with no outbound network |
 | [`deployment/backup-restore.md`](deployment/backup-restore.md) | Backup and restore procedure |
 | [`deployment/enrollment-and-heartbeat.md`](deployment/enrollment-and-heartbeat.md) | How devices enrol and stay healthy |

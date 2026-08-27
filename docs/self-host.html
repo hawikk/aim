@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-host · AIM docs</title>
+<meta name="description" content="Clone hawikk/aim and run the compose self-host demo.">
+<link rel="canonical" href="https://hawikk.github.io/aim/self-host.html">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html">AIM docs</a>
+  <nav>
+    <a href="index.html">Home</a> <a href="start.html">Start</a> <a href="trust.html">Trust</a> <a href="inventory.html">Inventory</a> <a href="self-host.html" aria-current="page">Self-host</a> <a href="changelog.html">Changelog</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
+  </nav>
+</header>
+<main>
+<h1>Self-host demo</h1>
+<p class="lede">Full stack on a laptop: collectors, ingest, Postgres, dashboard. Target time-to-green is about 30 minutes with Docker installed.</p>
+<pre><code>git clone https://github.com/hawikk/aim.git
+cd aim
+./scripts/demo-stack-up.sh
+# → http://127.0.0.1:8081</code></pre>
+<p>This is a loopback eval with a demo seed. It is not personal mode (that is <a href="start.html"><code>aim personal</code></a>, no Docker) and not a production HA guide.</p>
+<h2>What you get</h2>
+<ul>
+<li>Dashboard at <code>http://127.0.0.1:8081</code> (personal/standalone local admin, no SSO)</li>
+<li>Ingest on <code>:8080</code>, Postgres on loopback, optional Gatehouse</li>
+<li>A deterministic 12-seat demo cohort so the UI is not empty</li>
+</ul>
+<h2>Prereqs</h2>
+<p>Docker Engine + Compose v2, Python 3.11+ (for local secret minting), ~8 GB RAM, ~10 GB disk, free ports 8080/8081/5432.</p>
+<p>Happy path, failure modes (missing Docker, port conflicts), and non-goals: <a href="deployment/self-host-quickstart.md">self-host quickstart</a>.</p>
+<blockquote>This public snapshot does not publish container images, so the GHCR pull path in <a href="deployment/prebuilt-images.md">prebuilt-images.md</a> will not resolve. <code>install-pilot.sh</code> falls back to building from source.</blockquote>
+
+</main>
+<footer>
+  Apache-2.0 · metadata-only ·
+  <a href="https://github.com/hawikk/aim">hawikk/aim</a> ·
+  <a href="https://pypi.org/project/aimonitoring-security/">PyPI</a> ·
+  Markdown sources live next to these pages in
+  <a href="https://github.com/hawikk/aim/tree/main/docs">docs/</a>.
+</footer>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trust · AIM docs</title>
+<meta name="description" content="What AIM collects, never collects, retains, and who can access it.">
+<link rel="canonical" href="https://hawikk.github.io/aim/trust.html">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html">AIM docs</a>
+  <nav>
+    <a href="index.html">Home</a> <a href="start.html">Start</a> <a href="trust.html" aria-current="page">Trust</a> <a href="inventory.html">Inventory</a> <a href="self-host.html">Self-host</a> <a href="changelog.html">Changelog</a>
+    <a href="https://github.com/hawikk/aim">GitHub</a>
+  </nav>
+</header>
+<main>
+<h1>Trust — metadata only</h1>
+<p class="lede">AIM is a security product. It is not a prompt logger. There is no supported path that sends prompt text or tool arguments off the box.</p>
+<h2>Personal-mode network claim</h2>
+<p><code>aim personal</code> binds <strong>127.0.0.1 only</strong> and makes <strong>zero outbound network calls</strong>. No ingest URL, no analytics beacon, no update check. Verify with networking off.</p>
+<p>The fleet path (<code>aim join &lt;ingest-url&gt;</code>) is opt-in and talks only to <em>your</em> ingest. It still sends metadata-only events.</p>
+<h2>What we collect, and why</h2>
+<table>
+<thead><tr><th>Class</th><th>Justification</th><th>Access</th></tr></thead>
+<tbody>
+<tr><td>Tool / model / provider</td><td>Which AI tools are in use; unapproved-tool detection</td><td>Analyst dashboard; team aggregates</td></tr>
+<tr><td>Token counts, cost, timestamps</td><td>Volume, cost, anomaly signals (counts, not content)</td><td>Analyst dashboard</td></tr>
+<tr><td>Pseudonymous <code>user_ref</code> / <code>host_ref</code> / <code>repo_ref</code></td><td>Correlate usage for alerting without names on the wire. Salted HMAC computed on the endpoint</td><td>Dashboards show pseudonyms. Re-identification is security-role-only and audited</td></tr>
+<tr><td>Detector name + boolean flags</td><td>Prove a secret/PII pattern matched without storing the match</td><td>Findings; security role</td></tr>
+<tr><td>MCP server <code>name</code> + <code>scope</code></td><td>Inventory configured capabilities so unapproved servers are visible</td><td>MCP inventory; policy allowlist match</td></tr>
+<tr><td>Enforcement decision metadata</td><td>Audit what the endpoint did, not what it saw</td><td>Findings / usage events</td></tr>
+</tbody>
+</table>
+<h2>What we never collect</h2>
+<ul>
+<li>Prompt text, response text, file contents, code snippets</li>
+<li>Tool-call arguments, command lines, URLs, env values</li>
+<li>Emails, names, raw hostnames, IP addresses</li>
+<li>Keystrokes, screen content, idle time, non-AI-tool activity</li>
+</ul>
+<p>Detectors run in memory at the collection point. Matched content is discarded immediately.</p>
+<h2>Retention (enforced)</h2>
+<table>
+<thead><tr><th>Data class</th><th>Default window</th></tr></thead>
+<tbody>
+<tr><td>Usage events</td><td>90 days</td></tr>
+<tr><td>Findings</td><td>365 days</td></tr>
+<tr><td>Audit trail</td><td>730 days</td></tr>
+</tbody>
+</table>
+<p>Ordering <code>audit ≥ findings ≥ events</code> is enforced. A violating config fails closed. Personal mode prunes local SQLite on the same windows. There is currently no legal-hold exemption.</p>
+<h2>Access control</h2>
+<ul>
+<li>Dashboards show pseudonyms or team aggregates. They cannot resolve a person.</li>
+<li>Re-identification is a security-role-only, fully audited lookup.</li>
+<li>The company salt is in the platform KMS / secrets manager, security-role IAM only.</li>
+<li>CSV export of findings excludes evidence payloads.</li>
+<li>Personal mode: one implicit local user, loopback only, no accounts.</li>
+</ul>
+<h2>Honest residual</h2>
+<p>Metadata-only does not mean nothing personal can be inferred. Tool names, MCP server names, and small-team patterns can still describe activity. Mitigations are access control and aggregate suppression — not prompt capture.</p>
+<p>Enforcement is not fleet-wide. See the <a href="security/enforcement-capability-matrix.md">enforcement capability matrix</a> (markdown). Longer form: <a href="trust.md">trust.md</a>, <a href="privacy/data-minimization-and-pseudonymization.md">data minimization</a>.</p>
+
+</main>
+<footer>
+  Apache-2.0 · metadata-only ·
+  <a href="https://github.com/hawikk/aim">hawikk/aim</a> ·
+  <a href="https://pypi.org/project/aimonitoring-security/">PyPI</a> ·
+  Markdown sources live next to these pages in
+  <a href="https://github.com/hawikk/aim/tree/main/docs">docs/</a>.
+</footer>
+</body>
+</html>
