@@ -45,7 +45,7 @@ When a pilot host or package example shows a newer tool version:
 1. Add a fixture under `collectors/tool-version-fixtures/<tool>/<version>/`.
 2. Append a pin to `collectors/tool-version-matrix.json` (keep ≥2 pins; drop the oldest only if deliberately pruning).
 3. Run `python3 scripts/check_tool_version_matrix.py --check` locally.
-4. Land via PR — CI enforces the matrix.
+4. Land via PR, CI enforces the matrix.
 
 ## Explicit non-goals
 

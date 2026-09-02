@@ -1,4 +1,4 @@
-# ADR — No semantic content classifiers (metadata-only detection)
+# ADR : No semantic content classifiers (metadata-only detection)
 
 **Status:** Accepted  
 **Date:** 2026-08-01  
@@ -15,9 +15,9 @@ Market leaders (NeuralTrust, Noma, Harmonic, Lasso, Prompt) score **9/10** on de
 
 Detection remains:
 
-1. **Endpoint matchers** — high-precision regex + validated detectors + multi-pass normalize/decode (this repo’s unified ruleset).
-2. **Metadata-only telemetry** — detector names, fingerprints, counts; no prompt bodies in the pipeline.
-3. **Adversarial corpus + CI floors** — rates are measured and non-regressed (floors: baseline 100 / evasion ≥90 / FP 100).
+1. **Endpoint matchers**, high-precision regex + validated detectors + multi-pass normalize/decode (this repo’s unified ruleset).
+2. **Metadata-only telemetry**, detector names, fingerprints, counts; no prompt bodies in the pipeline.
+3. **Adversarial corpus + CI floors**, rates are measured and non-regressed (floors: baseline 100 / evasion ≥90 / FP 100).
 
 ## Consequences
 

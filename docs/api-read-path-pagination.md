@@ -2,7 +2,7 @@
 
 (gap)
 **Owner:** engineering (API) · Frontend consumes in a follow-up
-**Status:** Implemented — offset pagination with `total`
+**Status:** Implemented, offset pagination with `total`
 
 ---
 
@@ -32,7 +32,7 @@ Both endpoints keep their existing privacy gates (analyst+). Pagination does
 | Query | Default (JSON) | Max (JSON) | Default/Max (CSV) |
 |---|---|---|---|
 | `limit` | 100 | 100 | 10_000 |
-| `offset` | 0 | — | 0 |
+| `offset` | 0 |, | 0 |
 
 JSON response fields (additions):
 
@@ -56,7 +56,7 @@ JSON response fields (additions):
 | Query | Default | Max |
 |---|---|---|
 | `limit` | 100 | 100 |
-| `offset` | 0 | — |
+| `offset` | 0 |, |
 
 JSON response fields (additions):
 
@@ -100,7 +100,7 @@ keeps these achievable at 5k when clients request ≤ 100 rows:
 | `GET /api/unapproved?days=30` | ≤ 250 ms | ≤ 50 KB |
 
 Honesty rule (unchanged): never imply full coverage from a
-truncated page — UI must surface `total` ("showing N of M").
+truncated page, UI must surface `total` ("showing N of M").
 
 ---
 

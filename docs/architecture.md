@@ -7,7 +7,7 @@ and [product/gatehouse.md](./product/gatehouse.md).
 ## Problem
 
 An engineering org adopts AI coding tools with no central visibility.
-Security cannot answer "what are our engineers doing with AI tools?" — and
+Security cannot answer "what are our engineers doing with AI tools?", and
 cannot detect unapproved tools or leaked secrets.
 
 ## Locked scoping decisions (amended)
@@ -16,7 +16,7 @@ cannot detect unapproved tools or leaked secrets.
   macOS install path exists (`deploy/macos`).
 - Deployment via Intune / MDM; IdP is Google Workspace (plus multi-IdP OIDC);
   SIEM is Microsoft Sentinel (CEF/webhook also supported).
-- Collection: **hybrid** — proxy/network log ingestion for breadth, endpoint
+- Collection: **hybrid**, proxy/network log ingestion for breadth, endpoint
   collectors (tool hooks + scan) for depth, OS egress + IdP OAuth for shadow AI.
 - Sanctioned coding tools: Claude Code, Cursor, Kilo Code. Other
   first-class schema tools (e.g. `kimi_code`, `grok_build`) may be collected
@@ -32,8 +32,8 @@ cannot detect unapproved tools or leaked secrets.
 
 | Surface | Role |
 | --- | --- |
-| **`stack-aim-*` via security-stack gateway** (`https://ingest.localhost:8443` → product compose) | **Path of record** — demos, fleet truth, program metrics, dogfood |
-| `aim-local-*` (`http://127.0.0.1:8080` / `:8181`) | Lab / pilot seed only — **do not** quote for fleet counts |
+| **`stack-aim-*` via security-stack gateway** (`https://ingest.localhost:8443` → product compose) | **Path of record**, demos, fleet truth, program metrics, dogfood |
+| `aim-local-*` (`http://127.0.0.1:8080` / `:8181`) | Lab / pilot seed only, **do not** quote for fleet counts |
 | Personal mode (`aim personal`) | Offline single-user SQLite dashboard; zero outbound |
 
 Collectors should point at the product ingest (gateway or `stack-aim-ingest`).
@@ -102,7 +102,7 @@ can only heartbeat on one ingest registry at a time.
 - Fleet enrollment + heartbeat: `POST /v1/enroll`, `POST /v1/heartbeat`
   (`docs/deployment/enrollment-and-heartbeat.md`).
 - Collector coverage SLO (≥99% in-scope healthy): `docs/deployment/collector-coverage-slo.md`
-  — surfaces on `GET /api/fleet` → `coverageSlo` and system-status when
+  Surfaces on `GET /api/fleet` → `coverageSlo` and system-status when
   `SYSTEM_STATUS_ALERTS=1`.
 - Pipeline idle: `GET /api/pipeline/liveness` (threshold
   `PIPELINE_IDLE_THRESHOLD_SECONDS`, default 2h).
@@ -113,7 +113,7 @@ can only heartbeat on one ingest registry at a time.
 - Multi-tenant SaaS control plane / billing (internal-only).
 - Storing prompt or response content.
 - Inline LLM gateway latency competition (observe-first architecture).
-- Claiming live AI-reviewer quality from stub-mode eval numbers — model
+- Claiming live AI-reviewer quality from stub-mode eval numbers, model
   validation is a separate gate.
 
 ## Related

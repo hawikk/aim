@@ -5,7 +5,7 @@
 [![PyPI](https://img.shields.io/pypi/v/aimonitoring-security)](https://pypi.org/project/aimonitoring-security/)
 [![docs](https://img.shields.io/badge/docs-hawikk.github.io%2Faim-2dd4a8)](https://hawikk.github.io/aim/)
 
-See every MCP server and coding agent on the machine — including the ones
+See every MCP server and coding agent on the machine, including the ones
 nobody approved. Metadata-only inventory. Self-hosted. Personal mode makes
 zero outbound calls.
 
@@ -22,7 +22,7 @@ month. Enterprise: contact sales. Tariff: [docs/pricing.md](docs/pricing.md)
 
 This repo is the public Community clone. It ships endpoint collectors, ingest +
 Postgres, a guardrail engine, identity-sync, shadow-AI discovery, Gatehouse
-(free PR-security — not a CI/CD product), hygiene, an alert bus, the analyst
+(free PR-security, not a CI/CD product), hygiene, an alert bus, the analyst
 dashboard (`apps/web` + `apps/api`), the `aim` CLI, and Helm / Intune / Linux
 install paths. Full map: [docs/architecture.md](docs/architecture.md).
 
@@ -40,9 +40,9 @@ material are not published here, so a few cross-references in the docs will
 not resolve.
 
 Two consequences worth stating plainly, because the docs below reference both:
-**only `ci.yml` ships here** — the release, attestation and matrix workflows
+**only `ci.yml` ships here**: the release, attestation and matrix workflows
 live outside this snapshot, so any doc pointing at
-`.github/workflows/release-*.yml` is describing something you cannot run — and
+`.github/workflows/release-*.yml` is describing something you cannot run, and
 **no container images are published**, so the GHCR pull path in
 [`docs/deployment/prebuilt-images.md`](docs/deployment/prebuilt-images.md) will
 not resolve. Neither blocks you: `install-pilot.sh` defaults to `prefer-pull`
@@ -57,7 +57,7 @@ one artifact that *is* published is the CLI wheel on PyPI
 | **Enterprise** | Contact sales | [sales@getaimonitoring.com](mailto:sales@getaimonitoring.com) |
 
 Community is Apache-2.0: no DRM, no phone-home, no seat file. Cloud is a
-hosted dashboard we operate (copy only — no self-serve checkout yet).
+hosted dashboard we operate (copy only: no self-serve checkout yet).
 SSO, enforcement packs, evidence, DPA, and air-gap are Enterprise.
 
 Need the full dashboard with Docker (about 30 minutes)?
@@ -75,7 +75,7 @@ Most engineering orgs have **no central view** of which AI coding tools are in
 use, what they cost, or whether secrets / personal data are flowing into them.
 AIM closes that with a **metadata-only** platform: collectors report
 pseudonymized usage metadata; the dashboard turns it into fleet visibility and
-security findings — without storing prompt text, code, or raw identities.
+security findings, without storing prompt text, code, or raw identities.
 Platform findings are observe/alert by default. Enforcement is deliberately
 narrow and only where a vendor hook exists: **Claude Code, Cursor, Kimi
 Code, and GitHub Copilot (VS Code)** can block on the endpoint when a
@@ -97,27 +97,27 @@ node scripts/capture-readme-screenshots.mjs \
   --out ../../docs/screenshots
 ```
 
-![Home — fleet posture, identity coverage, and enrollment](docs/screenshots/overview.png)
+![Home: fleet posture, identity coverage, and enrollment](docs/screenshots/overview.png)
 
-*Home — unattributed rate, open criticals, active users, events in range, live
+*Home: unattributed rate, open criticals, active users, events in range, live
 activity chart, and identity-coverage health.*
 
-![Security — guardrail match flags and unapproved tool discovery](docs/screenshots/security.png)
+![Security: guardrail match flags and unapproved tool discovery](docs/screenshots/security.png)
 
-*Security — detector match flags by name (aggregate counts only; matched
+*Security: detector match flags by name (aggregate counts only; matched
 content is never stored), severity, enforce-coverage posture, unapproved tools.*
 
-![Live activity trail — per-event score and cost](docs/screenshots/activity.png)
+![Live activity trail: per-event score and cost](docs/screenshots/activity.png)
 
-*Live activity trail — streaming per-event view with a 1–10 security score,
+*Live activity trail: streaming per-event view with a 1-10 security score,
 pseudonymous host and user refs, model, tokens, cost, and match flags.*
 
-![Fleet — enrolled collectors and heartbeat health](docs/screenshots/fleet.png)
+![Fleet: enrolled collectors and heartbeat health](docs/screenshots/fleet.png)
 
-*Fleet — enrolled devices, collector coverage %, healthy / silent / dead /
+*Fleet: enrolled devices, collector coverage %, healthy / silent / dead /
 never-seen, attribution health, and coverage SLO.*
 
-![Theme — light mode](docs/screenshots/theme-light.png)
+![Theme: light mode](docs/screenshots/theme-light.png)
 
 *Same Home chrome in light theme (dark default above).*
 
@@ -126,14 +126,14 @@ never-seen, attribution health, and coverage SLO.*
 Three ways in, from fastest local eval to a private-network pilot. Personal
 mode is the default story; Docker is the full-stack demo.
 
-### 1. Personal mode — your own AI usage in 60 seconds
+### 1. Personal mode: your own AI usage in 60 seconds
 
 No company, no SSO, no Docker, no database. Install the single `aim` CLI and
 watch **your own** Claude Code, Cursor, Kilo Code, Kimi Code, Grok Build,
-and GitHub Copilot usage on a local dashboard. Everything stays on your machine —
+and GitHub Copilot usage on a local dashboard. Everything stays on your machine.
 **personal mode makes zero outbound network calls** (verify by running it
 with networking off). Requires only Python 3.11+ (standard library only).
-On a single-user machine `user_ref` falls back to `host_ref` — there is
+On a single-user machine `user_ref` falls back to `host_ref`. There is
 no separate person mapping until you run the fleet identity-sync path.
 
 ```bash
@@ -167,11 +167,11 @@ aim personal
 
 See [`packaging/aim-cli/README.md`](packaging/aim-cli/README.md).
 
-It reads your real local AI tool data — Claude Code transcripts
+It reads your real local AI tool data: Claude Code transcripts
 (`~/.claude/projects/**/*.jsonl`), Cursor's local state (`state.vscdb`),
 Kilo Code task logs (`ui_messages.json`), and Kimi Code wire logs
-(`wire.jsonl`) — and extracts **metadata only** (model, token counts,
-session/repo pseudonyms — never prompt text or code). Secret/PII patterns are
+(`wire.jsonl`), and extracts **metadata only** (model, token counts,
+session/repo pseudonyms: never prompt text or code). Secret/PII patterns are
 matched **in memory** at scan time and discarded immediately; only detector
 names (e.g. `secret:aws-access-key`) are stored as match flags. Everything
 lands in a local SQLite file at `~/.aim-collector/personal.db`. The dashboard
@@ -259,7 +259,7 @@ aim uninstall               # remove hooks, state, and the auto-start service (i
 
 **Auto-start is per-user, never root.** `join` registers the watcher as a
 systemd **user** unit (Linux), a launchd **LaunchAgent** (macOS), or a per-user
-**Scheduled Task** (Windows) — nothing is written to a system/root scope, and
+**Scheduled Task** (Windows): nothing is written to a system/root scope, and
 `aim` refuses to install a service as root.
 
 **Survives the two silent-failure modes.** Watchers no longer die with a
@@ -270,8 +270,8 @@ events**.
 
 ## Trust and privacy principles
 
-**Auditor one-pager:** [`docs/privacy/auditor-privacy-overview.md`](docs/privacy/auditor-privacy-overview.md)
-— two pages on the metadata-only posture plus offline verifier commands
+**Auditor one-pager:** [`docs/privacy/auditor-privacy-overview.md`](docs/privacy/auditor-privacy-overview.md):
+two pages on the metadata-only posture plus offline verifier commands
 (`scripts/no_content_egress.py`, compliance offline pack +
 `scripts/verify-compliance-bundle.mjs`).
 
@@ -280,7 +280,7 @@ These are non-negotiable design constraints, enforced in code and tests:
 - **Metadata-only telemetry.** The platform never stores prompt text, response
   text, or code content. The canonical schema uses `additionalProperties: false`,
   so any property named like `prompt`, `content`, `text`, or `code` is rejected.
-  Detection results are boolean flags plus a detector name — never matched
+  Detection results are boolean flags plus a detector name: never matched
   content. You can verify this yourself in this repo, without a running stack:
   `python scripts/no_content_egress.py` walks the whole invariant end to end
   (schema rejection, adapter strip-before-emit, and the ingest archive layer),
@@ -292,7 +292,7 @@ These are non-negotiable design constraints, enforced in code and tests:
   are salted HMACs computed on the endpoint, before the event leaves the
   machine, so no raw identity is ever on the wire or in the telemetry store.
   The salt is held by the platform (secrets manager / KMS, security-role IAM
-  only), so re-identification **is** possible — deliberately, because pure
+  only), so re-identification **is** possible, deliberately, because pure
   anonymity would make incident response impossible. It is also deliberately
   narrow: the identity-mapping service exposes a security-role-only, fully
   audited `user_ref -> user` lookup and nothing else resolves the mapping.
@@ -302,10 +302,10 @@ These are non-negotiable design constraints, enforced in code and tests:
   in [`docs/privacy/data-minimization-and-pseudonymization.md`](docs/privacy/data-minimization-and-pseudonymization.md).
 - **Data minimization.** Only the fields in the canonical schema exist, each
   with a documented privacy justification (`packages/schema/README.md`).
-  Rejected payloads are audited by SHA-256 hash and key names only — never
+  Rejected payloads are audited by SHA-256 hash and key names only: never
   stored raw.
 - **Split enforcement posture.** The **platform** guardrail engine is
-  detect-and-alert only — every finding carries `decision: "observe"`. That is
+  detect-and-alert only: every finding carries `decision: "observe"`. That is
   intentional and must not be read as "we do not enforce." **Claude Code, Cursor, VS Code Copilot, and Kimi Code**
   can block on the endpoint when a managed `enforcement.json` is
   loaded (`mode: enforce`). Copilot CLI and Grok Build can deny tool
@@ -320,7 +320,7 @@ These are non-negotiable design constraints, enforced in code and tests:
   coverage, honor rate, and fail-open inventory so SOC can answer "who can
   enforce today?" without SQL.
 - **Retention is enforced, not aspirational.** Every store ages itself out by
-  data class — events 90d, findings 365d, audit trail 730d by default, with
+  data class: events 90d, findings 365d, audit trail 730d by default, with
   `audit ≥ findings ≥ events` enforced. The ingest service purges Postgres in
   bounded batches on a schedule; personal mode prunes its local SQLite store.
   A bad config fails closed (skips + logs, never guesses). Knobs:
@@ -416,7 +416,7 @@ so vitest exits non-zero on "no test files found". Run the suites listed under
 > claim above. What *is* present and running in CI is listed below.
 
 The per-tool endpoint collectors are pure-stdlib Python, and so is the
-packaged `aim` CLI — that is why the shipped wheel has no runtime
+packaged `aim` CLI: that is why the shipped wheel has no runtime
 dependencies. Two support packages under `collectors/` are exempt and do have
 dependencies: `collectors/integrity` needs `cryptography` to verify signed
 config bundles, and `collectors/adapter` needs `PyYAML` (plus `jsonschema`,
@@ -457,7 +457,7 @@ SEED_BASE_URL=http://localhost:8080 ./scripts/seed-pilot-cohort.sh
 ```
 
 The stack opens on **http://localhost:8081** with a local admin identity
-(personal/standalone mode — no `AIM_OIDC_*` set). SSO is only wired for a
+(personal/standalone mode: no `AIM_OIDC_*` set). SSO is only wired for a
 company deploy. `identity-sync` loads the fixture directory at startup so team
 attribution works out of the box. `guardrail` polls `evaluate-db` on an
 interval, so the Security view populates as events flow.
@@ -470,10 +470,10 @@ Notes:
   from `AIM_DATASTORE_BIND_ADDR`, so widening the app surfaces never widens
   the telemetry database. See `.env.example`.
 - If you run Docker in WSL2 and browse from Windows, `localhost:8081` forwards
-  to the distro's loopback automatically. The WSL IP does not — that address
+  to the distro's loopback automatically. The WSL IP does not. That address
   is no longer bound, which is the point.
 - A blank page at `localhost:8081` almost always means the stack isn't running
-  on *that* machine — `docker compose ps` should show `api` as `Up`.
+  on *that* machine: `docker compose ps` should show `api` as `Up`.
 
 ## Security defaults
 
@@ -483,7 +483,7 @@ Notes:
   are compared in constant time; `Authorization` headers are redacted from
   logs.
 - Containers run as a non-root user (`node`).
-- The ingest service logs ids and counts only — never event payloads — and
+- The ingest service logs ids and counts only, never event payloads, and
   validation errors never echo payload values back to callers.
 - Database writes are parameterized; ingest is idempotent on `event_id`
   (`ON CONFLICT DO NOTHING`).
@@ -494,26 +494,26 @@ The dashboard API (`apps/api`) terminates SSO itself: with `AIM_OIDC_*` set
 it runs an in-app OIDC authorization-code flow (PKCE, HMAC-signed HttpOnly
 session cookie) and maps the ID token's groups claim to roles via
 `AIM_ROLE_GROUPS_*`. **No authorization decision ever derives from a
-client-supplied header** — `X-Forwarded-*` / `X-AIM-*` identity headers are
+client-supplied header**: `X-Forwarded-*` / `X-AIM-*` identity headers are
 never read; there is no proxy-auth mode. With no `AIM_OIDC_*` set the API
 runs in personal/standalone mode (a single local admin identity), which must
 never be exposed beyond localhost.
 
 Four roles, enforced in `apps/api/src/auth.js`:
 
-- **viewer** — org/team aggregates and dashboards only: no per-engineer
+- **viewer**: org/team aggregates and dashboards only: no per-engineer
   rows, no findings, no audit trail.
-- **auditor** — read-only: dashboards, compliance views, and the access
+- **auditor**: read-only: dashboards, compliance views, and the access
   audit trail.
-- **analyst** — dashboards, findings console, user-level rows, fleet,
-  coverage — no guardrail config, no audit trail.
-- **admin** — everything, including repo de-pseudonymization labels and
+- **analyst**: dashboards, findings console, user-level rows, fleet,
+  coverage: no guardrail config, no audit trail.
+- **admin**: everything, including repo de-pseudonymization labels and
   guardrail configuration.
 
 Groups come from `AIM_ROLE_GROUPS_ADMIN` (default `ai-monitoring-security`),
 `AIM_ROLE_GROUPS_ANALYST`, `AIM_ROLE_GROUPS_AUDITOR`, and
 `AIM_ROLE_GROUPS_VIEWER` (default `ai-monitoring-viewers`). An authenticated
-user whose groups map to no role gets zero access — fail-closed.
+user whose groups map to no role gets zero access: fail-closed.
 **Viewer is an explicit group grant**, not an implicit default. Identity
 reveal is **not** a role and is not bundled into admin: it is a separate
 capability from `AIM_REVEAL_GROUPS` (default `ai-monitoring-revealers`).
@@ -532,7 +532,7 @@ That prints the secret once and the entry to add to the file named by
 `AIM_SERVICE_TOKENS_FILE`. The file stores **sha256 digests, not secrets**.
 Consumers authenticate with `Authorization: Bearer <secret>`.
 
-- A service token may not hold `admin` — only `viewer`, `analyst`, or
+- A service token may not hold `admin`: only `viewer`, `analyst`, or
   `auditor`. A disallowed role is rejected at load, never quietly downgraded.
 - A `Bearer` header is authoritative: it resolves to a service identity or
   401s. It does not fall through to the cookie/personal paths.

@@ -9,10 +9,10 @@ deployment.
 | Data | Where | Why |
 | --- | --- | --- |
 | **Postgres** | `pgdata` volume / DB PVC | System of record: telemetry metadata, policies, audit trail, findings, enrollments. Lose this and you lose the platform's history. |
-| **MinIO bucket** | `minio-data` volume / object-store PVC | Raw event batches under `raw/` (see `docs/deployment/raw-batch-archival.md`) — the byte-exact forensics/replay copy. |
+| **MinIO bucket** | `minio-data` volume / object-store PVC | Raw event batches under `raw/` (see `docs/deployment/raw-batch-archival.md`), the byte-exact forensics/replay copy. |
 | **Config/secrets** | `.env`, helm values, tokens, `AIM_HASH_SALT` | Needed to make a restored stack *the same* stack. The salt especially: pseudonymized joins depend on it. Store in your secrets manager, not in the backup dir. |
 
-**Not precious:** container images and the Helm chart — rebuildable from source
+**Not precious:** container images and the Helm chart, rebuildable from source
 or re-transferable via the air-gap bundle. Never waste backup capacity on them.
 
 ## Backup
@@ -61,14 +61,14 @@ Cron example (nightly 02:15 UTC, compose host):
 ```
 
 Retention suggestion (proposal, not policy): **daily for 14 days, weekly for
-8 weeks, monthly for 12 months** — e.g. via `restic`/`borg` or simple
+8 weeks, monthly for 12 months**, e.g. via `restic`/`borg` or simple
 date-based pruning (`find backups -name 'aim-pg-*.dump*' -mtime +14 -delete`
 for the dailies).
 
 ### Encryption at rest
 
 The dump contains pseudonymized-but-sensitive metadata (repo refs, tool usage
-patterns, policy state). Pseudonymization is not anonymization — with the salt
+patterns, policy state). Pseudonymization is not anonymization, with the salt
 or enough context it re-identifies. Therefore:
 
 - Encrypt dumps at rest: `gpg -e -r <backup-recipient>` as above, or age, or
@@ -79,7 +79,7 @@ or enough context it re-identifies. Therefore:
 
 ## Restore
 
-Into a **fresh** stack (compose or helm — start the stack first so postgres is
+Into a **fresh** stack (compose or helm, start the stack first so postgres is
 up and empty, ingest migrations applied or about to be):
 
 ```sh
@@ -109,11 +109,11 @@ if in doubt, drop/recreate as above. Ingest re-applies migrations on boot
 ### Verification
 
 ```sh
-# Row counts — compare against the pre-incident numbers:
+# Row counts : compare against the pre-incident numbers:
 docker compose exec -T postgres psql -U aim -d aim -c \
   "SELECT count(*) AS events FROM events;"
 
-# Latest event timestamp — should match roughly the backup time, not today:
+# Latest event timestamp : should match roughly the backup time, not today:
 docker compose exec -T postgres psql -U aim -d aim -c \
   "SELECT max(received_at) AS latest_event FROM events;"
 
@@ -126,7 +126,7 @@ mc ls --recursive aim/"$MINIO_BUCKET"/raw/ | tail -5
 ```
 
 Then open the dashboard and confirm recent history renders. If `max(received_at)`
-is older than expected, you restored an old dump — check the filename date.
+is older than expected, you restored an old dump, check the filename date.
 
 ### Restore drills
 
@@ -178,11 +178,11 @@ commitments:
 
 | Tier | Proposal | Rationale |
 | --- | --- | --- |
-| **RPO** | 24 h (nightly backup) | Telemetry is observability data, not financial records; a day of lost events is annoying, not catastrophic. Tighten to 4–6 h (WAL archiving / more frequent dumps) if audit findings become compliance-critical. |
+| **RPO** | 24 h (nightly backup) | Telemetry is observability data, not financial records; a day of lost events is annoying, not catastrophic. Tighten to 4-6 h (WAL archiving / more frequent dumps) if audit findings become compliance-critical. |
 | **RTO** | 8 business hours | Restore is a scripted `pg_restore` + `mc mirror` measured in minutes-to-an-hour for realistic volumes; the slack covers detecting the incident, provisioning the fresh stack, and the restore drill being someone's second task of the day. |
 
 Note the interplay with raw-batch archival: because every accepted batch also
 lives in the object store, a Postgres-loss-with-MinIO-intact scenario can be
 replayed from `raw/` (see raw-batch-archival.md), which can beat the pg_dump
 RPO for the events table alone. The audit/policy tables have no such second
-copy — pg_dump is their only lifeline.
+copy, pg_dump is their only lifeline.

@@ -1,7 +1,7 @@
 # Air-gapped install
 
 How to install the AI Monitoring platform on a host or cluster with **no
-internet access** — the common case in enterprises where outbound egress is
+internet access**, the common case in enterprises where outbound egress is
 blocked and every artifact crosses the air gap on approved media.
 
 The unit of transfer is a single tarball, `aim-airgap-<version>.tar.gz`, built
@@ -21,11 +21,11 @@ target by the bundled `install-offline.sh`.
 | `README-airgap.md` | This document |
 
 **Alongside the tarball** (not inside it), production releases also ship
-Ed25519 signature companions — see [Sign the bundle](#sign-the-bundle-required-for-production-air-gap--aim-747):
+Ed25519 signature companions, see [Sign the bundle](#sign-the-bundle-required-for-production-air-gap--aim-747):
 `.sha256`, `.sig`, `.sha256.sig`, `.sigmeta.json`.
 
 SSO is terminated in-app by the API (OIDC); no `sso-proxy`
-(oauth2-proxy) is bundled. Point `api.oidc` at the site-internal IdP —
+(oauth2-proxy) is bundled. Point `api.oidc` at the site-internal IdP ,
 air-gapped environments typically run one anyway. Client-supplied identity
 headers are never trusted.
 
@@ -39,10 +39,10 @@ deploy/airgap/build-bundle.sh 1.4.0
 ```
 
 Requires docker with network access. If `deploy/helm/aim` does not exist at
-build time the bundle is still produced (with a warning), minus the chart —
+build time the bundle is still produced (with a warning), minus the chart ,
 the compose install path below then applies.
 
-### Sign the bundle (required for production air-gap —)
+### Sign the bundle (required for production air-gap : )
 
 Integrity alone (MANIFEST hashes) detects accidental corruption. **Signature
 verification** proves the tarball came from your release pipeline and was not
@@ -52,13 +52,13 @@ swapped on the transfer medium.
 # One-time: generate the release keypair (private key stays on build/CI only).
 deploy/airgap/gen-signing-key.sh /secure/aim-airgap-keys
 # -> aim-airgap-ed25519.pem (private)
-# -> aim-airgap-ed25519.pub.pem (public — pin on targets)
+# -> aim-airgap-ed25519.pub.pem (public : pin on targets)
 
-# Option A — auto-sign at the end of build:
+# Option A : auto-sign at the end of build:
 AIM_AIRGAP_SIGNING_KEY=/secure/aim-airgap-keys/aim-airgap-ed25519.pem \
   deploy/airgap/build-bundle.sh 1.4.0
 
-# Option B — sign an existing tarball:
+# Option B : sign an existing tarball:
 AIM_AIRGAP_SIGNING_KEY=/secure/aim-airgap-keys/aim-airgap-ed25519.pem \
   deploy/airgap/sign-bundle.sh deploy/airgap/out/aim-airgap-1.4.0.tar.gz
 ```
@@ -94,10 +94,10 @@ separate trust path (golden image, MDM, signed config, or pre-staged under
 `/etc/aim/airgap-ed25519.pub.pem`).
 
 In works-council / regulated environments, treat the bundle like any other
-software import: container images + text files, no credentials — record
+software import: container images + text files, no credentials, record
 version, key fingerprint, and digest in the import ticket.
 
-## Verify on the target (signature first —)
+## Verify on the target (signature first : )
 
 **Fail closed.** Do not unpack or run `install-offline.sh` until verify exits 0.
 
@@ -148,14 +148,14 @@ deploy/airgap/drill-sig-verify.sh
 
 - **Docker path:** docker engine + compose plugin, nothing else.
 - **Kubernetes path:** a reachable cluster (`kubectl` context configured),
-  `helm` v3 CLI, and — strongly recommended — an internal registry the
+  `helm` v3 CLI, and, strongly recommended, an internal registry the
   cluster nodes can pull from (e.g. Harbor). Without a registry, images are
   only present on the node where you run the installer; see below.
 
-## Install path A — Kubernetes / Helm
+## Install path A : Kubernetes / Helm
 
 ```sh
-# With an internal registry (multi-node clusters — the normal case):
+# With an internal registry (multi-node clusters : the normal case):
 REGISTRY=registry.corp.local:5000/aim ./install-offline.sh        # dry-run, prints the helm command
 REGISTRY=registry.corp.local:5000/aim RUN_HELM=1 ./install-offline.sh   # actually install
 
@@ -179,7 +179,7 @@ The installer:
    - Per image: `--set <component>.image.repository=... --set <component>.image.tag=...`
      where `<component>` is `ingest`, `api`, `guardrail`, `postgres`, `minio`,
      `minioInit`. (`redis` is loaded for the compose path but is not a Helm
-     chart value — that is expected.)
+     chart value, that is expected.)
 
 Nothing in this flow touches the internet: images come from the tarball, the
 chart is local, and the pull policy forbids registry fetches beyond the one
@@ -188,22 +188,22 @@ internal source you named.
 Optional env: `RELEASE` (default `aim`), `NAMESPACE` (default `aim`),
 `CHART_DIR` (default `./chart/aim`).
 
-## Install path B — docker compose (single host, no cluster)
+## Install path B : docker compose (single host, no cluster)
 
 The bundle carries the exact `docker-compose.yml` from the repo **and** a
 generated `docker-compose.airgap.yml` that pins the three bundled app images
-and disables pulls. **Do not hand-write `build: null`** — Compose v2 keeps the
+and disables pulls. **Do not hand-write `build: null`**, Compose v2 keeps the
 original `build:` context when merging that form; the bundle uses
 `build: !reset null` instead (drill).
 
 ```sh
 ./install-offline.sh   # loads images.tar (helm step auto-skips without chart/)
 
-cp env.example .env   # then edit secrets — do NOT ship the local-dev defaults
+cp env.example .env   # then edit secrets, do NOT ship the local-dev defaults
 
 # Core offline path: only services covered by the airgap override + data plane.
 # The full monorepo compose file also defines gatehouse/sentinel/hygiene/etc.
-# which still have `build:` and are NOT in the offline bundle — either omit
+# which still have `build:` and are NOT in the offline bundle : either omit
 # them with an explicit profile/core compose, or do not start those services.
 docker compose \
   -f docker-compose.yml \
@@ -244,14 +244,14 @@ postgres + redis-bus + minio). Services such as `gatehouse`, `sentinel`,
 `hygiene`, `identity-sync`, and `shadow-ai` still use `build:` in
 `docker-compose.yml` and are **not** image-bundled. Operators who need those
 on an air-gapped host must extend the bundle (extra `docker build` + `docker
-save` on the connected side) — that is intentional product packaging, not a
+save` on the connected side), that is intentional product packaging, not a
 silent pull.
 
 ## Upgrading an existing air-gapped install
 
 Greenfield install and upgrade share the same offline artifacts. Schema
 migrations ride inside the new ingest image and apply on start / via the Helm
-pre-upgrade Job — see `docs/deployment/upgrades.md`.
+pre-upgrade Job, see `docs/deployment/upgrades.md`.
 
 ### Before every upgrade
 
@@ -278,7 +278,7 @@ any new `NNN_*.sql` files before new pods serve traffic.
 # 1. Load new images (and third-party pins) from the new bundle.
 ./install-offline.sh
 
-# 2. Recreate app containers only — keep named volumes (pgdata, minio-data, alertbus).
+# 2. Recreate app containers only : keep named volumes (pgdata, minio-data, alertbus).
 docker compose \
   -f docker-compose.yml \
   -f docker-compose.airgap.yml \
@@ -303,35 +303,35 @@ publish map looks like a failed upgrade (drill).
 - Sample business data (devices / events counts, content hash) unchanged.
 - If anything fails: roll **application** tags back to the previous bundle
   (safe under the additive-migration contract); restore from backup only if
-  data was corrupted — see `docs/deployment/upgrades.md` rollback.
+  data was corrupted, see `docs/deployment/upgrades.md` rollback.
 
 ## Troubleshooting
 
-- **`docker load` fails / image missing later** — the tarball was truncated in
+- **`docker load` fails / image missing later**, the tarball was truncated in
   transfer. Re-verify `sha256sum -c` against MANIFEST.txt first.
-- **Pods stuck in `ImagePullBackOff`** — the cluster is trying to pull. Either
+- **Pods stuck in `ImagePullBackOff`**, the cluster is trying to pull. Either
   you forgot `REGISTRY` (node-local images only exist where you loaded them;
   load the bundle on every node, or use a registry), or the pull policy didn't
-  stick — confirm with `kubectl get deploy -o yaml | grep imagePullPolicy`.
-- **`install-offline.sh` says the chart is missing** — the bundle was built
+  stick, confirm with `kubectl get deploy -o yaml | grep imagePullPolicy`.
+- **`install-offline.sh` says the chart is missing**, the bundle was built
   before `deploy/helm/aim` existed. Rebuild the bundle from a checkout that
   has the chart, or use the compose path.
-- **Registry push denied** — `docker login registry.corp.local:5000` first;
+- **Registry push denied**, `docker login registry.corp.local:5000` first;
   the installer does not handle registry auth for you.
-- **Clock skew on the target** — TLS and token checks get flaky; sync NTP via
+- **Clock skew on the target**, TLS and token checks get flaky; sync NTP via
   your internal time source before declaring the install broken.
-- **Compose still tries to build images** — you used `build: null` (no-op in
+- **Compose still tries to build images**, you used `build: null` (no-op in
   Compose v2 merge). Use the bundle's `docker-compose.airgap.yml` or
   `build: !reset null`.
-- **`redis:7-alpine` missing offline** — rebuild the bundle from a tree that
+- **`redis:7-alpine` missing offline**, rebuild the bundle from a tree that
   includes `redis-bus` in `deploy/airgap/build-bundle.sh` (post).
-- **Health checks fail after upgrade but logs show the server up** — container
+- **Health checks fail after upgrade but logs show the server up**, container
   listen port may have changed (3000 vs 8080). Align `ports:` mapping and
   `PORT` env with the image you just loaded.
 
 ## Backups
 
 Once running, set up backup/restore per
-[backup-restore.md](backup-restore.md) — the air gap changes nothing there
+[backup-restore.md](backup-restore.md), the air gap changes nothing there
 except that off-site copies stay on-site. Always take a backup immediately
 before an air-gapped upgrade.

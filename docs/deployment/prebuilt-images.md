@@ -1,21 +1,21 @@
 # Prebuilt control-plane images
 
-Cold `docker compose up --build` on a clean host is typically **10–20 minutes**
+Cold `docker compose up --build` on a clean host is typically **10-20 minutes**
 and is the dominant term in pilot time-to-green. It also flakes on low disk or
 RAM. This document is the **pull path**: use versioned images from GHCR (or an
 air-gap release bundle) so `install-pilot` prefers download over source build.
 
-**Acceptance target:** pilot on a clean host with Docker already installed —
+**Acceptance target:** pilot on a clean host with Docker already installed ,
 cold path **≤ 15 minutes** when images are available.
 
 > **No images are published for this public snapshot.** The GHCR coordinates
 > below are the ones the internal release workflow writes to, and that workflow
-> is not part of the public export — `docker pull ghcr.io/hawikk/aim-*` will
+> is not part of the public export, `docker pull ghcr.io/hawikk/aim-*` will
 > fail for you. Treat this document as the contract the pull path expects, not
 > as a download you can use today. This is not fatal: the default
 > `install-pilot` mode is `prefer-pull`, which falls back to a source build
-> when the pull fails, so the plain command still works — it just pays the
-> 10–20 minute cold build this document exists to avoid. Only strict `--pull`
+> when the pull fails, so the plain command still works, it just pays the
+> 10-20 minute cold build this document exists to avoid. Only strict `--pull`
 > fails outright. To get the fast path, push these images to a registry you
 > control and set `AIM_IMAGE_REGISTRY` to it.
 
@@ -32,7 +32,7 @@ Workflow: `.github/workflows/release-images.yml` (internal; not in this snapshot
 | `ghcr.io/hawikk/aim-guardrail` | `services/guardrail/Dockerfile` | Post-ingest evaluator |
 | `ghcr.io/hawikk/aim-identity-sync` | `services/identity-sync/Dockerfile` | Required by ingest health |
 
-There is **no separate dashboard image** — the web UI is served by `aim-api`.
+There is **no separate dashboard image**, the web UI is served by `aim-api`.
 
 Also published (not required for the minimum pilot set; omitted by
 `deploy/compose/docker-compose.pilot.yml`):
@@ -51,7 +51,7 @@ Also published (not required for the minimum pilot set; omitted by
 | Push tag `v*` | the tag name | `v1.4.0` |
 
 Immutable tags only. A mutable `latest` would let the verified artifact and the
-runtime image drift — the opposite of the supply-chain property this product
+runtime image drift, the opposite of the supply-chain property this product
 sells. Images are **cosign-signed** (keyless) and carry build provenance
 attestations; see `docs/adr-supply-chain-slsa.md`.
 
@@ -59,7 +59,7 @@ attestations; see `docs/adr-supply-chain-slsa.md`.
 `release-images` run whose summary lists **all four** pilot images
 (`aim-ingest`, `aim-api`, `aim-guardrail`, `aim-identity-sync`). A cancelled or
 partial matrix (historically: ingest cancelled while siblings pushed) is not a
-valid pin — wait for the next fully green run, or re-run via
+valid pin, wait for the next fully green run, or re-run via
 `workflow_dispatch` on `main`.
 
 Publishing notes:
@@ -77,7 +77,7 @@ air-gap bundle).
 
 ---
 
-## Operator path A — GHCR pull (online pilot)
+## Operator path A : GHCR pull (online pilot)
 
 ### 1. Prerequisites
 
@@ -128,9 +128,9 @@ docker compose \
   pull && up -d
 ```
 
-- **pilot.yml** — skips gatehouse / sentinel / hygiene-cron / shadow-ai so they
+- **pilot.yml**, skips gatehouse / sentinel / hygiene-cron / shadow-ai so they
   are not cold-built.  
-- **pull.yml** — sets `image:` to GHCR refs and clears `build:` with
+- **pull.yml**, sets `image:` to GHCR refs and clears `build:` with
   `build: !reset null` (required on Compose v2).
 
 ### 5. Verify
@@ -143,7 +143,7 @@ docker compose -f docker-compose.yml -f deploy/compose/docker-compose.pilot.yml 
 
 ---
 
-## Operator path B — Air-gap / release bundle
+## Operator path B : Air-gap / release bundle
 
 When the pilot host has **no** GHCR egress, use the existing offline bundle
 (same three app images + third-party pins):
@@ -209,7 +209,7 @@ the movable tag later cannot change what runs.
 
 ---
 
-## Contributor path — source build still works
+## Contributor path : source build still works
 
 Developers iterating on Dockerfiles or unreleased code:
 
@@ -261,5 +261,5 @@ back to build when no tag/pin is configured or when pull fails.
 
 ## Related
 
-- [`self-host-quickstart.md`](./self-host-quickstart.md) — laptop demo (`demo-stack-up.sh`)  
-- [`air-gapped-install.md`](./air-gapped-install.md) — offline media
+- [`self-host-quickstart.md`](./self-host-quickstart.md), laptop demo (`demo-stack-up.sh`)  
+- [`air-gapped-install.md`](./air-gapped-install.md), offline media

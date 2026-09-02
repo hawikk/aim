@@ -45,7 +45,7 @@ pilot token-only installs still rely on event last-seen for coverage.
 Live Windows host verification of enrolled heartbeat remains a pilot residual.
 
 Privacy note: everything here is metadata-only. Host identity is a random
-UUID generated on-device (`state.host_id()`), not a hardware fingerprint —
+UUID generated on-device (`state.host_id()`), not a hardware fingerprint ,
 deliberate, for works-council/DPIA posture.
 
 ## Pilot path (works today, no new ingest code)
@@ -76,7 +76,7 @@ device identity in a clonable image.
 
 Registers a device and issues a per-device token. Called once by the
 installer (or first collector run) with an **enrollment token** (short-lived,
-per-ring, issued by an admin via the API — not shipped in the package).
+per-ring, issued by an admin via the API, not shipped in the package).
 
 Request:
 ```json
@@ -115,7 +115,7 @@ also on collector start.
   "config_version": "2026-07-21T00:00:00Z"
 }
 ```
-Response 200: `{ "status": "ok", "config_version": "..." }` — the collector
+Response 200: `{ "status": "ok", "config_version": "..." }`, the collector
 compares `config_version` and re-reads managed config when it changes
 (managed version pinning signal; no self-update in v1).
 

@@ -17,7 +17,7 @@ scan). Each entry is exactly:
 | `name` | The server identifier as the user named it in the tool config (e.g. `github` in `mcp__github__*`). Cleartext on purpose: it names infrastructure, and policy matches it against an allowlist. Max 128 characters. |
 | `scope` | `user` = tool-global / user-level config file. `project` = a project or workspace-level config file. |
 
-That is the whole object. `additionalProperties: false` — if a collector
+That is the whole object. `additionalProperties: false`: if a collector
 tries to attach a command, args, URL, or env value, ingest **rejects** the
 event.
 
@@ -38,7 +38,7 @@ Policy-as-code (`approved_mcp_servers`) is the allowlist.
 Unapproved is a **status**, not a block. The platform engine does not deny
 MCP calls. A few endpoint collectors can deny an unapproved server locally
 when a managed `enforcement.json` is in `mode: enforce` and the vendor
-hook exists — see the
+hook exists. See the
 [enforcement capability matrix](security/enforcement-capability-matrix.md).
 Empty allowlist + enforce is not a thing you should turn on.
 

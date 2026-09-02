@@ -51,23 +51,23 @@ Entity segments are `encodeURIComponent`'d (repos like `acme/payments` survive).
 | **Activity** stream | user / tool cells | users / tools drills | `days` |
 | **Overview** KPIs / alerts / tools | various list + drills | see `LINK_MAP.overview` | `days` |
 | **MCP** install rows | user / team / tool | drills | `days` |
-| **Fleet** | — | coverage destination only | — |
+| **Fleet** |, | coverage destination only |, |
 
 Machine-readable twin: `LINK_MAP` in `lib/deeplinks.js`. Update both when you
 add a hop.
 
 ## Context contract
 
-1. **Range (`days`)** — always take the operator's current range from
+1. **Range (`days`)**, always take the operator's current range from
    `state.days` (dashboard) or the module's own range (Findings saved filters).
    Pass it into `entityHref(view, id, { days })`.
-2. **Source** — only meaningful on Providers; `hashFor` omits it elsewhere.
-3. **No inventing entities** — if `user_ref` / tool / repo is missing, render
+2. **Source**, only meaningful on Providers; `hashFor` omits it elsewhere.
+3. **No inventing entities**, if `user_ref` / tool / repo is missing, render
    plain text (or "unattributed"), not a dead link.
-4. **Capability gates** — module views (`findings`, …) only route after
+4. **Capability gates**, module views (`findings`, …) only route after
    registration. A shared `#/findings` link for a non-security session falls
    back to Overview (router contract).
-5. **Privacy** — links use the same pseudonyms the API already returned.
+5. **Privacy**, links use the same pseudonyms the API already returned.
    Never widen a query or reveal redacted prompt content to "make the link work".
 
 ## Finding → user → tool → repo chain
@@ -96,14 +96,14 @@ findingHrefs(finding, { days: state.days });
 
 ## Tests
 
-- `apps/web/test/deeplinks.test.js` — map shape, finding entity extraction,
+- `apps/web/test/deeplinks.test.js`, map shape, finding entity extraction,
   days preservation, chain round-trips through `parseHash`.
-- `apps/web/test/router.test.js` — `hashFor` / `parseHash` encoding contract.
+- `apps/web/test/router.test.js`, `hashFor` / `parseHash` encoding contract.
 - Wiring smoke: key modules must not hand-build entity hashes with
   `` `#/users/${` `` style templates (deeplinks suite enforces the main hops).
 
 ## Out of scope (follow-ups)
 
-- Fleet host drill-down (`#/fleet/<host_id>`) — API has no host detail route yet.
-- Tool → user / repo tables — tool detail API returns aggregates only.
-- Findings list filter-by-user in the hash — saved views own that.
+- Fleet host drill-down (`#/fleet/<host_id>`), API has no host detail route yet.
+- Tool → user / repo tables, tool detail API returns aggregates only.
+- Findings list filter-by-user in the hash, saved views own that.
