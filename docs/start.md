@@ -1,4 +1,4 @@
-# Start — personal mode in one line
+# Start: personal mode in one line
 
 See which coding agents and MCP servers are on **this machine**, including
 the ones nobody approved. No company, no SSO, no Docker, no database.
@@ -18,15 +18,15 @@ Requires **Python 3.11+**. Runtime dependencies: none (stdlib only).
 
 ## What it does
 
-`aim personal` scans local AI-tool state already on the disk — Claude Code
+`aim personal` scans local AI-tool state already on the disk: Claude Code
 transcripts, Cursor `state.vscdb`, Kilo Code task logs, Kimi Code wire
-logs, Grok Build usage logs, GitHub Copilot local sessions — and extracts
+logs, Grok Build usage logs, GitHub Copilot local sessions, and extracts
 **metadata only** (tool, model, token counts, session/repo pseudonyms,
 detector *names*). Prompt text, code, tool arguments, URLs, and env values
 are never stored and never leave the box.
 
 The dashboard binds **127.0.0.1 only**. Personal mode makes **zero outbound
-network calls** — verify by running it with networking off.
+network calls**. Verify by running it with networking off.
 
 Events land in `~/.aim-collector/personal.db`. Single implicit local user;
 no auth.
@@ -47,7 +47,7 @@ aim status                    # local, network-free: what's installed
 
 Personal mode is not a fleet control plane and not an enforcement product.
 It does not send telemetry to us, to PyPI, or to any ingest URL. To join a
-company stack you would run `aim join` against *your* ingest — that is a
+company stack you would run `aim join` against *your* ingest. That is a
 different command, and it is opt-in.
 
 Community is free and uncapped (Apache-2.0, no DRM). Hosted Cloud and

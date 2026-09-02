@@ -1,7 +1,7 @@
 # ABAC-style policy conditions
 
 Status: **implemented** in `services/guardrail` (engine feature). Policy
-*content* that uses these dimensions remains a Security proposal — this
+*content* that uses these dimensions remains a Security proposal, this
 doc is the mechanism.
 
 Parent epic: (Policy engine 8→10).
@@ -32,7 +32,7 @@ when:
 | **repo class** | `repo_class` | `event.repo_ref` classified via `settings.repo_classes` (+ `restricted_repos` → class `restricted`) | class name |
 
 Ops on attribute leaves: **`eq` | `neq` | `in` | `not_in`** only (validated at
-ruleset load — unknown attr or op fails CI/`validate-rules`).
+ruleset load, unknown attr or op fails CI/`validate-rules`).
 
 ## Settings
 
@@ -60,7 +60,7 @@ settings:
 ## Fail-closed posture
 
 - **Unattributed user** (no `user_ref` / `user_pseudonym`): never matches
-  `eq`/`in` *or* `neq`/`not_in` — so a deny-list cannot soft-open on null.
+  `eq`/`in` *or* `neq`/`not_in`, so a deny-list cannot soft-open on null.
 - **Unattributed group** (no team, no groups, no group_members hit): same.
 - **Unclassified repo** (no salt, empty catalogue, or ref not listed):
   `repo_class` positive matches fail; negative matches also fail closed.
@@ -75,17 +75,17 @@ Match detail on findings/audit records carries:
 { "attr": "repo_class", "op": "eq", "expected": "secret", "actual": ["secret"] }
 ```
 
-No cleartext emails or repo paths are written into findings — only the
+No cleartext emails or repo paths are written into findings, only the
 attribute name, op, expected operand (as authored / resolved list name), and
 the pseudonymized/class tokens that matched.
 
 ## Files
 
-- `services/guardrail/src/guardrail/conditions.py` — `eval_attr`, class/user
+- `services/guardrail/src/guardrail/conditions.py`, `eval_attr`, class/user
   resolution helpers
-- `services/guardrail/src/guardrail/rules.py` — load-time validation
-- `apps/api/src/guardrail-policy.js` — humanizer for Rules UI
-- `services/guardrail/tests/test_abac_conditions.py` — per-dimension tests
+- `services/guardrail/src/guardrail/rules.py`, load-time validation
+- `apps/api/src/guardrail-policy.js`, humanizer for Rules UI
+- `services/guardrail/tests/test_abac_conditions.py`, per-dimension tests
 
 ## Deliberate limits
 

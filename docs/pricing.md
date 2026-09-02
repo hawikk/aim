@@ -1,7 +1,7 @@
 # Pricing
 
 Public tariff for AIM. These are the only numbers; do not invent others.
-Copy only — there is no Cloud checkout or metering in this tree.
+Copy only: there is no Cloud checkout or metering in this tree.
 
 | Tier | Price | Humans | Agents | Start |
 |---|---|---|---|---|
@@ -11,7 +11,7 @@ Copy only — there is no Cloud checkout or metering in this tree.
 
 Tax exclusive. No public annual SKU.
 
-## Community — free, uncapped
+## Community: free, uncapped
 
 Community is free. Self-host it or run `aim personal`. Uncapped seats,
 uncapped agents, Apache-2.0, no DRM, no phone-home. Personal mode makes
@@ -27,7 +27,7 @@ pipx install aimonitoring-security && aim personal
 Self-host the dashboard: [self-host](self-host.html) (HTML) /
 [compose quickstart](deployment/self-host-quickstart.md).
 
-## Cloud — hosted, copy only
+## Cloud: hosted, copy only
 
 Cloud: 3 agents free, then $2 per monitored agent / month. We host the
 dashboard. 30-day retention. Request access.
@@ -51,7 +51,7 @@ published so you do not have to negotiate $2. This is **not**
 Volume (about 250 Cloud agents) or any SSO / enforcement / evidence / DPA
 / SLA / air-gap need → Enterprise.
 
-## Enterprise — contact sales
+## Enterprise: contact sales
 
 Enterprise: SSO, enforcement packs, evidence, custom retention, DPA, SLA,
 air-gap. Contact sales.

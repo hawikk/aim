@@ -28,11 +28,11 @@ Bedrock / Vertex as invisible, and hard-coded dashboard sets **drifted** from
 
 closes the residual:
 
-1. **Completeness** — expand provider-api with Moonshot/Kimi, Together, Fireworks;
+1. **Completeness**, expand provider-api with Moonshot/Kimi, Together, Fireworks;
    repair merge corruption that left `endpoints.json` invalid JSON on main.
-2. **Drift alerts** — CI mirror guard + runtime Low findings when a *new*
+2. **Drift alerts**, CI mirror guard + runtime Low findings when a *new*
    uncatalogued provider string or unpriced model first appears.
-3. **Ownership** — this document is the single ownership map.
+3. **Ownership**, this document is the single ownership map.
 
 ## Catalogue v5 (`endpoints.json`)
 
@@ -60,7 +60,7 @@ Dashboard + guardrail mirrors: **13** providers (was 10; was 3 at phase-1).
 |---|---|---|
 | `google-gemini-web` | `web` | Consumer Gemini UI |
 | `amazon-codewhisperer` | `api` | Amazon Q employee tool (`provider=aws`) |
-| `deepseek` | `api` | Data-residency priority — server hits stay flagged |
+| `deepseek` | `api` | Data-residency priority, server hits stay flagged |
 | `huggingface` | `api` | Hub traffic too broad for clean App-LLM metering |
 
 ## Drift alerts (runtime)
@@ -69,7 +69,7 @@ After each guardrail evaluate-db pass:
 
 | Rule id | Finding type | Severity | When |
 |---|---|---|---|
-| `app-llm-new-source` | `app_llm_new_source` | Medium | First-ever `(host_ref, known provider-api)` — |
+| `app-llm-new-source` | `app_llm_new_source` | Medium | First-ever `(host_ref, known provider-api)`, |
 | `app-llm-new-provider` | `app_llm_new_provider` | Low | First-ever **provider** string not in any endpoints.json rule |
 | `app-llm-new-model` | `app_llm_new_model` | Low | First-ever **model** id not matching `PRICE_PER_MTOK` keys |
 
@@ -83,7 +83,7 @@ Env:
 | `APP_LLM_NEW_SOURCE_PROVIDERS` | (DEFAULT_PROVIDERS) | Override known provider-api set for new-sources |
 | `APP_LLM_CATALOGUE_DRIFT_LOOKBACK_HOURS` | same as new-source window |
 
-Edge-trigger: `UNIQUE (rule_id, event_id)` on the first event — re-runs never re-page.
+Edge-trigger: `UNIQUE (rule_id, event_id)` on the first event, re-runs never re-page.
 
 ### Operator response (catalogue drift)
 
@@ -101,10 +101,10 @@ Edge-trigger: `UNIQUE (rule_id, event_id)` on the first event — re-runs never 
 
 ## CI
 
-- `scripts/check_provider_catalogue_drift.py --check` — static checks job
-- `scripts/check_provider_catalogue_drift.py --self-test` — proves the guard fires
+- `scripts/check_provider_catalogue_drift.py --check`, static checks job
+- `scripts/check_provider_catalogue_drift.py --self-test`, proves the guard fires
 - Proxy unit tests load `endpoints.json` (invalid JSON fails the suite)
-- `apps/api/test/pricing.test.js` — JS/Python price-table parity
+- `apps/api/test/pricing.test.js`, JS/Python price-table parity
 
 ## Residual gaps
 

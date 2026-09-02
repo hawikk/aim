@@ -1,4 +1,4 @@
-# Trust — metadata only
+# Trust: metadata only
 
 AIM is a security product. It is not a prompt logger. The contract below is
 enforced in the event schema (`additionalProperties: false`) and in the
@@ -17,8 +17,8 @@ no path that uploads prompt text or tool arguments. Verify by running it
 with networking off.
 
 The fleet path (`aim join <ingest-url>`) is opt-in and talks only to *your*
-ingest. It still sends metadata-only events. There is no documented — and
-no supported — path that sends prompt bodies, tool args, URLs, or env
+ingest. It still sends metadata-only events. There is no documented or
+supported path that sends prompt bodies, tool args, URLs, or env
 values off the box.
 
 ## What we collect, and why
@@ -85,7 +85,7 @@ impossible to say.
 Metadata-only does **not** mean "nothing personal can be inferred." Tool
 names, MCP server names, and small-team patterns can still describe
 employee activity. Mitigations are access control and aggregate
-suppression — not prompt capture.
+suppression, not prompt capture.
 
 ## Enforcement is not the lead, and it is not fleet-wide
 

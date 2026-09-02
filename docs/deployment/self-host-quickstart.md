@@ -18,12 +18,12 @@ Explicitly **out of scope** for this document and the soft-launch demo path:
 | Non-goal | Where it lives instead |
 | --- | --- |
 | Multi-tenant SaaS control plane / billing isolation | Cancelled / N/A (enterprise packaging notes) |
-| Wiz-class CNAPP scale (10k+ cloud accounts, multi-AZ posture graph) | CNAPP enterprise track — not this demo |
+| Wiz-class CNAPP scale (10k+ cloud accounts, multi-AZ posture graph) | CNAPP enterprise track, not this demo |
 | Positioning Gatehouse as a CI product / CI/CD SKU | Gatehouse is a **free PR-security pillar**, not a CI competitor |
 | Production HA, multi-AZ Postgres, SSO/SAML | Enterprise later (runbooks are not part of this public snapshot) |
 | Air-gapped offline media transfer | [`air-gapped-install.md`](./air-gapped-install.md) |
 
-If you need those, stop here and open the linked runbooks — do not stretch this
+If you need those, stop here and open the linked runbooks, do not stretch this
 demo stack into production.
 
 ---
@@ -50,18 +50,18 @@ cd aim
 
 # Optional: copy sample env only if you need port overrides or custom tokens.
 # Defaults in docker-compose.yml work out of the box for loopback demo.
-# cp .env.example .env   # then edit ports if needed — never commit .env
+# cp .env.example .env   # then edit ports if needed : never commit .env
 
 ./scripts/demo-stack-up.sh
 ```
 
 What the script does:
 
-1. **Preflight** — Docker daemon, Compose v2, Python, port conflicts, secret placeholders  
+1. **Preflight**, Docker daemon, Compose v2, Python, port conflicts, secret placeholders  
 2. **Mint** stack-owned local secrets into gitignored `.env` (`GATEHOUSE_WEBHOOK_SECRET`, etc.) via `scripts/ensure_dev_env.py`  
-3. **`docker compose up -d --build`** — Postgres, MinIO, identity-sync, ingest, guardrail, dashboard API, Gatehouse, …  
-4. **Health wait** — ingest `/healthz` + dashboard `/api/health` (Gatehouse optional)  
-5. **Seed** — `scripts/seed-pilot-cohort.sh` posts a deterministic 12-seat demo cohort  
+3. **`docker compose up -d --build`**, Postgres, MinIO, identity-sync, ingest, guardrail, dashboard API, Gatehouse, …  
+4. **Health wait**, ingest `/healthz` + dashboard `/api/health` (Gatehouse optional)  
+5. **Seed**, `scripts/seed-pilot-cohort.sh` posts a deterministic 12-seat demo cohort  
 
 Then open:
 
@@ -120,7 +120,7 @@ wiping Postgres volumes:
 
 ## Verify the install
 
-`ci-oneshot-pilot-smoke` checks that the one-shot install path is intact —
+`ci-oneshot-pilot-smoke` checks that the one-shot install path is intact ,
 CLI modules present, compose file resolvable, and `aim join` always writing a
 `token_file` (without it a device enrolls, heartbeats, and silently ships
 nothing):
@@ -221,7 +221,7 @@ failing.
 lines and re-run so `ensure_dev_env.py` mints stack-owned secrets.
 
 Committed sample only: **`.env.example`**. Real `.env` is gitignored. CI runs
-gitleaks — never commit tokens or passwords.
+gitleaks, never commit tokens or passwords.
 
 ### 5. Gatehouse crash-looping
 
@@ -241,7 +241,7 @@ docker compose logs --tail=100 api
 ```
 
 WSL2 + Windows browser: `localhost:8081` still works (loopback forward). The
-WSL eth0 IP does **not** — ports bind loopback only.
+WSL eth0 IP does **not**, ports bind loopback only.
 
 ### 7. First image build is slow / times out
 
@@ -260,7 +260,7 @@ dominate the 30-minute budget.
 
 ## Optional pillars (pointers only)
 
-### Gatehouse (PR security — free pillar)
+### Gatehouse (PR security : free pillar)
 
 Runs in the same compose file on `:8090`. Local scan without GitHub:
 
@@ -276,7 +276,7 @@ Design: `docs/gatehouse-github-app.md`.
 
 Not required for AIM dashboard green. IaC ↔ CNAPP rule parity for PRs lives
 under Gatehouse (`docs/security/iac-cnapp-parity.md`). Full CNAPP
-deploy is a separate track — do not expect Wiz-class scale from this laptop
+deploy is a separate track, do not expect Wiz-class scale from this laptop
 demo.
 
 ### Helm / enterprise
@@ -316,11 +316,11 @@ docker compose down -v    # also delete local Postgres / MinIO data
 
 | Step | Clean laptop estimate | Notes |
 | --- | --- | --- |
-| Clone | 1–3 min | Depends on network |
+| Clone | 1-3 min | Depends on network |
 | Preflight (`--preflight-only`) | &lt; 10 s | Docker + ports |
-| First `compose build` + pull | 10–20 min | Dominant; cache helps re-runs |
-| **Prebuilt pull path** | **≤ 15 min** target | `./scripts/install-pilot.sh --pull` when GHCR images available — see [`prebuilt-images.md`](./prebuilt-images.md) |
-| Health wait after images exist | 1–3 min | Migrations + ready probes |
+| First `compose build` + pull | 10-20 min | Dominant; cache helps re-runs |
+| **Prebuilt pull path** | **≤ 15 min** target | `./scripts/install-pilot.sh --pull` when GHCR images available, see [`prebuilt-images.md`](./prebuilt-images.md) |
+| Health wait after images exist | 1-3 min | Migrations + ready probes |
 | Seed pilot cohort | &lt; 1 min | Deterministic event_ids |
 | **Total target** | **≤ 30 min** (build) / **≤ 15 min** (pull) | Re-run without rebuild if over |
 
@@ -328,18 +328,18 @@ docker compose down -v    # also delete local Postgres / MinIO data
 
 | Check | Result |
 | --- | --- |
-| `./scripts/demo-stack-up.sh --preflight-only` | Pass — Docker Engine + Compose v2 + python3 |
-| Port-conflict path | Pass — refuses default ports when another process holds them; prints override recipe |
-| Placeholder path | Pass — refuses `.env` keys whose values match `CHANGE_ME` / `REPLACE_ME` / `<…>` (keys only logged) |
+| `./scripts/demo-stack-up.sh --preflight-only` | Pass, Docker Engine + Compose v2 + python3 |
+| Port-conflict path | Pass, refuses default ports when another process holds them; prints override recipe |
+| Placeholder path | Pass, refuses `.env` keys whose values match `CHANGE_ME` / `REPLACE_ME` / `<…>` (keys only logged) |
 | Warm path (images + stack already up, health green) | **~0.5 s** wall (`--no-build --no-seed`, health reuse) |
-| Cold path estimate | Dominated by first `compose build` / pulls (10–20 min typical); target ≤ 30 min remains |
+| Cold path estimate | Dominated by first `compose build` / pulls (10-20 min typical); target ≤ 30 min remains |
 
-Full cold build time is host-dependent; if wall time exceeds 30 minutes, the script prints an explicit warning — treat image cache / disk as the usual culprit, not dashboard logic. Operators should record their own wall clock on first eval and file an issue if the happy path exceeds 30 minutes with Docker pre-installed and free default ports.
+Full cold build time is host-dependent; if wall time exceeds 30 minutes, the script prints an explicit warning, treat image cache / disk as the usual culprit, not dashboard logic. Operators should record their own wall clock on first eval and file an issue if the happy path exceeds 30 minutes with Docker pre-installed and free default ports.
 
 ---
 
 ## Related docs
 
-- Root [`README.md`](../../README.md) — personal mode + link to this guide  
-- [`prebuilt-images.md`](./prebuilt-images.md) — GHCR pull path + digest pins for pilot cold install
-- [`air-gapped-install.md`](./air-gapped-install.md) — offline media  
+- Root [`README.md`](../../README.md), personal mode + link to this guide  
+- [`prebuilt-images.md`](./prebuilt-images.md), GHCR pull path + digest pins for pilot cold install
+- [`air-gapped-install.md`](./air-gapped-install.md), offline media  

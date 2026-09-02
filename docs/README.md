@@ -10,7 +10,7 @@
 | [Inventory](inventory.md) | MCP server `name` + `scope`; approved vs unapproved |
 | [Self-host](deployment/self-host-quickstart.md) | Compose demo on a laptop |
 | [Pricing](pricing.md) | Community free/uncapped; Cloud $2 / agent / month; Enterprise contact sales |
-| [Changelog](../CHANGELOG.md) | Keep a Changelog, 0.1.1–0.1.4 |
+| [Changelog](../CHANGELOG.md) | Keep a Changelog, 0.1.1-0.1.4 |
 
 This repository is a curated public snapshot of a larger working repo.
 The documentation here is the subset that is useful if you are evaluating,
@@ -18,7 +18,7 @@ self-hosting, or contributing to AI Monitoring.
 
 Some documents cross-reference design notes, rollout records, and compliance
 material that are **not** published here. Those links will not resolve, and
-that is deliberate rather than an oversight — the excluded material is either
+that is deliberate rather than an oversight: the excluded material is either
 specific to one deployment or contains operational data from a private fleet.
 Do not copy `docs/aim-*-pilot-evidence*` or host inventories into the public
 tree.

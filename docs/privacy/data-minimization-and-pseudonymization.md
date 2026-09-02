@@ -1,4 +1,4 @@
-# Data Minimization & Pseudonymization — Event Schema v1
+# Data Minimization & Pseudonymization : Event Schema v1
 
 Audience: Security, Legal, works council, engineers building on the schema.
 This document is the privacy rationale for `packages/schema/ai-usage-event.v1.schema.json`
@@ -17,17 +17,17 @@ enforcement of that decision.
 |---|---|
 | `event_id`, `schema_version`, `timestamp`, `event_type` | Idempotent ingestion, ordering, sessionization, schema evolution |
 | `source`, `collector.{name,version}` | Debugging, rollout tracking, detecting stale/insecure collectors |
-| `endpoint_id`, `user_ref` | Correlate usage to a pseudonymous machine/user for security alerting and aggregate reporting. Pseudonymized — see below |
+| `endpoint_id`, `user_ref` | Correlate usage to a pseudonymous machine/user for security alerting and aggregate reporting. Pseudonymized, see below |
 | `team` | Team-level aggregation for dashboards and chargeback-style reporting. Organizational, not personal, data; resolved from Google Workspace at ingestion |
 | `tool`, `tool_version`, `provider`, `model` | Answer "which AI tools/models are in use"; detect unapproved tools/providers |
 | `session_id` | Group events into sessions for usage analytics; opaque, not content-derived |
 | `tokens_in`, `tokens_out`, `cost_estimate_usd`, `duration_ms` | Volume and cost analytics; anomaly detection signals (counts, not content) |
 | `repo_ref` | Detect AI usage against restricted repositories. Pseudonymized hash |
-| `match_flags.*` | The ONLY persisted output of content inspection — see below. v1.8 adds a redacted `fingerprint` + match-location metadata to secret/pii flags so findings can be proven and deduped per secret instance |
+| `match_flags.*` | The ONLY persisted output of content inspection, see below. v1.8 adds a redacted `fingerprint` + match-location metadata to secret/pii flags so findings can be proven and deduped per secret instance |
 
 ## What we explicitly do NOT collect
 
-- Prompt text, response text, file contents, code snippets — in any field,
+- Prompt text, response text, file contents, code snippets, in any field,
   in any schema version. Enforced technically by the closed schema
   (`additionalProperties: false`): an event containing e.g. `prompt_text`
   fails validation and is rejected at ingestion. Regression-tested by
@@ -37,7 +37,7 @@ enforcement of that decision.
   usernames and project names). Note the current limitation: until
   git-remote resolution lands, `repo_ref` is itself an HMAC of the
   normalized working-directory path, so the path is still the input to a
-  keyed hash — it is one pseudonymized field instead of two, not the absence
+  keyed hash, it is one pseudonymized field instead of two, not the absence
   of path-derived data.
 - Hostnames, IP addresses, usernames, email addresses anywhere in the event.
 - Keystrokes, screen content, idle time, or any non-AI-tool activity.
@@ -49,19 +49,19 @@ or proxy), in memory, against content in transit. The content is never
 persisted or transmitted. The only artifact that crosses the wire is a
 boolean flag (`secret_pattern_match`, `pii_match`). An alert therefore says
 "a secret-pattern matched in a Claude Code request from pseudonymous user X
-at time T" — not what the secret was. Remediation happens out-of-band with
+at time T", not what the secret was. Remediation happens out-of-band with
 the engineer.
 
 ### Redacted fingerprints (schema v1.8)
 
 Since v1.8, a secret/pii flag also carries a **redacted per-occurrence
 fingerprint** so a finding can be *proven* and *deduped* without storing the
-secret — adopted from Costa.app's secrets-detection posture (item
+secret, adopted from Costa.app's secrets-detection posture (item
 3): detect-and-prove, never detect-and-store.
 
 - **Construction:** `HMAC-SHA256(key = company salt, "fp1" | detector |
   NFKC-folded, whitespace-stripped matched text)`, truncated to 64 bits (16
-  hex chars). Keyed — never a plain hash — because low-entropy PII (emails,
+  hex chars). Keyed, never a plain hash, because low-entropy PII (emails,
   national ids) would otherwise be dictionary-invertible. The `fp1` domain
   separator prevents cross-correlation with the pseudonym HMACs
   (`user_ref`/`host_ref`/`repo_ref`) of the same string.
@@ -71,7 +71,7 @@ secret — adopted from Costa.app's secrets-detection posture (item
   collapses to one fingerprint; whitespace/Unicode-evasion forms of the same
   value normalize to the same fingerprint (structurally different encodings,
   e.g. base64-wrapped, intentionally do not). Salt rotation restarts dedupe
-  continuity — same caveat as `repo_ref`.
+  continuity, same caveat as `repo_ref`.
 - **What it is NOT:** not reversible, and not a verification oracle without
   the salt. An analyst holding only the fingerprint cannot recover the
   secret; the 64-bit truncation additionally guarantees the fingerprint
@@ -86,9 +86,9 @@ secret — adopted from Costa.app's secrets-detection posture (item
   `events.match_flags` (90-day events window) and `findings.evidence`
   (365-day findings window) and are purged by the same machinery,
   under the same `audit ≥ findings ≥ events` invariant. Endpoint checkpoints
-  (personal mode, wire-state) store only the fingerprinted form — never the
-  match — and age out with their stores.
-- **Access control:** fingerprints ride the existing findings access path —
+  (personal mode, wire-state) store only the fingerprinted form, never the
+  match, and age out with their stores.
+- **Access control:** fingerprints ride the existing findings access path ,
   the security group via `/api/findings` (SSO role gate); CSV export
   excludes evidence. The company salt stays in the platform KMS/secrets
   manager, security-role IAM only; a fingerprint without the salt is
@@ -97,7 +97,7 @@ secret — adopted from Costa.app's secrets-detection posture (item
 - **Fixture allowlist:** operators may keep an offline registry of
   fingerprints for **known cryptographically-dead** fixture secrets (secret
   corpus, dogfood dead keys). Entries are `detector + fingerprint + label +
-  source` only — never raw secrets. Membership suggests incident cluster A
+  source` only, never raw secrets. Membership suggests incident cluster A
   (synthetic) in the findings UI. The registry is regenerated with the fleet
   `AIM_HASH_SALT` using the same `fp1|` contract; see
   `docs/security/fixture-fingerprint-registry.md`.
@@ -147,7 +147,7 @@ the security role, only for incident response, and is audited.
 - [x] New fields require a privacy justification in the schema PR (see
   `packages/schema/README.md` change process).
 
-## Retention — enforced defaults
+## Retention : enforced defaults
 
 Retention is **enforced by default**, not opt-in. Every event past its
 justified window is liability, not asset, so the stores age themselves out on
@@ -157,12 +157,12 @@ are what ships:
 | Data class | Default window | What it covers |
 |---|---|---|
 | `events` | **90 days** | raw usage telemetry (Postgres `events` + its bookkeeping; personal-mode SQLite; the date-partitioned `raw/` object-store batches) |
-| `findings` | **365 days** | guardrail findings — a security record, kept longer than the events that produced them |
+| `findings` | **365 days** | guardrail findings, a security record, kept longer than the events that produced them |
 | `audit` | **730 days** | the purge audit trail itself, which must outlive what it explains |
 
 **Ordering invariant:** `audit ≥ findings ≥ events`. A config that violates it
 (e.g. an audit window shorter than the findings it describes) is **rejected**
-with a clear error, and the purge fails closed — it skips the run and logs
+with a clear error, and the purge fails closed, it skips the run and logs
 rather than guessing a window. Same for any unparseable window.
 
 **Boundary rule:** a row is purged iff its class timestamp is *strictly* older
@@ -174,14 +174,14 @@ than `now − window`. A row exactly at the window edge (age == window) is kept.
   (`evaluated_events`, `finding_deliveries`) are removed with their parents.
   `services/ingest/src/retention.ts`.
 - **Object store (MinIO/S3):** an ILM lifecycle rule expires the `raw/` batch
-  prefix after the events window — the store enforces expiry itself, no sweep
+  prefix after the events window, the store enforces expiry itself, no sweep
   job to run or trust. Applied at ingest startup.
 - **Personal mode (SQLite):** the collector prunes its local store on start and
   at most daily, using the same config surface and defaults.
 
 **Auditability:** every server purge run writes one metadata-only record per
 data class to `retention_audit` (class, window, cutoff, row count, dry-run
-flag, run id) — deletions are explainable. **Blast radius:** a run can never
+flag, run id), deletions are explainable. **Blast radius:** a run can never
 delete the audit records it just wrote (they are inside the audit window by
 construction), and dry-run mode (`RETENTION_DRY_RUN=true`) reports what would
 be deleted without deleting anything.
@@ -210,7 +210,7 @@ that the software cannot answer for you:
   what is collected. Where a works council or employee representative body
   applies, the consultation is yours to run.
 - **Reveal access.** Identity reveal is a distinct capability rather than a
-  role, and every reveal is audited — but who holds that capability is a
+  role, and every reveal is audited, but who holds that capability is a
   policy decision, not a default.
 - **Small cohorts.** Team-level dashboards can single out an individual when a
   team is small enough. Consider whether you need a minimum cohort size before

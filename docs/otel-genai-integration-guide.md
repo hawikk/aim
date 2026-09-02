@@ -1,15 +1,15 @@
-# OTel GenAI integration guide — pilot app teams
+# OTel GenAI integration guide : pilot app teams
 
 **Audience:** a first-party app team integrating with the AI Monitoring OTLP receiver.
 **Time:** ~½ day. Config-only if you already emit OpenTelemetry traces; a thin SDK wrapper otherwise.
-**What we collect:** operational metadata of your app's LLM calls — provider, model, token counts, latency, error rate. **Never** prompt or response text: the receiver enforces an attribute allowlist and drops everything else before storage (see "Privacy boundary" below).
+**What we collect:** operational metadata of your app's LLM calls, provider, model, token counts, latency, error rate. **Never** prompt or response text: the receiver enforces an attribute allowlist and drops everything else before storage (see "Privacy boundary" below).
 
 ## 1. Endpoint
 
 ```
 POST {INGEST_BASE_URL}/v1/traces
 Authorization: Bearer <app-team token>     # issued by the platform team
-Content-Type: application/json             # OTLP/HTTP JSON only — protobuf is rejected with 415
+Content-Type: application/json             # OTLP/HTTP JSON only, protobuf is rejected with 415
 ```
 
 Get `{INGEST_BASE_URL}` and a token from the platform team (#ai-monitoring). One token per app; tokens are scoped to the `/v1/traces` path.
@@ -19,7 +19,7 @@ Get `{INGEST_BASE_URL}` and a token from the platform team (#ai-monitoring). One
 Point a second exporter (or your collector) at our endpoint:
 
 ```yaml
-# OpenTelemetry Collector — add alongside your existing exporter
+# OpenTelemetry Collector : add alongside your existing exporter
 exporters:
   otlphttp/aim:
     endpoint: "{INGEST_BASE_URL}"   # note: no /v1/traces suffix needed for the collector,
@@ -47,12 +47,12 @@ OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer <app-team token>
 
 ## 2b. You don't emit OTel yet (thin wrapper, ~½ day)
 
-Use your language's OTel SDK and instrument only the LLM call site. You need exactly four span attributes plus the service name — that is the entire contract.
+Use your language's OTel SDK and instrument only the LLM call site. You need exactly four span attributes plus the service name, that is the entire contract.
 
-> **Python caveat (found during the dogfood pilot):** the Python OTel SDK's HTTP exporter (`opentelemetry-exporter-otlp-proto-http`) is protobuf-only — it ignores `OTEL_EXPORTER_OTLP_PROTOCOL=http/json` and the receiver will answer `415`. Python services should either export through a local OTel Collector (§2a, which translates to JSON) or use a thin stdlib OTLP/HTTP-JSON wrapper — see `services/guardrail/src/guardrail/telemetry.py` (~150 lines, dependency-free) for the reference implementation we run in production. The JS SDK is unaffected: `@opentelemetry/exporter-trace-otlp-http` speaks HTTP/JSON natively.
+> **Python caveat (found during the dogfood pilot):** the Python OTel SDK's HTTP exporter (`opentelemetry-exporter-otlp-proto-http`) is protobuf-only, it ignores `OTEL_EXPORTER_OTLP_PROTOCOL=http/json` and the receiver will answer `415`. Python services should either export through a local OTel Collector (§2a, which translates to JSON) or use a thin stdlib OTLP/HTTP-JSON wrapper, see `services/guardrail/src/guardrail/telemetry.py` (~150 lines, dependency-free) for the reference implementation we run in production. The JS SDK is unaffected: `@opentelemetry/exporter-trace-otlp-http` speaks HTTP/JSON natively.
 
 ```python
-# Python example — via a local OTel Collector (see §2a) translating to HTTP/JSON:
+# Python example : via a local OTel Collector (see §2a) translating to HTTP/JSON:
 # point the SDK's protobuf exporter at the collector, and the collector at us.
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
@@ -81,16 +81,16 @@ def call_llm(prompt: str) -> str:
         return resp.choices[0].message.content
 ```
 
-Do **not** set `gen_ai.prompt`, `gen_ai.completion`, or any attribute containing request/response content — the receiver drops them, but they should never leave your process in the first place.
+Do **not** set `gen_ai.prompt`, `gen_ai.completion`, or any attribute containing request/response content, the receiver drops them, but they should never leave your process in the first place.
 
 ## 3. Privacy boundary (what the receiver guarantees)
 
 Enforced in `services/ingest/src/otel.ts`, tested in `services/ingest/test/otel.test.ts`:
 
-- **Attribute allowlist.** Only these span attributes are read: `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`. Only `service.name` is read from resource attributes. **Everything else is dropped at the boundary — before validation, storage, or logging.** The count of dropped attributes is exported as `ingest_otel_attributes_dropped_total`.
+- **Attribute allowlist.** Only these span attributes are read: `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`. Only `service.name` is read from resource attributes. **Everything else is dropped at the boundary, before validation, storage, or logging.** The count of dropped attributes is exported as `ingest_otel_attributes_dropped_total`.
 - **No raw archival.** Unlike the collector-event path, OTLP request bodies are never written to the raw-batch object store, because they may contain non-allowlisted attributes.
-- **Non-GenAI spans are ignored** (spans without `gen_ai.*` attributes are accepted and skipped — you can point your whole trace pipeline at us, only LLM spans are metered).
-- **Span status message is never stored** — only `ok`/`error`.
+- **Non-GenAI spans are ignored** (spans without `gen_ai.*` attributes are accepted and skipped, you can point your whole trace pipeline at us, only LLM spans are metered).
+- **Span status message is never stored**, only `ok`/`error`.
 - Events are stored as canonical schema v1.3 (`source='otel'`, `tool='genai_app'` for first-party apps): see `packages/schema/schema/v1/ai-usage-event.schema.json` and `FIELDS.md`.
 - **Claude Code is not an app.** Anthropic's Claude Code exporter (`service.name=claude-code`, or `claude_code.*` metrics on `POST /v1/metrics`) is stored as `tool='claude_code'` and appears on Tools / Overview. It is excluded from the Apps view. See `docs/ops/vendor-admin-telemetry.md`.
 
@@ -102,4 +102,4 @@ Enforced in `services/ingest/src/otel.ts`, tested in `services/ingest/test/otel.
 
 ## 5. What you get back
 
-The per-app view (`GET /api/apps/llm`, dashboard "Apps" tab) shows your service's model inventory, token/cost metering, error rate, and avg/p95 latency. If you want an alert on error-rate spikes or a new model appearing, file a ticket with the platform team — the guardrail engine reads the same event store.
+The per-app view (`GET /api/apps/llm`, dashboard "Apps" tab) shows your service's model inventory, token/cost metering, error rate, and avg/p95 latency. If you want an alert on error-rate spikes or a new model appearing, file a ticket with the platform team, the guardrail engine reads the same event store.

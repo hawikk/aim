@@ -1,4 +1,4 @@
-# Auditor privacy overview — metadata-only AI monitoring
+# Auditor privacy overview : metadata-only AI monitoring
 
 **Audience:** Internal / external auditors, works-council reviewers, Legal  
 **Length:** two pages
@@ -11,13 +11,13 @@ without trusting a live dashboard.
 
 ---
 
-## Page 1 — What we claim
+## Page 1 : What we claim
 
 ### Purpose of the product
 
 AI Monitoring gives an engineering org visibility into which AI coding tools
 (Claude Code, Cursor, Kilo Code, and others) engineers use, and surfaces
-security findings — **without reading prompts or code**.
+security findings, **without reading prompts or code**.
 
 Security is the primary purpose. Employee content is not.
 
@@ -34,7 +34,7 @@ Security is the primary purpose. Employee content is not.
 
 **Metadata-only is the default and only path.** There is no “reveal prompt”
 mode, no content export, and no client-side workaround that reintroduces
-bodies. Invalid events are stored as hash + key names only — never the raw
+bodies. Invalid events are stored as hash + key names only, never the raw
 payload (an invalid payload could contain anything).
 
 ### Pseudonymization at the edge
@@ -43,7 +43,7 @@ payload (an invalid payload could contain anything).
 endpoint, before the event leaves the machine, so no raw identity reaches the
 telemetry store. The salt is held by the platform (secrets manager / KMS,
 security-role IAM only), so the platform **can** re-identify. That is
-deliberate — pure anonymity would make incident response impossible — and it
+deliberate, pure anonymity would make incident response impossible, and it
 is deliberately narrow: the identity-mapping service exposes a
 security-role-only, fully audited `user_ref -> user` lookup, and nothing else
 resolves the mapping. Dashboards and general querying show pseudonyms or
@@ -67,15 +67,15 @@ audit records. Knobs and rationale:
 
 Metadata-only does **not** mean “nothing personal can be inferred.” Flags,
 tool names, and small-team patterns can still describe employee activity. A
-red-team review of exactly that question — what flags and metadata alone can
-leak — concluded that the mitigations are access control and aggregate
+red-team review of exactly that question, what flags and metadata alone can
+leak, concluded that the mitigations are access control and aggregate
 suppression: findings evidence stays behind the security role, identity
 reveal stays audited, and team dashboards need a minimum cohort size before
 they are shown. Prompt capture is explicitly **not** one of the mitigations.
 
 ---
 
-## Page 2 — How to verify offline (no-content + evidence)
+## Page 2 : How to verify offline (no-content + evidence)
 
 Auditors should not need a live session or an engineer to re-prove the two
 claims that matter: **(1) the wire cannot carry content fields**, and

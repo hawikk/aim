@@ -24,14 +24,14 @@ posture (CNAPP) findings. We do **not** sell a CI/CD platform.
 |---|---|---|
 | **AI usage monitoring** | What tools, models, and policy hits appear on the fleet (metadata-only) | Core commercial product |
 | **Guardrails** | Prompt/MCP/tool policy, secret/PII signals, enforcement modes | Core commercial product |
-| **Gatehouse** | Diff-scoped Semgrep + Gitleaks + Checkov + Trivy → one PR check/comment; IaC maps to CNAPP rule IDs | **Free / OSS PR-security pillar** — [gatehouse.md](./gatehouse.md) |
+| **Gatehouse** | Diff-scoped Semgrep + Gitleaks + Checkov + Trivy → one PR check/comment; IaC maps to CNAPP rule IDs | **Free / OSS PR-security pillar**, [gatehouse.md](./gatehouse.md) |
 | **CNAPP** | Post-deploy cloud posture | Paired commercial pillar; same rule family as Gatehouse IaC map |
 | **Hygiene** | Full-history secret/token hygiene (not PR-diff) | Supporting pillar |
 | **Sentinel / alert bus** | Fan-out of `security.alert/v1.1` to Slack, webhooks, SIEM | Shared fabric |
 
 ## Gatehouse in one sentence
 
-**Gatehouse is free PR security for this stack** — not a scanner brand war, not
+**Gatehouse is free PR security for this stack**, not a scanner brand war, not
 an Actions runner product, not CI/CD-as-a-service. See
 [gatehouse.md](./gatehouse.md).
 

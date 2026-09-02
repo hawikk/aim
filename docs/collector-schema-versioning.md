@@ -6,7 +6,7 @@ A monitoring product that drops events without paging anyone is worse than one
 that fails loudly. Collectors already keep a local **rejection ledger**
 (`events_rejected`, `batches_fully_rejected`, `last_rejection_at`) and ship it
 on every heartbeat as `last_counters`. Until the platform **stored**
-those counters and then never surfaced them — so client-side loss was invisible
+those counters and then never surfaced them, so client-side loss was invisible
 next to the server-side `rejected_events` DLQ.
 
 ## Root cause of the pilot 141,495 drop (device `c771f26f`, host `Hawik`)
@@ -39,7 +39,7 @@ incident is still visible as historical loss.
 2. **Collector must not treat a rejected batch as success.** Rejection ledger
    increments (`events_rejected`, and `batches_fully_rejected` when the whole
    batch is refused). Spool entries for fully-rejected batches are dropped so
-   the spool does not grow forever — but the **count** is retained and reported
+   the spool does not grow forever, but the **count** is retained and reported
    on heartbeat.
 3. **Heartbeat is the platform's loss signal.** `last_counters` is authoritative
    for client-side loss. Operators read it via `/api/fleet` projected fields
@@ -47,7 +47,7 @@ incident is still visible as historical loss.
    `collector_drops` system-status tile.
 4. **Upgrade path.** Collectors must ship with a schema version the current
    ingest accepts. When ingest raises the minimum version, old collectors will
-   start rejecting every batch — that is intentional. The drop tile + fleet
+   start rejecting every batch, that is intentional. The drop tile + fleet
    column page within one heartbeat interval (`COLLECTOR_DROP_RECENT_SEC`,
    default 900s) so the upgrade failure is loud.
 5. **Do not re-label historical loss as healthy.** Lifetime counters stay on the
@@ -79,4 +79,4 @@ incident is still visible as historical loss.
 - rejection ledger on collectors
 - enrollment + fleet coverage
 - system status tiles + alert bus publisher
-- `docs/identity-mapping-design.md` — attribution is independent of drop health
+- `docs/identity-mapping-design.md`, attribution is independent of drop health

@@ -6,9 +6,9 @@ PyPI) and the public Community snapshot are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Dates for 0.1.1–0.1.4 are PyPI upload times. Tag messages and commit subjects
-are taken from the public `hawikk/aim` history and the private release tags —
-do not read this file as a promise of features that were not in those notes.
+Dates for 0.1.1-0.1.4 are PyPI upload times. Tag messages and commit subjects
+are taken from the public `hawikk/aim` history and the private release tags.
+Do not read this file as a promise of features that were not in those notes.
 
 ## [Unreleased]
 
@@ -17,6 +17,8 @@ do not read this file as a promise of features that were not in those notes.
 - Public Community copy: Community is free and uncapped (no 3-seat license
   line). Hosted Cloud is 3 agents free, then $2 / agent / month. Enterprise
   remains contact sales. Copy only; no checkout or metering.
+- Public landing, README lead, and docs pages use ASCII punctuation
+  instead of em or en dashes.
 
 ## [0.1.4] - 2026-08-18
 
@@ -25,7 +27,7 @@ blocking where vendor hooks exist.
 
 PyPI: `aimonitoring-security==0.1.4` (uploaded 2026-08-18). Public tag
 `v0.1.4` on [hawikk/aim](https://github.com/hawikk/aim) (annotated tag
-message: *aimonitoring-security 0.1.4 — endpoint blocking for Cursor,
+message: *aimonitoring-security 0.1.4: endpoint blocking for Cursor,
 Copilot, Kimi, Grok*). Public commit subject: *Ship 0.1.4 with endpoint
 blocking for Cursor, Copilot, Kimi, and Grok.*
 
@@ -41,7 +43,7 @@ blocking for Cursor, Copilot, Kimi, and Grok.*
 
 ### Changed
 
-- Published wheel license: **Proprietary** on 0.1.1–0.1.3 PyPI metadata →
+- Published wheel license: **Proprietary** on 0.1.1-0.1.3 PyPI metadata →
   **Apache-2.0** on 0.1.4. Relicensing landed on the public snapshot
   between the first public wheel and this tag.
 
@@ -71,7 +73,7 @@ subject: *Cut 0.1.2 so the published package points somewhere that exists*.
 ## [0.1.1] - 2026-07-31
 
 First public product wheel. PyPI: `aimonitoring-security==0.1.1` (uploaded
-2026-07-31). Private annotated tag `v0.1.1`: *aim CLI 0.1.1 —
+2026-07-31). Private annotated tag `v0.1.1`: *aim CLI 0.1.1:
 aimonitoring-security on PyPI*. This version is **not** tagged on
 `hawikk/aim` (the public tree starts later).
 
@@ -79,7 +81,7 @@ aimonitoring-security on PyPI*. This version is **not** tagged on
 
 - First public `aimonitoring-security` wheel with console script `aim`.
   Stdlib-only runtime. Install: `pipx install aimonitoring-security`.
-- `aim personal` — local dashboard on `127.0.0.1`, zero outbound network
+- `aim personal`: local dashboard on `127.0.0.1`, zero outbound network
   calls.
 
 ### Notes

@@ -1,4 +1,4 @@
-# ADR — Independence from the agent execution loop
+# ADR : Independence from the agent execution loop
 
 **Status:** Accepted  
 **Date:** 2026-08-01  
@@ -7,7 +7,7 @@ scorecard Dimension 16 · failure-domain split
 
 ## Context
 
-Competitive scorecard **Dimension 16 — Independence from the agent execution loop** scored **9 / Leader 7**. The architectural claim was already real:
+Competitive scorecard **Dimension 16, Independence from the agent execution loop** scored **9 / Leader 7**. The architectural claim was already real:
 
 - Endpoint collectors are **hooks and daemons outside the coding agent’s own process and telemetry**.
 - The guardrail engine is a **separate service** over Postgres, not an in-agent plugin.
@@ -23,7 +23,7 @@ What 9 lacked was *proof that the agent cannot quietly disable the observer*:
 
 We treat independence as a **control plane with cryptographic and process-domain separation**, not a documentation claim.
 
-### D1 — Signed managed updates (tamper-evident)
+### D1 : Signed managed updates (tamper-evident)
 
 Managed collector config and enforcement bundles ship as **Ed25519 signed envelopes** (`aim.signed-bundle/v1`). Endpoints hold only the **public** key (`/etc/aim-collector/config-pubkey.b64`). Ops signs offline / in CI with `scripts/sign_collector_bundle.py`.
 
@@ -35,7 +35,7 @@ In **harden mode** (`AIM_HARDEN=1` or `"harden": true`):
 
 Bare unsigned JSON remains valid only for local development when harden is off.
 
-### D2 — Anti-bypass suite
+### D2 : Anti-bypass suite
 
 `collectors/integrity/tests/test_anti_bypass.py` simulates agent-local attacks:
 
@@ -56,7 +56,7 @@ alert finding via `detect_and_alert` / `tamper_to_alert_finding`.
 
 CI runs this suite on every PR (collector job).
 
-### D3 — Out-of-band health signal
+### D3 : Out-of-band health signal
 
 A **root-owned** systemd timer (`aim-collector-oob-health.timer`) writes `/var/lib/aim/oob-health.mtime` and may POST fleet heartbeat with `source: "oob_systemd"`. It does not run as the engineer’s user and is not a child of the coding agent. Staleness threshold mirrors fleet dead detection (3 × interval + slack).
 
@@ -66,7 +66,7 @@ This is independent of:
 - the per-user hook/watch daemon,
 - GitHub Actions (endpoint host domain, not CI domain).
 
-### D4 — Continuous independence attestation
+### D4 : Continuous independence attestation
 
 `scripts/independence_attestation.py` emits `aim.independence.attestation/v1` JSON that must stay green. It checks artifact presence, sign/verify round-trip, harden refusal of unsigned config, observer package separation, root OOB unit shape / timer / script markers, install wiring, this ADR, and the continuous workflow itself.
 
@@ -84,28 +84,28 @@ The continuous job is deliberately **out-of-band relative to the PR agent loop**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Coding agent process (Claude Code / Cursor / …)            │
-│  — untrusted for security liveness                          │
+│ , untrusted for security liveness                          │
 └─────────────┬───────────────────────────────────────────────┘
               │ hooks (best-effort, can be attacked locally)
               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Endpoint collector (user or service account)               │
-│  — signed config/enforce load (harden)                      │
-│  — event spool + optional user heartbeat                    │
+│ , signed config/enforce load (harden)                      │
+│ , event spool + optional user heartbeat                    │
 └─────────────┬───────────────────────────────────────────────┘
               │
               │  independent failure domain
               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  OOB host health (root systemd timer)                       │
-│  — /var/lib/aim/oob-health.mtime                            │
-│  — device heartbeat source=oob_systemd                      │
+│ , /var/lib/aim/oob-health.mtime                            │
+│ , device heartbeat source=oob_systemd                      │
 └─────────────┬───────────────────────────────────────────────┘
               │
               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  Ingest + guardrail engine + proxy path (datacenter)        │
-│  — not co-process with any coding agent                     │
+│ , not co-process with any coding agent                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -143,7 +143,7 @@ Dimension 16 moves **9 → 10** when all of the following are true:
 | HMAC with shared secret on endpoint | Agent that can read config can forge; asymmetric is required |
 | Trust user-level heartbeat only | Agent can kill its own tree |
 | eBPF / kernel observer as v1 | Out of pilot scope; MDM-managed signed config is enough for 10 |
-| “Document architecture only” | Leaves Dim 16 at 9 — not provably unbypassable |
+| “Document architecture only” | Leaves Dim 16 at 9, not provably unbypassable |
 
 ## References
 

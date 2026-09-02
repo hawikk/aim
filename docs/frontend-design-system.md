@@ -2,7 +2,7 @@
 
 Source of truth: `apps/web/public/styles.css`. This document describes the token
 layers, the component catalog, and the theming decision. Keep the two
-in sync — if you change one, change the other.
+in sync, if you change one, change the other.
 
 The dashboard is a no-build static app (plain CSS + ES modules + vendored
 Chart.js), so the design system is intentionally CSS-only: custom properties
@@ -10,7 +10,7 @@ for tokens, BEM-ish flat class names for components. No framework, no
 preprocessor.
 
 Adding a new view? Follow `docs/how-to-add-dashboard-view.md` (Phase
-2) — the router/module wiring checklist, the shared-kernel import rule, and
+2), the router/module wiring checklist, the shared-kernel import rule, and
 the smoke guard that enforces both.
 
 ## Principles
@@ -34,7 +34,7 @@ console: a blue→violet brand gradient, gradient-clipped stat numerals, an
 ambient page glow, a backdrop-blurred top bar, 14px card radii, pill buttons,
 and emoji in every empty state. kept the architecture and replaced the
 surface. The rules below are enforced by tests in `apps/web/test/smoke.test.js`
-— violating them fails CI, which is deliberate: each one is cheap to
+violating them fails CI, which is deliberate: each one is cheap to
 reintroduce a single component at a time.
 
 **Surfaces.** Near-black neutral (`#0A0A0B`), surface one step lighter, 1px
@@ -44,13 +44,13 @@ hairline borders instead of shadows. Shadows exist only on floating layers
 **One accent.** Desaturated teal `#2DD4A8` for primary actions and active nav
 only, with `--accent-solid` (`#25B892`) for filled surfaces. Teal is a *light*
 accent, so label text on a filled accent surface is near-black
-(`--accent-contrast: #04140F`, 7.5:1) — never white, which would sit at 1.9:1.
+(`--accent-contrast: #04140F`, 7.5:1), never white, which would sit at 1.9:1.
 Light mode inverts this: the accent deepens to `#0F766E` and
 `--accent-contrast` returns to white. That deep teal is pulled toward cyan
 deliberately, because at light-mode lightness a truer teal converges on
 `--good` and the accent must never read as a healthy status.
 
-Everything else is semantic — red critical, amber warning/stale, green
+Everything else is semantic, red critical, amber warning/stale, green
 healthy/sanctioned, neutral gray informational. A chart series never
 introduces a new hue.
 
@@ -67,11 +67,11 @@ fixed:
 2026-07-30 00:00:00Z
 ```
 
-- **Second precision** — pasteable into SIEM / collector logs (Splunk, etc.)
+- **Second precision**, pasteable into SIEM / collector logs (Splunk, etc.)
   without losing the correlation second.
-- **Trailing `Z`** — the UTC claim is explicit; the reader never has to know
+- **Trailing `Z`**, the UTC claim is explicit; the reader never has to know
   that we always store UTC.
-- **Space separator, no millis** — table-scannable; full original ISO value
+- **Space separator, no millis**, table-scannable; full original ISO value
   stays in the cell `title` attribute.
 
 Do **not** reimplement `fmtTs` in a view module. Local copies historically
@@ -90,7 +90,7 @@ type scale 12/13/14/16/20/24.
 
 **Motion.** 150ms ease-out, no transforms. Keyframes may fade; they may not
 translate. `prefers-reduced-motion` disables them. The live trail fades new
-rows in and never slides — a stream that jumps cannot be read.
+rows in and never slides, a stream that jumps cannot be read.
 
 **Banned outright.** Gradients of any kind, glows, backdrop blur,
 gradient-clipped text, pill radii, emoji, and marketing copy inside the
@@ -126,7 +126,7 @@ Rationale:
   wikis where dark-only reads poorly; a light option removes a real adoption
   complaint for an internal security tool.
 - Dark-only would be simpler still, but the token architecture already
-  absorbs the complexity — rejecting light mode would save almost nothing.
+  absorbs the complexity, rejecting light mode would save almost nothing.
 
 How it works:
 
@@ -152,21 +152,21 @@ theme without a reload and without the host page's involvement.
   unreadable, or unrecognized → dark. Storage access is best-effort: a
   partitioned or storage-disabled embed gets dark rather than an exception.
 - **No flash.** A small inline script in the `<head>` of `index.html`, before
-  the stylesheet, applies the stored theme pre-paint — a module script is
+  the stylesheet, applies the stored theme pre-paint, a module script is
   deferred, and a deferred theme is a visible flash. That snippet and
   `theme.js` must keep the same key and value vocabulary; `test/theme.test.js`
   asserts it.
 - **Charts re-theme live.** `applyTheme()` dispatches `aim:themechange` on
   `window`; `app.js` re-applies the Chart.js defaults, re-resolves every live
   chart's token colors and grid, and calls `update('none')`. Charts keep their
-  data — a theme switch re-fetches nothing.
+  data, a theme switch re-fetches nothing.
 - **Other tabs follow.** A `storage` listener echoes the change into every open
   dashboard tab.
 - **Accessibility.** The toggle is a button with `aria-pressed` and a stable
   accessible name ("Light theme"); the `title` says what the click will do, and
   the change is announced through `#sr-status`.
 
-The same Overview, one click apart — dark (default) and light. Note that the
+The same Overview, one click apart, dark (default) and light. Note that the
 chart, its grid and its axis text move with the tokens; nothing here was
 reloaded.
 
@@ -190,7 +190,7 @@ attribute before first paint (the toggle then overrides it for that operator):
 
 Named hues (`--blue-400`, `--violet-400`, `--green-400`, `--red-400`,
 `--amber-400`, `--cyan-400`, `--ink-700..900`, `--haze` rgb triplet).
-**Never referenced by components directly** — they exist so semantic tokens
+**Never referenced by components directly**, they exist so semantic tokens
 have a single place to point at.
 
 ### Semantic colors
@@ -202,7 +202,7 @@ have a single place to point at.
 | `--border`, `--border-strong`, `--border-subtle` | Default outline; hover/emphasis; table row separators |
 | `--text`, `--muted`, `--faint` | Primary; secondary/labels; placeholders & timestamps |
 | `--accent`, `--accent-2`, `--accent-soft`, `--accent-contrast` | Brand accent, gradient end, selected-state tint, text on accent |
-| `--good`, `--bad`, `--warn` | Status hues — meaning only, not decoration |
+| `--good`, `--bad`, `--warn` | Status hues, meaning only, not decoration |
 | `--grad` | Brand gradient (accent → accent-2) |
 | `--overlay` | Modal backdrop scrim |
 | `--scrollbar` | Scrollbar thumb |
@@ -213,7 +213,7 @@ have a single place to point at.
 rings; `--warn-text`, `--info-soft`, `--info-border`, `--info-text` for
 banners. Light theme re-tunes all of these for contrast on white.
 
-### Severity — the one scale
+### Severity : the one scale
 
 Severity/criticality is the product's primary axis. There is **one** definition
 of it, in `apps/web/public/lib/severity.js`, and every place that shows a
@@ -239,7 +239,7 @@ risk down is how a real critical goes unlooked-at.
 
 **Colour is the third channel, never the only one.** The ramp is
 red → orange → amber → gray, and it does not clear the CVD separation floor in
-either theme — measured with the `dataviz` validator (Machado-2009):
+either theme, measured with the `dataviz` validator (Machado-2009):
 
 | theme | surface | worst all-pairs ΔE | pair |
 |---|---|---|---|
@@ -249,13 +249,13 @@ either theme — measured with the `dataviz` validator (Machado-2009):
 This is structural, not a bad colour pick: any red/orange/amber ordinal ramp
 converges under deuteranopia, and pulling the steps apart runs into the AA
 text-contrast floor these pills need. So every badge carries two non-colour
-channels — the **band name in text**, always, and a **per-band shape**
+channels, the **band name in text**, always, and a **per-band shape**
 (`[data-sev]::before`: triangle critical, diamond high, square medium, dot low,
 hollow ring informational). Do not build a severity affordance that drops both.
 
 *Open question: a ramp built from unrelated hues would validate,
 but would stop reading as an ordinal risk scale to everyone else. That trade is
-a design-system decision, not a refactor's to make — raised here, not taken.
+a design-system decision, not a refactor's to make, raised here, not taken.
 
 **Pill contrast, AA on the badge's own tint** (measured, not assumed):
 
@@ -267,7 +267,7 @@ a design-system decision, not a refactor's to make — raised here, not taken.
 | low / informational | 5.33:1 | 5.50:1 |
 
 retuned two light-theme steps to get there: `--sev-high`
-`#b4530f → #9a3412` (the high/medium pair was ΔE 2.3 — indistinguishable) and
+`#b4530f → #9a3412` (the high/medium pair was ΔE 2.3, indistinguishable) and
 `--sev-medium` off `--warn` to `#8a5a05` (its pill text was 4.29:1, under AA).
 `--sev-medium` is deliberately no longer an alias of `--warn`.
 
@@ -278,9 +278,9 @@ untangling that means re-picking the categorical ramp across every chart.
 
 ### Emphasis & ambient
 
-- `--value-grad`, `--value-grad-good`, `--value-grad-bad` — gradient text fill
+- `--value-grad`, `--value-grad-good`, `--value-grad-bad`, gradient text fill
   for big stat values (`.card .value`).
-- `--bg-glow` — the fixed ambient radial-gradient backdrop (`.bg-glow`).
+- `--bg-glow`, the fixed ambient radial-gradient backdrop (`.bg-glow`).
 
 ### Chart hooks
 
@@ -307,7 +307,7 @@ tabular-nums` in stat values, tables (`.num`), and timestamps.
 | `--text-xl` | 26px | Stat card values |
 
 Weights in use: 400 (body), 500 (nav/inputs), 600 (labels/buttons), 650
-(panel/table headers), 700–750 (brand, stat values).
+(panel/table headers), 700-750 (brand, stat values).
 
 ### Spacing scale
 
@@ -328,7 +328,7 @@ padding `18px 20px`); migrate opportunistically, don't churn.
 
 ## Component catalog
 
-### Buttons — `.btn` + variant
+### Buttons : `.btn` + variant
 
 ```html
 <button class="btn btn-primary">Save policy</button>
@@ -340,7 +340,7 @@ Variants: `btn-primary` (brand gradient, one per view max), `btn-ghost`
 (default secondary), `btn-danger` (destructive). `btn-sm` for dense toolbars.
 `:disabled` is styled; always disable rather than hide unavailable actions.
 
-### Form controls — `.input`, `select`, `.field`
+### Form controls : `.input`, `select`, `.field`
 
 ```html
 <div class="field">
@@ -354,7 +354,7 @@ Variants: `btn-primary` (brand gradient, one per view max), `btn-ghost`
 label/control/hint. `.picker` is the inline `label + select` pattern used in
 toolbars.
 
-### Modals — `.modal-backdrop` > `.modal`
+### Modals : `.modal-backdrop` > `.modal`
 
 ```html
 <div class="modal-backdrop">
@@ -372,25 +372,25 @@ toolbars.
 Backdrop scrims and blurs the page, centers the dialog; JS owns open/close
 (remove the backdrop node) and focus management.
 
-### Toasts — `.toast-stack` > `.toast`
+### Toasts : `.toast-stack` > `.toast`
 
 ```html
 <div class="toast-stack" aria-live="polite">
   <div class="toast ok">Policy saved.</div>
-  <div class="toast bad">Ingest API unreachable — retrying.</div>
+  <div class="toast bad">Ingest API unreachable, retrying.</div>
 </div>
 ```
 
 One fixed `.toast-stack` bottom-right; append/remove `.toast` nodes from JS.
 Variants `ok` / `bad` / `warn` recolor the left edge; default (no variant) is
-neutral accent. Toasts auto-dismiss in JS — the CSS intentionally has no
+neutral accent. Toasts auto-dismiss in JS, the CSS intentionally has no
 timeout.
 
 ### Existing components (unchanged API)
 
 - **Topbar** `.topbar` > `.brand` (`.brand-mark`, `.brand-name`, `.tag`),
   `nav button` (`.active`), `.controls` (`.me`, `.updated`).
-- **Segmented control** `.segmented button` (`.active`) — time ranges, source
+- **Segmented control** `.segmented button` (`.active`), time ranges, source
   filters.
 - **Stat cards** `.cards` > `.card` (`.label`, `.value`, optional
   `.tone-good`/`.tone-bad`).
@@ -398,7 +398,7 @@ timeout.
   `.table-wrap`.
 - **Tables** `.table-wrap > table`, `.num` for right-aligned tabular numbers.
 - **Pills** `.pill.ok|bad|warn` status badges. Severity pills are NOT written
-  by hand — call `severityBadge()` (see "Severity — the one scale").
+  by hand, call `severityBadge()` (see "Severity, the one scale").
 - **Banners** `.banner.warn|info` inline notices (privacy/policy context).
 - **Skeletons** `.skel` + `.panel.loading` for fetch states.
 
@@ -418,7 +418,7 @@ timeout.
 ```
 
 - **Empty states** `.empty-state` (`.empty-icon`, `.empty-title`, `.empty-body`)
-  replace bare "No data" cells. Copy is per view (see `EMPTY` in `app.js`) —
+  replace bare "No data" cells. Copy is per view (see `EMPTY` in `app.js`) ,
   say what "nothing" means and what to do next. Charts swap to an empty state
   via `setChartState()` instead of rendering empty axes.
 - **Error banners** `.error-banner` are inline, retryable (`showError()` in
@@ -430,7 +430,7 @@ timeout.
 ### Accessibility baseline (audit)
 
 - Text on tinted surfaces must hold WCAG AA (4.5:1 normal, 3:1 large/UI).
-  Token values were tuned to pass in both themes — check contrast before
+  Token values were tuned to pass in both themes, check contrast before
   changing `--faint`, `--accent-contrast`, light-theme `--good/--bad/--grad`.
 - Tabs use the ARIA tabs pattern (`role="tablist/tab/tabpanel"`, arrow keys);
   segmented controls expose `aria-pressed`; tables get `scope` + sr-only
@@ -449,7 +449,7 @@ This is a shipping requirement, not a stretch goal. Scope notes:
 | Contrast AA on design tokens in light and dark themes | PDF/export artifacts outside the web app |
 | Screen-reader names for severity, status, expand/collapse, destructive actions | Automated axe scans of every view on every PR (tracked as follow-up hygiene) |
 
-**Certified path — findings triage (keyboard only):**
+**Certified path, findings triage (keyboard only):**
 
 1. Skip link → main, or Tab into `#tabs` and arrow/activate **Findings**.
 2. Tab through Status / Severity / saved-view filters (native labelled controls).
@@ -460,10 +460,10 @@ This is a shipping requirement, not a stretch goal. Scope notes:
    triage actions; activate an action with **Enter** / **Space**.
 5. **Escape** collapses the open finding and returns focus to its row button.
 6. After a successful triage re-render, focus lands on the same row if it is
-   still in the filter, otherwise on the findings tabpanel — never `<body>`.
+   still in the filter, otherwise on the findings tabpanel, never `<body>`.
 
-DOM tests in `apps/web/test/a11y.test.js` (`a11y — findings keyboard path
-`) are the regression gate for steps 3–6. Shared primitives live in
+DOM tests in `apps/web/test/a11y.test.js` (`a11y, findings keyboard path
+`) are the regression gate for steps 3-6. Shared primitives live in
 `public/lib/a11y.js` (`moduleTab`, `moduleSection`, `announce`, `focusInto`,
 `setExpanded`, `preservingFocus`).
 
@@ -471,12 +471,12 @@ DOM tests in `apps/web/test/a11y.test.js` (`a11y — findings keyboard path
 
 1. New UI uses tokens for every color, font size, and radius. Raw hex/rgba in
    a component rule is acceptable only for per-component brand-glow shadows.
-2. If a needed value isn't in the scale, add a token — don't inline it.
+2. If a needed value isn't in the scale, add a token, don't inline it.
 3. Status hues (`--good/--bad/--warn`) convey state only. Never use them for
    decoration or navigation emphasis, and never as a categorical chart series.
 4. Severity goes through `lib/severity.js`. Never re-pick a `--sev-*` colour,
    re-declare the band order, or hand-write a severity pill in a view.
 5. Verify both themes when touching component CSS: click the top-bar theme
-   toggle. No reload — if something only looks right after one, it captured a
+   toggle. No reload, if something only looks right after one, it captured a
    token value instead of reading it.
 6. This file and `styles.css` change together, in the same PR.

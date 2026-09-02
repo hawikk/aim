@@ -14,7 +14,7 @@ This document is the normative contract. The runtime in `collectors/adapter/` en
 
 Every tool adapter implements four concerns. Adapters are declared as YAML manifests under `collectors/adapter/manifests/` and validated against `collectors/adapter/schema/tool-adapter.manifest.schema.json`.
 
-### 2.1 Discovery — is this tool installed / in use?
+### 2.1 Discovery : is this tool installed / in use?
 
 | Input | Output |
 |---|---|
@@ -97,7 +97,7 @@ Salt resolution (same as existing collectors): `AIM_HASH_SALT` env → managed c
 | Condition | Behaviour |
 |---|---|
 | Manifest invalid vs schema | **Hard fail** at load time; adapter registry refuses the tool |
-| Unknown `surface` type | **Hard fail** at load time — requires new surface code |
+| Unknown `surface` type | **Hard fail** at load time, requires new surface code |
 | Discovery path missing | Soft: `present=false`, no event |
 | Unparseable session record | Soft: count in `dropped`, continue |
 | Record contains forbidden content keys | Soft: strip keys; if nothing usable remains, drop |
@@ -122,9 +122,9 @@ Salt resolution (same as existing collectors): `AIM_HASH_SALT` env → managed c
 
 | Change | Code? |
 |---|---|
-| New tool on an existing surface (e.g. another CLI with JSONL sessions under `~/.tool/`) | **No** — add a manifest |
-| New domain for an existing proxy-observed tool | **No** — catalogue / manifest domain list |
-| New surface type (e.g. browser extension DOM, eBPF process args) | **Yes** — implement `surfaces/<name>.py` + register |
+| New tool on an existing surface (e.g. another CLI with JSONL sessions under `~/.tool/`) | **No**, add a manifest |
+| New domain for an existing proxy-observed tool | **No**, catalogue / manifest domain list |
+| New surface type (e.g. browser extension DOM, eBPF process args) | **Yes**, implement `surfaces/<name>.py` + register |
 | Deeper extraction for a legacy hand-written collector (Claude hooks, Cursor vscdb) | Keep the legacy module; expose it behind the contract via `implementation: legacy` |
 
 ## 4. Two new tools added through the contract (no core changes)
@@ -134,11 +134,11 @@ Salt resolution (same as existing collectors): `AIM_HASH_SALT` env → managed c
 | **GitHub Copilot** | Already in `endpoints.json`; widely present on enterprise fleets; exercisable via proxy/OS-egress fixtures without a live IDE | `proxy_domain` | `editor_extension_hooks` (extension id inventory) |
 | **Gemini CLI** | Google’s coding CLI with on-disk session state under `~/.gemini/`; same shape as other session-log tools; exercisable with fixtures | `local_session_logs` | `proxy_domain` (generativelanguage.googleapis.com) |
 
-Both manifests live under `collectors/adapter/manifests/`. Neither required a change to surface implementations or the emit/identity core — only new YAML (+ fixture data for tests).
+Both manifests live under `collectors/adapter/manifests/`. Neither required a change to surface implementations or the emit/identity core, only new YAML (+ fixture data for tests).
 
 **Not chosen for the first pair:** Codex CLI was deferred (assumed JSONL; real state is SQLite). **Shipped** as `codex_cli` via the reusable `sqlite_table` format on `local_session_logs`.
 
-**high-prevalence pack:** `windsurf`, `cline` (Cline + Roo), `amazon_q`. Named `tool=other` + `tool_raw`. Cline/Roo is the depth tool (`json_session` on inspected HistoryItem files; optional `records_key` for Cline `globalState.json`). Windsurf and Amazon Q stay presence-only (path / extension / binary / existing proxy catalogue) — their local stores are contentful (Cascade transcripts; Amazon Q CLI `data.sqlite3` history/conversations/auth).
+**high-prevalence pack:** `windsurf`, `cline` (Cline + Roo), `amazon_q`. Named `tool=other` + `tool_raw`. Cline/Roo is the depth tool (`json_session` on inspected HistoryItem files; optional `records_key` for Cline `globalState.json`). Windsurf and Amazon Q stay presence-only (path / extension / binary / existing proxy catalogue), their local stores are contentful (Cascade transcripts; Amazon Q CLI `data.sqlite3` history/conversations/auth).
 
 **adapter pack 2:** `continue`, `cody`, `jetbrains_ai`. Continue is the depth tool (`sqlite_table` on inspected `~/.continue/dev_data/devdata.sqlite` `tokens_generated`). Cody and JetBrains AI stay presence-only after inspecting local state (VS Code `cody-local-chatHistory-v2` transcripts; JetBrains `ml-llm` chats). Optional glob on discovery paths names versioned JetBrains config trees.
 
@@ -166,7 +166,7 @@ collectors/adapter/manifests/<tool_id>.yaml   ← add this for an existing surfa
 collectors/adapter/aim_adapter/surfaces/*.py  ← only when surface type is new
 ```
 
-Proof: `python3 -m aim_adapter proof` (see `collectors/adapter/README.md`) loads manifests, extracts fixture events for Copilot + Gemini CLI, validates them against the schema, and prints fleet-style `by_tool` counts that include both tools — without touching core surface code.
+Proof: `python3 -m aim_adapter proof` (see `collectors/adapter/README.md`) loads manifests, extracts fixture events for Copilot + Gemini CLI, validates them against the schema, and prints fleet-style `by_tool` counts that include both tools, without touching core surface code.
 
 ## 7. Privacy boundary
 
@@ -176,11 +176,11 @@ Same as / existing collectors:
 - `additionalProperties: false` at ingest.
 - Forbidden-key strip in the adapter runtime.
 - Pseudonymized `host_ref` / `user_ref` / `repo_ref`.
-- Match flags store detector name + optional redacted fingerprint — never the matched secret text.
+- Match flags store detector name + optional redacted fingerprint, never the matched secret text.
 
 ## 8. Residual risk
 
-1. **Schema first-class enum growth** — new tools appear as `other`/`tool_raw` until Security promotes them (same path as kimi_code / grok_build). Fleet counts use `COALESCE(tool_raw, tool)` so they are still named.
-2. **Legacy bridge lag** — deep collectors can drift from the manifest’s declared surfaces; CI proof covers generic surfaces + manifest load of legacy entries, not full re-run of every collector suite.
-3. **Proxy fidelity ceiling** — Copilot via domain is presence; security wins that need prompt/secret depth still need an endpoint hook when available.
-4. **Gemini CLI log format churn** — if Google changes session file shape, the manifest’s field map may need a minor update (still config if the surface stays `local_session_logs`).
+1. **Schema first-class enum growth**, new tools appear as `other`/`tool_raw` until Security promotes them (same path as kimi_code / grok_build). Fleet counts use `COALESCE(tool_raw, tool)` so they are still named.
+2. **Legacy bridge lag**, deep collectors can drift from the manifest’s declared surfaces; CI proof covers generic surfaces + manifest load of legacy entries, not full re-run of every collector suite.
+3. **Proxy fidelity ceiling**, Copilot via domain is presence; security wins that need prompt/secret depth still need an endpoint hook when available.
+4. **Gemini CLI log format churn**, if Google changes session file shape, the manifest’s field map may need a minor update (still config if the surface stays `local_session_logs`).

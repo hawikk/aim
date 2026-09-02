@@ -1,11 +1,11 @@
-# Identity mapping: Google Workspace users/teams — design
+# Identity mapping: Google Workspace users/teams : design
 
 Issue: · Owner: engineering · Status: implemented (dev), pending prod wiring
 Code: `services/identity-sync/`
 
 ## 1. Purpose
 
-Endpoint collectors and proxy logs see devices, OS users, and IPs — not people.
+Endpoint collectors and proxy logs see devices, OS users, and IPs, not people.
 This service maps that telemetry to Google Workspace users and teams so the
 platform can answer "which teams use which AI tools" while collecting the minimum
 personal data our EU/works-council constraints allow.
@@ -41,11 +41,11 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
    This is the primary key for our mostly-Windows/Intune fleet.
 2. **`os_user` → device_mappings hint** (collector-reported). Covers WSL/Linux and
    shared/enrolled-elsewhere devices; learned from first sighting and reviewed.
-3. **Bare-username heuristic** — `jdoe` / `CORP\jdoe` → `jdoe@<primary-domain>`
+3. **Bare-username heuristic**, `jdoe` / `CORP\jdoe` → `jdoe@<primary-domain>`
    matched against the directory. Fallback for the pilot before Intune mapping
    coverage is complete; every resolution records *which* rule fired so we can
    measure heuristic share and drive it to ~0.
-4. **Unresolved** — the event is kept with `user_pseudonym = NULL` and counted in
+4. **Unresolved**, the event is kept with `user_pseudonym = NULL` and counted in
    an "unattributed usage" metric. We do not drop unattributed events (that would
    hide exactly the shadow-IT usage we exist to find), and we do not guess.
 
@@ -79,11 +79,11 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
   (IdP JWKS in prod, HS256 shared secret for in-network/dev callers
   client-supplied headers are never trusted), and a
   free-text justification (min length enforced).
-- **Every** reveal attempt — allowed or denied — is appended to `audit_log`
+- **Every** reveal attempt, allowed or denied, is appended to `audit_log`
   (actor, role, pseudonym, reason, outcome, timestamp). The table has no
   update/delete path in the API. Denied attempts are a detection signal and feed
   Sentinel alerting.
-- Reveal is deliberately O(directory size) — pseudonym→email mappings are not
+- Reveal is deliberately O(directory size), pseudonym→email mappings are not
   persisted, so a bulk de-anonymization dump is not a single query away. At ~1k
   users this is milliseconds; revisit only if the directory grows 10x.
 
@@ -94,7 +94,7 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
 - Lawful-basis and works-council materials should reference: team-level default
   views, role-gated + reason-bound + audit-logged user-level access, leaver
   retention as `suspended` rows (propose: purge user rows N months after
-  suspension per retention policy — **needs a Legal/HR retention decision**).
+  suspension per retention policy, **needs a Legal/HR retention decision**).
 - The `reveal` audit log itself contains actor emails; include it in the DPIA
   inventory with the same retention policy.
 
@@ -104,5 +104,5 @@ restricted schema, behind the role-gated, audit-logged reveal endpoint.
   Intune packaging; until then `os_user` + heuristic rules carry the pilot).
 - Prod wiring: Cloud Scheduler, managed Postgres, secret manager, gateway JWT
   validation (belongs to foundation).
-- Retention decision for suspended-user rows (Legal/HR — will raise).
+- Retention decision for suspended-user rows (Legal/HR, will raise).
 - Re-key runbook for pseudonym secret rotation.

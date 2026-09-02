@@ -1,4 +1,4 @@
-# Gatehouse — free PR-security pillar
+# Gatehouse : free PR-security pillar
 
 **Positioning (deliberate):** Gatehouse is a **free / open-source PR-security
 pillar** of the AI Monitoring stack. It is **not** a CI/CD product and we do not
@@ -33,16 +33,16 @@ signal:
 
 ### What you get on every PR
 
-1. **One check run** — conclusion, summary, inline annotations (not four
+1. **One check run**, conclusion, summary, inline annotations (not four
    competing status checks).
-2. **One sticky comment** — edited in place (`<!-- gatehouse:v1 -->`); clean PRs
+2. **One sticky comment**, edited in place (`<!-- gatehouse:v1 -->`); clean PRs
    stay quiet; fixed PRs get an all-clear edit instead of a graveyard of stale
    comments.
-3. **`.gatehouse.yml` suppressions** — read from the **base branch** only
+3. **`.gatehouse.yml` suppressions**, read from the **base branch** only
    (so a PR cannot introduce a finding *and* its own mute). `reason` is required;
    suppressed findings still appear in the summary and on the alert bus as
    `status: suppressed`.
-4. **Alert bus publish** — every finding (and lifecycle change) as
+4. **Alert bus publish**, every finding (and lifecycle change) as
    `security.alert/v1.1` on the same stream AIM, the CNAPP, and Sentinel
    already consume.
 
@@ -70,7 +70,7 @@ Security, Semgrep App, or Snyk Code on every rule.
   product lines).
 - Gatehouse’s job is **one PR surface**, **least-privilege App install**,
   **diff-scoped signal**, and **stack integration** (CNAPP map + shared alert
-  bus) — not “uninstall your SAST vendor.”
+  bus), not “uninstall your SAST vendor.”
 
 ### Not our Actions runner mesh
 
@@ -113,13 +113,13 @@ posture after deploy**.
   vendored posture catalog and mapping
   (`services/gatehouse/src/gatehouse/cnapp_parity/`).
 - The PR comment includes a **“Would-be cloud findings”** section when a mapped
-  misconfiguration is in scope — same rule family the CNAPP would open
+  misconfiguration is in scope, same rule family the CNAPP would open
   post-apply (for example public S3 / open security groups).
 - Drift between the map and the catalog fails closed in CI
   (`gatehouse iac-parity`). See `docs/security/iac-cnapp-parity.md`.
 
 That is the product edge worth saying out loud: **pre-merge gate on the same
-rule semantics the CNAPP enforces post-deploy** — not a disconnected scanner id
+rule semantics the CNAPP enforces post-deploy**, not a disconnected scanner id
 soup.
 
 ### Same alert bus as AIM
@@ -169,7 +169,7 @@ held in process memory only, never logged, never written to disk.
    privilege: only repos that should be gated).
 4. **(Optional) Require the check** in branch protection / rulesets so the
    check conclusion can block merge. Gatehouse cannot set branch protection
-   itself — that stays with repo admins.
+   itself, that stays with repo admins.
 5. **(Optional) Drop `.gatehouse.yml`** on the default branch for suppressions,
    scanner toggles, and `enforcement.block_on`.
 
@@ -182,7 +182,7 @@ docker run --rm -v "$PWD":/repo:ro gatehouse:dev \
 ```
 
 Exit code `1` when something blocks, `0` otherwise. Use as a single step in
-Jenkins, GitLab CI, Buildkite, etc. — still not “buying our CI.”
+Jenkins, GitLab CI, Buildkite, etc., still not “buying our CI.”
 
 ### What Gatehouse never does
 
