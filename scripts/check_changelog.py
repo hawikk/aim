@@ -3,7 +3,7 @@
 
 Release CI on the private working repo calls this with ``--version`` matching
 the tag so a publish cannot ship without a cut section. Public snapshot CI
-calls ``--check`` so 0.1.1–0.1.4 stay documented.
+calls ``--check`` so 0.1.1–0.1.5 stay documented.
 
 Usage:
     python3 scripts/check_changelog.py --check
@@ -20,7 +20,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHANGELOG = REPO_ROOT / "CHANGELOG.md"
-REQUIRED_RELEASES = ("0.1.1", "0.1.2", "0.1.3", "0.1.4")
+REQUIRED_RELEASES = ("0.1.1", "0.1.2", "0.1.3", "0.1.4", "0.1.5")
 HEADING_RE = re.compile(r"^## \[([^\]]+)\](?:\s*-\s*(\d{4}-\d{2}-\d{2}))?\s*$", re.M)
 
 
@@ -60,15 +60,15 @@ def check(text: str, version: str | None = None) -> list[str]:
 
 
 def self_test() -> int:
-    sample = """# Changelog\nThe format is based on [Keep a Changelog](https://keepachangelog.com/).\n\n## [Unreleased]\n\n## [0.1.4] - 2026-08-18\n\n## [0.1.3] - 2026-08-17\n\n## [0.1.2] - 2026-08-17\n\n## [0.1.1] - 2026-07-31\n"""
+    sample = """# Changelog\nThe format is based on [Keep a Changelog](https://keepachangelog.com/).\n\n## [Unreleased]\n\n## [0.1.5] - 2026-09-11\n\n## [0.1.4] - 2026-08-18\n\n## [0.1.3] - 2026-08-17\n\n## [0.1.2] - 2026-08-17\n\n## [0.1.1] - 2026-07-31\n"""
     errs = check(sample)
     assert not errs, errs
-    errs = check(sample, version="0.1.4")
+    errs = check(sample, version="0.1.5")
     assert not errs, errs
     errs = check(sample.replace("## [0.1.2] - 2026-08-17\n\n", ""))
     assert any("0.1.2" in e for e in errs), errs
-    errs = check(sample, version="0.1.5")
-    assert any("0.1.5" in e for e in errs), errs
+    errs = check(sample, version="0.1.6")
+    assert any("0.1.6" in e for e in errs), errs
     print("self-test OK")
     return 0
 

@@ -6,14 +6,35 @@ PyPI) and the public Community snapshot are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Dates for 0.1.1-0.1.4 are PyPI upload times. Tag messages and commit subjects
+Dates for 0.1.1-0.1.4 are PyPI upload times. 0.1.5 is the git cut date;
+PyPI upload happens when `v0.1.5` is tagged. Tag messages and commit subjects
 are taken from the public `hawikk/aim` history and the private release tags.
 Do not read this file as a promise of features that were not in those notes.
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-09-11
+
+`aim mcp` (AIM-1213) and named Audit/Enforce who-scope (AIM-1217). Public
+docs match the live enforcement capability matrix.
+
+Prepared in git. PyPI `aimonitoring-security==0.1.5` publishes when
+`v0.1.5` is tagged on the working repo (`release-cli.yml`).
+
+### Added
+
+- `aim mcp`: stdio MCP server plus Agent Plugins 1.0 package (AIM-1213).
+  Lists coding agents and configured MCP servers as `{name, scope, tool}`
+  only. Zero outbound. `aim personal` and `aim mcp` never actuate.
+- Audit/Enforce with named who-scope (AIM-1217): `scope.class` `user` |
+  `install` | `fleet` (fleet requires `confirmFleet`). Empty named lists are
+  not fleet. Unattributed identity never matches.
+
 ### Changed
 
+- Public README and architecture docs match
+  `docs/security/enforcement-capability-matrix.md`. Claude-only leftovers
+  removed; endpoint blocking is where vendor hooks exist.
 - Public Community copy: Community is free and uncapped (no 3-seat license
   line). Hosted Cloud is 3 agents free, then $2 / agent / month. Enterprise
   remains contact sales. Copy only; no checkout or metering.
@@ -91,7 +112,8 @@ aimonitoring-security on PyPI*. This version is **not** tagged on
 - `0.0.1` (same day) was a PyPI name-reservation stub with no `aim`
   console script. It is not a product release and is not listed as one.
 
-[Unreleased]: https://github.com/hawikk/aim/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/hawikk/aim/compare/v0.1.5...HEAD
+[0.1.5]: https://pypi.org/project/aimonitoring-security/0.1.5/
 [0.1.4]: https://pypi.org/project/aimonitoring-security/0.1.4/
 [0.1.3]: https://pypi.org/project/aimonitoring-security/0.1.3/
 [0.1.2]: https://pypi.org/project/aimonitoring-security/0.1.2/

@@ -34,7 +34,7 @@ no auth.
 ## Useful flags
 
 ```bash
-aim --version                 # expect: aim 0.1.4  (matches PyPI)
+aim --version                 # expect: aim 0.1.5
 aim personal --help
 aim personal                  # scan once + serve the dashboard
 aim personal --watch          # re-scan every 30s while open
