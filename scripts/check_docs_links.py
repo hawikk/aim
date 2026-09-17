@@ -33,6 +33,38 @@ def iter_links(root: Path) -> list[tuple[Path, str]]:
     return found
 
 
+HTML_ATTR_RE = re.compile(r'(?:href|src)="([^"]+)"')
+
+
+def iter_html_links(root: Path) -> list[tuple[Path, str]]:
+    """Collect relative href/src targets from docs/*.html and docs/assets/*."""
+    found: list[tuple[Path, str]] = []
+    for path in root.rglob("*.html"):
+        text = path.read_text(errors="replace")
+        for m in HTML_ATTR_RE.finditer(text):
+            url = m.group(1).strip()
+            if url.startswith(("http://", "https://", "mailto:", "#", "data:")):
+                continue
+            found.append((path, url.split("#", 1)[0].split("?", 1)[0]))
+    return found
+
+
+def iter_root_md_links(repo_root: Path) -> list[tuple[Path, str]]:
+    """Collect relative markdown links from README.md and CONTRIBUTING.md."""
+    found: list[tuple[Path, str]] = []
+    for name in ("README.md", "CONTRIBUTING.md"):
+        path = repo_root / name
+        if not path.exists():
+            continue
+        text = path.read_text(errors="replace")
+        for m in LINK_RE.finditer(text):
+            url = m.group(1).strip()
+            if url.startswith(("http://", "https://", "mailto:", "#")):
+                continue
+            found.append((path, url.split("#", 1)[0].split("?", 1)[0]))
+    return found
+
+
 def missing(root: Path) -> list[str]:
     failures: list[str] = []
     root = root.resolve()
@@ -48,6 +80,27 @@ def missing(root: Path) -> list[str]:
                 continue
             failures.append(f"{path}: {target} (outside docs/ and missing)")
             continue
+        if not dest.exists():
+            failures.append(f"{path}: {target} (missing)")
+    # HTML href/src under docs/
+    for path, target in iter_html_links(root):
+        if not target:
+            continue
+        dest = (path.parent / target).resolve()
+        try:
+            dest.relative_to(root)
+        except ValueError:
+            if dest.exists():
+                continue
+            failures.append(f"{path}: {target} (outside docs/ and missing)")
+            continue
+        if not dest.exists():
+            failures.append(f"{path}: {target} (missing)")
+    # README.md / CONTRIBUTING.md links (relative to repo root)
+    for path, target in iter_root_md_links(root.parent):
+        if not target:
+            continue
+        dest = (path.parent / target).resolve()
         if not dest.exists():
             failures.append(f"{path}: {target} (missing)")
     return failures
